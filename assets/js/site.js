@@ -183,7 +183,6 @@
           </div>
           <div class="detail-meta">
             <a class="btn secondary" href="${categoryUrl(catSlug)}">Înapoi la categorie</a>
-            <a class="btn" href="${root}cauta.html?q=${encodeURIComponent(recipe.name)}">Caută similare</a>
           </div>
         </div>
         <div class="recipe-layout">
