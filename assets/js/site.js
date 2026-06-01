@@ -38,7 +38,7 @@
   }
 
   function isSubheading(line) {
-    return /:$/.test(line) || /^[A-ZĂÂÎȘȚA-Z0-9\s/-]{3,}$/.test(line);
+    return /:$/.test(line) || /^[A-ZĂÂÎȘȚ0-9\s/-]{3,}$/.test(line);
   }
 
   function searchableRecipeText(recipe) {
@@ -54,13 +54,14 @@
 
   function card(recipe) {
     const ingredients = (recipe.ingredients || []).filter((line) => !isSubheading(line)).slice(0, 5).join(", ");
+    const titleId = "recipe-card-" + recipe.slug;
     return `
       <article class="card">
         <span class="category-pill">${escapeHtml(recipe.category)}</span>
-        <h3>${escapeHtml(recipe.name)}</h3>
+        <h3 id="${titleId}">${escapeHtml(recipe.name)}</h3>
         <p>${escapeHtml(recipe.description || "")}</p>
         <div class="ingredients-preview"><strong>Ingrediente:</strong> ${escapeHtml(ingredients)}${recipe.ingredients && recipe.ingredients.length > 5 ? "..." : ""}</div>
-        <a class="btn secondary" href="${recipeUrl(recipe.slug)}">Deschide reteta</a>
+        <a class="btn secondary" aria-label="Vezi rețeta: ${escapeHtml(recipe.name)}" href="${recipeUrl(recipe.slug)}">Vezi rețeta</a>
       </article>
     `;
   }
@@ -68,7 +69,7 @@
   function renderRecipeCards(elementId, recipes) {
     const el = document.getElementById(elementId);
     if (!el) return;
-    el.innerHTML = recipes.length ? recipes.map(card).join("") : '<div class="empty">soon to come...</div>';
+    el.innerHTML = recipes.length ? recipes.map(card).join("") : '<div class="empty">Nu există rețete de afișat încă.</div>';
   }
 
   function renderFeatured() {
@@ -84,11 +85,11 @@
     if (!el) return;
     el.innerHTML = data.categories.map((category) => {
       const count = data.recipes.filter((recipe) => recipe.category === category.name).length;
-      const countLabel = count === 1 ? "1 reteta" : count + " retete";
+      const countLabel = count === 1 ? "1 rețetă" : count + " rețete";
       return `
         <a class="category-card" href="${categoryUrl(category.slug)}">
           <strong>${escapeHtml(category.name)}</strong>
-          <span>${escapeHtml(category.description)}<br>${count ? countLabel : "soon to come..."}</span>
+          <span>${escapeHtml(category.description)}<br>${count ? countLabel : "urmează rețete noi"}</span>
         </a>
       `;
     }).join("");
@@ -102,6 +103,7 @@
     if (!input || !category || !results) return;
 
     category.innerHTML = '<option value="all">Toate categoriile</option>' + data.categories.map((item) => `<option value="${escapeHtml(item.name)}">${escapeHtml(item.name)}</option>`).join("");
+    if (!category.value) category.value = "all";
 
     function run() {
       const terms = normalize(input.value).split(/\s+/).filter(Boolean);
@@ -112,8 +114,8 @@
         return terms.every((term) => haystack.includes(term));
       });
 
-      count.textContent = matches.length === 1 ? "1 reteta gasita" : `${matches.length} retete gasite`;
-      results.innerHTML = matches.length ? matches.map(card).join("") : '<div class="empty">Nu am gasit nicio reteta.</div>';
+      count.textContent = matches.length === 1 ? "1 rețetă găsită" : `${matches.length} rețete găsite`;
+      results.innerHTML = matches.length ? matches.map(card).join("") : '<div class="empty">Nu am găsit nicio rețetă. Încearcă un ingredient, o categorie sau mai puține cuvinte.</div>';
     }
 
     input.addEventListener("input", run);
@@ -161,11 +163,11 @@
     const slug = document.body.dataset.recipeSlug;
     const recipe = recipeBySlug(slug);
     if (!recipe) {
-      el.innerHTML = '<div class="empty">Reteta nu a fost gasita.</div>';
+      el.innerHTML = '<div class="empty">Rețeta nu a fost găsită.</div>';
       return;
     }
 
-    document.title = recipe.name + " | Arta Gatitului";
+    document.title = recipe.name + " | Arta Gătitului";
     const catSlug = categorySlug(recipe.category);
     const related = data.recipes
       .filter((item) => item.category === recipe.category && item.slug !== recipe.slug)
@@ -180,8 +182,8 @@
             <p class="lead">${escapeHtml(recipe.description || "")}</p>
           </div>
           <div class="detail-meta">
-            <a class="btn secondary" href="${categoryUrl(catSlug)}">Vezi categoria</a>
-            <a class="btn" href="${root}cauta.html?q=${encodeURIComponent(recipe.name)}">Cauta similare</a>
+            <a class="btn secondary" href="${categoryUrl(catSlug)}">Înapoi la categorie</a>
+            <a class="btn" href="${root}cauta.html?q=${encodeURIComponent(recipe.name)}">Caută similare</a>
           </div>
         </div>
         <div class="recipe-layout">
@@ -196,9 +198,8 @@
           </section>
         </div>
         ${(recipe.extras || []).map(steakCalculator).join("")}
-        <p class="source-note">Text importat din pagina GoDaddy: <a href="${escapeHtml(recipe.sourceUrl)}">${escapeHtml(recipe.sourceUrl)}</a></p>
       </article>
-      ${related.length ? `<section class="related"><h2>Din aceeasi categorie</h2><div class="grid cards">${related.map(card).join("")}</div></section>` : ""}
+      ${related.length ? `<section class="related"><h2>Din aceeași categorie</h2><div class="grid cards">${related.map(card).join("")}</div></section>` : ""}
     `;
   }
 
@@ -211,12 +212,12 @@
     const slug = document.body.dataset.categorySlug;
     const category = data.categories.find((item) => item.slug === slug);
     if (!category) {
-      title.textContent = "Categorie negasita";
-      list.innerHTML = '<div class="empty">Aceasta categorie nu exista.</div>';
+      title.textContent = "Categorie negăsită";
+      list.innerHTML = '<div class="empty">Această categorie nu există.</div>';
       return;
     }
 
-    document.title = category.name + " | Arta Gatitului";
+    document.title = category.name + " | Arta Gătitului";
     title.textContent = category.name;
     if (desc) desc.textContent = category.description;
     renderRecipeCards("categoryRecipes", data.recipes.filter((recipe) => recipe.category === category.name));
@@ -229,7 +230,7 @@
 
     function choose() {
       const recipe = data.recipes[Math.floor(Math.random() * data.recipes.length)];
-      result.innerHTML = recipe ? card(recipe) : '<div class="empty">soon to come...</div>';
+      result.innerHTML = recipe ? card(recipe) : '<div class="empty">Nu există încă rețete pentru randomizer.</div>';
     }
 
     button.addEventListener("click", choose);
@@ -240,9 +241,22 @@
     const btn = document.querySelector(".mobile-menu-btn");
     const links = document.querySelector(".nav-links");
     if (!btn || !links) return;
-    btn.addEventListener("click", () => {
-      const open = links.classList.toggle("open");
+
+    function setOpen(open) {
+      links.classList.toggle("open", open);
       btn.setAttribute("aria-expanded", String(open));
+    }
+
+    btn.addEventListener("click", () => {
+      setOpen(!links.classList.contains("open"));
+    });
+
+    links.addEventListener("click", (event) => {
+      if (event.target.closest("a")) setOpen(false);
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") setOpen(false);
     });
   }
 
@@ -250,7 +264,10 @@
     const current = window.location.pathname.replace(/\/index\.html$/, "/");
     document.querySelectorAll(".nav-links a").forEach((link) => {
       const path = new URL(link.href).pathname.replace(/\/index\.html$/, "/");
-      if (path === current) link.classList.add("active");
+      if (path === current) {
+        link.classList.add("active");
+        link.setAttribute("aria-current", "page");
+      }
     });
   }
 

@@ -3,43 +3,43 @@ window.ARTA_DATA = {
     {
       "name": "Fel principal",
       "slug": "fel-principal",
-      "description": "Supe, ciorbe si mancaruri consistente pentru masa principala."
+      "description": "Supe, ciorbe și mâncăruri consistente pentru masa principală."
     },
     {
       "name": "Fel secundar",
       "slug": "fel-secundar",
-      "description": "Retete calde, garnituri si feluri care completeaza masa."
+      "description": "Rețete calde, garnituri și feluri care completează masa."
     },
     {
       "name": "Desert",
       "slug": "desert",
-      "description": "Dulciuri simple pentru familie si musafiri."
+      "description": "Dulciuri simple pentru familie și musafiri."
     },
     {
       "name": "Rontaieli",
       "slug": "rontaieli",
-      "description": "Gustari rapide, platouri si idei de rontait."
+      "description": "Gustări rapide, platouri și idei de ronțăit."
     },
     {
       "name": "Salate",
       "slug": "salate",
-      "description": "Salate si creme reci, bune langa paine prajita."
+      "description": "Salate și creme reci, bune lângă pâine prăjită."
     },
     {
-      "name": "Bauturi",
+      "name": "Băuturi",
       "slug": "bauturi",
-      "description": "Bauturi si idei care urmeaza sa fie adaugate."
+      "description": "Băuturi și idei care urmează să fie adăugate."
     },
     {
       "name": "Mic dejun",
       "slug": "mic-dejun",
-      "description": "Idei pentru dimineti gustoase, rapide sau mai tihnite."
+      "description": "Idei pentru dimineți gustoase, rapide sau mai tihnite."
     }
   ],
   "heroImage": "https://img1.wsimg.com/isteam/stock/19687/:/rs=w:1800,m",
   "recipes": [
     {
-      "name": "CIORBA DE FASOLE CU AFUMATURA",
+      "name": "Ciorba De Fasole Cu Afumatura",
       "slug": "ciorba-de-fasole",
       "category": "Fel principal",
       "description": "Se pune fasolea la umflat cu o zi inainte dupa care se arunca apa.",
@@ -72,7 +72,7 @@ window.ARTA_DATA = {
         "Dupa ce s-a oprit focul, se adauga leustenul.",
         "Se serveste cald impreuna paine proaspata."
       ],
-      "closing": "Pofta buna!",
+      "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/ciorba-de-fasole",
       "keywords": [
@@ -131,7 +131,7 @@ window.ARTA_DATA = {
         "Separat, intr-un bol, se bate oul, se condimenteaza cu sare si piper, se adauga 3 linguri de apa din supa si gris pana ajunge la textura dorita (textura unui smoothie).",
         "La final, in ultimele 5 minute, se adauga in oaal clocotinda galustele apoi cubul Magi si patrunjelul frunze."
       ],
-      "closing": "Pofta buna!",
+      "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/supa-de-pui-cu-galuste",
       "keywords": [
@@ -182,7 +182,7 @@ window.ARTA_DATA = {
         "Intr-o tigaie medie se adauga putin ulei si se prajeste carnea timp de ~8 minute. Se adauga o cana de apa (200 ml) si se fierbe pana se evapora toata apa. Se adauga din nou ulei si se mai prajeste carnea inca ~5 minute.",
         "Se serveste impreuna cu varza murata."
       ],
-      "closing": "Pofta buna!",
+      "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/carne-cu-varza-murata",
       "keywords": [
@@ -237,7 +237,7 @@ window.ARTA_DATA = {
         "Se razuieste putina coaja de lamaie marunt si se toaca frunzele de menta tocate, zeama de lamaie, piperul si mararul.",
         "Se lasa la frigider 5-10 minute."
       ],
-      "closing": "Pofta buna!",
+      "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/cartofi-prajiti-cu-sos",
       "keywords": [
@@ -297,7 +297,7 @@ window.ARTA_DATA = {
         "Intr-un bol se adauga carnea, faina, ouale, vegeta, piperul si cele doua linguri de apa (supa rezultata din fierbere). Compozitia trebuie sa fie consistenta.",
         "Intr-o tigaie mica, se incalzeste uleiul si se adauga chiftelele care se prajesc timp de ~5 minute la foc mediu spe mic."
       ],
-      "closing": "Pofta buna!",
+      "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/chiftele-de-pui",
       "keywords": [
@@ -356,7 +356,7 @@ window.ARTA_DATA = {
         "Sos:",
         "Se curata si se taie marunt ceapa si usturoiul. Acestea se calesc in unt pana cand sunt aurii. In aceeasi tigaie se adauga conserva de rosii, curcuma, ghimbir, coriandru, boia si zahar. Se lasa la fiert si se amesteca pana totul este omogen. Dupa ce s-a omogenizat, se lasa la racit apoi se transfera totul intr-un blender de mana unde se mai adauga iaurt si sos picant. Dupa ce a fost belduit, se adauga intr-un bol si se decoreaza cu frunze de patrunjel."
       ],
-      "closing": "Pofta buna!",
+      "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/conopida-cu-orez-1",
       "keywords": [
@@ -425,7 +425,7 @@ window.ARTA_DATA = {
         "Se trec rondelele de dovlecel prin faina, apoi prin ou si se prajesc pe ambele parti in uleiul incins pana devin aurii.",
         "Se servesc impreuna cu rosiile, brinza si painea"
       ],
-      "closing": "Pofta buna!",
+      "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/dovlecel-pane",
       "keywords": [
@@ -486,7 +486,7 @@ window.ARTA_DATA = {
         "Se intorc lipiile si se incalzesc din nou pana devine crocanta si cea de-a doua jumatate.",
         "Se serveste cald cu muraturi reci."
       ],
-      "closing": "Pofta buna!",
+      "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/fajitas-de-pui",
       "keywords": [
@@ -564,7 +564,7 @@ window.ARTA_DATA = {
         "Se lasa la fiert ~30 minute timp in care, in alta oala se fierb spaetzle (in ultimele ~10 minute). Se adauga spetzle in oala si se fierbe amestecand continu pana scade apa",
         "Se taie frunzele de patrunjel si se adauga peste mancarea fara a amesteca."
       ],
-      "closing": "Pofta buna!",
+      "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/gulas-cu-spaetzle",
       "keywords": [
@@ -632,7 +632,7 @@ window.ARTA_DATA = {
         "Se adauga mazarea, mararul, sarea si piperul, se acopera cu apa si se lasa la fiert pe foc mediu ~30 minute.",
         "Intr-un bol mic se face o pasa densa de faina cu smantana pentru galuste. Acestea se adauga in oala spre final cu o lingurita treptat amestecand ocazional si se lasa la fiert alte ~3 minute."
       ],
-      "closing": "Pofta buna!",
+      "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/mancare-de-mazare-cu-pui",
       "keywords": [
@@ -695,7 +695,7 @@ window.ARTA_DATA = {
         "Se adauga unt intr-o tigaie si se pun cartofii fierti la prajit pentru ~3 minute.",
         "Se toaca patrunjelul si se pune peste cartofi."
       ],
-      "closing": "Pofta buna!",
+      "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/peste-cu-cartofi-natur",
       "keywords": [
@@ -765,7 +765,7 @@ window.ARTA_DATA = {
         "In aceeasi tigaie se adauga supa de pui, zeama de lamaie, unt si doua linguri de faina. Se fierbe si se amesteca bine pana scade sosul. Se condimenteaza cu sare si piper si se adauga ceapa verde tocata. Puiul se transfera inapoi in tigaie si se fierbe pentru 2-3 minute.",
         "Se serveste cald impreuna cu cartofii."
       ],
-      "closing": "Pofta buna!",
+      "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/pui-cu-lamaie-si-cartofi",
       "keywords": [
@@ -848,7 +848,7 @@ window.ARTA_DATA = {
         "Pana se coace puiul, se fierbe orezul impreuna cu putina sare, dupa gust.",
         "Se serveste cald."
       ],
-      "closing": "Pofta buna!",
+      "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/pui-dulce-acrisor-cu-orez",
       "keywords": [
@@ -931,7 +931,7 @@ window.ARTA_DATA = {
         "In aceeasi tigaie se pun ciupercile la calit cu putin unt. Spre final se zdropseste usturoiul, cu presa de usturoi peste ciuperci si se mai caleste 1-2 min. Peste continutul tigaii, se adauga supa de pui si orzo. Se lasa la fiert mestecand frecvent pana scade. Se adauga parmezanul razuit si patrunjelul taiat marunt. Se amesteca bine impreuna cu un cubulet de unt si puiul.",
         "Se serveste cald impreuna cu sosul."
       ],
-      "closing": "Pofta buna!",
+      "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/pulpe-de-pui-cu-orzo",
       "keywords": [
@@ -1032,7 +1032,7 @@ window.ARTA_DATA = {
         "Intr-o oala mica se caramelizeaza zaharul la foc mic. Odata ce zaharul a fost complet caramelizat se adauga untul si zeama a doua portocale si se lasa la foc mic timp de ~5 minute.",
         "Se adauga scortisoara fructele, coniac/esenta rom si cuisoarele. Se lasa la fiert la foc mic timp de ~5 minute. Dupa oprirea focului se scot cuisoarele din sos."
       ],
-      "closing": "Pofta buna!",
+      "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/rata-la-cuptor-umpluta",
       "keywords": [
@@ -1104,7 +1104,7 @@ window.ARTA_DATA = {
         "Intr-o tigaie medie/mare se incalzeste uleiul la foc mediu.",
         "Se trece pieptul de pui batut prin faina, apoi prin ou si se prajeste pe ambele parti in uleiul incins pana devine auriu."
       ],
-      "closing": "Pofta buna!",
+      "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/snitel-pufos-de-pui",
       "keywords": [
@@ -1165,7 +1165,7 @@ window.ARTA_DATA = {
         "Gatire:",
         "Intr-o tigaie se adauga ulei si se caleste mix-ul de legume tocate cu ceapa si ardeiul capia timp de 5-10 minute. Se adauga condimentele, usturoiul zdrobit cu presa de usturoi si se caleste pentru inca 2-3 minute. Se adauga conserva de rosii cu bulionul si apa si fierbe cu capacul pus pentru aproximativ 25 min. Faci patru gauri in compozitie pentru oua si adaugi ouale in ele dupa care le mai gatesti cu capacul pus pentru inca 1-2 min (oua moi). La final se adauga feta si patrunjelul si se serveste cald cu paine ceabata."
       ],
-      "closing": "Pofta buna!",
+      "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/shakshuka",
       "keywords": [
@@ -1275,7 +1275,7 @@ window.ARTA_DATA = {
         "Se fierbe apa impreuna cu cartofii (pentru fulgi se fierbe prima data apa si apoi se adauga fulgii).",
         "Se piseaza carfoii si se adauga laptele si untul."
       ],
-      "closing": "Pofta buna!",
+      "closing": "Poftă bună!",
       "extras": [
         {
           "type": "steak-calculator",
@@ -1370,7 +1370,7 @@ window.ARTA_DATA = {
       ]
     },
     {
-      "name": "TOCANITA DE CARTOFI",
+      "name": "Tocanita De Cartofi",
       "slug": "tocanita-de-cartofi",
       "category": "Fel secundar",
       "description": "Se curata ceapa, cartofii si usturoiul.",
@@ -1399,7 +1399,7 @@ window.ARTA_DATA = {
         "Se lasa la fiert ~45 minute.",
         "Se taie frunzele de patrunjel si se adauga peste mancarea fara a amesteca."
       ],
-      "closing": "Pofta buna!",
+      "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/tocanita-de-cartofi",
       "keywords": [
@@ -1441,31 +1441,31 @@ window.ARTA_DATA = {
       ]
     },
     {
-      "name": "Tocanita de pui cu ardei copti",
+      "name": "Tocăniță de pui cu ardei copți",
       "slug": "tocanita-de-pui-cu-ardei",
       "category": "Fel secundar",
-      "description": "Gateste pulpele de pui pana se rumenesc usor.",
+      "description": "Gătește pulpele de pui până se rumenesc ușor.",
       "ingredients": [
         "pulpe de pui",
         "ardei capia",
-        "ceapa",
+        "ceapă",
         "usturoi",
         "bulion",
-        "ulei de masline",
-        "patrunjel",
+        "ulei de măsline",
+        "pătrunjel",
         "busuioc",
         "curry",
         "piper",
         "sare",
-        "paine ciabatta"
+        "pâine ciabatta"
       ],
       "preparation": [
-        "Gateste pulpele de pui pana se rumenesc usor.",
-        "Adauga ceapa, usturoiul, ardeii copti si bulionul.",
-        "Lasa tocanita sa fiarba pana cand sosul se leaga.",
-        "Serveste cu patrunjel si paine ciabatta."
+        "Gătește pulpele de pui până se rumenesc ușor.",
+        "Adaugă ceapa, usturoiul, ardeii copți și bulionul.",
+        "Lasă tocănița să fiarbă până când sosul se leagă.",
+        "Servește cu pătrunjel și pâine ciabatta."
       ],
-      "closing": "Pofta buna!",
+      "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/tocanita-de-pui-cu-ardei",
       "keywords": [
@@ -1518,7 +1518,7 @@ window.ARTA_DATA = {
         "Se bat ouale intr-un castron. Apoi cu o pensula se intinde oul pe placintelele pregatite de copt.",
         "Se baga la cuptor pentru 10-15 Min. la o temperatura de 200 °C."
       ],
-      "closing": "Pofta buna!",
+      "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/placinta-cu-dovleac",
       "keywords": [
@@ -1580,7 +1580,7 @@ window.ARTA_DATA = {
         "Se taie carnaciorii sticks in bucatele mici (~2 cm).",
         "Se aseaza toate ingredientele pe un blat de lemn si se servesc impreuna cu un pahar de vin alb."
       ],
-      "closing": "Pofta buna!",
+      "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/charcuterie-board",
       "keywords": [
@@ -1623,7 +1623,7 @@ window.ARTA_DATA = {
         "Se feliaza fructele si se adauga jumatate de lingurita de nutella peste ele.",
         "Se savureaza fructele reci."
       ],
-      "closing": "Pofta buna!",
+      "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/fructe-cu-nutella",
       "keywords": [
@@ -1649,7 +1649,7 @@ window.ARTA_DATA = {
         "Se feliaza marul.",
         "Se pune unt de arahide pe feliile de mar."
       ],
-      "closing": "Pofta buna!",
+      "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/mar-cu-unt-de-arahide",
       "keywords": [
@@ -1681,7 +1681,7 @@ window.ARTA_DATA = {
         "Se taie frictele rondele.",
         "Se pune unt de arahide pe feliile de paine prajita si se adauga feliile de fructe."
       ],
-      "closing": "Pofta buna!",
+      "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/paine-prajita-unt-arahide",
       "keywords": [
@@ -1727,7 +1727,7 @@ window.ARTA_DATA = {
         "Compozitia se lasa la racit ~30 minute. Cand este rece se adauga maioneza si iaurtul si se amesteca bine.",
         "Se serveste pe paine prajita si cu rosii cherry."
       ],
-      "closing": "Pofta buna!",
+      "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/salata-de-ciuperci",
       "keywords": [
@@ -1787,7 +1787,7 @@ window.ARTA_DATA = {
         "Rosiile cherry, ceapa verde si baconul se toaca marunt.",
         "Pulpa de avocado si ouale se piseaza intr-o pasta omogena peste care se adauga sare si piper. Peste pasta de ou si avocado se piseaza usturoiul si se amesteca bine. Peste compozitie, se adauga ingredientele tocate si se serveste pe paine prajita."
       ],
-      "closing": "Pofta buna!",
+      "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/avocado-cu-bacon",
       "keywords": [
@@ -1834,7 +1834,7 @@ window.ARTA_DATA = {
         "Bagheta se taie in 2 jumatati dupa care se sectioneaza pe lungime.",
         "Se deschide bagheta taiata pe lungime si se unge cu unt, se adauga salata, sunca branza si iaurtul apoi se inchide painea."
       ],
-      "closing": "Pofta buna!",
+      "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/bagheta-bistro",
       "keywords": [
@@ -1888,7 +1888,7 @@ window.ARTA_DATA = {
         "Se coc ~3 minute pe fiecare parte.",
         "Se taie fructele si se servesc impreuna cu nutella si clatitele calde."
       ],
-      "closing": "Pofta buna!",
+      "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/clatite-cu-mere",
       "keywords": [
@@ -1941,7 +1941,7 @@ window.ARTA_DATA = {
         "Intr-o oala medie se incalzeste laptele la foc mic-mediu. Se adauga treptat grisul si zaharul si se amesteca in mod constant. Se fierbe pe foc mic-mediu timp de ~5 minute.",
         "Se serveste cald, impreuna cu sirop de artar, cocos si afine."
       ],
-      "closing": "Pofta buna!",
+      "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/gris-cu-lapte-si-cocos",
       "keywords": [
@@ -1986,7 +1986,7 @@ window.ARTA_DATA = {
         "Intr-un bol mic se bat bine ouale impreuna cu sare si piper, dupa care se adauga in tigaia calda unde se adauga branza si spanacul. Se prajeste cate ~1 minut pe fiecare parte.",
         "Se serveste impreuna cu masline, rosii cheri si ardei taiati felii."
       ],
-      "closing": "Pofta buna!",
+      "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/omleta-cu-spanac",
       "keywords": [
@@ -2037,7 +2037,7 @@ window.ARTA_DATA = {
         "Feliile de paine se prajesc pana devin usor crocante si se ung cu unt tartinabil, apoi cu amestecul de avocado rezultat mai sus.",
         "Se serveste oul posat impreuna cu feliile de paine."
       ],
-      "closing": "Pofta buna!",
+      "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/ou-posat-cu-avocado",
       "keywords": [
@@ -2088,7 +2088,7 @@ window.ARTA_DATA = {
         "Cand laptele e cald se adauga zaharul si ovazul si se amesteca bine timp de 3-5 minute pana cand compozitia este omogena si ovazul fiert.",
         "Se serveste cald cu fructe sau gem/sirop de artar."
       ],
-      "closing": "Pofta buna!",
+      "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/ovaz-cu-lapte",
       "keywords": [
@@ -2126,7 +2126,7 @@ window.ARTA_DATA = {
         "Se adauga ovazul si semintele de chia, se amesteca bine si la nevoie se completeaza cu lapte pentru a forma o compozitie omogena dar nu prea uscata.",
         "Compozitia rezultata se lasa in frigider peste noapte si se poate servi cu fructe sau gem."
       ],
-      "closing": "Pofta buna!",
+      "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/ovaz-peste-noapte",
       "keywords": [
@@ -2171,7 +2171,7 @@ window.ARTA_DATA = {
         "Se taie rosia si mozzarella felii.",
         "2 felii se ung cu goacamole si 2 felii se ung cu crema de branza. Pe felia cu goacamole se adauga 2-3 felii de rosii peste care se adauga sare si piper. Apoi se adauga mozzarella, bucatile de sunca presata si spanacul. Peste acestea se adauga feliile cu crema de branza."
       ],
-      "closing": "Pofta buna!",
+      "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/sandwitch-cu-mozzarella",
       "keywords": [
@@ -2227,7 +2227,7 @@ window.ARTA_DATA = {
         "Se taie castravetii murati, ardeiul kapia si ceapa cuburi mici si se amesteca cu zeama de lamaie, sare, piper, tabasco si maioneza.",
         "Peste painea prajita se adauga o frunza de salata si compozitia rezultata mai sus."
       ],
-      "closing": "Pofta buna!",
+      "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/sandwitch-cu-ton",
       "keywords": [
@@ -2288,7 +2288,7 @@ window.ARTA_DATA = {
         "Painea prajita se unge cu pasta de avocado, peste care se adauga oul si semintele.",
         "Se serveste impreuna cu masline, rosii cheri si ardei taiati felii."
       ],
-      "closing": "Pofta buna!",
+      "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/toast-cu-ou-si-avocado",
       "keywords": [
