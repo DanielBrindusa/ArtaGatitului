@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="ro">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mic dejun | Arta Gătitului</title>
+  <meta name="description" content="Rețete românești și internaționale, căutare după nume, categorie și ingrediente.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/style.css">
+</head>
+<body data-category-slug="mic-dejun">
+
+<header class="site-header">
+  <div class="nav-wrap">
+    <a class="logo" href="../../index.html" aria-label="Arta Gătitului">
+      <span class="logo-mark">🍲</span>
+      <span>Arta Gătitului</span>
+    </a>
+    <button class="mobile-menu-btn" type="button">Meniu</button>
+    <nav class="nav-links" aria-label="Navigație principală">
+      <a href="../../index.html">Acasă</a>
+      <a href="../../categorii.html">Categorii</a>
+      <a href="../../cauta.html">Caută</a>
+    </nav>
+  </div>
+</header>
+
+<main class="section">
+  <div class="section-head">
+    <div>
+      <div class="eyebrow">Categorie</div>
+      <h1 id="categoryTitle">Mic dejun</h1>
+      <p id="categoryDescription">Idei pentru dimineți gustoase.</p>
+    </div>
+    <a class="btn secondary" href="../../cauta.html">Caută rețete</a>
+  </div>
+  <div id="categoryRecipes" class="grid cards"></div>
+</main>
+
+
+<footer class="footer">
+  <p>© <span id="year"></span> Arta Gătitului. Site static pentru GitHub Pages.</p>
+  <p><a href="../../cauta.html">Caută rețete</a> · <a href="../../categorii.html">Categorii</a></p>
+</footer>
+<script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+<script>window.ARTA_ROOT = "../../";</script>
+<script src="../../assets/js/recipes.js"></script>
+<script src="../../assets/js/site.js"></script>
+</body>
+</html>
