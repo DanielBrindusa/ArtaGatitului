@@ -41,15 +41,27 @@
     return /:$/.test(line) || /^[A-ZĂÂÎȘȚ0-9\s/-]{3,}$/.test(line);
   }
 
-  function searchableRecipeText(recipe) {
-    return normalize([
-      recipe.name,
-      recipe.category,
-      recipe.description,
-      (recipe.ingredients || []).join(" "),
-      (recipe.preparation || []).join(" "),
-      (recipe.keywords || []).join(" ")
-    ].join(" "));
+  function tokenizeText(value) {
+    return normalize(value).match(/[a-z0-9]+/g) || [];
+  }
+
+  function recipeSearchTokens(recipe) {
+    return new Set(tokenizeText([
+      recipe && recipe.name,
+      recipe && recipe.category,
+      recipe && recipe.description,
+      ((recipe && recipe.ingredients) || []).join(" "),
+      ((recipe && recipe.preparation) || []).join(" "),
+      ((recipe && recipe.keywords) || []).join(" ")
+    ].join(" ")));
+  }
+
+  function recipeMatchesSearch(recipe, queryTokens) {
+    if (!queryTokens.length) return true;
+    // Full-token matching avoids false positives such as "ou" matching a random
+    // longer word. Add explicit keywords when singular/plural shortcuts are desired.
+    const tokens = recipeSearchTokens(recipe);
+    return queryTokens.every((token) => tokens.has(token));
   }
 
   function card(recipe) {
@@ -105,12 +117,11 @@
     if (!category.value) category.value = "all";
 
     function run() {
-      const terms = normalize(input.value).split(/\s+/).filter(Boolean);
+      const terms = tokenizeText(input.value);
       const selected = category.value;
       const matches = data.recipes.filter((recipe) => {
         if (selected !== "all" && recipe.category !== selected) return false;
-        const haystack = searchableRecipeText(recipe);
-        return terms.every((term) => haystack.includes(term));
+        return recipeMatchesSearch(recipe, terms);
       });
 
       count.textContent = matches.length === 1 ? "1 rețetă găsită" : `${matches.length} rețete găsite`;

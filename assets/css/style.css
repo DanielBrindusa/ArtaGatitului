@@ -1007,13 +1007,53 @@ ol.clean li {
   background: rgba(24, 29, 41, .7);
 }
 
-.builder-help h2 {
+.builder-help h2,
+.builder-guide-card h3 {
   font-size: 1.45rem;
 }
 
 .builder-help p {
-  margin-top: var(--space-4);
+  margin-top: var(--space-2);
   color: var(--color-text-muted);
+}
+
+.builder-help code {
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, .07);
+  color: var(--color-primary-hover);
+  font-size: .92em;
+}
+
+.builder-help-intro {
+  max-width: 860px;
+  margin-bottom: var(--space-5);
+}
+
+.builder-guide-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.builder-guide-card {
+  padding: var(--space-4);
+  border: 1px solid rgba(255, 214, 186, .14);
+  border-radius: var(--radius-lg);
+  background: rgba(15, 17, 23, .42);
+}
+
+.builder-guide-card .clean {
+  margin-top: var(--space-3);
+}
+
+.builder-callout {
+  margin-top: var(--space-5);
+  padding: var(--space-4);
+  border-left: 4px solid var(--color-primary);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 138, 91, .1);
+  color: var(--color-text);
 }
 
 .builder-layout {
@@ -1356,6 +1396,7 @@ ol.clean li {
   .search-row,
   .builder-layout,
   .builder-form-grid,
+  .builder-guide-grid,
   .steak-form,
   .steak-result-grid,
   .steak-timer,
