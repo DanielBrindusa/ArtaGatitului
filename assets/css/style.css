@@ -72,6 +72,18 @@ body::before {
   }
 }
 
+@keyframes softReveal {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 a {
   color: var(--color-primary);
 }
@@ -488,6 +500,7 @@ p {
   isolation: isolate;
   color: var(--color-text);
   text-decoration: none;
+  animation: softReveal .42s ease both;
   transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
 }
 
@@ -537,6 +550,7 @@ p {
   color: var(--color-primary-hover);
   font-size: .86rem;
   font-weight: 900;
+  transition: background-color .16s ease, color .16s ease, transform .16s ease;
 }
 
 .ingredients-preview {
@@ -560,6 +574,7 @@ p {
   color: var(--color-text);
   text-decoration: none;
   overflow: hidden;
+  animation: softReveal .42s ease both;
   transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease, background-color .2s ease;
 }
 
@@ -613,6 +628,7 @@ p {
   margin-bottom: var(--space-5);
   padding: var(--space-5);
   background: var(--color-surface);
+  animation: softReveal .42s ease both;
 }
 
 .search-panel-head {
@@ -654,6 +670,7 @@ select {
   padding: 12px 14px;
   font: inherit;
   outline: none;
+  transition: border-color .16s ease, box-shadow .16s ease, background-color .16s ease;
 }
 
 input::placeholder {
@@ -773,6 +790,7 @@ ol.clean li {
 .randomizer-panel {
   position: relative;
   overflow: hidden;
+  animation: softReveal .42s ease both;
 }
 
 .randomizer-panel::before {
@@ -792,6 +810,11 @@ ol.clean li {
 
 .random-result {
   margin-top: var(--space-5);
+}
+
+.random-result.is-refreshing,
+#searchResults.is-refreshing {
+  animation: softReveal .28s ease both;
 }
 
 .meal-grid {
@@ -915,7 +938,13 @@ ol.clean li {
   text-align: center;
 }
 
+.timer-phase {
+  color: var(--color-primary-hover);
+  font-weight: 900;
+}
+
 .timer-status {
+  margin-top: var(--space-1);
   color: var(--color-text-muted);
   font-weight: 800;
 }
@@ -963,6 +992,7 @@ ol.clean li {
     transition-duration: .01ms !important;
     animation-duration: .01ms !important;
     animation-iteration-count: 1 !important;
+    transform: none !important;
   }
 }
 
