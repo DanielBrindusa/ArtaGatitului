@@ -568,6 +568,458 @@
     });
   }
 
+  function setupRecipeBuilder() {
+    const form = document.getElementById("recipeBuilderForm");
+    if (!form) return;
+
+    const els = {
+      title: document.getElementById("builderTitle"),
+      slug: document.getElementById("builderSlug"),
+      category: document.getElementById("builderCategory"),
+      prepTime: document.getElementById("builderPrepTime"),
+      cookTime: document.getElementById("builderCookTime"),
+      servings: document.getElementById("builderServings"),
+      description: document.getElementById("builderDescription"),
+      image: document.getElementById("builderImage"),
+      notes: document.getElementById("builderNotes"),
+      keywords: document.getElementById("builderKeywords"),
+      ingredients: document.getElementById("builderIngredients"),
+      steps: document.getElementById("builderSteps"),
+      preview: document.getElementById("recipeBuilderPreview"),
+      exportOutput: document.getElementById("recipeExportOutput"),
+      validation: document.getElementById("builderValidation"),
+      status: document.getElementById("builderStatus"),
+      importInput: document.getElementById("importRecipeJson")
+    };
+    if (!els.title || !els.slug || !els.category || !els.ingredients || !els.steps || !els.preview || !els.exportOutput) return;
+
+    const draftKey = "arta-gatitului-recipe-builder-draft";
+    const existingSlugs = new Set((data.recipes || []).map((recipe) => recipe.slug));
+    let slugTouched = false;
+    let autosaveTimer = null;
+
+    function builderSlug(value) {
+      return normalize(value)
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, "");
+    }
+
+    function cleanLines(values) {
+      return values.map((value) => String(value || "").trim()).filter(Boolean);
+    }
+
+    function rowValues(container) {
+      return cleanLines(Array.from(container.querySelectorAll("[data-builder-row-input]")).map((input) => input.value));
+    }
+
+    function setStatus(message) {
+      if (els.status) els.status.textContent = message || "";
+    }
+
+    function createText(tag, className, text) {
+      const el = document.createElement(tag);
+      if (className) el.className = className;
+      el.textContent = text || "";
+      return el;
+    }
+
+    function addRow(type, value = "") {
+      const container = type === "steps" ? els.steps : els.ingredients;
+      const row = document.createElement("div");
+      row.className = "builder-row";
+
+      const input = type === "steps" ? document.createElement("textarea") : document.createElement("input");
+      input.dataset.builderRowInput = "true";
+      input.value = value;
+      input.placeholder = type === "steps" ? "Descrie pasul de preparare" : "ex. 2 ouă";
+      if (type === "steps") input.rows = 2;
+
+      const actions = document.createElement("div");
+      actions.className = "builder-row-actions";
+
+      [
+        ["up", "Sus"],
+        ["down", "Jos"],
+        ["remove", "Șterge"]
+      ].forEach(([action, label]) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "mini-btn";
+        button.dataset.rowAction = action;
+        button.textContent = label;
+        actions.append(button);
+      });
+
+      row.append(input, actions);
+      container.append(row);
+      input.addEventListener("input", syncBuilder);
+      return row;
+    }
+
+    function moveRow(row, direction) {
+      const sibling = direction === "up" ? row.previousElementSibling : row.nextElementSibling;
+      if (!sibling) return;
+      if (direction === "up") row.parentElement.insertBefore(row, sibling);
+      else row.parentElement.insertBefore(sibling, row);
+      syncBuilder();
+    }
+
+    function bindRowActions(container) {
+      container.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-row-action]");
+        if (!button) return;
+        const row = button.closest(".builder-row");
+        if (!row) return;
+        const action = button.dataset.rowAction;
+        if (action === "remove") {
+          row.remove();
+          if (!container.children.length) addRow(container.dataset.list);
+          syncBuilder();
+        } else {
+          moveRow(row, action);
+        }
+      });
+    }
+
+    function currentState() {
+      return {
+        name: els.title.value.trim(),
+        slug: builderSlug(els.slug.value),
+        category: els.category.value,
+        description: els.description.value.trim(),
+        prepTime: els.prepTime.value.trim(),
+        cookTime: els.cookTime.value.trim(),
+        servings: els.servings.value.trim(),
+        image: els.image.value.trim(),
+        notes: els.notes.value.trim(),
+        keywordsText: els.keywords.value.trim(),
+        ingredients: rowValues(els.ingredients),
+        preparation: rowValues(els.steps)
+      };
+    }
+
+    function keywordList(state) {
+      return Array.from(new Set([
+        ...state.name.split(/\s+/),
+        ...state.category.split(/\s+/),
+        ...state.keywordsText.split(/[,\s]+/),
+        ...state.ingredients.flatMap((line) => line.split(/\s+/))
+      ].map(builderSlug).filter(Boolean)));
+    }
+
+    function publicRecipeObject() {
+      const state = currentState();
+      return {
+        name: state.name,
+        slug: state.slug,
+        category: state.category,
+        description: state.description,
+        ingredients: state.ingredients,
+        preparation: state.preparation,
+        closing: "Poftă bună!",
+        extras: [],
+        sourceUrl: "",
+        keywords: keywordList(state)
+      };
+    }
+
+    function fallbackRecipeObject() {
+      const recipe = publicRecipeObject();
+      return {
+        name: recipe.name,
+        slug: recipe.slug,
+        category: recipe.category,
+        sourceUrl: recipe.sourceUrl,
+        description: recipe.description,
+        preparation: recipe.preparation,
+        ingredients: recipe.ingredients,
+        closing: recipe.closing,
+        extras: recipe.extras
+      };
+    }
+
+    function exportPackage() {
+      const state = currentState();
+      return {
+        recipe: publicRecipeObject(),
+        fallbackRecipe: fallbackRecipeObject(),
+        builderMeta: {
+          prepTime: state.prepTime,
+          cookTime: state.cookTime,
+          servings: state.servings,
+          image: state.image,
+          notes: state.notes
+        }
+      };
+    }
+
+    function clearInvalidState() {
+      form.querySelectorAll(".is-invalid").forEach((field) => field.classList.remove("is-invalid"));
+    }
+
+    function markInvalid(fieldName) {
+      const field = form.querySelector('[data-builder-field="' + fieldName + '"]');
+      if (field) field.classList.add("is-invalid");
+    }
+
+    function validateBuilder(showMessages = true) {
+      const state = currentState();
+      const messages = [];
+      clearInvalidState();
+      if (!state.name) {
+        messages.push("Titlul este obligatoriu.");
+        markInvalid("title");
+      }
+      if (!state.slug) {
+        messages.push("Slug-ul este obligatoriu.");
+        markInvalid("slug");
+      }
+      if (!state.category) {
+        messages.push("Categoria este obligatorie.");
+        markInvalid("category");
+      }
+      if (!state.ingredients.length) messages.push("Adaugă cel puțin un ingredient.");
+      if (!state.preparation.length) messages.push("Adaugă cel puțin un pas de preparare.");
+      if (state.slug && existingSlugs.has(state.slug)) messages.push("Atenție: există deja o rețetă cu acest slug.");
+      if (els.validation) els.validation.textContent = showMessages ? messages.join(" ") : "";
+      return messages.filter((message) => !message.startsWith("Atenție")).length === 0;
+    }
+
+    function renderPreview() {
+      const state = currentState();
+      const preview = els.preview;
+      preview.textContent = "";
+
+      const article = document.createElement("article");
+      article.className = "recipe-detail-card builder-preview-card";
+
+      if (state.image) {
+        const image = document.createElement("img");
+        image.className = "builder-preview-image";
+        image.alt = state.name || "Imagine rețetă";
+        image.loading = "lazy";
+        image.src = state.image;
+        article.append(image);
+      }
+
+      const badge = createText("span", "pill", state.category || "Categorie");
+      const title = createText("h1", "", state.name || "Titlu rețetă");
+      const desc = createText("p", "lead", state.description || "Descrierea rețetei va apărea aici.");
+      article.append(badge, title, desc);
+
+      const metaValues = [state.prepTime, state.cookTime, state.servings].filter(Boolean);
+      if (metaValues.length) {
+        const meta = document.createElement("div");
+        meta.className = "builder-preview-meta";
+        metaValues.forEach((value) => meta.append(createText("span", "", value)));
+        article.append(meta);
+      }
+
+      const layout = document.createElement("div");
+      layout.className = "recipe-layout";
+
+      const ingredientsBox = document.createElement("section");
+      ingredientsBox.className = "box";
+      ingredientsBox.append(createText("h2", "", "Ingrediente"));
+      const ingredientsList = document.createElement("ul");
+      ingredientsList.className = "clean";
+      (state.ingredients.length ? state.ingredients : ["Adaugă ingredientele în editor."]).forEach((line) => ingredientsList.append(createText("li", "", line)));
+      ingredientsBox.append(ingredientsList);
+
+      const stepsBox = document.createElement("section");
+      stepsBox.className = "box";
+      stepsBox.append(createText("h2", "", "Mod de preparare"));
+      const stepsList = document.createElement("ol");
+      stepsList.className = "clean";
+      (state.preparation.length ? state.preparation : ["Adaugă pașii de preparare în editor."]).forEach((line) => stepsList.append(createText("li", "", line)));
+      stepsBox.append(stepsList);
+
+      layout.append(ingredientsBox, stepsBox);
+      article.append(layout);
+
+      if (state.notes) {
+        const notes = document.createElement("section");
+        notes.className = "builder-preview-section box";
+        notes.append(createText("h2", "", "Note"));
+        notes.append(createText("p", "", state.notes));
+        article.append(notes);
+      }
+
+      preview.append(article);
+    }
+
+    function updateExport() {
+      els.exportOutput.value = JSON.stringify(fallbackRecipeObject(), null, 2) + ",";
+    }
+
+    function saveDraft(silent = false) {
+      window.localStorage.setItem(draftKey, JSON.stringify(exportPackage()));
+      if (!silent) setStatus("Ciornă salvată local în acest browser.");
+    }
+
+    function scheduleAutosave() {
+      window.clearTimeout(autosaveTimer);
+      autosaveTimer = window.setTimeout(() => saveDraft(true), 350);
+    }
+
+    function syncBuilder() {
+      if (els.slug.value !== builderSlug(els.slug.value)) els.slug.value = builderSlug(els.slug.value);
+      validateBuilder(false);
+      renderPreview();
+      updateExport();
+      scheduleAutosave();
+    }
+
+    function loadFromPackage(payload) {
+      const recipe = payload.fallbackRecipe || payload.recipe || payload;
+      const meta = payload.builderMeta || {};
+      els.title.value = recipe.name || "";
+      els.slug.value = recipe.slug || builderSlug(recipe.name || "");
+      els.category.value = recipe.category || els.category.value;
+      els.description.value = recipe.description || "";
+      els.prepTime.value = meta.prepTime || "";
+      els.cookTime.value = meta.cookTime || "";
+      els.servings.value = meta.servings || "";
+      els.image.value = meta.image || "";
+      els.notes.value = meta.notes || "";
+      els.keywords.value = Array.isArray(recipe.keywords) ? recipe.keywords.join(", ") : "";
+      els.ingredients.textContent = "";
+      els.steps.textContent = "";
+      (Array.isArray(recipe.ingredients) && recipe.ingredients.length ? recipe.ingredients : [""]).forEach((line) => addRow("ingredients", line));
+      (Array.isArray(recipe.preparation) && recipe.preparation.length ? recipe.preparation : [""]).forEach((line) => addRow("steps", line));
+      slugTouched = true;
+      syncBuilder();
+    }
+
+    function resetBuilder() {
+      els.title.value = "";
+      els.slug.value = "";
+      els.description.value = "";
+      els.prepTime.value = "";
+      els.cookTime.value = "";
+      els.servings.value = "";
+      els.image.value = "";
+      els.notes.value = "";
+      els.keywords.value = "";
+      els.ingredients.textContent = "";
+      els.steps.textContent = "";
+      addRow("ingredients");
+      addRow("steps");
+      slugTouched = false;
+      setStatus("Formular resetat.");
+      syncBuilder();
+    }
+
+    async function copyExport() {
+      if (!validateBuilder(true)) {
+        setStatus("Completează câmpurile obligatorii înainte de export.");
+        return;
+      }
+      const text = els.exportOutput.value;
+      try {
+        await navigator.clipboard.writeText(text);
+        setStatus("Datele rețetei au fost copiate.");
+      } catch {
+        els.exportOutput.focus();
+        els.exportOutput.select();
+        document.execCommand("copy");
+        setStatus("Datele rețetei au fost selectate pentru copiere.");
+      }
+    }
+
+    function downloadJson() {
+      if (!validateBuilder(true)) {
+        setStatus("Completează câmpurile obligatorii înainte de descărcare.");
+        return;
+      }
+      const state = currentState();
+      const blob = new Blob([JSON.stringify(exportPackage(), null, 2)], { type: "application/json" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = (state.slug || "reteta-noua") + ".json";
+      document.body.append(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(link.href);
+      setStatus("Fișier JSON descărcat.");
+    }
+
+    function loadDraft() {
+      const raw = window.localStorage.getItem(draftKey);
+      if (!raw) {
+        setStatus("Nu există nicio ciornă locală salvată.");
+        return;
+      }
+      try {
+        loadFromPackage(JSON.parse(raw));
+        setStatus("Ciornă locală încărcată.");
+      } catch {
+        setStatus("Ciorna locală nu a putut fi citită.");
+      }
+    }
+
+    function populateCategories() {
+      els.category.textContent = "";
+      (data.categories || []).forEach((category) => {
+        const option = document.createElement("option");
+        option.value = category.name;
+        option.textContent = category.name;
+        els.category.append(option);
+      });
+    }
+
+    populateCategories();
+    bindRowActions(els.ingredients);
+    bindRowActions(els.steps);
+    addRow("ingredients");
+    addRow("steps");
+
+    form.addEventListener("input", syncBuilder);
+    form.addEventListener("change", syncBuilder);
+    document.querySelectorAll("[data-add-row]").forEach((button) => {
+      button.addEventListener("click", () => {
+        addRow(button.dataset.addRow);
+        syncBuilder();
+      });
+    });
+    els.title.addEventListener("input", () => {
+      if (!slugTouched || !els.slug.value) els.slug.value = builderSlug(els.title.value);
+    });
+    els.slug.addEventListener("input", () => {
+      slugTouched = true;
+      els.slug.value = builderSlug(els.slug.value);
+    });
+    document.getElementById("copyRecipeExport")?.addEventListener("click", copyExport);
+    document.getElementById("downloadRecipeJson")?.addEventListener("click", downloadJson);
+    document.getElementById("saveRecipeDraft")?.addEventListener("click", () => saveDraft(false));
+    document.getElementById("loadRecipeDraft")?.addEventListener("click", loadDraft);
+    document.getElementById("resetRecipeBuilder")?.addEventListener("click", resetBuilder);
+    els.importInput?.addEventListener("change", async () => {
+      const file = els.importInput.files && els.importInput.files[0];
+      if (!file) return;
+      try {
+        loadFromPackage(JSON.parse(await file.text()));
+        setStatus("JSON importat.");
+      } catch {
+        setStatus("Fișierul JSON nu a putut fi importat.");
+      } finally {
+        els.importInput.value = "";
+      }
+    });
+
+    const saved = window.localStorage.getItem(draftKey);
+    if (saved) {
+      try {
+        loadFromPackage(JSON.parse(saved));
+        setStatus("Ciornă locală încărcată automat.");
+      } catch {
+        resetBuilder();
+      }
+    } else {
+      syncBuilder();
+    }
+  }
+
   function setupMobileMenu() {
     const btn = document.querySelector(".mobile-menu-btn");
     const links = document.querySelector(".nav-links");
@@ -636,7 +1088,7 @@
 
       window.setTimeout(() => {
         window.location.href = url.href;
-      }, 170);
+      }, 280);
     });
   }
 
@@ -653,5 +1105,6 @@
     renderCategoryPage();
     setupRandomizer();
     setupSteakCalculators();
+    setupRecipeBuilder();
   });
 })();
