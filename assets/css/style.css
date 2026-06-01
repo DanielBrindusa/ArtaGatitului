@@ -55,10 +55,21 @@ body::before {
   z-index: -1;
   pointer-events: none;
   background:
-    radial-gradient(circle at 12% 10%, rgba(255, 138, 91, .18), transparent 30%),
-    radial-gradient(circle at 86% 8%, rgba(98, 214, 168, .13), transparent 28%),
-    linear-gradient(180deg, rgba(15, 17, 23, .96), rgba(15, 17, 23, .995)),
+    linear-gradient(120deg, rgba(255, 138, 91, .13), transparent 36%, rgba(98, 214, 168, .1)),
+    linear-gradient(180deg, rgba(15, 17, 23, .95), rgba(15, 17, 23, .995)),
     repeating-linear-gradient(90deg, rgba(255, 255, 255, .025) 0, rgba(255, 255, 255, .025) 1px, transparent 1px, transparent 58px);
+  background-size: 180% 180%, auto, auto;
+  animation: ambientShift 18s ease-in-out infinite alternate;
+}
+
+@keyframes ambientShift {
+  from {
+    background-position: 0% 0%, 0 0, 0 0;
+  }
+
+  to {
+    background-position: 100% 18%, 0 0, 24px 0;
+  }
 }
 
 a {
@@ -144,6 +155,7 @@ p {
   z-index: 20;
   border-bottom: 1px solid var(--color-border);
   background: rgba(15, 17, 23, .86);
+  box-shadow: 0 12px 34px rgba(0, 0, 0, .18);
   backdrop-filter: blur(14px);
 }
 
@@ -202,6 +214,7 @@ p {
   font-size: .96rem;
   font-weight: 800;
   white-space: nowrap;
+  transition: background-color .16s ease, color .16s ease, transform .16s ease;
 }
 
 .nav-links a:hover,
@@ -215,6 +228,11 @@ p {
 .nav-links a.active,
 .nav-primary a.active {
   box-shadow: inset 0 -3px 0 var(--color-primary);
+}
+
+.nav-links a:hover,
+.nav-primary a:hover {
+  transform: translateY(-1px);
 }
 
 .nav-links {
@@ -348,6 +366,11 @@ p {
   transition: background-color .16s ease, border-color .16s ease, color .16s ease, box-shadow .16s ease, transform .16s ease;
 }
 
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: .64;
+}
+
 .btn:hover {
   border-color: var(--color-primary-hover);
   background: var(--color-primary-hover);
@@ -462,6 +485,9 @@ p {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  isolation: isolate;
+  color: var(--color-text);
+  text-decoration: none;
   transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
 }
 
@@ -474,8 +500,20 @@ p {
   opacity: .72;
 }
 
+.card::after {
+  content: "";
+  position: absolute;
+  inset: -40% -80%;
+  pointer-events: none;
+  background: linear-gradient(105deg, transparent 38%, rgba(255, 255, 255, .12), transparent 62%);
+  transform: translateX(-28%);
+  opacity: 0;
+  transition: transform .45s ease, opacity .2s ease;
+}
+
 .card > * {
   position: relative;
+  z-index: 1;
 }
 
 .card h3 {
@@ -507,8 +545,11 @@ p {
   font-size: .98rem;
 }
 
-.card .btn {
-  width: fit-content;
+.recipe-card {
+  cursor: pointer;
+}
+
+.recipe-card .ingredients-preview {
   margin-top: auto;
 }
 
@@ -519,6 +560,7 @@ p {
   color: var(--color-text);
   text-decoration: none;
   overflow: hidden;
+  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease, background-color .2s ease;
 }
 
 .category-card::after {
@@ -553,10 +595,18 @@ p {
 }
 
 .category-card:hover,
-.card:hover {
+.category-card:focus-visible,
+.card:hover,
+.card:focus-visible {
   box-shadow: var(--shadow-card);
-  transform: translateY(-2px);
+  transform: translateY(-4px);
   border-color: rgba(255, 138, 91, .42);
+}
+
+.card:hover::after,
+.card:focus-visible::after {
+  transform: translateX(28%);
+  opacity: 1;
 }
 
 .search-panel {
@@ -720,8 +770,52 @@ ol.clean li {
   padding: var(--space-5);
 }
 
+.randomizer-panel {
+  position: relative;
+  overflow: hidden;
+}
+
+.randomizer-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(135deg, rgba(255, 138, 91, .12), transparent 44%),
+    linear-gradient(315deg, rgba(98, 214, 168, .1), transparent 38%);
+  opacity: .9;
+}
+
+.randomizer-panel > * {
+  position: relative;
+}
+
 .random-result {
   margin-top: var(--space-5);
+}
+
+.meal-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: var(--space-4);
+}
+
+.meal-slot {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.meal-slot-title {
+  color: var(--color-primary-hover);
+  font-family: "Source Sans 3", system-ui, sans-serif;
+  font-size: .92rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.meal-empty {
+  min-height: 100%;
+  text-align: left;
 }
 
 .soon-card {
@@ -742,6 +836,88 @@ ol.clean li {
   padding: var(--space-5);
   background: var(--color-surface-alt);
   box-shadow: none;
+}
+
+.steak-calculator > p {
+  margin-top: var(--space-2);
+  color: var(--color-text-muted);
+}
+
+.steak-form {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+  margin-top: var(--space-5);
+}
+
+.steak-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+}
+
+.steak-result {
+  margin-top: var(--space-5);
+  padding: var(--space-5);
+  border: 1px solid rgba(255, 214, 186, .16);
+  border-radius: var(--radius-lg);
+  background: rgba(15, 17, 23, .52);
+}
+
+.steak-result-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.steak-metric {
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, .045);
+}
+
+.steak-metric span {
+  display: block;
+  color: var(--color-text-muted);
+  font-size: .9rem;
+  font-weight: 800;
+}
+
+.steak-metric strong {
+  display: block;
+  margin-top: var(--space-1);
+  color: var(--color-text);
+  font-size: 1.2rem;
+}
+
+.steak-note {
+  margin-top: var(--space-4);
+  color: var(--color-text-muted);
+}
+
+.steak-timer {
+  display: grid;
+  grid-template-columns: minmax(150px, auto) minmax(0, 1fr);
+  gap: var(--space-4);
+  align-items: center;
+  margin-top: var(--space-5);
+}
+
+.timer-display {
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid rgba(255, 214, 186, .18);
+  border-radius: var(--radius-md);
+  background: #0f1117;
+  color: var(--color-primary-hover);
+  font-size: 2rem;
+  font-weight: 900;
+  text-align: center;
+}
+
+.timer-status {
+  color: var(--color-text-muted);
+  font-weight: 800;
 }
 
 .steak-grid {
@@ -807,6 +983,9 @@ ol.clean li {
   .recipe-layout,
   .recipe-hero,
   .search-row,
+  .steak-form,
+  .steak-result-grid,
+  .steak-timer,
   .steak-grid {
     grid-template-columns: 1fr;
   }
@@ -930,6 +1109,7 @@ ol.clean li {
   .search-panel,
   .randomizer-panel,
   .soon-card,
+  .steak-calculator,
   .box {
     padding: var(--space-4);
   }
