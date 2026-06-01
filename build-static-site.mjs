@@ -482,16 +482,72 @@ function recipeBuilderPage() {
         </div>
 
         <section class="builder-help" aria-labelledby="builderHelpTitle">
-          <h2 id="builderHelpTitle">Cum funcționează</h2>
-          <ol class="clean">
-            <li>Completează titlul și categoria.</li>
-            <li>Adaugă ingredientele.</li>
-            <li>Adaugă pașii de preparare.</li>
-            <li>Verifică previzualizarea.</li>
-            <li>Exportă rețeta.</li>
-            <li>Adaugă blocul exportat în proiectul GitHub și rulează generatorul.</li>
-          </ol>
-          <p>Pentru că site-ul este static, salvarea directă în site nu este posibilă fără conectare la GitHub. Ciornele salvate local rămân doar în acest browser.</p>
+          <div class="builder-help-intro">
+            <h2 id="builderHelpTitle">Cum adaugi o rețetă nouă</h2>
+            <p>Această pagină te ajută să creezi vizual o rețetă și să exportezi datele potrivite pentru proiect. Ea nu publică singură rețeta online, deoarece site-ul este static și rulează pe GitHub Pages.</p>
+          </div>
+
+          <div class="builder-guide-grid">
+            <article class="builder-guide-card">
+              <h3>1. Completează rețeta</h3>
+              <ol class="clean">
+                <li>Scrie titlul rețetei.</li>
+                <li>Alege categoria exactă din listă.</li>
+                <li>Adaugă descrierea scurtă.</li>
+                <li>Adaugă ingredientele și pașii de preparare.</li>
+                <li>Verifică previzualizarea din dreapta.</li>
+              </ol>
+            </article>
+
+            <article class="builder-guide-card">
+              <h3>2. Ce înseamnă slug / link</h3>
+              <p>Slug-ul este partea din link a rețetei. Se generează automat din titlu, fără diacritice, fără spații și cu litere mici.</p>
+              <p><strong>Exemplu:</strong> „Supă de pui cu găluște” devine <code>supa-de-pui-cu-galuste</code>, iar pagina generată va fi <code>retete/supa-de-pui-cu-galuste/index.html</code>.</p>
+            </article>
+
+            <article class="builder-guide-card">
+              <h3>3. Ce copiezi în proiect</h3>
+              <p>Copiază obiectul exportat și lipește-l în <code>LOCAL_FALLBACK_RECIPES</code> din <code>build-static-site.mjs</code>, la finalul listei.</p>
+              <p>Păstrează virgula dintre obiecte. Nu edita direct <code>assets/js/recipes.js</code> ca sursă principală, fiindcă generatorul îl rescrie.</p>
+            </article>
+
+            <article class="builder-guide-card">
+              <h3>4. Publicare pe GitHub Pages</h3>
+              <ol class="clean">
+                <li>Salvează modificarea în <code>build-static-site.mjs</code>.</li>
+                <li>Rulează <code>node build-static-site.mjs</code> pe calculatorul tău.</li>
+                <li>Urcă pe GitHub fișierele schimbate, inclusiv <code>assets/js/recipes.js</code>, <code>retete/&lt;slug&gt;/index.html</code> și <code>&lt;slug&gt;/index.html</code>.</li>
+                <li>Așteaptă redeploy-ul GitHub Pages, apoi testează rețeta pe site.</li>
+              </ol>
+            </article>
+
+            <article class="builder-guide-card">
+              <h3>5. Greșeli frecvente</h3>
+              <ul class="clean">
+                <li>Lipsește virgula dintre rețete în <code>LOCAL_FALLBACK_RECIPES</code>.</li>
+                <li>Slug-ul este duplicat.</li>
+                <li>Categoria nu este una dintre categoriile existente.</li>
+                <li>Au rămas rânduri goale la ingrediente sau pași.</li>
+                <li>Ai modificat fișierul, dar nu ai rulat generatorul.</li>
+                <li>GitHub Pages încă nu a terminat publicarea.</li>
+              </ul>
+            </article>
+
+            <article class="builder-guide-card">
+              <h3>6. Verificare finală</h3>
+              <ul class="clean">
+                <li>Rețeta apare în căutare.</li>
+                <li>Rețeta apare în categoria corectă.</li>
+                <li>Pagina rețetei se deschide corect.</li>
+                <li>Cardul arată bine pe mobil și desktop.</li>
+                <li>Randomizer-ul o poate folosi dacă categoria este inclusă.</li>
+              </ul>
+            </article>
+          </div>
+
+          <div class="builder-callout">
+            <strong>Notă despre căutare:</strong> căutarea funcționează pe cuvinte complete. Dacă vrei ca o rețetă cu „ouă” să fie găsită și când cineva caută „ou”, adaugă <code>ou</code> la câmpul „Cuvinte cheie / tag-uri”.
+          </div>
         </section>
 
         <div class="builder-layout">
@@ -1626,13 +1682,53 @@ ol.clean li {
   background: rgba(24, 29, 41, .7);
 }
 
-.builder-help h2 {
+.builder-help h2,
+.builder-guide-card h3 {
   font-size: 1.45rem;
 }
 
 .builder-help p {
-  margin-top: var(--space-4);
+  margin-top: var(--space-2);
   color: var(--color-text-muted);
+}
+
+.builder-help code {
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, .07);
+  color: var(--color-primary-hover);
+  font-size: .92em;
+}
+
+.builder-help-intro {
+  max-width: 860px;
+  margin-bottom: var(--space-5);
+}
+
+.builder-guide-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.builder-guide-card {
+  padding: var(--space-4);
+  border: 1px solid rgba(255, 214, 186, .14);
+  border-radius: var(--radius-lg);
+  background: rgba(15, 17, 23, .42);
+}
+
+.builder-guide-card .clean {
+  margin-top: var(--space-3);
+}
+
+.builder-callout {
+  margin-top: var(--space-5);
+  padding: var(--space-4);
+  border-left: 4px solid var(--color-primary);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 138, 91, .1);
+  color: var(--color-text);
 }
 
 .builder-layout {
@@ -1975,6 +2071,7 @@ ol.clean li {
   .search-row,
   .builder-layout,
   .builder-form-grid,
+  .builder-guide-grid,
   .steak-form,
   .steak-result-grid,
   .steak-timer,
@@ -2290,15 +2387,27 @@ function jsFile() {
     return /:$/.test(line) || /^[A-ZĂÂÎȘȚ0-9\\s/-]{3,}$/.test(line);
   }
 
-  function searchableRecipeText(recipe) {
-    return normalize([
-      recipe.name,
-      recipe.category,
-      recipe.description,
-      (recipe.ingredients || []).join(" "),
-      (recipe.preparation || []).join(" "),
-      (recipe.keywords || []).join(" ")
-    ].join(" "));
+  function tokenizeText(value) {
+    return normalize(value).match(/[a-z0-9]+/g) || [];
+  }
+
+  function recipeSearchTokens(recipe) {
+    return new Set(tokenizeText([
+      recipe && recipe.name,
+      recipe && recipe.category,
+      recipe && recipe.description,
+      ((recipe && recipe.ingredients) || []).join(" "),
+      ((recipe && recipe.preparation) || []).join(" "),
+      ((recipe && recipe.keywords) || []).join(" ")
+    ].join(" ")));
+  }
+
+  function recipeMatchesSearch(recipe, queryTokens) {
+    if (!queryTokens.length) return true;
+    // Full-token matching avoids false positives such as "ou" matching a random
+    // longer word. Add explicit keywords when singular/plural shortcuts are desired.
+    const tokens = recipeSearchTokens(recipe);
+    return queryTokens.every((token) => tokens.has(token));
   }
 
   function card(recipe) {
@@ -2354,12 +2463,11 @@ function jsFile() {
     if (!category.value) category.value = "all";
 
     function run() {
-      const terms = normalize(input.value).split(/\\s+/).filter(Boolean);
+      const terms = tokenizeText(input.value);
       const selected = category.value;
       const matches = data.recipes.filter((recipe) => {
         if (selected !== "all" && recipe.category !== selected) return false;
-        const haystack = searchableRecipeText(recipe);
-        return terms.every((term) => haystack.includes(term));
+        return recipeMatchesSearch(recipe, terms);
       });
 
       count.textContent = matches.length === 1 ? "1 rețetă găsită" : \`\${matches.length} rețete găsite\`;
