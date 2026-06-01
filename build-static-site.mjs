@@ -460,7 +460,7 @@ function randomizerPage() {
           <p>Nu știi ce să gătești? Lasă site-ul să aleagă câte ceva pentru mic dejun, masă principală, desert și gustări.</p>
         </div>
         <section class="randomizer-panel" aria-live="polite">
-          <button class="btn" type="button" id="randomRecipeButton">Generează meniul</button>
+          <button class="btn" type="button" id="randomRecipeButton">Generează alt meniu</button>
           <div id="randomRecipeResult" class="random-result"></div>
         </section>
       </main>`,
@@ -555,6 +555,18 @@ body::before {
 
   to {
     background-position: 100% 18%, 0 0, 24px 0;
+  }
+}
+
+@keyframes softReveal {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -974,6 +986,7 @@ p {
   isolation: isolate;
   color: var(--color-text);
   text-decoration: none;
+  animation: softReveal .42s ease both;
   transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
 }
 
@@ -1023,6 +1036,7 @@ p {
   color: var(--color-primary-hover);
   font-size: .86rem;
   font-weight: 900;
+  transition: background-color .16s ease, color .16s ease, transform .16s ease;
 }
 
 .ingredients-preview {
@@ -1046,6 +1060,7 @@ p {
   color: var(--color-text);
   text-decoration: none;
   overflow: hidden;
+  animation: softReveal .42s ease both;
   transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease, background-color .2s ease;
 }
 
@@ -1099,6 +1114,7 @@ p {
   margin-bottom: var(--space-5);
   padding: var(--space-5);
   background: var(--color-surface);
+  animation: softReveal .42s ease both;
 }
 
 .search-panel-head {
@@ -1140,6 +1156,7 @@ select {
   padding: 12px 14px;
   font: inherit;
   outline: none;
+  transition: border-color .16s ease, box-shadow .16s ease, background-color .16s ease;
 }
 
 input::placeholder {
@@ -1259,6 +1276,7 @@ ol.clean li {
 .randomizer-panel {
   position: relative;
   overflow: hidden;
+  animation: softReveal .42s ease both;
 }
 
 .randomizer-panel::before {
@@ -1278,6 +1296,11 @@ ol.clean li {
 
 .random-result {
   margin-top: var(--space-5);
+}
+
+.random-result.is-refreshing,
+#searchResults.is-refreshing {
+  animation: softReveal .28s ease both;
 }
 
 .meal-grid {
@@ -1401,7 +1424,13 @@ ol.clean li {
   text-align: center;
 }
 
+.timer-phase {
+  color: var(--color-primary-hover);
+  font-weight: 900;
+}
+
 .timer-status {
+  margin-top: var(--space-1);
   color: var(--color-text-muted);
   font-weight: 800;
 }
@@ -1449,6 +1478,7 @@ ol.clean li {
     transition-duration: .01ms !important;
     animation-duration: .01ms !important;
     animation-iteration-count: 1 !important;
+    transform: none !important;
   }
 }
 
@@ -1738,6 +1768,9 @@ function jsFile() {
 
       count.textContent = matches.length === 1 ? "1 rețetă găsită" : \`\${matches.length} rețete găsite\`;
       results.innerHTML = matches.length ? matches.map(card).join("") : '<div class="empty">Nu am găsit nicio rețetă. Încearcă un ingredient, o categorie sau mai puține cuvinte.</div>';
+      results.classList.remove("is-refreshing");
+      void results.offsetWidth;
+      results.classList.add("is-refreshing");
     }
 
     input.addEventListener("input", run);
@@ -1797,12 +1830,23 @@ function jsFile() {
             </select>
           </label>
           <label class="field">
+            <span>Tip steak</span>
+            <select data-steak-cut>
+              <option value="ribeye" selected>Ribeye / Antricot</option>
+              <option value="sirloin">Sirloin</option>
+              <option value="filet">Mușchi / File</option>
+              <option value="tbone">T-bone</option>
+              <option value="other">Alt tip</option>
+            </select>
+          </label>
+          <label class="field">
             <span>Tigaie</span>
             <select data-steak-pan>
               <option value="steel">Tigaie de oțel</option>
               <option value="cast-iron" selected>Tigaie de fontă</option>
               <option value="aluminum">Tigaie de aluminiu</option>
               <option value="stainless">Tigaie de inox</option>
+              <option value="nonstick">Tigaie antiaderentă</option>
             </select>
           </label>
           <label class="field">
@@ -1824,7 +1868,10 @@ function jsFile() {
         </div>
         <div class="steak-timer" aria-live="polite">
           <div class="timer-display" data-steak-time>00:00</div>
-          <div class="timer-status" data-steak-status>Timerul va suna când trebuie întors steak-ul și când este gata.</div>
+          <div>
+            <div class="timer-phase" data-steak-phase>Pregătit</div>
+            <div class="timer-status" data-steak-status>Timerul va suna când trebuie întors steak-ul, când se termină gătirea și după odihnire.</div>
+          </div>
         </div>
         <div class="steak-grid">
           <div class="steak-chip"><strong>Rare</strong><span>50-52°C</span></div>
@@ -1905,13 +1952,22 @@ function jsFile() {
     return items[Math.floor(Math.random() * items.length)];
   }
 
+  function compactText(value) {
+    return normalize(value).replace(/[^a-z0-9]+/g, "");
+  }
+
+  function categoryMatches(categoryName, variants) {
+    const value = compactText(categoryName);
+    return variants.some((variant) => value === compactText(variant));
+  }
+
   function mealCard(slot) {
-    const recipes = data.recipes.filter((recipe) => recipe.category === slot.category);
+    const recipes = data.recipes.filter((recipe) => categoryMatches(recipe.category, slot.variants));
     const recipe = pickRandom(recipes);
     return \`
       <section class="meal-slot">
         <h2 class="meal-slot-title">\${escapeHtml(slot.label)}</h2>
-        \${recipe ? card(recipe) : \`<div class="empty meal-empty">Încă nu există rețete în categoria \${escapeHtml(slot.category)}.</div>\`}
+        \${recipe ? card(recipe) : \`<div class="empty meal-empty">Nu există încă rețete pentru această categorie.</div>\`}
       </section>
     \`;
   }
@@ -1922,19 +1978,22 @@ function jsFile() {
     if (!button || !result) return;
 
     const slots = [
-      { label: "Mic dejun", category: "Mic dejun" },
-      { label: "Fel principal", category: "Fel principal" },
-      { label: "Fel secundar", category: "Fel secundar" },
-      { label: "Desert", category: "Desert" },
-      { label: "Băutură", category: "Băuturi" },
-      { label: "Salată", category: "Salate" },
-      { label: "Rontaieli", category: "Rontaieli" }
+      { label: "Mic dejun", variants: ["Mic dejun"] },
+      { label: "Fel principal", variants: ["Fel principal"] },
+      { label: "Fel secundar", variants: ["Fel secundar"] },
+      { label: "Desert", variants: ["Desert"] },
+      { label: "Băutură", variants: ["Bautura", "Băutură", "Bauturi", "Băuturi"] },
+      { label: "Salată", variants: ["Salata", "Salată", "Salate"] },
+      { label: "Rontaieli", variants: ["Rontaieli", "Ronțăieli"] }
     ];
 
     function choose() {
       result.innerHTML = data.recipes.length
         ? \`<div class="meal-grid">\${slots.map(mealCard).join("")}</div>\`
         : '<div class="empty">Nu există încă rețete pentru randomizer.</div>';
+      result.classList.remove("is-refreshing");
+      void result.offsetWidth;
+      result.classList.add("is-refreshing");
     }
 
     button.addEventListener("click", choose);
@@ -1948,16 +2007,18 @@ function jsFile() {
         thickness: calculator.querySelector("[data-steak-thickness]"),
         doneness: calculator.querySelector("[data-steak-doneness]"),
         start: calculator.querySelector("[data-steak-start]"),
+        cut: calculator.querySelector("[data-steak-cut]"),
         pan: calculator.querySelector("[data-steak-pan]"),
         heat: calculator.querySelector("[data-steak-heat]")
       };
       const result = calculator.querySelector("[data-steak-result]");
       const time = calculator.querySelector("[data-steak-time]");
+      const phase = calculator.querySelector("[data-steak-phase]");
       const status = calculator.querySelector("[data-steak-status]");
       const startButton = calculator.querySelector("[data-steak-start-timer]");
       const pauseButton = calculator.querySelector("[data-steak-pause-timer]");
       const resetButton = calculator.querySelector("[data-steak-reset-timer]");
-      if (!result || !time || !status || !startButton || !pauseButton || !resetButton) return;
+      if (!result || !time || !phase || !status || !startButton || !pauseButton || !resetButton) return;
 
       const doneness = {
         rare: { label: "Rare", temp: "50-52°C", adjust: -18, rest: 5 },
@@ -1970,7 +2031,15 @@ function jsFile() {
         steel: { label: "tigaie de oțel", factor: 1, advice: "Încălzește tigaia bine înainte de carne" },
         "cast-iron": { label: "tigaie de fontă", factor: .92, advice: "Ține căldura foarte bine, deci focul mediu-mare este de obicei suficient" },
         aluminum: { label: "tigaie de aluminiu", factor: 1.08, advice: "Răspunde rapid la schimbări, dar pierde căldură mai ușor" },
-        stainless: { label: "tigaie de inox", factor: 1.03, advice: "Preîncălzește până când o picătură de apă alunecă pe suprafață" }
+        stainless: { label: "tigaie de inox", factor: 1.03, advice: "Preîncălzește până când o picătură de apă alunecă pe suprafață" },
+        nonstick: { label: "tigaie antiaderentă", factor: 1.12, advice: "Folosește foc mediu sau mediu-mare, ca să protejezi stratul antiaderent" }
+      };
+      const cuts = {
+        ribeye: { label: "ribeye / antricot", factor: 1 },
+        sirloin: { label: "sirloin", factor: .96 },
+        filet: { label: "mușchi / file", factor: .9 },
+        tbone: { label: "T-bone", factor: 1.08 },
+        other: { label: "alt tip", factor: 1 }
       };
       const heats = {
         low: { label: "mic", factor: 1.35 },
@@ -1986,8 +2055,11 @@ function jsFile() {
 
       let timer = null;
       let plan = null;
-      let remaining = 0;
-      let flipped = false;
+      let elapsed = 0;
+      let notifiedFlip = false;
+      let notifiedCooked = false;
+      let notifiedDone = false;
+      let audioContext = null;
 
       function clamp(value, min, max) {
         return Math.min(max, Math.max(min, value));
@@ -2005,10 +2077,17 @@ function jsFile() {
         return \`\${String(minutes).padStart(2, "0")}:\${String(rest).padStart(2, "0")}\`;
       }
 
-      function beep() {
+      function ensureAudio() {
         const Context = window.AudioContext || window.webkitAudioContext;
-        if (!Context) return;
-        const context = new Context();
+        if (!Context) return null;
+        if (!audioContext) audioContext = new Context();
+        if (audioContext.state === "suspended") audioContext.resume().catch(() => {});
+        return audioContext;
+      }
+
+      function beep() {
+        const context = ensureAudio();
+        if (!context) return;
         const oscillator = context.createOscillator();
         const gain = context.createGain();
         oscillator.type = "sine";
@@ -2028,11 +2107,15 @@ function jsFile() {
         const pan = pans[fields.pan.value] || pans["cast-iron"];
         const heat = heats[fields.heat.value] || heats["medium-high"];
         const start = starts[fields.start.value] || starts.room;
+        const cut = cuts[fields.cut.value] || cuts.ribeye;
+        // Simple estimate: thickness drives the base time, then weight, doneness,
+        // pan material, heat level, starting temperature, and cut type nudge it.
         const weightBoost = Math.max(0, weight - 250) * .055;
-        const rawSide = (thickness * 72 + weightBoost + target.adjust) * pan.factor * heat.factor * start.factor;
+        const rawSide = (thickness * 72 + weightBoost + target.adjust) * pan.factor * heat.factor * start.factor * cut.factor;
         const sideSeconds = Math.round(clamp(rawSide, 70, 480) / 5) * 5;
         const totalSeconds = sideSeconds * 2;
-        return { weight, thickness, target, pan, heat, start, sideSeconds, totalSeconds };
+        const restSeconds = target.rest * 60;
+        return { weight, thickness, target, pan, heat, start, cut, sideSeconds, totalSeconds, restSeconds };
       }
 
       function renderPlan() {
@@ -2041,16 +2124,31 @@ function jsFile() {
           <div class="steak-result-grid">
             <div class="steak-metric"><span>Pe fiecare parte</span><strong>\${formatSeconds(plan.sideSeconds)}</strong></div>
             <div class="steak-metric"><span>Total în tigaie</span><strong>\${formatSeconds(plan.totalSeconds)}</strong></div>
-            <div class="steak-metric"><span>Temperatură țintă</span><strong>\${plan.target.temp}</strong></div>
+            <div class="steak-metric"><span>Foc recomandat</span><strong>\${plan.heat.label}</strong></div>
+            <div class="steak-metric"><span>Temp. internă aprox.</span><strong>\${plan.target.temp}</strong></div>
             <div class="steak-metric"><span>Odihnă</span><strong>\${plan.target.rest} min</strong></div>
           </div>
-          <p class="steak-note">Pentru \${plan.weight} g și \${plan.thickness} cm, gătește pe foc \${plan.heat.label} într-o \${plan.pan.label}. \${plan.pan.advice}. Întoarce steak-ul după \${formatSeconds(plan.sideSeconds)}. Folosește un termometru pentru cea mai sigură verificare.</p>
+          <p class="steak-note">Pentru \${plan.weight} g, \${plan.thickness} cm și tipul \${plan.cut.label}, gătește pe foc \${plan.heat.label} într-o \${plan.pan.label}. \${plan.pan.advice}. Întoarce steak-ul după \${formatSeconds(plan.sideSeconds)}. Timpii sunt estimări și pot varia în funcție de aragaz, tigaie și grosimea reală; folosește un termometru pentru cea mai sigură verificare.</p>
         \`;
         resetTimer(false);
       }
 
+      function totalTimerSeconds() {
+        return plan.totalSeconds + plan.restSeconds;
+      }
+
+      function timerPhase() {
+        if (!plan) return { label: "Pregătit", remaining: 0 };
+        if (elapsed < plan.sideSeconds) return { label: "Prima parte", remaining: plan.sideSeconds - elapsed };
+        if (elapsed < plan.totalSeconds) return { label: "A doua parte", remaining: plan.totalSeconds - elapsed };
+        if (elapsed < totalTimerSeconds()) return { label: "Odihnire", remaining: totalTimerSeconds() - elapsed };
+        return { label: "Gata", remaining: 0 };
+      }
+
       function updateTimer() {
-        time.textContent = formatSeconds(remaining);
+        const current = timerPhase();
+        phase.textContent = current.label;
+        time.textContent = formatSeconds(current.remaining);
       }
 
       function stopTimer() {
@@ -2061,47 +2159,60 @@ function jsFile() {
       function resetTimer(updateStatus = true) {
         stopTimer();
         if (!plan) plan = calculate();
-        remaining = plan.totalSeconds;
-        flipped = false;
+        elapsed = 0;
+        notifiedFlip = false;
+        notifiedCooked = false;
+        notifiedDone = false;
+        startButton.textContent = "Start";
         updateTimer();
         if (updateStatus) status.textContent = "Timer resetat. Pornește când pui steak-ul în tigaie.";
+        else status.textContent = "Timer pregătit. Apasă Start când pui steak-ul în tigaie.";
       }
 
-      function finishMessage(message) {
+      function notify(message) {
         status.textContent = message;
         beep();
       }
 
       function tick() {
-        remaining -= 1;
-        const elapsed = plan.totalSeconds - remaining;
-        if (!flipped && elapsed >= plan.sideSeconds) {
-          flipped = true;
-          finishMessage("Întoarce steak-ul acum.");
+        elapsed += 1;
+        if (!notifiedFlip && elapsed >= plan.sideSeconds) {
+          notifiedFlip = true;
+          notify("Întoarce steak-ul acum.");
         }
-        if (remaining <= 0) {
-          remaining = 0;
+        if (!notifiedCooked && elapsed >= plan.totalSeconds) {
+          notifiedCooked = true;
+          notify(\`Scoate steak-ul din tigaie. Începe odihnirea: \${plan.target.rest} minute.\`);
+        }
+        if (!notifiedDone && elapsed >= totalTimerSeconds()) {
+          notifiedDone = true;
+          elapsed = totalTimerSeconds();
           updateTimer();
           stopTimer();
-          finishMessage(\`Gata. Lasă steak-ul la odihnit \${plan.target.rest} minute.\`);
+          startButton.textContent = "Start";
+          notify("Gata. Steak-ul a terminat odihnirea.");
           return;
         }
         updateTimer();
       }
 
       Object.values(fields).forEach((field) => {
+        if (!field) return;
         field.addEventListener("input", renderPlan);
         field.addEventListener("change", renderPlan);
       });
       startButton.addEventListener("click", () => {
         if (!plan) renderPlan();
-        if (remaining <= 0) resetTimer(false);
+        ensureAudio();
+        if (elapsed >= totalTimerSeconds()) resetTimer(false);
         if (timer) return;
-        status.textContent = "Timer pornit. Vei auzi un semnal la întoarcere și la final.";
+        startButton.textContent = "Rulează";
+        status.textContent = "Timer pornit. Vei auzi un semnal la întoarcere, la finalul gătirii și după odihnire.";
         timer = window.setInterval(tick, 1000);
       });
       pauseButton.addEventListener("click", () => {
         stopTimer();
+        startButton.textContent = "Continuă";
         status.textContent = "Timer pus pe pauză.";
       });
       resetButton.addEventListener("click", () => resetTimer(true));
