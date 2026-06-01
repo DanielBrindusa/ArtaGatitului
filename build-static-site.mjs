@@ -265,7 +265,6 @@ function footer(root) {
   return `
     <footer class="footer">
       <p>Copyright © <span id="year"></span> ${SITE_NAME} - Toate drepturile rezervate.</p>
-      <p><a href="${root}cauta.html">Caută rețete</a> · <a href="${root}categorii.html">Categorii</a> · <a href="${root}randomizer/">Randomizer</a></p>
     </footer>`;
 }
 
@@ -313,10 +312,6 @@ function homePage() {
               <input id="homeSearch" name="q" type="search" placeholder="Caută după rețetă sau ingredient" autocomplete="off">
               <button class="btn" type="submit">Caută</button>
             </form>
-            <div class="hero-actions">
-              <a class="btn light" href="randomizer/">Generează o rețetă</a>
-              <a class="btn ghost" href="categorii.html">Vezi categoriile</a>
-            </div>
           </div>
         </section>
 
@@ -326,7 +321,6 @@ function homePage() {
               <p class="eyebrow">Categorii</p>
               <h2>Alege după poftă</h2>
             </div>
-            <a class="text-link" href="categorii.html">Toate categoriile</a>
           </div>
           <div id="categoryGrid" class="grid categories"></div>
         </section>
@@ -337,7 +331,6 @@ function homePage() {
               <p class="eyebrow">Rețete</p>
               <h2>Rețete pentru acasă</h2>
             </div>
-            <a class="text-link" href="cauta.html">Caută toate rețetele</a>
           </div>
           <div id="featuredRecipes" class="grid cards"></div>
         </section>
@@ -1633,7 +1626,6 @@ function jsFile() {
           </div>
           <div class="detail-meta">
             <a class="btn secondary" href="\${categoryUrl(catSlug)}">Înapoi la categorie</a>
-            <a class="btn" href="\${root}cauta.html?q=\${encodeURIComponent(recipe.name)}">Caută similare</a>
           </div>
         </div>
         <div class="recipe-layout">
