@@ -223,9 +223,14 @@ function dataFile(categories, recipes) {
 }
 
 function nav(root) {
-  const links = [
+  const primaryLinks = [
     ['Acasă', 'index.html'],
     ['Portofoliu', 'portofoliu/'],
+    ['Randomizer', 'randomizer/'],
+    ['Caută', 'cauta.html'],
+  ];
+  const menuLinks = [
+    ['Categorii', 'categorii.html'],
     ['Fel principal', 'fel-principal/'],
     ['Fel secundar', 'fel-secundar/'],
     ['Desert', 'desert/'],
@@ -233,8 +238,6 @@ function nav(root) {
     ['Salate', 'salate/'],
     ['Băuturi', 'bauturi/'],
     ['Mic dejun', 'mic-dejun/'],
-    ['Randomizer', 'randomizer/'],
-    ['Caută', 'cauta.html'],
   ];
 
   return `
@@ -244,9 +247,15 @@ function nav(root) {
           <span class="logo-mark">AG</span>
           <span>${SITE_NAME}</span>
         </a>
-        <button class="mobile-menu-btn" type="button" aria-expanded="false" aria-controls="siteNav">Meniu</button>
-        <nav class="nav-links" id="siteNav" aria-label="Navigație principală">
-          ${links.map(([label, href]) => `<a href="${root}${href}">${label}</a>`).join('\n          ')}
+        <nav class="nav-primary" aria-label="Navigație principală">
+          ${primaryLinks.map(([label, href]) => `<a href="${root}${href}">${label}</a>`).join('\n          ')}
+        </nav>
+        <button class="mobile-menu-btn" type="button" aria-expanded="false" aria-controls="siteNav" aria-label="Deschide meniul de categorii">
+          <span aria-hidden="true">☰</span>
+          <span>Categorii</span>
+        </button>
+        <nav class="nav-links" id="siteNav" aria-label="Categorii rețete">
+          ${menuLinks.map(([label, href]) => `<a href="${root}${href}">${label}</a>`).join('\n          ')}
         </nav>
       </div>
     </header>`;
@@ -483,21 +492,21 @@ function soonPage(section) {
 
 function cssFile() {
   return `:root {
-  --color-bg: #fff8ee;
-  --color-bg-soft: #f7eadc;
-  --color-surface: #ffffff;
-  --color-surface-alt: #fff3e5;
-  --color-text: #241813;
-  --color-text-muted: #68483b;
-  --color-primary: #9f3f22;
-  --color-primary-hover: #7e2f18;
-  --color-primary-soft: #f6ddcf;
-  --color-secondary: #2f5f4f;
-  --color-secondary-hover: #23483c;
-  --color-border: #ddc5b5;
-  --color-focus: #1b66d1;
-  --shadow-card: 0 14px 32px rgba(61, 34, 23, .12);
-  --shadow-soft: 0 8px 22px rgba(61, 34, 23, .08);
+  --color-bg: #0f1117;
+  --color-bg-soft: #151924;
+  --color-surface: #181d29;
+  --color-surface-alt: #202638;
+  --color-text: #fff3e8;
+  --color-text-muted: #d4bba8;
+  --color-primary: #ff8a5b;
+  --color-primary-hover: #ffb088;
+  --color-primary-soft: rgba(255, 138, 91, .16);
+  --color-secondary: #62d6a8;
+  --color-secondary-hover: #8ff0c8;
+  --color-border: rgba(255, 214, 186, .18);
+  --color-focus: #ffd166;
+  --shadow-card: 0 22px 60px rgba(0, 0, 0, .42);
+  --shadow-soft: 0 14px 38px rgba(0, 0, 0, .28);
   --radius-sm: 6px;
   --radius-md: 8px;
   --radius-lg: 8px;
@@ -539,8 +548,10 @@ body::before {
   z-index: -1;
   pointer-events: none;
   background:
-    linear-gradient(180deg, rgba(255, 248, 238, .92), rgba(255, 248, 238, .98)),
-    repeating-linear-gradient(90deg, rgba(159, 63, 34, .04) 0, rgba(159, 63, 34, .04) 1px, transparent 1px, transparent 52px);
+    radial-gradient(circle at 12% 10%, rgba(255, 138, 91, .18), transparent 30%),
+    radial-gradient(circle at 86% 8%, rgba(98, 214, 168, .13), transparent 28%),
+    linear-gradient(180deg, rgba(15, 17, 23, .96), rgba(15, 17, 23, .995)),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, .025) 0, rgba(255, 255, 255, .025) 1px, transparent 1px, transparent 58px);
 }
 
 a {
@@ -624,8 +635,8 @@ p {
   position: sticky;
   top: 0;
   z-index: 20;
-  border-bottom: 1px solid rgba(221, 197, 181, .88);
-  background: rgba(255, 248, 238, .96);
+  border-bottom: 1px solid var(--color-border);
+  background: rgba(15, 17, 23, .86);
   backdrop-filter: blur(14px);
 }
 
@@ -636,6 +647,7 @@ p {
   display: flex;
   align-items: center;
   gap: var(--space-4);
+  position: relative;
 }
 
 .logo {
@@ -657,13 +669,13 @@ p {
   place-items: center;
   border-radius: var(--radius-md);
   background: var(--color-primary);
-  color: #fff;
+  color: #1a100c;
   font-family: "Source Sans 3", system-ui, sans-serif;
   font-size: .82rem;
   font-weight: 900;
 }
 
-.nav-links {
+.nav-primary {
   margin-left: auto;
   display: flex;
   align-items: center;
@@ -671,6 +683,7 @@ p {
   overflow-x: visible;
 }
 
+.nav-primary a,
 .nav-links a {
   display: inline-flex;
   align-items: center;
@@ -685,18 +698,46 @@ p {
 }
 
 .nav-links a:hover,
-.nav-links a.active {
+.nav-links a.active,
+.nav-primary a:hover,
+.nav-primary a.active {
   color: var(--color-primary-hover);
   background: var(--color-primary-soft);
 }
 
-.nav-links a.active {
+.nav-links a.active,
+.nav-primary a.active {
   box-shadow: inset 0 -3px 0 var(--color-primary);
 }
 
-.mobile-menu-btn {
+.nav-links {
   display: none;
-  margin-left: auto;
+  position: absolute;
+  top: calc(100% + var(--space-2));
+  right: var(--space-4);
+  z-index: 30;
+  width: min(300px, calc(100vw - 32px));
+  max-height: calc(100vh - 92px);
+  overflow: auto;
+  padding: var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: rgba(24, 29, 41, .98);
+  box-shadow: var(--shadow-card);
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.nav-links.open {
+  display: flex;
+}
+
+.mobile-menu-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  margin-left: 0;
   min-height: 44px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
@@ -713,7 +754,7 @@ p {
   display: flex;
   align-items: center;
   color: #fff;
-  background-image: linear-gradient(90deg, rgba(36, 24, 19, .86), rgba(36, 24, 19, .52)), url('${HERO_IMAGE}');
+  background-image: linear-gradient(90deg, rgba(15, 17, 23, .92), rgba(15, 17, 23, .54)), url('${HERO_IMAGE}');
   background-size: cover;
   background-position: center;
 }
@@ -762,9 +803,9 @@ p {
   grid-template-columns: minmax(0, 1fr) auto;
   gap: var(--space-3);
   padding: var(--space-2);
-  border: 1px solid rgba(255, 255, 255, .42);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  background: rgba(255, 255, 255, .15);
+  background: rgba(24, 29, 41, .72);
   box-shadow: 0 18px 46px rgba(0, 0, 0, .24);
 }
 
@@ -791,7 +832,7 @@ p {
   border: 1px solid var(--color-primary);
   border-radius: var(--radius-sm);
   background: var(--color-primary);
-  color: #fff;
+  color: #1a100c;
   text-decoration: none;
   font: inherit;
   font-weight: 900;
@@ -803,6 +844,7 @@ p {
 .btn:hover {
   border-color: var(--color-primary-hover);
   background: var(--color-primary-hover);
+  color: #1a100c;
 }
 
 .btn:active {
@@ -810,9 +852,9 @@ p {
 }
 
 .btn.light {
-  border-color: #fff;
-  background: #fff;
-  color: var(--color-primary-hover);
+  border-color: rgba(255, 255, 255, .32);
+  background: rgba(255, 255, 255, .12);
+  color: #fff;
 }
 
 .btn.ghost {
@@ -903,13 +945,30 @@ p {
   border-radius: var(--radius-lg);
   background: var(--color-surface);
   box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(10px);
 }
 
 .card {
+  position: relative;
   min-height: 100%;
   padding: var(--space-5);
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(135deg, rgba(255, 138, 91, .18), transparent 38%, rgba(98, 214, 168, .12));
+  opacity: .72;
+}
+
+.card > * {
+  position: relative;
 }
 
 .card h3 {
@@ -990,6 +1049,7 @@ p {
 .card:hover {
   box-shadow: var(--shadow-card);
   transform: translateY(-2px);
+  border-color: rgba(255, 138, 91, .42);
 }
 
 .search-panel {
@@ -1030,9 +1090,9 @@ input,
 select {
   width: 100%;
   min-height: 50px;
-  border: 2px solid #b99f8f;
+  border: 2px solid rgba(255, 214, 186, .28);
   border-radius: var(--radius-sm);
-  background: #fff;
+  background: #111620;
   color: var(--color-text);
   padding: 12px 14px;
   font: inherit;
@@ -1040,7 +1100,7 @@ select {
 }
 
 input::placeholder {
-  color: #7b6157;
+  color: #b99f8f;
   opacity: 1;
 }
 
@@ -1063,7 +1123,7 @@ select:focus {
 
 .empty {
   padding: var(--space-5);
-  border: 2px dashed #caa993;
+  border: 2px dashed rgba(255, 214, 186, .32);
   border-radius: var(--radius-lg);
   background: var(--color-surface);
   color: var(--color-text-muted);
@@ -1297,6 +1357,26 @@ ol.clean li {
 
   h3 {
     font-size: 1.12rem;
+  }
+
+  .nav-wrap {
+    flex-wrap: wrap;
+  }
+
+  .nav-primary {
+    order: 3;
+    width: 100%;
+    margin-left: 0;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-1);
+  }
+
+  .nav-primary a {
+    justify-content: center;
+    min-height: 42px;
+    padding: var(--space-2);
+    font-size: .9rem;
   }
 
   .hero {
@@ -1632,7 +1712,7 @@ function jsFile() {
 
   function markActiveNav() {
     const current = window.location.pathname.replace(/\\/index\\.html$/, "/");
-    document.querySelectorAll(".nav-links a").forEach((link) => {
+    document.querySelectorAll(".nav-primary a, .nav-links a").forEach((link) => {
       const path = new URL(link.href).pathname.replace(/\\/index\\.html$/, "/");
       if (path === current) {
         link.classList.add("active");
