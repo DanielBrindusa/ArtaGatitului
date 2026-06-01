@@ -262,7 +262,7 @@
 
   function markActiveNav() {
     const current = window.location.pathname.replace(/\/index\.html$/, "/");
-    document.querySelectorAll(".nav-links a").forEach((link) => {
+    document.querySelectorAll(".nav-primary a, .nav-links a").forEach((link) => {
       const path = new URL(link.href).pathname.replace(/\/index\.html$/, "/");
       if (path === current) {
         link.classList.add("active");
