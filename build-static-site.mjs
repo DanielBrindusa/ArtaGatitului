@@ -1,0 +1,1711 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
+
+const ROOT = process.cwd();
+const INVENTORY_PATH = path.join(ROOT, 'site-audit', 'godaddy-page-text-inventory.json');
+const RECIPES_MD_PATH = path.join(ROOT, 'site-audit', 'godaddy-recipes-only.md');
+
+const SITE_NAME = 'Arta Gătitului';
+const HERO_IMAGE = 'https://img1.wsimg.com/isteam/stock/19687/:/rs=w:1800,m';
+const CATEGORY_PAGES = {
+  '/fel-principal': { name: 'Fel principal', slug: 'fel-principal', description: 'Supe, ciorbe și mâncăruri consistente pentru masa principală.' },
+  '/fel-secundar': { name: 'Fel secundar', slug: 'fel-secundar', description: 'Rețete calde, garnituri și feluri care completează masa.' },
+  '/desert': { name: 'Desert', slug: 'desert', description: 'Dulciuri simple pentru familie și musafiri.' },
+  '/rontaieli': { name: 'Rontaieli', slug: 'rontaieli', description: 'Gustări rapide, platouri și idei de ronțăit.' },
+  '/salate': { name: 'Salate', slug: 'salate', description: 'Salate și creme reci, bune lângă pâine prăjită.' },
+  '/bauturi': { name: 'Băuturi', slug: 'bauturi', description: 'Băuturi și idei care urmează să fie adăugate.' },
+  '/mic-dejun': { name: 'Mic dejun', slug: 'mic-dejun', description: 'Idei pentru dimineți gustoase, rapide sau mai tihnite.' },
+};
+
+const LOCAL_FALLBACK_RECIPES = [
+  {
+    name: 'Tocăniță de pui cu ardei copți',
+    slug: 'tocanita-de-pui-cu-ardei',
+    category: 'Fel secundar',
+    sourceUrl: 'https://artagatitului.godaddysites.com/tocanita-de-pui-cu-ardei',
+    preparation: [
+      'Gătește pulpele de pui până se rumenesc ușor.',
+      'Adaugă ceapa, usturoiul, ardeii copți și bulionul.',
+      'Lasă tocănița să fiarbă până când sosul se leagă.',
+      'Servește cu pătrunjel și pâine ciabatta.',
+    ],
+    ingredients: [
+      'pulpe de pui',
+      'ardei capia',
+      'ceapă',
+      'usturoi',
+      'bulion',
+      'ulei de măsline',
+      'pătrunjel',
+      'busuioc',
+      'curry',
+      'piper',
+      'sare',
+      'pâine ciabatta',
+    ],
+  },
+];
+
+const RECIPE_ALIASES = {
+  'cartofi-prajiti-cu-sos-de-iaurt-si-menta': 'cartofi-prajiti-cu-sos',
+  'ciorba-de-fasole-cu-afumatura': 'ciorba-de-fasole',
+  'conopida-cu-orez-si-sos-rosu': 'conopida-cu-orez-1',
+  'piept-de-pui-cu-lamaie-si-cartofi-aurii': 'pui-cu-lamaie-si-cartofi',
+  'tocanita-de-pui-cu-ardei-copti': 'tocanita-de-pui-cu-ardei',
+};
+
+function slugify(value) {
+  return String(value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+}
+
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function titleCase(value) {
+  return String(value || '')
+    .toLowerCase()
+    .replace(/(^|\s|-)([a-z])/g, (match) => match.toUpperCase());
+}
+
+function displayRecipeName(name) {
+  const text = String(name || '').trim();
+  if (!text) return text;
+  return text === text.toUpperCase() ? titleCase(text) : text;
+}
+
+function readRecipeSections(markdown) {
+  return markdown
+    .split(/\n## /)
+    .slice(1)
+    .map((section) => {
+      const lines = section.split('\n');
+      const heading = lines.shift().trim();
+      const urlLine = lines.find((line) => line.startsWith('URL: '));
+      const bulletLines = lines
+        .filter((line) => line.startsWith('- '))
+        .map((line) => line.slice(2).trim())
+        .filter(Boolean);
+
+      return {
+        heading,
+        url: urlLine ? urlLine.slice(5).trim() : '',
+        lines: bulletLines,
+      };
+    });
+}
+
+function splitRecipe(section) {
+  const slug = new URL(section.url).pathname.replace(/^\/+/, '');
+  const actualTitle = displayRecipeName(section.lines[0] || section.heading);
+  const prepIndex = section.lines.indexOf('Mod de preparare');
+  const ingredientsIndex = section.lines.indexOf('Ingrediente');
+  const poftaIndex = section.lines.indexOf('Pofta buna!');
+  const preparationEnd = ingredientsIndex >= 0 ? ingredientsIndex : section.lines.length;
+
+  const preparation = prepIndex >= 0
+    ? section.lines.slice(prepIndex + 1, preparationEnd).filter((line) => line !== 'Pofta buna!')
+    : [];
+
+  let ingredients = ingredientsIndex >= 0
+    ? section.lines.slice(ingredientsIndex + 1)
+    : [];
+
+  const extras = [];
+  const steakCalculatorIndex = ingredients.findIndex((line) => line.toLowerCase().includes('calculator gatire steak'));
+  if (steakCalculatorIndex >= 0) {
+    extras.push({
+      type: 'steak-calculator',
+      title: ingredients[steakCalculatorIndex],
+    });
+    ingredients = ingredients.slice(0, steakCalculatorIndex);
+  }
+
+  return {
+    name: actualTitle,
+    slug,
+    category: '',
+    sourceUrl: section.url,
+    description: makeDescription(actualTitle, preparation, ingredients),
+    preparation,
+    ingredients,
+    closing: poftaIndex >= 0 ? 'Poftă bună!' : '',
+    extras,
+  };
+}
+
+function makeDescription(name, preparation, ingredients) {
+  const firstStep = preparation.find((line) => !isSubheading(line));
+  if (firstStep) return firstStep;
+  const preview = ingredients.filter((line) => !isSubheading(line)).slice(0, 3).join(', ');
+  return preview ? `${name} cu ${preview}.` : `${name}.`;
+}
+
+function isSubheading(line) {
+  return /:$/.test(line) || /^[A-ZĂÂÎȘȚ0-9\s/-]{3,}$/.test(line);
+}
+
+function buildCategoryMap(inventory) {
+  const map = new Map();
+  for (const [pagePath, category] of Object.entries(CATEGORY_PAGES)) {
+    const page = inventory.pages.find((entry) => new URL(entry.url).pathname === pagePath);
+    if (!page) continue;
+
+    for (const link of page.links) {
+      const slug = new URL(link).pathname.replace(/^\/+/, '');
+      if (!slug || slug === 'soon-to-come' || CATEGORY_PAGES[`/${slug}`] || slug === 'portofoliu' || slug === 'randomizer') continue;
+      map.set(slug, category.name);
+    }
+  }
+  return map;
+}
+
+function mergeRecipes(parsedRecipes, categoryMap) {
+  const recipesBySlug = new Map();
+
+  for (const recipe of parsedRecipes) {
+    if (recipe.slug === 'soon-to-come') continue;
+    recipe.category = categoryMap.get(recipe.slug) || 'Fel secundar';
+    recipesBySlug.set(recipe.slug, recipe);
+  }
+
+  for (const fallback of LOCAL_FALLBACK_RECIPES) {
+    if (!recipesBySlug.has(fallback.slug)) {
+      recipesBySlug.set(fallback.slug, {
+        ...fallback,
+        description: makeDescription(fallback.name, fallback.preparation, fallback.ingredients),
+        closing: 'Poftă bună!',
+        extras: [],
+      });
+    }
+  }
+
+  const categoryOrder = Object.values(CATEGORY_PAGES).map((category) => category.name);
+  return [...recipesBySlug.values()].sort((a, b) => {
+    const categoryDiff = categoryOrder.indexOf(a.category) - categoryOrder.indexOf(b.category);
+    return categoryDiff || a.name.localeCompare(b.name, 'ro');
+  });
+}
+
+function dataFile(categories, recipes) {
+  const data = {
+    categories,
+    heroImage: HERO_IMAGE,
+    recipes: recipes.map((recipe) => ({
+      name: recipe.name,
+      slug: recipe.slug,
+      category: recipe.category,
+      description: recipe.description,
+      ingredients: recipe.ingredients,
+      preparation: recipe.preparation,
+      closing: recipe.closing,
+      extras: recipe.extras,
+      sourceUrl: recipe.sourceUrl,
+      keywords: Array.from(new Set([
+        ...recipe.name.split(/\s+/),
+        ...recipe.category.split(/\s+/),
+        ...recipe.ingredients.flatMap((line) => line.split(/\s+/)),
+      ].map(slugify).filter(Boolean))),
+    })),
+    aliases: RECIPE_ALIASES,
+  };
+
+  return `window.ARTA_DATA = ${JSON.stringify(data, null, 2)};\n`;
+}
+
+function nav(root) {
+  const links = [
+    ['Acasă', 'index.html'],
+    ['Portofoliu', 'portofoliu/'],
+    ['Fel principal', 'fel-principal/'],
+    ['Fel secundar', 'fel-secundar/'],
+    ['Desert', 'desert/'],
+    ['Rontaieli', 'rontaieli/'],
+    ['Salate', 'salate/'],
+    ['Băuturi', 'bauturi/'],
+    ['Mic dejun', 'mic-dejun/'],
+    ['Randomizer', 'randomizer/'],
+    ['Caută', 'cauta.html'],
+  ];
+
+  return `
+    <header class="site-header">
+      <div class="nav-wrap">
+        <a class="logo" href="${root}index.html" aria-label="${SITE_NAME}">
+          <span class="logo-mark">AG</span>
+          <span>${SITE_NAME}</span>
+        </a>
+        <button class="mobile-menu-btn" type="button" aria-expanded="false" aria-controls="siteNav">Meniu</button>
+        <nav class="nav-links" id="siteNav" aria-label="Navigație principală">
+          ${links.map(([label, href]) => `<a href="${root}${href}">${label}</a>`).join('\n          ')}
+        </nav>
+      </div>
+    </header>`;
+}
+
+function footer(root) {
+  return `
+    <footer class="footer">
+      <p>Copyright © <span id="year"></span> ${SITE_NAME} - Toate drepturile rezervate.</p>
+      <p><a href="${root}cauta.html">Caută rețete</a> · <a href="${root}categorii.html">Categorii</a> · <a href="${root}randomizer/">Randomizer</a></p>
+    </footer>`;
+}
+
+function page({ title, description, root = '', bodyAttrs = '', main }) {
+  const documentTitle = title === SITE_NAME ? SITE_NAME : `${title} | ${SITE_NAME}`;
+  return `<!doctype html>
+<html lang="ro">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>${escapeHtml(documentTitle)}</title>
+  <meta name="description" content="${escapeHtml(description)}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Source+Sans+3:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="${root}assets/css/style.css">
+</head>
+<body${bodyAttrs ? ` ${bodyAttrs}` : ''}>
+<a class="skip-link" href="#main-content">Sari la conținut</a>
+${nav(root)}
+${main}
+${footer(root)}
+<script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+<script>window.ARTA_ROOT = "${root}";</script>
+<script src="${root}assets/js/recipes.js"></script>
+<script src="${root}assets/js/site.js"></script>
+</body>
+</html>
+`;
+}
+
+function homePage() {
+  return page({
+    title: SITE_NAME,
+    description: 'Viață ocupată, mâncare sănătoasă. Rețete organizate pe categorii și căutare după ingrediente.',
+    main: `
+      <main id="main-content">
+        <section class="hero hero-home">
+          <div class="hero-inner">
+            <p class="eyebrow">Viață ocupată, mâncare sănătoasă</p>
+            <h1>${SITE_NAME}</h1>
+            <p class="lead">Rețetele tale, adunate într-un site rapid, curat și ușor de folosit pe orice ecran.</p>
+            <form class="hero-search" action="cauta.html" method="get" role="search">
+              <label class="sr-only" for="homeSearch">Caută după rețetă sau ingredient</label>
+              <input id="homeSearch" name="q" type="search" placeholder="Caută după rețetă sau ingredient" autocomplete="off">
+              <button class="btn" type="submit">Caută</button>
+            </form>
+            <div class="hero-actions">
+              <a class="btn light" href="randomizer/">Generează o rețetă</a>
+              <a class="btn ghost" href="categorii.html">Vezi categoriile</a>
+            </div>
+          </div>
+        </section>
+
+        <section class="section compact">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Categorii</p>
+              <h2>Alege după poftă</h2>
+            </div>
+            <a class="text-link" href="categorii.html">Toate categoriile</a>
+          </div>
+          <div id="categoryGrid" class="grid categories"></div>
+        </section>
+
+        <section class="section">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Rețete</p>
+              <h2>Rețete pentru acasă</h2>
+            </div>
+            <a class="text-link" href="cauta.html">Caută toate rețetele</a>
+          </div>
+          <div id="featuredRecipes" class="grid cards"></div>
+        </section>
+      </main>`,
+  });
+}
+
+function categoriesIndexPage() {
+  return page({
+    title: 'Categorii',
+    description: 'Toate categoriile și rețetele din Arta Gătitului.',
+    main: `
+      <main class="section" id="main-content">
+        <div class="page-title">
+          <p class="eyebrow">Categorii</p>
+          <h1>Toate categoriile</h1>
+          <p>Răsfoiește rețetele după tipul mesei sau caută direct după ingredient.</p>
+        </div>
+        <div id="categoryGrid" class="grid categories"></div>
+
+        <section class="subsection">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Index</p>
+              <h2>Toate rețetele</h2>
+            </div>
+          </div>
+          <div id="allRecipes" class="grid cards"></div>
+        </section>
+      </main>`,
+  });
+}
+
+function searchPage() {
+  return page({
+    title: 'Caută rețete',
+    description: 'Caută rețete după nume, categorie sau ingrediente.',
+    main: `
+      <main class="section" id="main-content">
+        <div class="page-title">
+          <p class="eyebrow">Căutare</p>
+          <h1>Caută rețete</h1>
+          <p>Scrie un nume de rețetă, un ingredient sau alege o categorie.</p>
+        </div>
+
+        <section class="search-panel" aria-labelledby="searchPanelTitle">
+          <div class="search-panel-head">
+            <h2 id="searchPanelTitle">Găsește rapid ce vrei să gătești</h2>
+            <p>Căutarea ignoră diacriticele, deci „galuste” găsește și „găluște”.</p>
+          </div>
+          <div class="search-row">
+            <label class="field">
+              <span>Caută după text</span>
+              <input id="recipeSearchInput" type="search" placeholder="pui, cartofi, fasole, avocado..." autocomplete="off">
+            </label>
+            <label class="field">
+              <span>Categorie</span>
+              <select id="recipeCategoryFilter"></select>
+            </label>
+          </div>
+        </section>
+
+        <div id="recipeCount" class="count" aria-live="polite"></div>
+        <div id="searchResults" class="grid cards"></div>
+      </main>`,
+  });
+}
+
+function categoryPage(category, root = '../../') {
+  return page({
+    title: category.name,
+    description: category.description,
+    root,
+    bodyAttrs: `data-category-slug="${category.slug}"`,
+    main: `
+      <main class="section" id="main-content">
+        <div class="page-title">
+          <p class="eyebrow">Categorie</p>
+          <h1 id="categoryTitle">${escapeHtml(category.name)}</h1>
+          <p id="categoryDescription">${escapeHtml(category.description)}</p>
+        </div>
+        <div id="categoryRecipes" class="grid cards"></div>
+      </main>`,
+  });
+}
+
+function recipePage(recipe, root = '../../', slugOverride = recipe.slug) {
+  return page({
+    title: recipe.name,
+    description: recipe.description,
+    root,
+    bodyAttrs: `data-recipe-slug="${slugOverride}"`,
+    main: `
+      <main class="section" id="main-content">
+        <div id="recipeDetail"></div>
+      </main>`,
+  });
+}
+
+function portfolioPage() {
+  return page({
+    title: 'Portofoliu',
+    description: 'Portofoliul de rețete Arta Gătitului.',
+    root: '../',
+    main: `
+      <main class="section" id="main-content">
+        <div class="page-title">
+          <p class="eyebrow">Portofoliu</p>
+          <h1>Portofoliu</h1>
+          <p>Vezi colecția de categorii și intră rapid în rețetele deja migrate.</p>
+        </div>
+        <div id="categoryGrid" class="grid categories"></div>
+      </main>`,
+  });
+}
+
+function randomizerPage() {
+  return page({
+    title: 'Randomizer',
+    description: 'Generator aleatoriu de rețete.',
+    root: '../',
+    main: `
+      <main class="section randomizer-page" id="main-content">
+        <div class="page-title">
+          <p class="eyebrow">Randomizer</p>
+          <h1>Generator Aleatoriu</h1>
+          <p>Nu știi ce să gătești? Lasă site-ul să aleagă o rețetă pentru tine.</p>
+        </div>
+        <section class="randomizer-panel" aria-live="polite">
+          <button class="btn" type="button" id="randomRecipeButton">Generează o rețetă</button>
+          <div id="randomRecipeResult" class="random-result"></div>
+        </section>
+      </main>`,
+  });
+}
+
+function soonPage(section) {
+  const lines = section.lines.map((line) => `<p>${escapeHtml(line)}</p>`).join('\n          ');
+  return page({
+    title: 'SOON TO COME...',
+    description: 'Noi rețete apar periodic pe site.',
+    root: '../',
+    main: `
+      <main class="section" id="main-content">
+        <div class="soon-card">
+          ${lines}
+          <a class="btn" href="../randomizer/">Alege o rețetă aleatorie</a>
+        </div>
+      </main>`,
+  });
+}
+
+function cssFile() {
+  return `:root {
+  --color-bg: #fff8ee;
+  --color-bg-soft: #f7eadc;
+  --color-surface: #ffffff;
+  --color-surface-alt: #fff3e5;
+  --color-text: #241813;
+  --color-text-muted: #68483b;
+  --color-primary: #9f3f22;
+  --color-primary-hover: #7e2f18;
+  --color-primary-soft: #f6ddcf;
+  --color-secondary: #2f5f4f;
+  --color-secondary-hover: #23483c;
+  --color-border: #ddc5b5;
+  --color-focus: #1b66d1;
+  --shadow-card: 0 14px 32px rgba(61, 34, 23, .12);
+  --shadow-soft: 0 8px 22px rgba(61, 34, 23, .08);
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 8px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --container: 1180px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  font-family: "Source Sans 3", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--color-text);
+  background: var(--color-bg);
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(255, 248, 238, .92), rgba(255, 248, 238, .98)),
+    repeating-linear-gradient(90deg, rgba(159, 63, 34, .04) 0, rgba(159, 63, 34, .04) 1px, transparent 1px, transparent 52px);
+}
+
+a {
+  color: var(--color-primary);
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-family: Cinzel, Georgia, serif;
+  font-weight: 700;
+  line-height: 1.14;
+  letter-spacing: 0;
+  color: var(--color-text);
+}
+
+h1 {
+  font-size: 3.6rem;
+}
+
+h2 {
+  font-size: 2rem;
+}
+
+h3 {
+  font-size: 1.24rem;
+}
+
+p {
+  margin: 0;
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 3px;
+}
+
+::selection {
+  color: #fff;
+  background: var(--color-primary);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: fixed;
+  top: var(--space-3);
+  left: var(--space-3);
+  z-index: 100;
+  transform: translateY(-160%);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  background: var(--color-text);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 800;
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  border-bottom: 1px solid rgba(221, 197, 181, .88);
+  background: rgba(255, 248, 238, .96);
+  backdrop-filter: blur(14px);
+}
+
+.nav-wrap {
+  width: min(var(--container), 100%);
+  margin: 0 auto;
+  padding: var(--space-3) var(--space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-text);
+  text-decoration: none;
+  font-family: Cinzel, Georgia, serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.logo-mark {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-md);
+  background: var(--color-primary);
+  color: #fff;
+  font-family: "Source Sans 3", system-ui, sans-serif;
+  font-size: .82rem;
+  font-weight: 900;
+}
+
+.nav-links {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.nav-links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-muted);
+  text-decoration: none;
+  font-size: .96rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+  color: var(--color-primary-hover);
+  background: var(--color-primary-soft);
+}
+
+.nav-links a.active {
+  box-shadow: inset 0 -3px 0 var(--color-primary);
+}
+
+.mobile-menu-btn {
+  display: none;
+  margin-left: auto;
+  min-height: 44px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+  padding: var(--space-2) var(--space-4);
+  font: inherit;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.hero {
+  min-height: 500px;
+  display: flex;
+  align-items: center;
+  color: #fff;
+  background-image: linear-gradient(90deg, rgba(36, 24, 19, .86), rgba(36, 24, 19, .52)), url('${HERO_IMAGE}');
+  background-size: cover;
+  background-position: center;
+}
+
+.hero-inner {
+  width: min(var(--container), 100%);
+  margin: 0 auto;
+  padding: var(--space-8) var(--space-4);
+}
+
+.hero h1 {
+  max-width: 760px;
+  color: #fff;
+  font-size: 4.7rem;
+}
+
+.lead {
+  max-width: 670px;
+  margin-top: var(--space-4);
+  color: var(--color-text-muted);
+  font-size: 1.14rem;
+}
+
+.hero .lead {
+  color: rgba(255, 255, 255, .93);
+  font-size: 1.24rem;
+}
+
+.eyebrow {
+  margin-bottom: var(--space-2);
+  color: var(--color-primary);
+  text-transform: uppercase;
+  font-size: .82rem;
+  font-weight: 900;
+  letter-spacing: 0;
+}
+
+.hero .eyebrow {
+  color: #ffd7b7;
+}
+
+.hero-search {
+  width: min(720px, 100%);
+  margin-top: var(--space-6);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-3);
+  padding: var(--space-2);
+  border: 1px solid rgba(255, 255, 255, .42);
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, .15);
+  box-shadow: 0 18px 46px rgba(0, 0, 0, .24);
+}
+
+.hero-search input {
+  min-height: 54px;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 11px var(--space-4);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-sm);
+  background: var(--color-primary);
+  color: #fff;
+  text-decoration: none;
+  font: inherit;
+  font-weight: 900;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: background-color .16s ease, border-color .16s ease, color .16s ease, box-shadow .16s ease, transform .16s ease;
+}
+
+.btn:hover {
+  border-color: var(--color-primary-hover);
+  background: var(--color-primary-hover);
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn.light {
+  border-color: #fff;
+  background: #fff;
+  color: var(--color-primary-hover);
+}
+
+.btn.ghost {
+  border-color: rgba(255, 255, 255, .72);
+  background: transparent;
+  color: #fff;
+}
+
+.btn.ghost:hover {
+  border-color: #fff;
+  background: rgba(255, 255, 255, .14);
+}
+
+.btn.secondary {
+  border-color: var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-primary-hover);
+}
+
+.btn.secondary:hover {
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
+}
+
+.text-link {
+  color: var(--color-primary);
+  font-weight: 900;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}
+
+.section {
+  width: min(var(--container), 100%);
+  margin: 0 auto;
+  padding: var(--space-7) var(--space-4);
+}
+
+.section.compact {
+  padding-top: var(--space-6);
+}
+
+.subsection {
+  margin-top: var(--space-7);
+}
+
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: var(--space-5);
+  margin-bottom: var(--space-5);
+}
+
+.page-title {
+  max-width: 820px;
+  margin-bottom: var(--space-6);
+}
+
+.page-title p:not(.eyebrow),
+#categoryDescription {
+  margin-top: var(--space-3);
+  color: var(--color-text-muted);
+  font-size: 1.14rem;
+}
+
+.grid {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.grid.cards {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.grid.categories {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.card,
+.category-card,
+.recipe-detail-card,
+.search-panel,
+.randomizer-panel,
+.soon-card,
+.box,
+.steak-calculator {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-soft);
+}
+
+.card {
+  min-height: 100%;
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+}
+
+.card h3 {
+  margin-top: var(--space-3);
+}
+
+.card p {
+  margin: var(--space-3) 0 var(--space-4);
+  color: var(--color-text-muted);
+}
+
+.category-pill,
+.pill {
+  width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  background: var(--color-primary-soft);
+  color: var(--color-primary-hover);
+  font-size: .86rem;
+  font-weight: 900;
+}
+
+.ingredients-preview {
+  margin-bottom: var(--space-5);
+  color: var(--color-text-muted);
+  font-size: .98rem;
+}
+
+.card .btn {
+  width: fit-content;
+  margin-top: auto;
+}
+
+.category-card {
+  position: relative;
+  min-height: 158px;
+  padding: var(--space-5);
+  color: var(--color-text);
+  text-decoration: none;
+  overflow: hidden;
+}
+
+.category-card::after {
+  content: "";
+  position: absolute;
+  right: var(--space-4);
+  bottom: var(--space-4);
+  width: 46px;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--color-primary);
+}
+
+.category-card:nth-child(2n)::after {
+  background: var(--color-secondary);
+}
+
+.category-card:nth-child(3n)::after {
+  background: #b97818;
+}
+
+.category-card strong {
+  display: block;
+  margin-bottom: var(--space-2);
+  font-family: Cinzel, Georgia, serif;
+  font-size: 1.16rem;
+}
+
+.category-card span {
+  color: var(--color-text-muted);
+  font-size: .98rem;
+}
+
+.category-card:hover,
+.card:hover {
+  box-shadow: var(--shadow-card);
+  transform: translateY(-2px);
+}
+
+.search-panel {
+  margin-bottom: var(--space-5);
+  padding: var(--space-5);
+  background: var(--color-surface);
+}
+
+.search-panel-head {
+  max-width: 720px;
+  margin-bottom: var(--space-5);
+}
+
+.search-panel-head h2 {
+  font-size: 1.55rem;
+}
+
+.search-panel-head p {
+  margin-top: var(--space-2);
+  color: var(--color-text-muted);
+}
+
+.search-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 260px;
+  gap: var(--space-4);
+  align-items: end;
+}
+
+.field {
+  display: grid;
+  gap: var(--space-2);
+  color: var(--color-text);
+  font-weight: 900;
+}
+
+input,
+select {
+  width: 100%;
+  min-height: 50px;
+  border: 2px solid #b99f8f;
+  border-radius: var(--radius-sm);
+  background: #fff;
+  color: var(--color-text);
+  padding: 12px 14px;
+  font: inherit;
+  outline: none;
+}
+
+input::placeholder {
+  color: #7b6157;
+  opacity: 1;
+}
+
+input:hover,
+select:hover {
+  border-color: var(--color-primary);
+}
+
+input:focus,
+select:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px rgba(159, 63, 34, .18);
+}
+
+.count {
+  margin: var(--space-4) 0 var(--space-5);
+  color: var(--color-primary-hover);
+  font-weight: 900;
+}
+
+.empty {
+  padding: var(--space-5);
+  border: 2px dashed #caa993;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.recipe-detail-card {
+  padding: var(--space-6);
+}
+
+.recipe-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-5);
+  align-items: start;
+  padding-bottom: var(--space-5);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.recipe-hero h1 {
+  margin-top: var(--space-3);
+  font-size: 3rem;
+}
+
+.recipe-hero .lead {
+  color: var(--color-text-muted);
+}
+
+.detail-meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: end;
+  gap: var(--space-3);
+}
+
+.recipe-layout {
+  display: grid;
+  grid-template-columns: .85fr 1.15fr;
+  gap: var(--space-5);
+  margin-top: var(--space-5);
+}
+
+.box {
+  padding: var(--space-5);
+  background: var(--color-surface-alt);
+  box-shadow: none;
+}
+
+.box h2 {
+  font-size: 1.5rem;
+}
+
+ul.clean,
+ol.clean {
+  margin: var(--space-4) 0 0;
+  padding-left: 22px;
+}
+
+ul.clean li,
+ol.clean li {
+  margin: var(--space-2) 0;
+}
+
+.subhead {
+  list-style: none;
+  margin-left: -22px;
+  color: var(--color-primary-hover);
+  font-weight: 900;
+}
+
+.closing {
+  margin-top: var(--space-5);
+  color: var(--color-primary-hover);
+  font-weight: 900;
+}
+
+.related {
+  margin-top: var(--space-6);
+}
+
+.related h2 {
+  margin-bottom: var(--space-4);
+}
+
+.randomizer-panel,
+.soon-card {
+  padding: var(--space-5);
+}
+
+.random-result {
+  margin-top: var(--space-5);
+}
+
+.soon-card {
+  max-width: 760px;
+}
+
+.soon-card p {
+  margin: var(--space-2) 0;
+  color: var(--color-text-muted);
+}
+
+.soon-card .btn {
+  margin-top: var(--space-4);
+}
+
+.steak-calculator {
+  margin-top: var(--space-5);
+  padding: var(--space-5);
+  background: var(--color-surface-alt);
+  box-shadow: none;
+}
+
+.steak-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
+.steak-chip {
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+}
+
+.steak-chip strong {
+  display: block;
+}
+
+.footer {
+  margin-top: var(--space-6);
+  padding: var(--space-6) var(--space-4);
+  border-top: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.footer p + p {
+  margin-top: var(--space-2);
+}
+
+.footer a {
+  color: var(--color-primary-hover);
+  font-weight: 900;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+@media (max-width: 1040px) {
+  h1 {
+    font-size: 3rem;
+  }
+
+  .hero h1 {
+    font-size: 3.8rem;
+  }
+
+  .grid.cards,
+  .grid.categories {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .recipe-layout,
+  .recipe-hero,
+  .search-row,
+  .steak-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-meta {
+    justify-content: start;
+  }
+}
+
+@media (max-width: 760px) {
+  h1 {
+    font-size: 2.28rem;
+  }
+
+  h2 {
+    font-size: 1.6rem;
+  }
+
+  h3 {
+    font-size: 1.12rem;
+  }
+
+  .nav-wrap {
+    padding: var(--space-3);
+  }
+
+  .mobile-menu-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .nav-links {
+    display: none;
+    position: absolute;
+    top: 66px;
+    left: var(--space-3);
+    right: var(--space-3);
+    max-height: calc(100vh - 86px);
+    overflow: auto;
+    padding: var(--space-2);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-card);
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .nav-links.open {
+    display: flex;
+  }
+
+  .nav-links a {
+    min-height: 44px;
+  }
+
+  .hero {
+    min-height: 450px;
+  }
+
+  .hero-inner {
+    padding: var(--space-7) var(--space-4);
+  }
+
+  .hero h1 {
+    font-size: 2.68rem;
+  }
+
+  .hero-search {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-search .btn {
+    width: 100%;
+  }
+
+  .grid.cards,
+  .grid.categories {
+    grid-template-columns: 1fr;
+  }
+
+  .section {
+    padding: var(--space-6) var(--space-4);
+  }
+
+  .section-head {
+    display: block;
+  }
+
+  .section-head .text-link {
+    display: inline-flex;
+    margin-top: var(--space-3);
+  }
+
+  .card,
+  .category-card,
+  .recipe-detail-card,
+  .search-panel,
+  .randomizer-panel,
+  .soon-card,
+  .box {
+    padding: var(--space-4);
+  }
+}
+
+@media (max-width: 380px) {
+  body {
+    font-size: .98rem;
+  }
+
+  h1,
+  .hero h1 {
+    font-size: 2.16rem;
+  }
+
+  .logo span:last-child {
+    max-width: 160px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+`;
+}
+
+function jsFile() {
+  return `(function () {
+  const root = window.ARTA_ROOT || "";
+  const data = window.ARTA_DATA || { categories: [], recipes: [], aliases: {} };
+
+  function normalize(value) {
+    return String(value || "")
+      .normalize("NFD")
+      .replace(/[\\u0300-\\u036f]/g, "")
+      .toLowerCase()
+      .trim();
+  }
+
+  function escapeHtml(value) {
+    return String(value || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  function recipeUrl(slug) {
+    return root + "retete/" + slug + "/";
+  }
+
+  function categoryUrl(slug) {
+    return root + slug + "/";
+  }
+
+  function categorySlug(name) {
+    const category = data.categories.find((item) => item.name === name);
+    return category ? category.slug : normalize(name).replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+  }
+
+  function recipeBySlug(slug) {
+    const resolved = data.aliases && data.aliases[slug] ? data.aliases[slug] : slug;
+    return data.recipes.find((recipe) => recipe.slug === resolved);
+  }
+
+  function isSubheading(line) {
+    return /:$/.test(line) || /^[A-ZĂÂÎȘȚ0-9\\s/-]{3,}$/.test(line);
+  }
+
+  function searchableRecipeText(recipe) {
+    return normalize([
+      recipe.name,
+      recipe.category,
+      recipe.description,
+      (recipe.ingredients || []).join(" "),
+      (recipe.preparation || []).join(" "),
+      (recipe.keywords || []).join(" ")
+    ].join(" "));
+  }
+
+  function card(recipe) {
+    const ingredients = (recipe.ingredients || []).filter((line) => !isSubheading(line)).slice(0, 5).join(", ");
+    const titleId = "recipe-card-" + recipe.slug;
+    return \`
+      <article class="card">
+        <span class="category-pill">\${escapeHtml(recipe.category)}</span>
+        <h3 id="\${titleId}">\${escapeHtml(recipe.name)}</h3>
+        <p>\${escapeHtml(recipe.description || "")}</p>
+        <div class="ingredients-preview"><strong>Ingrediente:</strong> \${escapeHtml(ingredients)}\${recipe.ingredients && recipe.ingredients.length > 5 ? "..." : ""}</div>
+        <a class="btn secondary" aria-label="Vezi rețeta: \${escapeHtml(recipe.name)}" href="\${recipeUrl(recipe.slug)}">Vezi rețeta</a>
+      </article>
+    \`;
+  }
+
+  function renderRecipeCards(elementId, recipes) {
+    const el = document.getElementById(elementId);
+    if (!el) return;
+    el.innerHTML = recipes.length ? recipes.map(card).join("") : '<div class="empty">Nu există rețete de afișat încă.</div>';
+  }
+
+  function renderFeatured() {
+    renderRecipeCards("featuredRecipes", data.recipes.slice(0, 9));
+  }
+
+  function renderAllRecipes() {
+    renderRecipeCards("allRecipes", data.recipes);
+  }
+
+  function renderCategories() {
+    const el = document.getElementById("categoryGrid");
+    if (!el) return;
+    el.innerHTML = data.categories.map((category) => {
+      const count = data.recipes.filter((recipe) => recipe.category === category.name).length;
+      const countLabel = count === 1 ? "1 rețetă" : count + " rețete";
+      return \`
+        <a class="category-card" href="\${categoryUrl(category.slug)}">
+          <strong>\${escapeHtml(category.name)}</strong>
+          <span>\${escapeHtml(category.description)}<br>\${count ? countLabel : "urmează rețete noi"}</span>
+        </a>
+      \`;
+    }).join("");
+  }
+
+  function setupSearch() {
+    const input = document.getElementById("recipeSearchInput");
+    const category = document.getElementById("recipeCategoryFilter");
+    const count = document.getElementById("recipeCount");
+    const results = document.getElementById("searchResults");
+    if (!input || !category || !results) return;
+
+    category.innerHTML = '<option value="all">Toate categoriile</option>' + data.categories.map((item) => \`<option value="\${escapeHtml(item.name)}">\${escapeHtml(item.name)}</option>\`).join("");
+    if (!category.value) category.value = "all";
+
+    function run() {
+      const terms = normalize(input.value).split(/\\s+/).filter(Boolean);
+      const selected = category.value;
+      const matches = data.recipes.filter((recipe) => {
+        if (selected !== "all" && recipe.category !== selected) return false;
+        const haystack = searchableRecipeText(recipe);
+        return terms.every((term) => haystack.includes(term));
+      });
+
+      count.textContent = matches.length === 1 ? "1 rețetă găsită" : \`\${matches.length} rețete găsite\`;
+      results.innerHTML = matches.length ? matches.map(card).join("") : '<div class="empty">Nu am găsit nicio rețetă. Încearcă un ingredient, o categorie sau mai puține cuvinte.</div>';
+    }
+
+    input.addEventListener("input", run);
+    category.addEventListener("change", run);
+    run();
+  }
+
+  function setupPrefilledSearch() {
+    const params = new URLSearchParams(window.location.search);
+    const q = params.get("q");
+    const input = document.getElementById("recipeSearchInput");
+    if (q && input) {
+      input.value = q;
+      input.dispatchEvent(new Event("input"));
+    }
+  }
+
+  function renderList(lines, ordered) {
+    const tag = ordered ? "ol" : "ul";
+    const items = (lines || []).map((line) => {
+      const cls = isSubheading(line) ? ' class="subhead"' : "";
+      return \`<li\${cls}>\${escapeHtml(line)}</li>\`;
+    }).join("");
+    return \`<\${tag} class="clean">\${items}</\${tag}>\`;
+  }
+
+  function steakCalculator(extra) {
+    if (!extra || extra.type !== "steak-calculator") return "";
+    return \`
+      <section class="steak-calculator">
+        <h2>\${escapeHtml(extra.title)}</h2>
+        <div class="steak-grid">
+          <div class="steak-chip"><strong>Rare</strong><span>50-52°C</span></div>
+          <div class="steak-chip"><strong>Medium rare</strong><span>55-57°C</span></div>
+          <div class="steak-chip"><strong>Medium</strong><span>60-63°C</span></div>
+          <div class="steak-chip"><strong>Well done</strong><span>70°C+</span></div>
+        </div>
+      </section>
+    \`;
+  }
+
+  function renderRecipeDetail() {
+    const el = document.getElementById("recipeDetail");
+    if (!el) return;
+    const slug = document.body.dataset.recipeSlug;
+    const recipe = recipeBySlug(slug);
+    if (!recipe) {
+      el.innerHTML = '<div class="empty">Rețeta nu a fost găsită.</div>';
+      return;
+    }
+
+    document.title = recipe.name + " | Arta Gătitului";
+    const catSlug = categorySlug(recipe.category);
+    const related = data.recipes
+      .filter((item) => item.category === recipe.category && item.slug !== recipe.slug)
+      .slice(0, 3);
+
+    el.innerHTML = \`
+      <article class="recipe-detail-card">
+        <div class="recipe-hero">
+          <div>
+            <span class="pill">\${escapeHtml(recipe.category)}</span>
+            <h1>\${escapeHtml(recipe.name)}</h1>
+            <p class="lead">\${escapeHtml(recipe.description || "")}</p>
+          </div>
+          <div class="detail-meta">
+            <a class="btn secondary" href="\${categoryUrl(catSlug)}">Înapoi la categorie</a>
+            <a class="btn" href="\${root}cauta.html?q=\${encodeURIComponent(recipe.name)}">Caută similare</a>
+          </div>
+        </div>
+        <div class="recipe-layout">
+          <section class="box">
+            <h2>Ingrediente</h2>
+            \${renderList(recipe.ingredients || [], false)}
+          </section>
+          <section class="box">
+            <h2>Mod de preparare</h2>
+            \${renderList(recipe.preparation || [], true)}
+            \${recipe.closing ? \`<p class="closing">\${escapeHtml(recipe.closing)}</p>\` : ""}
+          </section>
+        </div>
+        \${(recipe.extras || []).map(steakCalculator).join("")}
+      </article>
+      \${related.length ? \`<section class="related"><h2>Din aceeași categorie</h2><div class="grid cards">\${related.map(card).join("")}</div></section>\` : ""}
+    \`;
+  }
+
+  function renderCategoryPage() {
+    const title = document.getElementById("categoryTitle");
+    const desc = document.getElementById("categoryDescription");
+    const list = document.getElementById("categoryRecipes");
+    if (!title || !list) return;
+
+    const slug = document.body.dataset.categorySlug;
+    const category = data.categories.find((item) => item.slug === slug);
+    if (!category) {
+      title.textContent = "Categorie negăsită";
+      list.innerHTML = '<div class="empty">Această categorie nu există.</div>';
+      return;
+    }
+
+    document.title = category.name + " | Arta Gătitului";
+    title.textContent = category.name;
+    if (desc) desc.textContent = category.description;
+    renderRecipeCards("categoryRecipes", data.recipes.filter((recipe) => recipe.category === category.name));
+  }
+
+  function setupRandomizer() {
+    const button = document.getElementById("randomRecipeButton");
+    const result = document.getElementById("randomRecipeResult");
+    if (!button || !result) return;
+
+    function choose() {
+      const recipe = data.recipes[Math.floor(Math.random() * data.recipes.length)];
+      result.innerHTML = recipe ? card(recipe) : '<div class="empty">Nu există încă rețete pentru randomizer.</div>';
+    }
+
+    button.addEventListener("click", choose);
+    choose();
+  }
+
+  function setupMobileMenu() {
+    const btn = document.querySelector(".mobile-menu-btn");
+    const links = document.querySelector(".nav-links");
+    if (!btn || !links) return;
+
+    function setOpen(open) {
+      links.classList.toggle("open", open);
+      btn.setAttribute("aria-expanded", String(open));
+    }
+
+    btn.addEventListener("click", () => {
+      setOpen(!links.classList.contains("open"));
+    });
+
+    links.addEventListener("click", (event) => {
+      if (event.target.closest("a")) setOpen(false);
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") setOpen(false);
+    });
+  }
+
+  function markActiveNav() {
+    const current = window.location.pathname.replace(/\\/index\\.html$/, "/");
+    document.querySelectorAll(".nav-links a").forEach((link) => {
+      const path = new URL(link.href).pathname.replace(/\\/index\\.html$/, "/");
+      if (path === current) {
+        link.classList.add("active");
+        link.setAttribute("aria-current", "page");
+      }
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    setupMobileMenu();
+    markActiveNav();
+    renderFeatured();
+    renderAllRecipes();
+    renderCategories();
+    setupSearch();
+    setupPrefilledSearch();
+    renderRecipeDetail();
+    renderCategoryPage();
+    setupRandomizer();
+  });
+})();
+`;
+}
+
+async function writeFile(filePath, contents) {
+  await fs.mkdir(path.dirname(filePath), { recursive: true });
+  await fs.writeFile(filePath, contents, 'utf8');
+}
+
+async function main() {
+  const inventory = JSON.parse(await fs.readFile(INVENTORY_PATH, 'utf8'));
+  const markdown = await fs.readFile(RECIPES_MD_PATH, 'utf8');
+  const sections = readRecipeSections(markdown);
+  const soonSection = sections.find((section) => section.url.endsWith('/soon-to-come'));
+  const categoryMap = buildCategoryMap(inventory);
+  const recipes = mergeRecipes(sections.map(splitRecipe), categoryMap);
+  const categories = Object.values(CATEGORY_PAGES);
+
+  await writeFile(path.join(ROOT, 'assets', 'js', 'recipes.js'), dataFile(categories, recipes));
+  await writeFile(path.join(ROOT, 'assets', 'js', 'site.js'), jsFile());
+  await writeFile(path.join(ROOT, 'assets', 'css', 'style.css'), cssFile());
+
+  await writeFile(path.join(ROOT, 'index.html'), homePage());
+  await writeFile(path.join(ROOT, 'categorii.html'), categoriesIndexPage());
+  await writeFile(path.join(ROOT, 'cauta.html'), searchPage());
+  await writeFile(path.join(ROOT, 'portofoliu', 'index.html'), portfolioPage());
+  await writeFile(path.join(ROOT, 'randomizer', 'index.html'), randomizerPage());
+  if (soonSection) {
+    await writeFile(path.join(ROOT, 'soon-to-come', 'index.html'), soonPage(soonSection));
+  }
+
+  for (const category of categories) {
+    await writeFile(path.join(ROOT, 'categorie', category.slug, 'index.html'), categoryPage(category));
+    await writeFile(path.join(ROOT, category.slug, 'index.html'), categoryPage(category, '../'));
+  }
+
+  const recipeBySlug = new Map(recipes.map((recipe) => [recipe.slug, recipe]));
+  for (const recipe of recipes) {
+    await writeFile(path.join(ROOT, 'retete', recipe.slug, 'index.html'), recipePage(recipe));
+    await writeFile(path.join(ROOT, recipe.slug, 'index.html'), recipePage(recipe, '../'));
+  }
+
+  for (const [alias, target] of Object.entries(RECIPE_ALIASES)) {
+    const recipe = recipeBySlug.get(target);
+    if (recipe) {
+      await writeFile(path.join(ROOT, 'retete', alias, 'index.html'), recipePage(recipe, '../../', alias));
+      await writeFile(path.join(ROOT, alias, 'index.html'), recipePage(recipe, '../', alias));
+    }
+  }
+
+  console.log(`Generated ${recipes.length} recipes, ${categories.length} categories, and ${Object.keys(RECIPE_ALIASES).length} aliases.`);
+}
+
+main().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});

@@ -3,77 +3,84 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Acasă | Arta Gătitului</title>
-  <meta name="description" content="Rețete românești și internaționale, căutare după nume, categorie și ingrediente.">
+  <title>Arta Gătitului</title>
+  <meta name="description" content="Viață ocupată, mâncare sănătoasă. Rețete organizate pe categorii și căutare după ingrediente.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Source+Sans+3:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/style.css">
 </head>
-<body >
+<body>
+<a class="skip-link" href="#main-content">Sari la conținut</a>
 
-<header class="site-header">
-  <div class="nav-wrap">
-    <a class="logo" href="index.html" aria-label="Arta Gătitului">
-      <span class="logo-mark">🍲</span>
-      <span>Arta Gătitului</span>
-    </a>
-    <button class="mobile-menu-btn" type="button">Meniu</button>
-    <nav class="nav-links" aria-label="Navigație principală">
-      <a href="index.html">Acasă</a>
-      <a href="categorii.html">Categorii</a>
-      <a href="cauta.html">Caută</a>
-    </nav>
-  </div>
-</header>
-
-<main>
-  <section class="hero">
-    <div>
-      <div class="eyebrow">Rețete pentru acasă</div>
-      <h1>Gătește simplu, gustos și cu bucurie.</h1>
-      <p class="lead">O colecție de rețete organizate pe categorii, cu ingrediente ușor de căutat și pagini rapide care merg perfect pe GitHub Pages.</p>
-      <div class="actions">
-        <a class="btn" href="cauta.html">Caută după ingrediente</a>
-        <a class="btn secondary" href="categorii.html">Vezi categoriile</a>
+    <header class="site-header">
+      <div class="nav-wrap">
+        <a class="logo" href="index.html" aria-label="Arta Gătitului">
+          <span class="logo-mark">AG</span>
+          <span>Arta Gătitului</span>
+        </a>
+        <button class="mobile-menu-btn" type="button" aria-expanded="false" aria-controls="siteNav">Meniu</button>
+        <nav class="nav-links" id="siteNav" aria-label="Navigație principală">
+          <a href="index.html">Acasă</a>
+          <a href="portofoliu/">Portofoliu</a>
+          <a href="fel-principal/">Fel principal</a>
+          <a href="fel-secundar/">Fel secundar</a>
+          <a href="desert/">Desert</a>
+          <a href="rontaieli/">Rontaieli</a>
+          <a href="salate/">Salate</a>
+          <a href="bauturi/">Băuturi</a>
+          <a href="mic-dejun/">Mic dejun</a>
+          <a href="randomizer/">Randomizer</a>
+          <a href="cauta.html">Caută</a>
+        </nav>
       </div>
-    </div>
-    <div class="hero-card">
-      <div class="emoji">🥘</div>
-      <h2>Search inclus</h2>
-      <p>Caută după numele rețetei, ingredient sau cuvinte-cheie. Diacriticele sunt ignorate, deci „galuste” poate găsi „găluște”.</p>
-      <a class="btn secondary" href="cauta.html?q=pui">Încearcă: pui</a>
-    </div>
-  </section>
+    </header>
 
-  <section class="section">
-    <div class="section-head">
-      <div>
-        <h2>Categorii</h2>
-        <p>Alege rapid tipul de rețetă dorit.</p>
-      </div>
-      <a class="btn secondary" href="categorii.html">Toate categoriile</a>
-    </div>
-    <div id="categoryGrid" class="grid categories"></div>
-  </section>
+      <main id="main-content">
+        <section class="hero hero-home">
+          <div class="hero-inner">
+            <p class="eyebrow">Viață ocupată, mâncare sănătoasă</p>
+            <h1>Arta Gătitului</h1>
+            <p class="lead">Rețetele tale, adunate într-un site rapid, curat și ușor de folosit pe orice ecran.</p>
+            <form class="hero-search" action="cauta.html" method="get" role="search">
+              <label class="sr-only" for="homeSearch">Caută după rețetă sau ingredient</label>
+              <input id="homeSearch" name="q" type="search" placeholder="Caută după rețetă sau ingredient" autocomplete="off">
+              <button class="btn" type="submit">Caută</button>
+            </form>
+            <div class="hero-actions">
+              <a class="btn light" href="randomizer/">Generează o rețetă</a>
+              <a class="btn ghost" href="categorii.html">Vezi categoriile</a>
+            </div>
+          </div>
+        </section>
 
-  <section class="section">
-    <div class="section-head">
-      <div>
-        <h2>Rețete recomandate</h2>
-        <p>Primele rețete importate în versiunea statică.</p>
-      </div>
-      <a class="btn secondary" href="cauta.html">Caută toate rețetele</a>
-    </div>
-    <div id="featuredRecipes" class="grid cards"></div>
-  </section>
-</main>
+        <section class="section compact">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Categorii</p>
+              <h2>Alege după poftă</h2>
+            </div>
+            <a class="text-link" href="categorii.html">Toate categoriile</a>
+          </div>
+          <div id="categoryGrid" class="grid categories"></div>
+        </section>
 
+        <section class="section">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Rețete</p>
+              <h2>Rețete pentru acasă</h2>
+            </div>
+            <a class="text-link" href="cauta.html">Caută toate rețetele</a>
+          </div>
+          <div id="featuredRecipes" class="grid cards"></div>
+        </section>
+      </main>
 
-<footer class="footer">
-  <p>© <span id="year"></span> Arta Gătitului. Site static pentru GitHub Pages.</p>
-  <p><a href="cauta.html">Caută rețete</a> · <a href="categorii.html">Categorii</a></p>
-</footer>
+    <footer class="footer">
+      <p>Copyright © <span id="year"></span> Arta Gătitului - Toate drepturile rezervate.</p>
+      <p><a href="cauta.html">Caută rețete</a> · <a href="categorii.html">Categorii</a> · <a href="randomizer/">Randomizer</a></p>
+    </footer>
 <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 <script>window.ARTA_ROOT = "";</script>
 <script src="assets/js/recipes.js"></script>
