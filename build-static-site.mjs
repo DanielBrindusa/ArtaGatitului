@@ -630,7 +630,7 @@ p {
 }
 
 .nav-wrap {
-  width: min(var(--container), 100%);
+  width: min(1360px, 100%);
   margin: 0 auto;
   padding: var(--space-3) var(--space-4);
   display: flex;
@@ -668,8 +668,7 @@ p {
   display: flex;
   align-items: center;
   gap: var(--space-1);
-  overflow-x: auto;
-  scrollbar-width: thin;
+  overflow-x: visible;
 }
 
 .nav-links a {
@@ -1250,19 +1249,7 @@ ol.clean li {
   }
 }
 
-@media (max-width: 760px) {
-  h1 {
-    font-size: 2.28rem;
-  }
-
-  h2 {
-    font-size: 1.6rem;
-  }
-
-  h3 {
-    font-size: 1.12rem;
-  }
-
+@media (max-width: 1280px) {
   .nav-wrap {
     padding: var(--space-3);
   }
@@ -1296,6 +1283,20 @@ ol.clean li {
 
   .nav-links a {
     min-height: 44px;
+  }
+}
+
+@media (max-width: 760px) {
+  h1 {
+    font-size: 2.28rem;
+  }
+
+  h2 {
+    font-size: 1.6rem;
+  }
+
+  h3 {
+    font-size: 1.12rem;
   }
 
   .hero {
