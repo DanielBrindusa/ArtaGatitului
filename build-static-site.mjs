@@ -497,7 +497,8 @@ function cssFile() {
   --color-secondary: #62d6a8;
   --color-secondary-hover: #8ff0c8;
   --color-border: rgba(255, 214, 186, .18);
-  --color-focus: #ffd166;
+  --color-focus: rgba(255, 138, 91, .58);
+  --color-focus-soft: rgba(255, 138, 91, .22);
   --shadow-card: 0 22px 60px rgba(0, 0, 0, .42);
   --shadow-soft: 0 14px 38px rgba(0, 0, 0, .28);
   --radius-sm: 6px;
@@ -571,6 +572,18 @@ body::before {
   }
 }
 
+@keyframes pageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 a {
   color: var(--color-primary);
 }
@@ -601,6 +614,23 @@ header,
 .steak-calculator,
 .box {
   min-width: 0;
+}
+
+main {
+  animation: pageEnter .22s ease both;
+}
+
+main,
+.site-header,
+.footer {
+  transition: opacity .18s ease, transform .18s ease;
+}
+
+body.page-leaving main,
+body.page-leaving .site-header,
+body.page-leaving .footer {
+  opacity: 0;
+  transform: translateY(8px);
 }
 
 h1,
@@ -1196,7 +1226,8 @@ p {
 }
 
 input,
-select {
+select,
+textarea {
   width: 100%;
   min-height: 50px;
   border: 2px solid rgba(255, 214, 186, .28);
@@ -1215,14 +1246,17 @@ input::placeholder {
 }
 
 input:hover,
-select:hover {
+select:hover,
+textarea:hover {
   border-color: var(--color-primary);
 }
 
 input:focus,
-select:focus {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 4px rgba(159, 63, 34, .18);
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--color-primary-hover);
+  box-shadow: 0 0 0 3px var(--color-focus-soft);
 }
 
 .count {
@@ -1535,6 +1569,17 @@ ol.clean li {
     animation-duration: .01ms !important;
     animation-iteration-count: 1 !important;
     transform: none !important;
+  }
+
+  main {
+    animation: none !important;
+  }
+
+  body.page-leaving main,
+  body.page-leaving .site-header,
+  body.page-leaving .footer {
+    opacity: 1;
+    transform: none;
   }
 }
 
@@ -2399,7 +2444,46 @@ function jsFile() {
     });
   }
 
+  function setupPageTransitions() {
+    document.body.classList.add("page-loaded");
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    window.addEventListener("pageshow", () => {
+      document.body.classList.remove("page-leaving");
+      document.body.classList.add("page-loaded");
+    });
+
+    if (prefersReducedMotion) return;
+
+    document.addEventListener("click", (event) => {
+      if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+
+      const link = event.target.closest("a[href]");
+      if (!link) return;
+
+      const href = link.getAttribute("href");
+      if (!href || href.startsWith("#") || href.startsWith("mailto:") || href.startsWith("tel:")) return;
+      if (link.target && link.target !== "_self") return;
+      if (link.hasAttribute("download")) return;
+
+      const url = new URL(link.href, window.location.href);
+      if (url.origin !== window.location.origin) return;
+
+      const samePageAnchor = url.pathname === window.location.pathname && url.search === window.location.search && url.hash;
+      if (samePageAnchor || url.href === window.location.href) return;
+
+      event.preventDefault();
+      document.body.classList.remove("page-loaded");
+      document.body.classList.add("page-leaving");
+
+      window.setTimeout(() => {
+        window.location.href = url.href;
+      }, 170);
+    });
+  }
+
   document.addEventListener("DOMContentLoaded", function () {
+    setupPageTransitions();
     setupMobileMenu();
     markActiveNav();
     renderFeatured();
