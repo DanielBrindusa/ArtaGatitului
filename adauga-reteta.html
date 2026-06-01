@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="ro">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Adaugă rețetă | Arta Gătitului</title>
+  <meta name="description" content="Creator vizual pentru rețete noi, cu previzualizare și export pentru proiect.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Source+Sans+3:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-builder-page="true">
+<a class="skip-link" href="#main-content">Sari la conținut</a>
+
+    <header class="site-header">
+      <div class="nav-wrap">
+        <a class="logo" href="index.html" aria-label="Arta Gătitului">
+          <span class="logo-mark">AG</span>
+          <span>Arta Gătitului</span>
+        </a>
+        <nav class="nav-primary" aria-label="Navigație principală">
+          <a href="index.html">Acasă</a>
+          <a href="portofoliu/">Portofoliu</a>
+          <a href="randomizer/">Randomizer</a>
+          <a href="cauta.html">Caută</a>
+        </nav>
+        <button class="mobile-menu-btn" type="button" aria-expanded="false" aria-controls="siteNav" aria-label="Deschide meniul de categorii">
+          <span aria-hidden="true">☰</span>
+          <span>Categorii</span>
+        </button>
+        <nav class="nav-links" id="siteNav" aria-label="Categorii rețete">
+          <a href="categorii.html">Categorii</a>
+          <a href="fel-principal/">Fel principal</a>
+          <a href="fel-secundar/">Fel secundar</a>
+          <a href="desert/">Desert</a>
+          <a href="rontaieli/">Rontaieli</a>
+          <a href="salate/">Salate</a>
+          <a href="bauturi/">Băuturi</a>
+          <a href="mic-dejun/">Mic dejun</a>
+        </nav>
+      </div>
+    </header>
+
+      <main class="section builder-page" id="main-content">
+        <div class="page-title">
+          <p class="eyebrow">Instrument owner</p>
+          <h1>Adaugă rețetă</h1>
+          <p>Această pagină te ajută să creezi o rețetă fără să scrii cod. Previzualizarea se actualizează automat, iar exportul rămâne compatibil cu site-ul static de pe GitHub Pages.</p>
+        </div>
+
+        <section class="builder-help" aria-labelledby="builderHelpTitle">
+          <h2 id="builderHelpTitle">Cum funcționează</h2>
+          <ol class="clean">
+            <li>Completează titlul și categoria.</li>
+            <li>Adaugă ingredientele.</li>
+            <li>Adaugă pașii de preparare.</li>
+            <li>Verifică previzualizarea.</li>
+            <li>Exportă rețeta.</li>
+            <li>Adaugă blocul exportat în proiectul GitHub și rulează generatorul.</li>
+          </ol>
+          <p>Pentru că site-ul este static, salvarea directă în site nu este posibilă fără conectare la GitHub. Ciornele salvate local rămân doar în acest browser.</p>
+        </section>
+
+        <div class="builder-layout">
+          <form id="recipeBuilderForm" class="builder-card builder-editor" novalidate>
+            <div class="section-head compact-head">
+              <div>
+                <p class="eyebrow">Editor</p>
+                <h2>Date rețetă</h2>
+              </div>
+            </div>
+
+            <div id="builderValidation" class="builder-validation" role="status" aria-live="polite"></div>
+
+            <div class="builder-form-grid">
+              <label class="field" data-builder-field="title">
+                <span>Titlu rețetă *</span>
+                <input id="builderTitle" type="text" autocomplete="off" required>
+              </label>
+              <label class="field" data-builder-field="slug">
+                <span>Slug / URL *</span>
+                <input id="builderSlug" type="text" autocomplete="off" required>
+              </label>
+              <label class="field" data-builder-field="category">
+                <span>Categorie *</span>
+                <select id="builderCategory" required></select>
+              </label>
+              <label class="field">
+                <span>Timp pregătire</span>
+                <input id="builderPrepTime" type="text" placeholder="ex. 20 min">
+              </label>
+              <label class="field">
+                <span>Timp gătire</span>
+                <input id="builderCookTime" type="text" placeholder="ex. 35 min">
+              </label>
+              <label class="field">
+                <span>Porții / dificultate</span>
+                <input id="builderServings" type="text" placeholder="ex. 4 porții, ușor">
+              </label>
+            </div>
+
+            <label class="field builder-wide">
+              <span>Descriere scurtă</span>
+              <textarea id="builderDescription" rows="3" placeholder="O propoziție scurtă pentru card și pagina rețetei."></textarea>
+            </label>
+
+            <label class="field builder-wide">
+              <span>Imagine URL / cale</span>
+              <input id="builderImage" type="url" placeholder="opțional, ex. assets/images/reteta.jpg">
+            </label>
+
+            <section class="builder-list-section" aria-labelledby="ingredientsTitle">
+              <div class="builder-list-head">
+                <h3 id="ingredientsTitle">Ingrediente *</h3>
+                <button class="btn secondary" type="button" data-add-row="ingredients">Adaugă ingredient</button>
+              </div>
+              <div id="builderIngredients" class="builder-list" data-list="ingredients"></div>
+            </section>
+
+            <section class="builder-list-section" aria-labelledby="stepsTitle">
+              <div class="builder-list-head">
+                <h3 id="stepsTitle">Pași de preparare *</h3>
+                <button class="btn secondary" type="button" data-add-row="steps">Adaugă pas</button>
+              </div>
+              <div id="builderSteps" class="builder-list" data-list="steps"></div>
+            </section>
+
+            <label class="field builder-wide">
+              <span>Note / tips</span>
+              <textarea id="builderNotes" rows="3" placeholder="Opțional: trucuri, variante, observații pentru tine."></textarea>
+            </label>
+
+            <label class="field builder-wide">
+              <span>Cuvinte cheie / tag-uri</span>
+              <input id="builderKeywords" type="text" placeholder="ex. rapid, pui, cină">
+            </label>
+
+            <div class="builder-actions">
+              <button class="btn" type="button" id="copyRecipeExport">Copiază datele rețetei</button>
+              <button class="btn secondary" type="button" id="downloadRecipeJson">Descarcă JSON</button>
+              <button class="btn secondary" type="button" id="saveRecipeDraft">Salvează ciornă local</button>
+              <button class="btn secondary" type="button" id="loadRecipeDraft">Încarcă ciornă</button>
+              <button class="btn secondary" type="button" id="resetRecipeBuilder">Resetează formularul</button>
+            </div>
+          </form>
+
+          <aside class="builder-sidebar">
+            <section class="builder-card">
+              <p class="eyebrow">Previzualizare</p>
+              <div id="recipeBuilderPreview" class="builder-preview"></div>
+            </section>
+
+            <section class="builder-card">
+              <p class="eyebrow">Export</p>
+              <h2>Date pentru proiect</h2>
+              <p class="builder-note">Copiază blocul de mai jos și adaugă-l în <strong>LOCAL_FALLBACK_RECIPES</strong> din <strong>build-static-site.mjs</strong>. Apoi rulează <strong>node build-static-site.mjs</strong> ca să generezi pagina rețetei.</p>
+              <textarea id="recipeExportOutput" class="export-area" rows="14" readonly></textarea>
+              <label class="field import-field">
+                <span>Importă JSON exportat</span>
+                <input id="importRecipeJson" type="file" accept="application/json">
+              </label>
+              <p id="builderStatus" class="builder-status" aria-live="polite"></p>
+            </section>
+          </aside>
+        </div>
+      </main>
+
+    <footer class="footer">
+      <p>Copyright © <span id="year"></span> Arta Gătitului - Toate drepturile rezervate.</p>
+      <p class="footer-tools"><a href="adauga-reteta.html">Creator rețetă</a></p>
+    </footer>
+<script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+<script>window.ARTA_ROOT = "";</script>
+<script src="assets/js/recipes.js"></script>
+<script src="assets/js/site.js"></script>
+</body>
+</html>

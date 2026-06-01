@@ -182,9 +182,9 @@ function mergeRecipes(parsedRecipes, categoryMap) {
     if (!recipesBySlug.has(fallback.slug)) {
       recipesBySlug.set(fallback.slug, {
         ...fallback,
-        description: makeDescription(fallback.name, fallback.preparation, fallback.ingredients),
-        closing: 'Poftă bună!',
-        extras: [],
+        description: fallback.description || makeDescription(fallback.name, fallback.preparation, fallback.ingredients),
+        closing: fallback.closing || 'Poftă bună!',
+        extras: fallback.extras || [],
       });
     }
   }
@@ -265,6 +265,7 @@ function footer(root) {
   return `
     <footer class="footer">
       <p>Copyright © <span id="year"></span> ${SITE_NAME} - Toate drepturile rezervate.</p>
+      <p class="footer-tools"><a href="${root}adauga-reteta.html">Creator rețetă</a></p>
     </footer>`;
 }
 
@@ -467,6 +468,138 @@ function randomizerPage() {
   });
 }
 
+function recipeBuilderPage() {
+  return page({
+    title: 'Adaugă rețetă',
+    description: 'Creator vizual pentru rețete noi, cu previzualizare și export pentru proiect.',
+    bodyAttrs: 'data-builder-page="true"',
+    main: `
+      <main class="section builder-page" id="main-content">
+        <div class="page-title">
+          <p class="eyebrow">Instrument owner</p>
+          <h1>Adaugă rețetă</h1>
+          <p>Această pagină te ajută să creezi o rețetă fără să scrii cod. Previzualizarea se actualizează automat, iar exportul rămâne compatibil cu site-ul static de pe GitHub Pages.</p>
+        </div>
+
+        <section class="builder-help" aria-labelledby="builderHelpTitle">
+          <h2 id="builderHelpTitle">Cum funcționează</h2>
+          <ol class="clean">
+            <li>Completează titlul și categoria.</li>
+            <li>Adaugă ingredientele.</li>
+            <li>Adaugă pașii de preparare.</li>
+            <li>Verifică previzualizarea.</li>
+            <li>Exportă rețeta.</li>
+            <li>Adaugă blocul exportat în proiectul GitHub și rulează generatorul.</li>
+          </ol>
+          <p>Pentru că site-ul este static, salvarea directă în site nu este posibilă fără conectare la GitHub. Ciornele salvate local rămân doar în acest browser.</p>
+        </section>
+
+        <div class="builder-layout">
+          <form id="recipeBuilderForm" class="builder-card builder-editor" novalidate>
+            <div class="section-head compact-head">
+              <div>
+                <p class="eyebrow">Editor</p>
+                <h2>Date rețetă</h2>
+              </div>
+            </div>
+
+            <div id="builderValidation" class="builder-validation" role="status" aria-live="polite"></div>
+
+            <div class="builder-form-grid">
+              <label class="field" data-builder-field="title">
+                <span>Titlu rețetă *</span>
+                <input id="builderTitle" type="text" autocomplete="off" required>
+              </label>
+              <label class="field" data-builder-field="slug">
+                <span>Slug / URL *</span>
+                <input id="builderSlug" type="text" autocomplete="off" required>
+              </label>
+              <label class="field" data-builder-field="category">
+                <span>Categorie *</span>
+                <select id="builderCategory" required></select>
+              </label>
+              <label class="field">
+                <span>Timp pregătire</span>
+                <input id="builderPrepTime" type="text" placeholder="ex. 20 min">
+              </label>
+              <label class="field">
+                <span>Timp gătire</span>
+                <input id="builderCookTime" type="text" placeholder="ex. 35 min">
+              </label>
+              <label class="field">
+                <span>Porții / dificultate</span>
+                <input id="builderServings" type="text" placeholder="ex. 4 porții, ușor">
+              </label>
+            </div>
+
+            <label class="field builder-wide">
+              <span>Descriere scurtă</span>
+              <textarea id="builderDescription" rows="3" placeholder="O propoziție scurtă pentru card și pagina rețetei."></textarea>
+            </label>
+
+            <label class="field builder-wide">
+              <span>Imagine URL / cale</span>
+              <input id="builderImage" type="url" placeholder="opțional, ex. assets/images/reteta.jpg">
+            </label>
+
+            <section class="builder-list-section" aria-labelledby="ingredientsTitle">
+              <div class="builder-list-head">
+                <h3 id="ingredientsTitle">Ingrediente *</h3>
+                <button class="btn secondary" type="button" data-add-row="ingredients">Adaugă ingredient</button>
+              </div>
+              <div id="builderIngredients" class="builder-list" data-list="ingredients"></div>
+            </section>
+
+            <section class="builder-list-section" aria-labelledby="stepsTitle">
+              <div class="builder-list-head">
+                <h3 id="stepsTitle">Pași de preparare *</h3>
+                <button class="btn secondary" type="button" data-add-row="steps">Adaugă pas</button>
+              </div>
+              <div id="builderSteps" class="builder-list" data-list="steps"></div>
+            </section>
+
+            <label class="field builder-wide">
+              <span>Note / tips</span>
+              <textarea id="builderNotes" rows="3" placeholder="Opțional: trucuri, variante, observații pentru tine."></textarea>
+            </label>
+
+            <label class="field builder-wide">
+              <span>Cuvinte cheie / tag-uri</span>
+              <input id="builderKeywords" type="text" placeholder="ex. rapid, pui, cină">
+            </label>
+
+            <div class="builder-actions">
+              <button class="btn" type="button" id="copyRecipeExport">Copiază datele rețetei</button>
+              <button class="btn secondary" type="button" id="downloadRecipeJson">Descarcă JSON</button>
+              <button class="btn secondary" type="button" id="saveRecipeDraft">Salvează ciornă local</button>
+              <button class="btn secondary" type="button" id="loadRecipeDraft">Încarcă ciornă</button>
+              <button class="btn secondary" type="button" id="resetRecipeBuilder">Resetează formularul</button>
+            </div>
+          </form>
+
+          <aside class="builder-sidebar">
+            <section class="builder-card">
+              <p class="eyebrow">Previzualizare</p>
+              <div id="recipeBuilderPreview" class="builder-preview"></div>
+            </section>
+
+            <section class="builder-card">
+              <p class="eyebrow">Export</p>
+              <h2>Date pentru proiect</h2>
+              <p class="builder-note">Copiază blocul de mai jos și adaugă-l în <strong>LOCAL_FALLBACK_RECIPES</strong> din <strong>build-static-site.mjs</strong>. Apoi rulează <strong>node build-static-site.mjs</strong> ca să generezi pagina rețetei.</p>
+              <textarea id="recipeExportOutput" class="export-area" rows="14" readonly></textarea>
+              <label class="field import-field">
+                <span>Importă JSON exportat</span>
+                <input id="importRecipeJson" type="file" accept="application/json">
+              </label>
+              <p id="builderStatus" class="builder-status" aria-live="polite"></p>
+            </section>
+          </aside>
+        </div>
+      </main>`,
+  });
+}
+
 function soonPage(section) {
   const lines = section.lines.map((line) => `<p>${escapeHtml(line)}</p>`).join('\n          ');
   return page({
@@ -550,6 +683,21 @@ body::before {
   animation: ambientShift 18s ease-in-out infinite alternate;
 }
 
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  pointer-events: none;
+  background:
+    linear-gradient(135deg, rgba(255, 138, 91, .2), rgba(98, 214, 168, .08)),
+    rgba(15, 17, 23, .46);
+  opacity: 0;
+  transform: translateY(100%);
+  transition: opacity .28s ease, transform .34s cubic-bezier(.2, .7, .2, 1);
+  backdrop-filter: blur(8px);
+}
+
 @keyframes ambientShift {
   from {
     background-position: 0% 0%, 0 0, 0 0;
@@ -575,12 +723,14 @@ body::before {
 @keyframes pageEnter {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    filter: blur(4px);
+    transform: translateY(14px) scale(.985);
   }
 
   to {
     opacity: 1;
-    transform: translateY(0);
+    filter: blur(0);
+    transform: translateY(0) scale(1);
   }
 }
 
@@ -611,26 +761,33 @@ header,
 .recipe-detail-card,
 .search-panel,
 .randomizer-panel,
+.builder-card,
 .steak-calculator,
 .box {
   min-width: 0;
 }
 
 main {
-  animation: pageEnter .22s ease both;
+  animation: pageEnter .34s cubic-bezier(.2, .7, .2, 1) both;
 }
 
 main,
 .site-header,
 .footer {
-  transition: opacity .18s ease, transform .18s ease;
+  transition: opacity .28s ease, transform .28s ease, filter .28s ease;
 }
 
 body.page-leaving main,
 body.page-leaving .site-header,
 body.page-leaving .footer {
   opacity: 0;
-  transform: translateY(8px);
+  filter: blur(5px);
+  transform: translateY(12px) scale(.985);
+}
+
+body.page-leaving::after {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 h1,
@@ -1040,6 +1197,7 @@ p {
 .search-panel,
 .randomizer-panel,
 .soon-card,
+.builder-card,
 .box,
 .steak-calculator {
   border: 1px solid var(--color-border);
@@ -1392,11 +1550,14 @@ ol.clean li {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
   gap: var(--space-4);
+  align-items: stretch;
 }
 
 .meal-slot {
   display: grid;
+  grid-template-rows: auto 1fr;
   gap: var(--space-3);
+  min-width: 0;
 }
 
 .meal-slot-title {
@@ -1412,6 +1573,38 @@ ol.clean li {
   text-align: left;
 }
 
+.meal-slot .recipe-card,
+.meal-empty {
+  min-height: 336px;
+}
+
+.meal-slot .recipe-card {
+  height: 100%;
+}
+
+.meal-slot .recipe-card h3,
+.meal-slot .recipe-card p,
+.meal-slot .ingredients-preview {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.meal-slot .recipe-card h3 {
+  min-height: 2.8em;
+  -webkit-line-clamp: 2;
+}
+
+.meal-slot .recipe-card p {
+  min-height: 4.8em;
+  -webkit-line-clamp: 3;
+}
+
+.meal-slot .ingredients-preview {
+  min-height: 4.75em;
+  -webkit-line-clamp: 3;
+}
+
 .soon-card {
   max-width: 760px;
 }
@@ -1422,6 +1615,182 @@ ol.clean li {
 }
 
 .soon-card .btn {
+  margin-top: var(--space-4);
+}
+
+.builder-help {
+  margin-bottom: var(--space-5);
+  padding: var(--space-5);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: rgba(24, 29, 41, .7);
+}
+
+.builder-help h2 {
+  font-size: 1.45rem;
+}
+
+.builder-help p {
+  margin-top: var(--space-4);
+  color: var(--color-text-muted);
+}
+
+.builder-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(320px, .92fr);
+  gap: var(--space-5);
+  align-items: start;
+}
+
+.builder-sidebar {
+  position: sticky;
+  top: 110px;
+  display: grid;
+  gap: var(--space-5);
+}
+
+.builder-card {
+  padding: var(--space-5);
+}
+
+.builder-card h2 {
+  font-size: 1.45rem;
+}
+
+.compact-head {
+  margin-bottom: var(--space-4);
+}
+
+.builder-form-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.builder-wide,
+.builder-list-section {
+  margin-top: var(--space-5);
+}
+
+.builder-list-head {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  align-items: center;
+  margin-bottom: var(--space-3);
+}
+
+.builder-list-head h3 {
+  font-size: 1.16rem;
+}
+
+.builder-list {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.builder-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-2);
+  align-items: start;
+}
+
+.builder-row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.mini-btn {
+  min-height: 40px;
+  min-width: 40px;
+  padding: var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: #111620;
+  color: var(--color-text);
+  font: inherit;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.mini-btn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary-hover);
+}
+
+.builder-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+}
+
+.builder-actions .btn {
+  flex: 1 1 190px;
+}
+
+.builder-validation {
+  margin-bottom: var(--space-4);
+  color: var(--color-primary-hover);
+  font-weight: 800;
+}
+
+.field.is-invalid input,
+.field.is-invalid select,
+.field.is-invalid textarea {
+  border-color: var(--color-primary-hover);
+  box-shadow: 0 0 0 3px var(--color-focus-soft);
+}
+
+.builder-preview {
+  margin-top: var(--space-4);
+}
+
+.builder-preview-card {
+  padding: var(--space-5);
+  background: var(--color-surface-alt);
+  box-shadow: none;
+}
+
+.builder-preview-image {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  margin-bottom: var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+}
+
+.builder-preview-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: var(--space-3) 0;
+  color: var(--color-text-muted);
+  font-weight: 800;
+}
+
+.builder-preview-section {
+  margin-top: var(--space-5);
+}
+
+.builder-note,
+.builder-status {
+  margin-top: var(--space-3);
+  color: var(--color-text-muted);
+}
+
+.export-area {
+  min-height: 260px;
+  margin-top: var(--space-4);
+  resize: vertical;
+  font-family: Consolas, "Liberation Mono", monospace;
+  font-size: .9rem;
+}
+
+.import-field {
   margin-top: var(--space-4);
 }
 
@@ -1575,6 +1944,10 @@ ol.clean li {
     animation: none !important;
   }
 
+  body::after {
+    display: none;
+  }
+
   body.page-leaving main,
   body.page-leaving .site-header,
   body.page-leaving .footer {
@@ -1600,11 +1973,17 @@ ol.clean li {
   .recipe-layout,
   .recipe-hero,
   .search-row,
+  .builder-layout,
+  .builder-form-grid,
   .steak-form,
   .steak-result-grid,
   .steak-timer,
   .steak-grid {
     grid-template-columns: 1fr;
+  }
+
+  .builder-sidebar {
+    position: static;
   }
 
   .detail-meta {
@@ -1746,14 +2125,42 @@ ol.clean li {
   .search-panel,
   .randomizer-panel,
   .soon-card,
+  .builder-card,
   .steak-calculator,
   .box {
     padding: var(--space-4);
   }
 
+  .builder-list-head,
+  .builder-row {
+    grid-template-columns: 1fr;
+  }
+
+  .builder-list-head {
+    display: grid;
+  }
+
+  .builder-list-head .btn,
+  .builder-actions .btn {
+    width: 100%;
+  }
+
+  .builder-row-actions {
+    width: 100%;
+  }
+
+  .mini-btn {
+    flex: 1 1 44px;
+  }
+
   .detail-meta .btn,
   .steak-actions .btn {
     width: 100%;
+  }
+
+  .meal-slot .recipe-card,
+  .meal-empty {
+    min-height: 300px;
   }
 
   .timer-display {
@@ -2410,6 +2817,458 @@ function jsFile() {
     });
   }
 
+  function setupRecipeBuilder() {
+    const form = document.getElementById("recipeBuilderForm");
+    if (!form) return;
+
+    const els = {
+      title: document.getElementById("builderTitle"),
+      slug: document.getElementById("builderSlug"),
+      category: document.getElementById("builderCategory"),
+      prepTime: document.getElementById("builderPrepTime"),
+      cookTime: document.getElementById("builderCookTime"),
+      servings: document.getElementById("builderServings"),
+      description: document.getElementById("builderDescription"),
+      image: document.getElementById("builderImage"),
+      notes: document.getElementById("builderNotes"),
+      keywords: document.getElementById("builderKeywords"),
+      ingredients: document.getElementById("builderIngredients"),
+      steps: document.getElementById("builderSteps"),
+      preview: document.getElementById("recipeBuilderPreview"),
+      exportOutput: document.getElementById("recipeExportOutput"),
+      validation: document.getElementById("builderValidation"),
+      status: document.getElementById("builderStatus"),
+      importInput: document.getElementById("importRecipeJson")
+    };
+    if (!els.title || !els.slug || !els.category || !els.ingredients || !els.steps || !els.preview || !els.exportOutput) return;
+
+    const draftKey = "arta-gatitului-recipe-builder-draft";
+    const existingSlugs = new Set((data.recipes || []).map((recipe) => recipe.slug));
+    let slugTouched = false;
+    let autosaveTimer = null;
+
+    function builderSlug(value) {
+      return normalize(value)
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, "");
+    }
+
+    function cleanLines(values) {
+      return values.map((value) => String(value || "").trim()).filter(Boolean);
+    }
+
+    function rowValues(container) {
+      return cleanLines(Array.from(container.querySelectorAll("[data-builder-row-input]")).map((input) => input.value));
+    }
+
+    function setStatus(message) {
+      if (els.status) els.status.textContent = message || "";
+    }
+
+    function createText(tag, className, text) {
+      const el = document.createElement(tag);
+      if (className) el.className = className;
+      el.textContent = text || "";
+      return el;
+    }
+
+    function addRow(type, value = "") {
+      const container = type === "steps" ? els.steps : els.ingredients;
+      const row = document.createElement("div");
+      row.className = "builder-row";
+
+      const input = type === "steps" ? document.createElement("textarea") : document.createElement("input");
+      input.dataset.builderRowInput = "true";
+      input.value = value;
+      input.placeholder = type === "steps" ? "Descrie pasul de preparare" : "ex. 2 ouă";
+      if (type === "steps") input.rows = 2;
+
+      const actions = document.createElement("div");
+      actions.className = "builder-row-actions";
+
+      [
+        ["up", "Sus"],
+        ["down", "Jos"],
+        ["remove", "Șterge"]
+      ].forEach(([action, label]) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "mini-btn";
+        button.dataset.rowAction = action;
+        button.textContent = label;
+        actions.append(button);
+      });
+
+      row.append(input, actions);
+      container.append(row);
+      input.addEventListener("input", syncBuilder);
+      return row;
+    }
+
+    function moveRow(row, direction) {
+      const sibling = direction === "up" ? row.previousElementSibling : row.nextElementSibling;
+      if (!sibling) return;
+      if (direction === "up") row.parentElement.insertBefore(row, sibling);
+      else row.parentElement.insertBefore(sibling, row);
+      syncBuilder();
+    }
+
+    function bindRowActions(container) {
+      container.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-row-action]");
+        if (!button) return;
+        const row = button.closest(".builder-row");
+        if (!row) return;
+        const action = button.dataset.rowAction;
+        if (action === "remove") {
+          row.remove();
+          if (!container.children.length) addRow(container.dataset.list);
+          syncBuilder();
+        } else {
+          moveRow(row, action);
+        }
+      });
+    }
+
+    function currentState() {
+      return {
+        name: els.title.value.trim(),
+        slug: builderSlug(els.slug.value),
+        category: els.category.value,
+        description: els.description.value.trim(),
+        prepTime: els.prepTime.value.trim(),
+        cookTime: els.cookTime.value.trim(),
+        servings: els.servings.value.trim(),
+        image: els.image.value.trim(),
+        notes: els.notes.value.trim(),
+        keywordsText: els.keywords.value.trim(),
+        ingredients: rowValues(els.ingredients),
+        preparation: rowValues(els.steps)
+      };
+    }
+
+    function keywordList(state) {
+      return Array.from(new Set([
+        ...state.name.split(/\\s+/),
+        ...state.category.split(/\\s+/),
+        ...state.keywordsText.split(/[,\\s]+/),
+        ...state.ingredients.flatMap((line) => line.split(/\\s+/))
+      ].map(builderSlug).filter(Boolean)));
+    }
+
+    function publicRecipeObject() {
+      const state = currentState();
+      return {
+        name: state.name,
+        slug: state.slug,
+        category: state.category,
+        description: state.description,
+        ingredients: state.ingredients,
+        preparation: state.preparation,
+        closing: "Poftă bună!",
+        extras: [],
+        sourceUrl: "",
+        keywords: keywordList(state)
+      };
+    }
+
+    function fallbackRecipeObject() {
+      const recipe = publicRecipeObject();
+      return {
+        name: recipe.name,
+        slug: recipe.slug,
+        category: recipe.category,
+        sourceUrl: recipe.sourceUrl,
+        description: recipe.description,
+        preparation: recipe.preparation,
+        ingredients: recipe.ingredients,
+        closing: recipe.closing,
+        extras: recipe.extras
+      };
+    }
+
+    function exportPackage() {
+      const state = currentState();
+      return {
+        recipe: publicRecipeObject(),
+        fallbackRecipe: fallbackRecipeObject(),
+        builderMeta: {
+          prepTime: state.prepTime,
+          cookTime: state.cookTime,
+          servings: state.servings,
+          image: state.image,
+          notes: state.notes
+        }
+      };
+    }
+
+    function clearInvalidState() {
+      form.querySelectorAll(".is-invalid").forEach((field) => field.classList.remove("is-invalid"));
+    }
+
+    function markInvalid(fieldName) {
+      const field = form.querySelector('[data-builder-field="' + fieldName + '"]');
+      if (field) field.classList.add("is-invalid");
+    }
+
+    function validateBuilder(showMessages = true) {
+      const state = currentState();
+      const messages = [];
+      clearInvalidState();
+      if (!state.name) {
+        messages.push("Titlul este obligatoriu.");
+        markInvalid("title");
+      }
+      if (!state.slug) {
+        messages.push("Slug-ul este obligatoriu.");
+        markInvalid("slug");
+      }
+      if (!state.category) {
+        messages.push("Categoria este obligatorie.");
+        markInvalid("category");
+      }
+      if (!state.ingredients.length) messages.push("Adaugă cel puțin un ingredient.");
+      if (!state.preparation.length) messages.push("Adaugă cel puțin un pas de preparare.");
+      if (state.slug && existingSlugs.has(state.slug)) messages.push("Atenție: există deja o rețetă cu acest slug.");
+      if (els.validation) els.validation.textContent = showMessages ? messages.join(" ") : "";
+      return messages.filter((message) => !message.startsWith("Atenție")).length === 0;
+    }
+
+    function renderPreview() {
+      const state = currentState();
+      const preview = els.preview;
+      preview.textContent = "";
+
+      const article = document.createElement("article");
+      article.className = "recipe-detail-card builder-preview-card";
+
+      if (state.image) {
+        const image = document.createElement("img");
+        image.className = "builder-preview-image";
+        image.alt = state.name || "Imagine rețetă";
+        image.loading = "lazy";
+        image.src = state.image;
+        article.append(image);
+      }
+
+      const badge = createText("span", "pill", state.category || "Categorie");
+      const title = createText("h1", "", state.name || "Titlu rețetă");
+      const desc = createText("p", "lead", state.description || "Descrierea rețetei va apărea aici.");
+      article.append(badge, title, desc);
+
+      const metaValues = [state.prepTime, state.cookTime, state.servings].filter(Boolean);
+      if (metaValues.length) {
+        const meta = document.createElement("div");
+        meta.className = "builder-preview-meta";
+        metaValues.forEach((value) => meta.append(createText("span", "", value)));
+        article.append(meta);
+      }
+
+      const layout = document.createElement("div");
+      layout.className = "recipe-layout";
+
+      const ingredientsBox = document.createElement("section");
+      ingredientsBox.className = "box";
+      ingredientsBox.append(createText("h2", "", "Ingrediente"));
+      const ingredientsList = document.createElement("ul");
+      ingredientsList.className = "clean";
+      (state.ingredients.length ? state.ingredients : ["Adaugă ingredientele în editor."]).forEach((line) => ingredientsList.append(createText("li", "", line)));
+      ingredientsBox.append(ingredientsList);
+
+      const stepsBox = document.createElement("section");
+      stepsBox.className = "box";
+      stepsBox.append(createText("h2", "", "Mod de preparare"));
+      const stepsList = document.createElement("ol");
+      stepsList.className = "clean";
+      (state.preparation.length ? state.preparation : ["Adaugă pașii de preparare în editor."]).forEach((line) => stepsList.append(createText("li", "", line)));
+      stepsBox.append(stepsList);
+
+      layout.append(ingredientsBox, stepsBox);
+      article.append(layout);
+
+      if (state.notes) {
+        const notes = document.createElement("section");
+        notes.className = "builder-preview-section box";
+        notes.append(createText("h2", "", "Note"));
+        notes.append(createText("p", "", state.notes));
+        article.append(notes);
+      }
+
+      preview.append(article);
+    }
+
+    function updateExport() {
+      els.exportOutput.value = JSON.stringify(fallbackRecipeObject(), null, 2) + ",";
+    }
+
+    function saveDraft(silent = false) {
+      window.localStorage.setItem(draftKey, JSON.stringify(exportPackage()));
+      if (!silent) setStatus("Ciornă salvată local în acest browser.");
+    }
+
+    function scheduleAutosave() {
+      window.clearTimeout(autosaveTimer);
+      autosaveTimer = window.setTimeout(() => saveDraft(true), 350);
+    }
+
+    function syncBuilder() {
+      if (els.slug.value !== builderSlug(els.slug.value)) els.slug.value = builderSlug(els.slug.value);
+      validateBuilder(false);
+      renderPreview();
+      updateExport();
+      scheduleAutosave();
+    }
+
+    function loadFromPackage(payload) {
+      const recipe = payload.fallbackRecipe || payload.recipe || payload;
+      const meta = payload.builderMeta || {};
+      els.title.value = recipe.name || "";
+      els.slug.value = recipe.slug || builderSlug(recipe.name || "");
+      els.category.value = recipe.category || els.category.value;
+      els.description.value = recipe.description || "";
+      els.prepTime.value = meta.prepTime || "";
+      els.cookTime.value = meta.cookTime || "";
+      els.servings.value = meta.servings || "";
+      els.image.value = meta.image || "";
+      els.notes.value = meta.notes || "";
+      els.keywords.value = Array.isArray(recipe.keywords) ? recipe.keywords.join(", ") : "";
+      els.ingredients.textContent = "";
+      els.steps.textContent = "";
+      (Array.isArray(recipe.ingredients) && recipe.ingredients.length ? recipe.ingredients : [""]).forEach((line) => addRow("ingredients", line));
+      (Array.isArray(recipe.preparation) && recipe.preparation.length ? recipe.preparation : [""]).forEach((line) => addRow("steps", line));
+      slugTouched = true;
+      syncBuilder();
+    }
+
+    function resetBuilder() {
+      els.title.value = "";
+      els.slug.value = "";
+      els.description.value = "";
+      els.prepTime.value = "";
+      els.cookTime.value = "";
+      els.servings.value = "";
+      els.image.value = "";
+      els.notes.value = "";
+      els.keywords.value = "";
+      els.ingredients.textContent = "";
+      els.steps.textContent = "";
+      addRow("ingredients");
+      addRow("steps");
+      slugTouched = false;
+      setStatus("Formular resetat.");
+      syncBuilder();
+    }
+
+    async function copyExport() {
+      if (!validateBuilder(true)) {
+        setStatus("Completează câmpurile obligatorii înainte de export.");
+        return;
+      }
+      const text = els.exportOutput.value;
+      try {
+        await navigator.clipboard.writeText(text);
+        setStatus("Datele rețetei au fost copiate.");
+      } catch {
+        els.exportOutput.focus();
+        els.exportOutput.select();
+        document.execCommand("copy");
+        setStatus("Datele rețetei au fost selectate pentru copiere.");
+      }
+    }
+
+    function downloadJson() {
+      if (!validateBuilder(true)) {
+        setStatus("Completează câmpurile obligatorii înainte de descărcare.");
+        return;
+      }
+      const state = currentState();
+      const blob = new Blob([JSON.stringify(exportPackage(), null, 2)], { type: "application/json" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = (state.slug || "reteta-noua") + ".json";
+      document.body.append(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(link.href);
+      setStatus("Fișier JSON descărcat.");
+    }
+
+    function loadDraft() {
+      const raw = window.localStorage.getItem(draftKey);
+      if (!raw) {
+        setStatus("Nu există nicio ciornă locală salvată.");
+        return;
+      }
+      try {
+        loadFromPackage(JSON.parse(raw));
+        setStatus("Ciornă locală încărcată.");
+      } catch {
+        setStatus("Ciorna locală nu a putut fi citită.");
+      }
+    }
+
+    function populateCategories() {
+      els.category.textContent = "";
+      (data.categories || []).forEach((category) => {
+        const option = document.createElement("option");
+        option.value = category.name;
+        option.textContent = category.name;
+        els.category.append(option);
+      });
+    }
+
+    populateCategories();
+    bindRowActions(els.ingredients);
+    bindRowActions(els.steps);
+    addRow("ingredients");
+    addRow("steps");
+
+    form.addEventListener("input", syncBuilder);
+    form.addEventListener("change", syncBuilder);
+    document.querySelectorAll("[data-add-row]").forEach((button) => {
+      button.addEventListener("click", () => {
+        addRow(button.dataset.addRow);
+        syncBuilder();
+      });
+    });
+    els.title.addEventListener("input", () => {
+      if (!slugTouched || !els.slug.value) els.slug.value = builderSlug(els.title.value);
+    });
+    els.slug.addEventListener("input", () => {
+      slugTouched = true;
+      els.slug.value = builderSlug(els.slug.value);
+    });
+    document.getElementById("copyRecipeExport")?.addEventListener("click", copyExport);
+    document.getElementById("downloadRecipeJson")?.addEventListener("click", downloadJson);
+    document.getElementById("saveRecipeDraft")?.addEventListener("click", () => saveDraft(false));
+    document.getElementById("loadRecipeDraft")?.addEventListener("click", loadDraft);
+    document.getElementById("resetRecipeBuilder")?.addEventListener("click", resetBuilder);
+    els.importInput?.addEventListener("change", async () => {
+      const file = els.importInput.files && els.importInput.files[0];
+      if (!file) return;
+      try {
+        loadFromPackage(JSON.parse(await file.text()));
+        setStatus("JSON importat.");
+      } catch {
+        setStatus("Fișierul JSON nu a putut fi importat.");
+      } finally {
+        els.importInput.value = "";
+      }
+    });
+
+    const saved = window.localStorage.getItem(draftKey);
+    if (saved) {
+      try {
+        loadFromPackage(JSON.parse(saved));
+        setStatus("Ciornă locală încărcată automat.");
+      } catch {
+        resetBuilder();
+      }
+    } else {
+      syncBuilder();
+    }
+  }
+
   function setupMobileMenu() {
     const btn = document.querySelector(".mobile-menu-btn");
     const links = document.querySelector(".nav-links");
@@ -2478,7 +3337,7 @@ function jsFile() {
 
       window.setTimeout(() => {
         window.location.href = url.href;
-      }, 170);
+      }, 280);
     });
   }
 
@@ -2495,6 +3354,7 @@ function jsFile() {
     renderCategoryPage();
     setupRandomizer();
     setupSteakCalculators();
+    setupRecipeBuilder();
   });
 })();
 `;
@@ -2519,6 +3379,7 @@ async function main() {
   await writeFile(path.join(ROOT, 'assets', 'css', 'style.css'), cssFile());
 
   await writeFile(path.join(ROOT, 'index.html'), homePage());
+  await writeFile(path.join(ROOT, 'adauga-reteta.html'), recipeBuilderPage());
   await writeFile(path.join(ROOT, 'categorii.html'), categoriesIndexPage());
   await writeFile(path.join(ROOT, 'cauta.html'), searchPage());
   await writeFile(path.join(ROOT, 'portofoliu', 'index.html'), portfolioPage());
