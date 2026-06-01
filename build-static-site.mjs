@@ -450,17 +450,17 @@ function portfolioPage() {
 function randomizerPage() {
   return page({
     title: 'Randomizer',
-    description: 'Generator aleatoriu de rețete.',
+    description: 'Generator aleatoriu de meniu complet.',
     root: '../',
     main: `
       <main class="section randomizer-page" id="main-content">
         <div class="page-title">
           <p class="eyebrow">Randomizer</p>
-          <h1>Generator Aleatoriu</h1>
-          <p>Nu știi ce să gătești? Lasă site-ul să aleagă o rețetă pentru tine.</p>
+          <h1>Generator meniu complet</h1>
+          <p>Nu știi ce să gătești? Lasă site-ul să aleagă câte ceva pentru mic dejun, masă principală, desert și gustări.</p>
         </div>
         <section class="randomizer-panel" aria-live="polite">
-          <button class="btn" type="button" id="randomRecipeButton">Generează o rețetă</button>
+          <button class="btn" type="button" id="randomRecipeButton">Generează meniul</button>
           <div id="randomRecipeResult" class="random-result"></div>
         </section>
       </main>`,
@@ -541,10 +541,21 @@ body::before {
   z-index: -1;
   pointer-events: none;
   background:
-    radial-gradient(circle at 12% 10%, rgba(255, 138, 91, .18), transparent 30%),
-    radial-gradient(circle at 86% 8%, rgba(98, 214, 168, .13), transparent 28%),
-    linear-gradient(180deg, rgba(15, 17, 23, .96), rgba(15, 17, 23, .995)),
+    linear-gradient(120deg, rgba(255, 138, 91, .13), transparent 36%, rgba(98, 214, 168, .1)),
+    linear-gradient(180deg, rgba(15, 17, 23, .95), rgba(15, 17, 23, .995)),
     repeating-linear-gradient(90deg, rgba(255, 255, 255, .025) 0, rgba(255, 255, 255, .025) 1px, transparent 1px, transparent 58px);
+  background-size: 180% 180%, auto, auto;
+  animation: ambientShift 18s ease-in-out infinite alternate;
+}
+
+@keyframes ambientShift {
+  from {
+    background-position: 0% 0%, 0 0, 0 0;
+  }
+
+  to {
+    background-position: 100% 18%, 0 0, 24px 0;
+  }
 }
 
 a {
@@ -630,6 +641,7 @@ p {
   z-index: 20;
   border-bottom: 1px solid var(--color-border);
   background: rgba(15, 17, 23, .86);
+  box-shadow: 0 12px 34px rgba(0, 0, 0, .18);
   backdrop-filter: blur(14px);
 }
 
@@ -688,6 +700,7 @@ p {
   font-size: .96rem;
   font-weight: 800;
   white-space: nowrap;
+  transition: background-color .16s ease, color .16s ease, transform .16s ease;
 }
 
 .nav-links a:hover,
@@ -701,6 +714,11 @@ p {
 .nav-links a.active,
 .nav-primary a.active {
   box-shadow: inset 0 -3px 0 var(--color-primary);
+}
+
+.nav-links a:hover,
+.nav-primary a:hover {
+  transform: translateY(-1px);
 }
 
 .nav-links {
@@ -834,6 +852,11 @@ p {
   transition: background-color .16s ease, border-color .16s ease, color .16s ease, box-shadow .16s ease, transform .16s ease;
 }
 
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: .64;
+}
+
 .btn:hover {
   border-color: var(--color-primary-hover);
   background: var(--color-primary-hover);
@@ -948,6 +971,9 @@ p {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  isolation: isolate;
+  color: var(--color-text);
+  text-decoration: none;
   transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
 }
 
@@ -960,8 +986,20 @@ p {
   opacity: .72;
 }
 
+.card::after {
+  content: "";
+  position: absolute;
+  inset: -40% -80%;
+  pointer-events: none;
+  background: linear-gradient(105deg, transparent 38%, rgba(255, 255, 255, .12), transparent 62%);
+  transform: translateX(-28%);
+  opacity: 0;
+  transition: transform .45s ease, opacity .2s ease;
+}
+
 .card > * {
   position: relative;
+  z-index: 1;
 }
 
 .card h3 {
@@ -993,8 +1031,11 @@ p {
   font-size: .98rem;
 }
 
-.card .btn {
-  width: fit-content;
+.recipe-card {
+  cursor: pointer;
+}
+
+.recipe-card .ingredients-preview {
   margin-top: auto;
 }
 
@@ -1005,6 +1046,7 @@ p {
   color: var(--color-text);
   text-decoration: none;
   overflow: hidden;
+  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease, background-color .2s ease;
 }
 
 .category-card::after {
@@ -1039,10 +1081,18 @@ p {
 }
 
 .category-card:hover,
-.card:hover {
+.category-card:focus-visible,
+.card:hover,
+.card:focus-visible {
   box-shadow: var(--shadow-card);
-  transform: translateY(-2px);
+  transform: translateY(-4px);
   border-color: rgba(255, 138, 91, .42);
+}
+
+.card:hover::after,
+.card:focus-visible::after {
+  transform: translateX(28%);
+  opacity: 1;
 }
 
 .search-panel {
@@ -1206,8 +1256,52 @@ ol.clean li {
   padding: var(--space-5);
 }
 
+.randomizer-panel {
+  position: relative;
+  overflow: hidden;
+}
+
+.randomizer-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(135deg, rgba(255, 138, 91, .12), transparent 44%),
+    linear-gradient(315deg, rgba(98, 214, 168, .1), transparent 38%);
+  opacity: .9;
+}
+
+.randomizer-panel > * {
+  position: relative;
+}
+
 .random-result {
   margin-top: var(--space-5);
+}
+
+.meal-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: var(--space-4);
+}
+
+.meal-slot {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.meal-slot-title {
+  color: var(--color-primary-hover);
+  font-family: "Source Sans 3", system-ui, sans-serif;
+  font-size: .92rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.meal-empty {
+  min-height: 100%;
+  text-align: left;
 }
 
 .soon-card {
@@ -1228,6 +1322,88 @@ ol.clean li {
   padding: var(--space-5);
   background: var(--color-surface-alt);
   box-shadow: none;
+}
+
+.steak-calculator > p {
+  margin-top: var(--space-2);
+  color: var(--color-text-muted);
+}
+
+.steak-form {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+  margin-top: var(--space-5);
+}
+
+.steak-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+}
+
+.steak-result {
+  margin-top: var(--space-5);
+  padding: var(--space-5);
+  border: 1px solid rgba(255, 214, 186, .16);
+  border-radius: var(--radius-lg);
+  background: rgba(15, 17, 23, .52);
+}
+
+.steak-result-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.steak-metric {
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, .045);
+}
+
+.steak-metric span {
+  display: block;
+  color: var(--color-text-muted);
+  font-size: .9rem;
+  font-weight: 800;
+}
+
+.steak-metric strong {
+  display: block;
+  margin-top: var(--space-1);
+  color: var(--color-text);
+  font-size: 1.2rem;
+}
+
+.steak-note {
+  margin-top: var(--space-4);
+  color: var(--color-text-muted);
+}
+
+.steak-timer {
+  display: grid;
+  grid-template-columns: minmax(150px, auto) minmax(0, 1fr);
+  gap: var(--space-4);
+  align-items: center;
+  margin-top: var(--space-5);
+}
+
+.timer-display {
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid rgba(255, 214, 186, .18);
+  border-radius: var(--radius-md);
+  background: #0f1117;
+  color: var(--color-primary-hover);
+  font-size: 2rem;
+  font-weight: 900;
+  text-align: center;
+}
+
+.timer-status {
+  color: var(--color-text-muted);
+  font-weight: 800;
 }
 
 .steak-grid {
@@ -1293,6 +1469,9 @@ ol.clean li {
   .recipe-layout,
   .recipe-hero,
   .search-row,
+  .steak-form,
+  .steak-result-grid,
+  .steak-timer,
   .steak-grid {
     grid-template-columns: 1fr;
   }
@@ -1416,6 +1595,7 @@ ol.clean li {
   .search-panel,
   .randomizer-panel,
   .soon-card,
+  .steak-calculator,
   .box {
     padding: var(--space-4);
   }
@@ -1499,13 +1679,12 @@ function jsFile() {
     const ingredients = (recipe.ingredients || []).filter((line) => !isSubheading(line)).slice(0, 5).join(", ");
     const titleId = "recipe-card-" + recipe.slug;
     return \`
-      <article class="card">
+      <a class="card recipe-card" aria-labelledby="\${titleId}" href="\${recipeUrl(recipe.slug)}">
         <span class="category-pill">\${escapeHtml(recipe.category)}</span>
         <h3 id="\${titleId}">\${escapeHtml(recipe.name)}</h3>
         <p>\${escapeHtml(recipe.description || "")}</p>
         <div class="ingredients-preview"><strong>Ingrediente:</strong> \${escapeHtml(ingredients)}\${recipe.ingredients && recipe.ingredients.length > 5 ? "..." : ""}</div>
-        <a class="btn secondary" aria-label="Vezi rețeta: \${escapeHtml(recipe.name)}" href="\${recipeUrl(recipe.slug)}">Vezi rețeta</a>
-      </article>
+      </a>
     \`;
   }
 
@@ -1588,8 +1767,65 @@ function jsFile() {
   function steakCalculator(extra) {
     if (!extra || extra.type !== "steak-calculator") return "";
     return \`
-      <section class="steak-calculator">
+      <section class="steak-calculator" data-steak-calculator>
         <h2>\${escapeHtml(extra.title)}</h2>
+        <p>Completează detaliile bucății de carne, tipul de tigaie și nivelul de foc pentru o estimare practică de gătire.</p>
+        <div class="steak-form">
+          <label class="field">
+            <span>Greutate</span>
+            <input data-steak-weight type="number" min="120" max="1200" step="10" value="300" inputmode="numeric">
+          </label>
+          <label class="field">
+            <span>Grosime</span>
+            <input data-steak-thickness type="number" min="1" max="7" step="0.1" value="3" inputmode="decimal">
+          </label>
+          <label class="field">
+            <span>Gătire dorită</span>
+            <select data-steak-doneness>
+              <option value="rare">Rare</option>
+              <option value="medium-rare" selected>Medium rare</option>
+              <option value="medium">Medium</option>
+              <option value="medium-well">Medium well</option>
+              <option value="well-done">Well done</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>Temperatura cărnii</span>
+            <select data-steak-start>
+              <option value="fridge">Direct din frigider</option>
+              <option value="room" selected>La temperatura camerei</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>Tigaie</span>
+            <select data-steak-pan>
+              <option value="steel">Tigaie de oțel</option>
+              <option value="cast-iron" selected>Tigaie de fontă</option>
+              <option value="aluminum">Tigaie de aluminiu</option>
+              <option value="stainless">Tigaie de inox</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>Nivel foc</span>
+            <select data-steak-heat>
+              <option value="low">Mic</option>
+              <option value="low-medium">Mic-mediu</option>
+              <option value="medium">Mediu</option>
+              <option value="medium-high" selected>Mediu-mare</option>
+              <option value="high">Mare</option>
+            </select>
+          </label>
+        </div>
+        <div class="steak-result" data-steak-result></div>
+        <div class="steak-actions">
+          <button class="btn" type="button" data-steak-start-timer>Pornește timer</button>
+          <button class="btn secondary" type="button" data-steak-pause-timer>Pauză</button>
+          <button class="btn secondary" type="button" data-steak-reset-timer>Reset</button>
+        </div>
+        <div class="steak-timer" aria-live="polite">
+          <div class="timer-display" data-steak-time>00:00</div>
+          <div class="timer-status" data-steak-status>Timerul va suna când trebuie întors steak-ul și când este gata.</div>
+        </div>
         <div class="steak-grid">
           <div class="steak-chip"><strong>Rare</strong><span>50-52°C</span></div>
           <div class="steak-chip"><strong>Medium rare</strong><span>55-57°C</span></div>
@@ -1665,18 +1901,213 @@ function jsFile() {
     renderRecipeCards("categoryRecipes", data.recipes.filter((recipe) => recipe.category === category.name));
   }
 
+  function pickRandom(items) {
+    return items[Math.floor(Math.random() * items.length)];
+  }
+
+  function mealCard(slot) {
+    const recipes = data.recipes.filter((recipe) => recipe.category === slot.category);
+    const recipe = pickRandom(recipes);
+    return \`
+      <section class="meal-slot">
+        <h2 class="meal-slot-title">\${escapeHtml(slot.label)}</h2>
+        \${recipe ? card(recipe) : \`<div class="empty meal-empty">Încă nu există rețete în categoria \${escapeHtml(slot.category)}.</div>\`}
+      </section>
+    \`;
+  }
+
   function setupRandomizer() {
     const button = document.getElementById("randomRecipeButton");
     const result = document.getElementById("randomRecipeResult");
     if (!button || !result) return;
 
+    const slots = [
+      { label: "Mic dejun", category: "Mic dejun" },
+      { label: "Fel principal", category: "Fel principal" },
+      { label: "Fel secundar", category: "Fel secundar" },
+      { label: "Desert", category: "Desert" },
+      { label: "Băutură", category: "Băuturi" },
+      { label: "Salată", category: "Salate" },
+      { label: "Rontaieli", category: "Rontaieli" }
+    ];
+
     function choose() {
-      const recipe = data.recipes[Math.floor(Math.random() * data.recipes.length)];
-      result.innerHTML = recipe ? card(recipe) : '<div class="empty">Nu există încă rețete pentru randomizer.</div>';
+      result.innerHTML = data.recipes.length
+        ? \`<div class="meal-grid">\${slots.map(mealCard).join("")}</div>\`
+        : '<div class="empty">Nu există încă rețete pentru randomizer.</div>';
     }
 
     button.addEventListener("click", choose);
     choose();
+  }
+
+  function setupSteakCalculators() {
+    document.querySelectorAll("[data-steak-calculator]").forEach((calculator) => {
+      const fields = {
+        weight: calculator.querySelector("[data-steak-weight]"),
+        thickness: calculator.querySelector("[data-steak-thickness]"),
+        doneness: calculator.querySelector("[data-steak-doneness]"),
+        start: calculator.querySelector("[data-steak-start]"),
+        pan: calculator.querySelector("[data-steak-pan]"),
+        heat: calculator.querySelector("[data-steak-heat]")
+      };
+      const result = calculator.querySelector("[data-steak-result]");
+      const time = calculator.querySelector("[data-steak-time]");
+      const status = calculator.querySelector("[data-steak-status]");
+      const startButton = calculator.querySelector("[data-steak-start-timer]");
+      const pauseButton = calculator.querySelector("[data-steak-pause-timer]");
+      const resetButton = calculator.querySelector("[data-steak-reset-timer]");
+      if (!result || !time || !status || !startButton || !pauseButton || !resetButton) return;
+
+      const doneness = {
+        rare: { label: "Rare", temp: "50-52°C", adjust: -18, rest: 5 },
+        "medium-rare": { label: "Medium rare", temp: "55-57°C", adjust: 0, rest: 6 },
+        medium: { label: "Medium", temp: "60-63°C", adjust: 18, rest: 7 },
+        "medium-well": { label: "Medium well", temp: "65-68°C", adjust: 34, rest: 8 },
+        "well-done": { label: "Well done", temp: "70°C+", adjust: 52, rest: 8 }
+      };
+      const pans = {
+        steel: { label: "tigaie de oțel", factor: 1, advice: "Încălzește tigaia bine înainte de carne" },
+        "cast-iron": { label: "tigaie de fontă", factor: .92, advice: "Ține căldura foarte bine, deci focul mediu-mare este de obicei suficient" },
+        aluminum: { label: "tigaie de aluminiu", factor: 1.08, advice: "Răspunde rapid la schimbări, dar pierde căldură mai ușor" },
+        stainless: { label: "tigaie de inox", factor: 1.03, advice: "Preîncălzește până când o picătură de apă alunecă pe suprafață" }
+      };
+      const heats = {
+        low: { label: "mic", factor: 1.35 },
+        "low-medium": { label: "mic-mediu", factor: 1.18 },
+        medium: { label: "mediu", factor: 1 },
+        "medium-high": { label: "mediu-mare", factor: .88 },
+        high: { label: "mare", factor: .78 }
+      };
+      const starts = {
+        fridge: { label: "direct din frigider", factor: 1.12 },
+        room: { label: "la temperatura camerei", factor: .94 }
+      };
+
+      let timer = null;
+      let plan = null;
+      let remaining = 0;
+      let flipped = false;
+
+      function clamp(value, min, max) {
+        return Math.min(max, Math.max(min, value));
+      }
+
+      function readNumber(input, fallback, min, max) {
+        const value = Number(input && input.value);
+        return clamp(Number.isFinite(value) ? value : fallback, min, max);
+      }
+
+      function formatSeconds(seconds) {
+        const safe = Math.max(0, Math.round(seconds));
+        const minutes = Math.floor(safe / 60);
+        const rest = safe % 60;
+        return \`\${String(minutes).padStart(2, "0")}:\${String(rest).padStart(2, "0")}\`;
+      }
+
+      function beep() {
+        const Context = window.AudioContext || window.webkitAudioContext;
+        if (!Context) return;
+        const context = new Context();
+        const oscillator = context.createOscillator();
+        const gain = context.createGain();
+        oscillator.type = "sine";
+        oscillator.frequency.value = 880;
+        gain.gain.setValueAtTime(.001, context.currentTime);
+        gain.gain.exponentialRampToValueAtTime(.22, context.currentTime + .03);
+        gain.gain.exponentialRampToValueAtTime(.001, context.currentTime + .42);
+        oscillator.connect(gain).connect(context.destination);
+        oscillator.start();
+        oscillator.stop(context.currentTime + .45);
+      }
+
+      function calculate() {
+        const weight = readNumber(fields.weight, 300, 120, 1200);
+        const thickness = readNumber(fields.thickness, 3, 1, 7);
+        const target = doneness[fields.doneness.value] || doneness["medium-rare"];
+        const pan = pans[fields.pan.value] || pans["cast-iron"];
+        const heat = heats[fields.heat.value] || heats["medium-high"];
+        const start = starts[fields.start.value] || starts.room;
+        const weightBoost = Math.max(0, weight - 250) * .055;
+        const rawSide = (thickness * 72 + weightBoost + target.adjust) * pan.factor * heat.factor * start.factor;
+        const sideSeconds = Math.round(clamp(rawSide, 70, 480) / 5) * 5;
+        const totalSeconds = sideSeconds * 2;
+        return { weight, thickness, target, pan, heat, start, sideSeconds, totalSeconds };
+      }
+
+      function renderPlan() {
+        plan = calculate();
+        result.innerHTML = \`
+          <div class="steak-result-grid">
+            <div class="steak-metric"><span>Pe fiecare parte</span><strong>\${formatSeconds(plan.sideSeconds)}</strong></div>
+            <div class="steak-metric"><span>Total în tigaie</span><strong>\${formatSeconds(plan.totalSeconds)}</strong></div>
+            <div class="steak-metric"><span>Temperatură țintă</span><strong>\${plan.target.temp}</strong></div>
+            <div class="steak-metric"><span>Odihnă</span><strong>\${plan.target.rest} min</strong></div>
+          </div>
+          <p class="steak-note">Pentru \${plan.weight} g și \${plan.thickness} cm, gătește pe foc \${plan.heat.label} într-o \${plan.pan.label}. \${plan.pan.advice}. Întoarce steak-ul după \${formatSeconds(plan.sideSeconds)}. Folosește un termometru pentru cea mai sigură verificare.</p>
+        \`;
+        resetTimer(false);
+      }
+
+      function updateTimer() {
+        time.textContent = formatSeconds(remaining);
+      }
+
+      function stopTimer() {
+        if (timer) window.clearInterval(timer);
+        timer = null;
+      }
+
+      function resetTimer(updateStatus = true) {
+        stopTimer();
+        if (!plan) plan = calculate();
+        remaining = plan.totalSeconds;
+        flipped = false;
+        updateTimer();
+        if (updateStatus) status.textContent = "Timer resetat. Pornește când pui steak-ul în tigaie.";
+      }
+
+      function finishMessage(message) {
+        status.textContent = message;
+        beep();
+      }
+
+      function tick() {
+        remaining -= 1;
+        const elapsed = plan.totalSeconds - remaining;
+        if (!flipped && elapsed >= plan.sideSeconds) {
+          flipped = true;
+          finishMessage("Întoarce steak-ul acum.");
+        }
+        if (remaining <= 0) {
+          remaining = 0;
+          updateTimer();
+          stopTimer();
+          finishMessage(\`Gata. Lasă steak-ul la odihnit \${plan.target.rest} minute.\`);
+          return;
+        }
+        updateTimer();
+      }
+
+      Object.values(fields).forEach((field) => {
+        field.addEventListener("input", renderPlan);
+        field.addEventListener("change", renderPlan);
+      });
+      startButton.addEventListener("click", () => {
+        if (!plan) renderPlan();
+        if (remaining <= 0) resetTimer(false);
+        if (timer) return;
+        status.textContent = "Timer pornit. Vei auzi un semnal la întoarcere și la final.";
+        timer = window.setInterval(tick, 1000);
+      });
+      pauseButton.addEventListener("click", () => {
+        stopTimer();
+        status.textContent = "Timer pus pe pauză.";
+      });
+      resetButton.addEventListener("click", () => resetTimer(true));
+
+      renderPlan();
+    });
   }
 
   function setupMobileMenu() {
@@ -1724,6 +2155,7 @@ function jsFile() {
     renderRecipeDetail();
     renderCategoryPage();
     setupRandomizer();
+    setupSteakCalculators();
   });
 })();
 `;
