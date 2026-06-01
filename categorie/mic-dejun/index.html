@@ -3,47 +3,51 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Mic dejun | Arta Gătitului</title>
-  <meta name="description" content="Rețete românești și internaționale, căutare după nume, categorie și ingrediente.">
+  <title>Mic dejun | Arta Gatitului</title>
+  <meta name="description" content="Idei pentru dimineti gustoase, rapide sau mai tihnite.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Source+Sans+3:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../../assets/css/style.css">
 </head>
 <body data-category-slug="mic-dejun">
 
-<header class="site-header">
-  <div class="nav-wrap">
-    <a class="logo" href="../../index.html" aria-label="Arta Gătitului">
-      <span class="logo-mark">🍲</span>
-      <span>Arta Gătitului</span>
-    </a>
-    <button class="mobile-menu-btn" type="button">Meniu</button>
-    <nav class="nav-links" aria-label="Navigație principală">
-      <a href="../../index.html">Acasă</a>
-      <a href="../../categorii.html">Categorii</a>
-      <a href="../../cauta.html">Caută</a>
-    </nav>
-  </div>
-</header>
+    <header class="site-header">
+      <div class="nav-wrap">
+        <a class="logo" href="../../index.html" aria-label="Arta Gatitului">
+          <span class="logo-mark">AG</span>
+          <span>Arta Gatitului</span>
+        </a>
+        <button class="mobile-menu-btn" type="button" aria-expanded="false" aria-controls="siteNav">Meniu</button>
+        <nav class="nav-links" id="siteNav" aria-label="Navigatie principala">
+          <a href="../../index.html">Home</a>
+          <a href="../../portofoliu/">Portofoliu</a>
+          <a href="../../fel-principal/">Fel principal</a>
+          <a href="../../fel-secundar/">Fel secundar</a>
+          <a href="../../desert/">Desert</a>
+          <a href="../../rontaieli/">Rontaieli</a>
+          <a href="../../salate/">Salate</a>
+          <a href="../../bauturi/">Bauturi</a>
+          <a href="../../mic-dejun/">Mic dejun</a>
+          <a href="../../randomizer/">Randomizer</a>
+          <a href="../../cauta.html">Cauta</a>
+        </nav>
+      </div>
+    </header>
 
-<main class="section">
-  <div class="section-head">
-    <div>
-      <div class="eyebrow">Categorie</div>
-      <h1 id="categoryTitle">Mic dejun</h1>
-      <p id="categoryDescription">Idei pentru dimineți gustoase.</p>
-    </div>
-    <a class="btn secondary" href="../../cauta.html">Caută rețete</a>
-  </div>
-  <div id="categoryRecipes" class="grid cards"></div>
-</main>
+      <main class="section">
+        <div class="page-title">
+          <p class="eyebrow">Categorie</p>
+          <h1 id="categoryTitle">Mic dejun</h1>
+          <p id="categoryDescription">Idei pentru dimineti gustoase, rapide sau mai tihnite.</p>
+        </div>
+        <div id="categoryRecipes" class="grid cards"></div>
+      </main>
 
-
-<footer class="footer">
-  <p>© <span id="year"></span> Arta Gătitului. Site static pentru GitHub Pages.</p>
-  <p><a href="../../cauta.html">Caută rețete</a> · <a href="../../categorii.html">Categorii</a></p>
-</footer>
+    <footer class="footer">
+      <p>Copyright © <span id="year"></span> Arta Gatitului - All Rights Reserved.</p>
+      <p><a href="../../cauta.html">Cauta retete</a> · <a href="../../categorii.html">Categorii</a> · <a href="../../randomizer/">Randomizer</a></p>
+    </footer>
 <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 <script>window.ARTA_ROOT = "../../";</script>
 <script src="../../assets/js/recipes.js"></script>
