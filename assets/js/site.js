@@ -11,6 +11,9 @@
     technique: { label: "Tehnică", options: ["Fierbere", "Coacere", "Prăjire", "Sotare", "Marinare", "Frământare", "La tigaie", "La cuptor", "Fără gătire"] }
   };
   const TAG_CARD_PRIORITY = ["complexity", "time", "context", "equipment", "technique", "taste", "diet"];
+  const THEME_KEY = "arta-gatitului-theme";
+  const prefersReducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let revealObserver = null;
 
   function normalize(value) {
     return String(value || "")
@@ -37,9 +40,27 @@
     return root + slug + "/";
   }
 
+  function searchUrl(query) {
+    return root + "cauta.html?q=" + encodeURIComponent(query);
+  }
+
   function categorySlug(name) {
     const category = data.categories.find((item) => item.name === name);
     return category ? category.slug : normalize(name).replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+  }
+
+  function categoryIcon(name) {
+    const key = normalize(name).replace(/[^a-z0-9]+/g, "-");
+    const icons = {
+      "mic-dejun": "MD",
+      "fel-principal": "FP",
+      "fel-secundar": "FS",
+      desert: "DS",
+      bauturi: "BT",
+      salate: "SL",
+      rontaieli: "RN"
+    };
+    return icons[key] || (String(name || "").trim().slice(0, 2).toUpperCase() || "AG");
   }
 
   function recipeBySlug(slug) {
@@ -138,7 +159,7 @@
           ${entries.map((group) => `
             <div class="tag-group">
               <h3>${escapeHtml(group.label)}</h3>
-              <div class="tag-list">${group.tags.map((tag) => `<span class="tag-chip">${escapeHtml(tag)}</span>`).join("")}</div>
+              <div class="tag-list">${group.tags.map((tag) => `<a class="tag-chip tag-link" href="${searchUrl(tag)}">${escapeHtml(tag)}</a>`).join("")}</div>
             </div>
           `).join("")}
         </div>
@@ -167,6 +188,41 @@
     return queryTokens.every((token) => tokens.has(token));
   }
 
+  function applyStagger(container) {
+    if (!container) return;
+    Array.from(container.children).forEach((child, index) => {
+      if (child && child.style) child.style.setProperty("--stagger", Math.min(index, 14));
+    });
+  }
+
+  function markRevealTargets(scope) {
+    if (prefersReducedMotion) return;
+    const rootEl = scope || document;
+    rootEl.querySelectorAll(".section, .page-title, .search-panel, .ingredient-panel, .randomizer-panel, .builder-card, .box, .card, .category-card, .recipe-detail-card, .related, .meal-slot").forEach((el) => {
+      if (!el.hasAttribute("data-reveal")) el.setAttribute("data-reveal", "");
+      if (revealObserver) revealObserver.observe(el);
+      else if (document.documentElement.classList.contains("reveal-ready")) el.classList.add("is-revealed");
+    });
+  }
+
+  function pulseElement(el) {
+    if (!el || prefersReducedMotion) return;
+    el.classList.remove("pulse-once");
+    void el.offsetWidth;
+    el.classList.add("pulse-once");
+  }
+
+  function emptyState(message, actions) {
+    const actionMarkup = actions === false ? "" : [
+      '<div class="empty-actions">',
+      '<button class="btn secondary" type="button" data-clear-search>Curăță căutarea</button>',
+      '<a class="btn secondary" href="' + root + 'cauta.html">Vezi toate rețetele</a>',
+      '<a class="btn secondary" href="' + root + 'categorii.html">Explorează categoriile</a>',
+      '</div>'
+    ].join("");
+    return '<div class="empty"><p>' + escapeHtml(message) + '</p>' + actionMarkup + '</div>';
+  }
+
   function card(recipe) {
     const ingredients = (recipe.ingredients || []).filter((line) => !isSubheading(line)).slice(0, 5).join(", ");
     const titleId = "recipe-card-" + recipe.slug;
@@ -185,6 +241,9 @@
     const el = document.getElementById(elementId);
     if (!el) return;
     el.innerHTML = recipes.length ? recipes.map(card).join("") : '<div class="empty">Nu există rețete de afișat încă.</div>';
+    if (!recipes.length) el.innerHTML = emptyState("Nu există rețete de afișat încă.", false);
+    applyStagger(el);
+    markRevealTargets(el);
   }
 
   function renderFeatured() {
@@ -202,12 +261,14 @@
       const count = data.recipes.filter((recipe) => recipe.category === category.name).length;
       const countLabel = count === 1 ? "1 rețetă" : count + " rețete";
       return `
-        <a class="category-card" href="${categoryUrl(category.slug)}">
+        <a class="category-card" href="${categoryUrl(category.slug)}" data-icon="${escapeHtml(categoryIcon(category.name))}">
           <strong>${escapeHtml(category.name)}</strong>
           <span>${escapeHtml(category.description)}<br>${count ? countLabel : "urmează rețete noi"}</span>
         </a>
       `;
     }).join("");
+    applyStagger(el);
+    markRevealTargets(el);
   }
 
   function setupSearch() {
@@ -230,6 +291,10 @@
 
       count.textContent = matches.length === 1 ? "1 rețetă găsită" : `${matches.length} rețete găsite`;
       results.innerHTML = matches.length ? matches.map(card).join("") : '<div class="empty">Nu am găsit nicio rețetă. Încearcă un ingredient, o categorie sau mai puține cuvinte.</div>';
+      pulseElement(count);
+      if (!matches.length) results.innerHTML = emptyState("Nu am găsit nicio rețetă. Încearcă alt ingredient sau explorează categoriile.");
+      applyStagger(results);
+      markRevealTargets(results);
       results.classList.remove("is-refreshing");
       void results.offsetWidth;
       results.classList.add("is-refreshing");
@@ -237,6 +302,14 @@
 
     input.addEventListener("input", run);
     category.addEventListener("change", run);
+    results.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-clear-search]");
+      if (!button) return;
+      input.value = "";
+      category.value = "all";
+      run();
+      input.focus();
+    });
     run();
   }
 
@@ -354,6 +427,7 @@
       if (!tokens.length) {
         summary.textContent = "Introdu ingredientele ca să primești recomandări.";
         results.innerHTML = '<div class="empty">Exemplu: pui, cartofi, ou, lapte, usturoi.</div>';
+        results.innerHTML = emptyState("Exemplu: pui, cartofi, ou, lapte, usturoi.", false);
         return;
       }
 
@@ -384,6 +458,9 @@
             renderMatchSection("Potrivire slabă", weak)
           ].join("")
         : '<div class="empty">Nu am găsit potriviri încă. Încearcă ingrediente mai simple, de exemplu „pui”, „cartofi”, „ouă” sau „lapte”.</div>';
+      if (!matches.length) results.innerHTML = emptyState("Nu am găsit potriviri încă. Încearcă ingrediente mai simple, de exemplu pui, cartofi, ouă sau lapte.", false);
+      applyStagger(results);
+      markRevealTargets(results);
       results.classList.remove("is-refreshing");
       void results.offsetWidth;
       results.classList.add("is-refreshing");
@@ -653,6 +730,17 @@
       .map((item) => item.recipe);
   }
 
+  function recipeTimeline(recipe) {
+    const markers = [];
+    if (recipe && recipe.prepTime) markers.push(["Pregătire", recipe.prepTime]);
+    if (recipe && recipe.cookTime) markers.push(["Gătire", recipe.cookTime]);
+    if (recipe && recipe.restTime) markers.push(["Odihnire", recipe.restTime]);
+    if (!markers.length) return "";
+    return '<section class="recipe-timeline box" aria-label="Timeline rețetă">' +
+      markers.map((item) => '<div><span>' + escapeHtml(item[0]) + '</span><strong>' + escapeHtml(item[1]) + '</strong></div>').join("") +
+      '</section>';
+  }
+
   function renderRecipeDetail() {
     const el = document.getElementById("recipeDetail");
     if (!el) return;
@@ -679,6 +767,7 @@
             <a class="btn secondary" href="${categoryUrl(catSlug)}">Înapoi la categorie</a>
           </div>
         </div>
+        ${recipeTimeline(recipe)}
         ${beforeStartSection(recipe)}
         <div class="recipe-layout">
           <section class="box">
@@ -700,6 +789,8 @@
         ${related.length ? `<div class="grid cards">${related.map(card).join("")}</div>` : '<div class="empty">Nu există încă rețete similare.</div>'}
       </section>
     `;
+    markRevealTargets(el);
+    el.querySelectorAll(".grid").forEach(applyStagger);
   }
 
   function renderCategoryPage() {
@@ -765,6 +856,8 @@
       result.innerHTML = data.recipes.length
         ? `<div class="meal-grid">${slots.map(mealCard).join("")}</div>`
         : '<div class="empty">Nu există încă rețete pentru randomizer.</div>';
+      applyStagger(result);
+      markRevealTargets(result);
       result.classList.remove("is-refreshing");
       void result.offsetWidth;
       result.classList.add("is-refreshing");
@@ -789,6 +882,7 @@
       const time = calculator.querySelector("[data-steak-time]");
       const phase = calculator.querySelector("[data-steak-phase]");
       const status = calculator.querySelector("[data-steak-status]");
+      const timerBox = calculator.querySelector(".steak-timer");
       const startButton = calculator.querySelector("[data-steak-start-timer]");
       const pauseButton = calculator.querySelector("[data-steak-pause-timer]");
       const resetButton = calculator.querySelector("[data-steak-reset-timer]");
@@ -928,6 +1022,7 @@
       function stopTimer() {
         if (timer) window.clearInterval(timer);
         timer = null;
+        if (timerBox) timerBox.classList.remove("is-running");
       }
 
       function resetTimer(updateStatus = true) {
@@ -982,6 +1077,7 @@
         if (timer) return;
         startButton.textContent = "Rulează";
         status.textContent = "Timer pornit. Vei auzi un semnal la întoarcere, la finalul gătirii și după odihnire.";
+        if (timerBox) timerBox.classList.add("is-running");
         timer = window.setInterval(tick, 1000);
       });
       pauseButton.addEventListener("click", () => {
@@ -1051,6 +1147,10 @@
 
     function setStatus(message) {
       if (els.status) els.status.textContent = message || "";
+      if (els.status) {
+        els.status.classList.toggle("is-success", Boolean(message));
+        pulseElement(els.status);
+      }
     }
 
     function createText(tag, className, text) {
@@ -1614,8 +1714,10 @@
 
       const storageKey = "artaGatituluiRatings:" + slug;
 
-      function setStatus(message) {
+      function setStatus(message, success = false) {
         status.textContent = message || "";
+        status.classList.toggle("rating-status-success", Boolean(message && success));
+        pulseElement(status);
       }
 
       function setGroupValue(group, value) {
@@ -1684,13 +1786,13 @@
         }
         window.localStorage.setItem(storageKey, JSON.stringify(rating));
         renderPersonalNote(rating);
-        setStatus("Evaluarea ta a fost salvată pe acest dispozitiv.");
+        setStatus("Evaluarea ta a fost salvată pe acest dispozitiv.", true);
       });
 
       reset.addEventListener("click", () => {
         window.localStorage.removeItem(storageKey);
         clearValues();
-        setStatus("Evaluarea ta locală a fost ștearsă.");
+        setStatus("Evaluarea ta locală a fost ștearsă.", true);
       });
 
       loadRating();
@@ -1701,26 +1803,48 @@
     const prompt = document.getElementById("installPrompt");
     const installButton = prompt?.querySelector("[data-install-action]");
     const dismissButton = prompt?.querySelector("[data-install-dismiss]");
+    const help = prompt?.querySelector("[data-install-help]");
     if (!prompt || !installButton || !dismissButton) return;
 
     const dismissedKey = "arta-gatitului-install-dismissed";
     let deferredPrompt = null;
+    let nativePromptAvailable = false;
+
+    function isInstalled() {
+      return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+    }
 
     function hide() {
       prompt.hidden = true;
     }
 
-    if (window.localStorage.getItem(dismissedKey) === "true") hide();
+    function showFallbackHint() {
+      if (isInstalled() || window.localStorage.getItem(dismissedKey) === "true" || nativePromptAvailable) return;
+      if (help) {
+        help.hidden = false;
+        help.textContent = "Pe Android folosește meniul browserului și alege Adaugă pe ecranul principal. Pe iPhone: Partajare, apoi Adaugă la ecranul principal.";
+      }
+      installButton.textContent = "Cum instalez?";
+      prompt.hidden = false;
+    }
+
+    if (isInstalled() || window.localStorage.getItem(dismissedKey) === "true") hide();
 
     window.addEventListener("beforeinstallprompt", (event) => {
       if (window.localStorage.getItem(dismissedKey) === "true") return;
       event.preventDefault();
+      nativePromptAvailable = true;
       deferredPrompt = event;
+      if (help) help.hidden = true;
+      installButton.textContent = "Instalează";
       prompt.hidden = false;
     });
 
     installButton.addEventListener("click", async () => {
-      if (!deferredPrompt) return;
+      if (!deferredPrompt) {
+        showFallbackHint();
+        return;
+      }
       deferredPrompt.prompt();
       await deferredPrompt.userChoice.catch(() => null);
       deferredPrompt = null;
@@ -1731,6 +1855,13 @@
       window.localStorage.setItem(dismissedKey, "true");
       hide();
     });
+
+    window.addEventListener("appinstalled", () => {
+      window.localStorage.setItem(dismissedKey, "true");
+      hide();
+    });
+
+    window.setTimeout(showFallbackHint, 2200);
   }
 
   function registerServiceWorker() {
@@ -1771,6 +1902,370 @@
         link.classList.add("active");
         link.setAttribute("aria-current", "page");
       }
+    });
+  }
+
+  function setupScrollReveal() {
+    if (prefersReducedMotion) return;
+    document.documentElement.classList.add("reveal-ready");
+    if (!("IntersectionObserver" in window)) {
+      markRevealTargets(document);
+      document.querySelectorAll("[data-reveal]").forEach((el) => el.classList.add("is-revealed"));
+      return;
+    }
+    revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add("is-revealed");
+        revealObserver.unobserve(entry.target);
+      });
+    }, { rootMargin: "0px 0px -8% 0px", threshold: .08 });
+    document.querySelectorAll(".grid").forEach(applyStagger);
+    markRevealTargets(document);
+  }
+
+  function setupPointerEffects() {
+    if (prefersReducedMotion) return;
+    const canHover = window.matchMedia && window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+    if (!canHover) return;
+    const selector = ".card, .category-card, .btn, .nav-tool, .tag-chip, .ingredient-chip, .match-chip";
+    document.addEventListener("pointermove", (event) => {
+      const el = event.target.closest(selector);
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+      el.style.setProperty("--mx", x + "px");
+      el.style.setProperty("--my", y + "px");
+      if (el.classList.contains("recipe-card") || el.classList.contains("category-card")) {
+        const tiltY = ((x / rect.width) - .5) * 5;
+        const tiltX = ((y / rect.height) - .5) * -5;
+        el.style.setProperty("--tilt-x", tiltX.toFixed(2) + "deg");
+        el.style.setProperty("--tilt-y", tiltY.toFixed(2) + "deg");
+        el.classList.add("is-pointer-active");
+      }
+    });
+    document.addEventListener("pointerout", (event) => {
+      const el = event.target.closest(selector);
+      if (!el) return;
+      el.classList.remove("is-pointer-active");
+      el.style.removeProperty("--tilt-x");
+      el.style.removeProperty("--tilt-y");
+    });
+  }
+
+  function setupHeroSurprise() {
+    const button = document.getElementById("surpriseRecipeButton");
+    if (!button) return;
+    button.addEventListener("click", () => {
+      const recipe = pickRandom(data.recipes);
+      if (recipe) window.location.href = recipeUrl(recipe.slug);
+    });
+  }
+
+  function commandRecords() {
+    const pages = [
+      { type: "Pagini", code: "PG", title: "Acasă", meta: "Pagina principală", url: root + "index.html" },
+      { type: "Pagini", code: "PG", title: "Portofoliu", meta: "Toate categoriile", url: root + "portofoliu/" },
+      { type: "Pagini", code: "PG", title: "Ce pot găti?", meta: "Potrivire după ingrediente", url: root + "ce-pot-gati.html" },
+      { type: "Pagini", code: "PG", title: "Randomizer", meta: "Meniu complet aleatoriu", url: root + "randomizer/" },
+      { type: "Pagini", code: "PG", title: "Caută", meta: "Căutare în rețete", url: root + "cauta.html" },
+      { type: "Pagini", code: "PG", title: "Creator rețetă", meta: "Adaugă o rețetă local", url: root + "adauga-reteta.html" }
+    ];
+    const recipes = data.recipes.map((recipe) => ({
+      type: "Rețete",
+      code: "RT",
+      title: recipe.name,
+      meta: recipe.category,
+      url: recipeUrl(recipe.slug),
+      tokens: recipeSearchTokens(recipe)
+    }));
+    const categories = data.categories.map((category) => ({
+      type: "Categorii",
+      code: categoryIcon(category.name),
+      title: category.name,
+      meta: category.description,
+      url: categoryUrl(category.slug),
+      tokens: new Set(tokenizeText(category.name + " " + category.description))
+    }));
+    const tagNames = Array.from(new Set(data.recipes.flatMap(flatTags))).sort((a, b) => a.localeCompare(b, "ro"));
+    const tags = tagNames.map((tag) => ({
+      type: "Etichete",
+      code: "ET",
+      title: tag,
+      meta: "Filtrează după etichetă",
+      url: searchUrl(tag),
+      tokens: new Set(tokenizeText(tag))
+    }));
+    return [...recipes, ...categories, ...tags, ...pages.map((page) => ({
+      ...page,
+      tokens: new Set(tokenizeText(page.title + " " + page.meta))
+    }))];
+  }
+
+  function setupCommandPalette() {
+    const palette = document.getElementById("commandPalette");
+    const input = document.getElementById("commandPaletteInput");
+    const results = document.getElementById("commandPaletteResults");
+    const openers = document.querySelectorAll("[data-open-command]");
+    if (!palette || !input || !results) return;
+
+    const records = commandRecords();
+    let activeIndex = 0;
+    let visible = [];
+    let previousFocus = null;
+    let openedAt = 0;
+
+    function isTypingTarget(target) {
+      return target && (target.matches("input, textarea, select") || target.isContentEditable);
+    }
+
+    function recordMatches(record, tokens) {
+      if (!tokens.length) return true;
+      return tokens.every((token) => record.tokens.has(token));
+    }
+
+    function render() {
+      const tokens = tokenizeText(input.value);
+      visible = records
+        .filter((record) => recordMatches(record, tokens))
+        .slice(0, tokens.length ? 18 : 12);
+      activeIndex = Math.min(activeIndex, Math.max(visible.length - 1, 0));
+      if (!visible.length) {
+        results.innerHTML = '<div class="empty">Nu am găsit rezultate.</div>';
+        input.removeAttribute("aria-activedescendant");
+        return;
+      }
+      let lastType = "";
+      results.innerHTML = visible.map((record, index) => {
+        const section = record.type !== lastType ? '<div class="command-section-title">' + escapeHtml(record.type) + '</div>' : "";
+        lastType = record.type;
+        const id = "command-result-" + index;
+        return section +
+          '<button class="command-item' + (index === activeIndex ? ' is-active' : '') + '" id="' + id + '" type="button" role="option" aria-selected="' + (index === activeIndex ? "true" : "false") + '" data-command-index="' + index + '">' +
+          '<span class="command-type" aria-hidden="true">' + escapeHtml(record.code) + '</span>' +
+          '<span><span class="command-title">' + escapeHtml(record.title) + '</span><span class="command-meta">' + escapeHtml(record.meta || record.type) + '</span></span>' +
+          '</button>';
+      }).join("");
+      input.setAttribute("aria-activedescendant", "command-result-" + activeIndex);
+      applyStagger(results);
+    }
+
+    function openCommand(trigger) {
+      previousFocus = trigger || document.activeElement;
+      openedAt = Date.now();
+      palette.hidden = false;
+      palette.setAttribute("aria-hidden", "false");
+      document.body.classList.add("command-open");
+      input.value = "";
+      render();
+      window.setTimeout(() => input.focus(), 0);
+    }
+
+    function closeCommand(force = false) {
+      if (!force && Date.now() - openedAt < 180) return;
+      palette.hidden = true;
+      palette.setAttribute("aria-hidden", "true");
+      document.body.classList.remove("command-open");
+      if (previousFocus && typeof previousFocus.focus === "function") previousFocus.focus();
+    }
+
+    function openActive() {
+      const record = visible[activeIndex];
+      if (record) window.location.href = record.url;
+    }
+
+    function bindOpenButton(button) {
+      button.addEventListener("pointerdown", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        openCommand(button);
+      });
+      button.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        if (palette.hidden) openCommand(button);
+      });
+    }
+
+    openers.forEach(bindOpenButton);
+    function handleOpenGesture(event) {
+      const button = event.target.closest("[data-open-command]");
+      if (!button || palette.contains(button)) return;
+      event.preventDefault();
+      event.stopPropagation();
+      if (palette.hidden) openCommand(button);
+    }
+
+    document.addEventListener("pointerdown", handleOpenGesture, true);
+    document.addEventListener("click", handleOpenGesture, true);
+    palette.querySelector("[data-command-backdrop]")?.addEventListener("pointerdown", () => closeCommand());
+    palette.querySelectorAll("[data-command-close]").forEach((button) => button.addEventListener("click", () => closeCommand(true)));
+    input.addEventListener("input", () => {
+      activeIndex = 0;
+      render();
+    });
+    results.addEventListener("click", (event) => {
+      const item = event.target.closest("[data-command-index]");
+      if (!item) return;
+      activeIndex = Number(item.dataset.commandIndex) || 0;
+      openActive();
+    });
+    document.addEventListener("keydown", (event) => {
+      const isShortcut = (event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k";
+      const isSlash = event.key === "/" && !isTypingTarget(event.target);
+      if ((isShortcut || isSlash) && palette.hidden) {
+        event.preventDefault();
+        openCommand(document.activeElement);
+        return;
+      }
+      if (palette.hidden) return;
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closeCommand(true);
+      } else if (event.key === "ArrowDown") {
+        event.preventDefault();
+        activeIndex = Math.min(activeIndex + 1, visible.length - 1);
+        render();
+      } else if (event.key === "ArrowUp") {
+        event.preventDefault();
+        activeIndex = Math.max(activeIndex - 1, 0);
+        render();
+      } else if (event.key === "Enter") {
+        event.preventDefault();
+        openActive();
+      }
+    });
+  }
+
+  function setupThemeSwitcher() {
+    const panel = document.getElementById("themePanel");
+    const toggle = document.querySelector("[data-theme-toggle]");
+    if (!panel || !toggle) return;
+    const buttons = Array.from(panel.querySelectorAll("[data-theme-choice]"));
+
+    function applyTheme(theme) {
+      if (theme) {
+        document.documentElement.dataset.theme = theme;
+        window.localStorage.setItem(THEME_KEY, theme);
+      } else {
+        document.documentElement.removeAttribute("data-theme");
+        window.localStorage.removeItem(THEME_KEY);
+      }
+      buttons.forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.themeChoice === theme)));
+    }
+
+    function setOpen(open) {
+      panel.hidden = !open;
+      panel.setAttribute("aria-hidden", String(!open));
+      toggle.setAttribute("aria-expanded", String(open));
+    }
+
+    applyTheme(window.localStorage.getItem(THEME_KEY) || document.documentElement.dataset.theme || "");
+    toggle.addEventListener("click", () => setOpen(panel.hidden));
+    buttons.forEach((button) => {
+      button.addEventListener("click", () => {
+        applyTheme(button.dataset.themeChoice || "");
+        setOpen(false);
+      });
+    });
+    document.addEventListener("click", (event) => {
+      if (panel.hidden) return;
+      if (!panel.contains(event.target) && !toggle.contains(event.target)) setOpen(false);
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") setOpen(false);
+    });
+  }
+
+  function setupQuickActions() {
+    if (document.querySelector(".quick-actions")) return;
+    const hasRating = Boolean(document.querySelector("[data-rating-panel]"));
+    const wrap = document.createElement("div");
+    wrap.className = "quick-actions";
+    wrap.setAttribute("aria-label", "Acțiuni rapide");
+    wrap.innerHTML = [
+      '<button class="quick-action" type="button" data-quick-top aria-label="Sus" title="Sus">↑</button>',
+      '<button class="quick-action" type="button" data-open-command aria-label="Caută rapid" title="Caută rapid">K</button>',
+      '<button class="quick-action" type="button" data-quick-random aria-label="Rețetă aleatorie" title="Rețetă aleatorie">R</button>',
+      hasRating ? '<button class="quick-action" type="button" data-quick-rate aria-label="Evaluează rețeta" title="Evaluează">★</button>' : "",
+      '<button class="quick-action" type="button" data-quick-copy aria-label="Copiază linkul" title="Copiază linkul">⧉</button>',
+      '<span class="quick-action-status" data-quick-status hidden></span>'
+    ].join("");
+    document.body.append(wrap);
+    const status = wrap.querySelector("[data-quick-status]");
+    function flash(message) {
+      if (!status) return;
+      status.textContent = message;
+      status.hidden = false;
+      window.setTimeout(() => {
+        status.hidden = true;
+      }, 1400);
+    }
+    wrap.addEventListener("click", async (event) => {
+      const button = event.target.closest("button");
+      if (!button) return;
+      if (button.matches("[data-quick-top]")) {
+        window.scrollTo({ top: 0, behavior: prefersReducedMotion ? "auto" : "smooth" });
+      } else if (button.matches("[data-quick-random]")) {
+        const recipe = pickRandom(data.recipes);
+        if (recipe) window.location.href = recipeUrl(recipe.slug);
+      } else if (button.matches("[data-quick-rate]")) {
+        const rating = document.querySelector("[data-rating-panel]");
+        if (rating) rating.scrollIntoView({ behavior: prefersReducedMotion ? "auto" : "smooth", block: "start" });
+      } else if (button.matches("[data-quick-copy]")) {
+        try {
+          await navigator.clipboard.writeText(window.location.href);
+          flash("Copiat!");
+        } catch {
+          flash("Selectează linkul din bară.");
+        }
+      }
+    });
+  }
+
+  function setupScrollProgress() {
+    const progress = document.querySelector("[data-scroll-progress]");
+    if (!progress || !document.body.dataset.recipeSlug) return;
+    const bar = progress.querySelector("span");
+    progress.classList.add("is-visible");
+    let ticking = false;
+    function update() {
+      const max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+      const value = Math.min(100, Math.max(0, (window.scrollY / max) * 100));
+      progress.style.setProperty("--progress", value.toFixed(2) + "%");
+      if (bar) bar.style.width = value.toFixed(2) + "%";
+      ticking = false;
+    }
+    function requestUpdate() {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(update);
+    }
+    window.addEventListener("scroll", requestUpdate, { passive: true });
+    window.addEventListener("resize", requestUpdate);
+    update();
+  }
+
+  function setupOfflineBadge() {
+    const badge = document.getElementById("offlineBadge");
+    if (!badge) return;
+    function update() {
+      badge.hidden = navigator.onLine !== false;
+    }
+    window.addEventListener("online", update);
+    window.addEventListener("offline", update);
+    update();
+  }
+
+  function setupBeforeStartChecklist() {
+    document.addEventListener("change", (event) => {
+      const input = event.target.closest(".before-list input[type='checkbox']");
+      if (!input) return;
+      const label = input.closest("label");
+      if (!label) return;
+      label.classList.toggle("is-checked", input.checked);
+      if (input.checked) pulseElement(label);
     });
   }
 
@@ -1816,6 +2311,7 @@
     setupPageTransitions();
     setupMobileMenu();
     markActiveNav();
+    setupThemeSwitcher();
     renderFeatured();
     renderAllRecipes();
     renderCategories();
@@ -1828,6 +2324,14 @@
     setupRandomizer();
     setupSteakCalculators();
     setupRecipeBuilder();
+    setupHeroSurprise();
+    setupBeforeStartChecklist();
+    setupQuickActions();
+    setupCommandPalette();
+    setupScrollProgress();
+    setupScrollReveal();
+    setupPointerEffects();
+    setupOfflineBadge();
     setupInstallPrompt();
     registerServiceWorker();
   });
