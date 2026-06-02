@@ -1,5 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { deflateSync } from 'node:zlib';
 
 const ROOT = process.cwd();
 const INVENTORY_PATH = path.join(ROOT, 'site-audit', 'godaddy-page-text-inventory.json');
@@ -224,8 +225,8 @@ function dataFile(categories, recipes) {
 
 function nav(root) {
   const primaryLinks = [
-    ['Acasă', 'index.html'],
     ['Portofoliu', 'portofoliu/'],
+    ['Ce pot găti?', 'ce-pot-gati.html'],
     ['Randomizer', 'randomizer/'],
     ['Caută', 'cauta.html'],
   ];
@@ -278,6 +279,13 @@ function page({ title, description, root = '', bodyAttrs = '', main }) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${escapeHtml(documentTitle)}</title>
   <meta name="description" content="${escapeHtml(description)}">
+  <meta name="theme-color" content="#0f1117">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="${SITE_NAME}">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="${root}manifest.json">
+  <link rel="icon" type="image/png" sizes="192x192" href="${root}assets/icons/icon-192.png">
+  <link rel="apple-touch-icon" href="${root}assets/icons/icon-192.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Source+Sans+3:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -286,6 +294,13 @@ function page({ title, description, root = '', bodyAttrs = '', main }) {
 <body${bodyAttrs ? ` ${bodyAttrs}` : ''}>
 <a class="skip-link" href="#main-content">Sari la conținut</a>
 ${nav(root)}
+<div class="install-toast" id="installPrompt" hidden>
+  <p>Instalează Arta Gătitului pe telefon pentru acces rapid la rețete.</p>
+  <div>
+    <button class="btn" type="button" data-install-action>Instalează</button>
+    <button class="btn secondary" type="button" data-install-dismiss>Mai târziu</button>
+  </div>
+</div>
 ${main}
 ${footer(root)}
 <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
@@ -396,6 +411,43 @@ function searchPage() {
 
         <div id="recipeCount" class="count" aria-live="polite"></div>
         <div id="searchResults" class="grid cards"></div>
+      </main>`,
+  });
+}
+
+function ingredientMatcherPage() {
+  return page({
+    title: 'Ce pot găti?',
+    description: 'Recomandări de rețete în funcție de ingredientele pe care le ai deja acasă.',
+    main: `
+      <main class="section ingredient-page" id="main-content">
+        <div class="page-title">
+          <p class="eyebrow">Ingredient matcher</p>
+          <h1>Ce pot găti cu ingredientele pe care le am?</h1>
+          <p>Introdu ingredientele pe care le ai deja acasă, separate prin virgulă sau spațiu. Îți vom arăta rețetele pe care le poți prepara complet sau aproape complet.</p>
+        </div>
+
+        <section class="ingredient-panel" aria-labelledby="ingredientMatcherTitle">
+          <div class="search-panel-head">
+            <h2 id="ingredientMatcherTitle">Caută după ingrediente disponibile</h2>
+            <p>Căutarea ignoră diacriticele și folosește cuvinte complete, deci „galuste” găsește „găluște”, iar „ou” nu se potrivește cu fragmente ascunse în cuvinte mai lungi.</p>
+          </div>
+          <form id="ingredientMatcherForm" class="ingredient-form">
+            <label class="field ingredient-field">
+              <span>Ingredientele tale</span>
+              <textarea id="availableIngredients" rows="4" placeholder="ex. pui, cartofi, ou, lapte, usturoi" autocomplete="off"></textarea>
+            </label>
+            <div class="ingredient-actions">
+              <button class="btn" type="submit">Vezi ce pot găti</button>
+              <button class="btn secondary" type="button" id="resetIngredientMatcher">Resetează</button>
+            </div>
+          </form>
+          <div id="ingredientChips" class="ingredient-chips" aria-label="Ingrediente detectate"></div>
+          <p class="builder-callout ingredient-note">Pentru rezultate mai bune, adaugă în rețete ingrediente și cuvinte-cheie simple, de exemplu: ou, ouă, pui, cartofi.</p>
+        </section>
+
+        <div id="ingredientMatchSummary" class="count" aria-live="polite"></div>
+        <div id="ingredientMatchResults" class="ingredient-results"></div>
       </main>`,
   });
 }
@@ -546,7 +598,7 @@ function recipeBuilderPage() {
           </div>
 
           <div class="builder-callout">
-            <strong>Notă despre căutare:</strong> căutarea funcționează pe cuvinte complete. Dacă vrei ca o rețetă cu „ouă” să fie găsită și când cineva caută „ou”, adaugă <code>ou</code> la câmpul „Cuvinte cheie / tag-uri”.
+            <strong>Notă despre căutare și „Ce pot găti?”:</strong> potrivirile funcționează pe cuvinte complete. Pentru rezultate mai bune, folosește ingrediente și cuvinte-cheie simple, de exemplu <code>ou</code>, <code>ouă</code>, <code>pui</code>, <code>cartofi</code>.
           </div>
         </section>
 
@@ -667,6 +719,25 @@ function soonPage(section) {
         <div class="soon-card">
           ${lines}
           <a class="btn" href="../randomizer/">Alege o rețetă aleatorie</a>
+        </div>
+      </main>`,
+  });
+}
+
+function offlinePage() {
+  return page({
+    title: 'Offline',
+    description: 'Mesaj offline pentru Arta Gătitului.',
+    main: `
+      <main class="section" id="main-content">
+        <div class="soon-card">
+          <p class="eyebrow">Offline</p>
+          <h1>Ești offline</h1>
+          <p>Unele pagini și rețete deja vizitate pot fi disponibile în continuare. Conectează-te la internet pentru cele mai noi rețete și pentru actualizări.</p>
+          <div class="hero-actions">
+            <a class="btn" href="index.html">Înapoi acasă</a>
+            <a class="btn secondary" href="cauta.html">Caută în rețete</a>
+          </div>
         </div>
       </main>`,
   });
@@ -819,6 +890,8 @@ header,
 .randomizer-panel,
 .builder-card,
 .steak-calculator,
+.ingredient-panel,
+.ingredient-results,
 .box {
   min-width: 0;
 }
@@ -903,14 +976,39 @@ p {
   transform: translateY(-160%);
   padding: var(--space-3) var(--space-4);
   border-radius: var(--radius-sm);
-  background: var(--color-text);
-  color: #fff;
+  background: var(--color-primary);
+  color: #1a100c;
   text-decoration: none;
   font-weight: 800;
 }
 
 .skip-link:focus {
   transform: translateY(0);
+}
+
+.install-toast {
+  position: fixed;
+  right: var(--space-4);
+  bottom: var(--space-4);
+  z-index: 70;
+  width: min(420px, calc(100vw - 32px));
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: rgba(24, 29, 41, .98);
+  box-shadow: var(--shadow-card);
+}
+
+.install-toast p {
+  color: var(--color-text-muted);
+  font-weight: 800;
+}
+
+.install-toast div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
 }
 
 .site-header {
@@ -1254,6 +1352,7 @@ p {
 .randomizer-panel,
 .soon-card,
 .builder-card,
+.ingredient-panel,
 .box,
 .steak-calculator {
   border: 1px solid var(--color-border);
@@ -1411,6 +1510,13 @@ p {
   animation: softReveal .42s ease both;
 }
 
+.ingredient-panel {
+  margin-bottom: var(--space-5);
+  padding: var(--space-5);
+  background: var(--color-surface);
+  animation: softReveal .42s ease both;
+}
+
 .search-panel-head {
   max-width: 720px;
   margin-bottom: var(--space-5);
@@ -1430,6 +1536,122 @@ p {
   grid-template-columns: minmax(0, 1fr) 260px;
   gap: var(--space-4);
   align-items: end;
+}
+
+.ingredient-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-4);
+  align-items: end;
+}
+
+.ingredient-field textarea {
+  min-height: 128px;
+  resize: vertical;
+}
+
+.ingredient-actions {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 190px;
+}
+
+.ingredient-chips,
+.match-chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.ingredient-chips {
+  margin-top: var(--space-4);
+}
+
+.ingredient-chip,
+.match-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .045);
+  color: var(--color-text);
+  font-size: .94rem;
+  font-weight: 900;
+}
+
+.ingredient-note {
+  margin-top: var(--space-4);
+}
+
+.ingredient-results {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.match-section h2 {
+  margin-bottom: var(--space-4);
+  font-size: 1.55rem;
+}
+
+.match-card {
+  gap: var(--space-3);
+}
+
+.match-card p {
+  margin-bottom: 0;
+}
+
+.match-card-head {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  align-items: start;
+}
+
+.match-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  background: rgba(98, 214, 168, .16);
+  color: var(--color-secondary-hover);
+  font-size: .82rem;
+  font-weight: 900;
+  text-align: center;
+}
+
+.match-meter {
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .08);
+}
+
+.match-meter span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+}
+
+.match-detail {
+  color: var(--color-text-muted);
+  font-size: .96rem;
+}
+
+.match-detail strong {
+  display: block;
+  margin-bottom: var(--space-1);
+  color: var(--color-text);
+}
+
+.match-chip.missing {
+  border-color: rgba(255, 138, 91, .35);
+  color: var(--color-primary-hover);
+  background: rgba(255, 138, 91, .1);
 }
 
 .field {
@@ -1598,7 +1820,8 @@ ol.clean li {
 }
 
 .random-result.is-refreshing,
-#searchResults.is-refreshing {
+#searchResults.is-refreshing,
+#ingredientMatchResults.is-refreshing {
   animation: softReveal .28s ease both;
 }
 
@@ -2069,6 +2292,7 @@ ol.clean li {
   .recipe-layout,
   .recipe-hero,
   .search-row,
+  .ingredient-form,
   .builder-layout,
   .builder-form-grid,
   .builder-guide-grid,
@@ -2220,6 +2444,7 @@ ol.clean li {
   .category-card,
   .recipe-detail-card,
   .search-panel,
+  .ingredient-panel,
   .randomizer-panel,
   .soon-card,
   .builder-card,
@@ -2251,8 +2476,17 @@ ol.clean li {
   }
 
   .detail-meta .btn,
+  .ingredient-actions .btn,
   .steak-actions .btn {
     width: 100%;
+  }
+
+  .ingredient-actions {
+    min-width: 0;
+  }
+
+  .match-card-head {
+    display: grid;
   }
 
   .meal-slot .recipe-card,
@@ -2262,6 +2496,12 @@ ol.clean li {
 
   .timer-display {
     font-size: 1.72rem;
+  }
+
+  .install-toast {
+    right: var(--space-3);
+    bottom: var(--space-3);
+    width: calc(100vw - 24px);
   }
 }
 
@@ -2391,6 +2631,42 @@ function jsFile() {
     return normalize(value).match(/[a-z0-9]+/g) || [];
   }
 
+  const IGNORED_INGREDIENT_TOKENS = new Set([
+    "g", "gr", "kg", "ml", "l", "litru", "litri", "lingura", "linguri", "lingurita", "lingurite",
+    "buc", "bucata", "bucati", "felie", "felii", "cana", "cani", "pachet", "pachete",
+    "dupa", "gust", "aproximativ", "optional", "proaspat", "proaspata", "proaspete",
+    "de", "din", "cu", "si", "sau", "la", "pentru", "cat", "cate", "putin", "putina"
+  ]);
+
+  const INGREDIENT_ALIASES = {
+    ou: ["oua"],
+    oua: ["ou"],
+    cartof: ["cartofi"],
+    cartofi: ["cartof"],
+    rosie: ["rosii"],
+    rosii: ["rosie"],
+    ceapa: ["cepe"],
+    cepe: ["ceapa"],
+    galusca: ["galuste"],
+    galuste: ["galusca"],
+    lamaie: ["lamai"],
+    lamai: ["lamaie"]
+  };
+
+  function expandIngredientToken(token) {
+    return [token, ...(INGREDIENT_ALIASES[token] || [])];
+  }
+
+  function ingredientTokens(value) {
+    return Array.from(new Set(tokenizeText(value)
+      .filter((token) => !/^\\d+$/.test(token) && !IGNORED_INGREDIENT_TOKENS.has(token))
+      .flatMap(expandIngredientToken)));
+  }
+
+  function recipeIngredientTokens(recipe) {
+    return new Set(((recipe && recipe.ingredients) || []).flatMap(ingredientTokens));
+  }
+
   function recipeSearchTokens(recipe) {
     return new Set(tokenizeText([
       recipe && recipe.name,
@@ -2492,6 +2768,162 @@ function jsFile() {
     }
   }
 
+  function analyzeIngredientMatch(recipe, availableTokens) {
+    const rows = ((recipe && recipe.ingredients) || [])
+      .filter((line) => !isSubheading(line))
+      .map((line) => ({ label: line, tokens: ingredientTokens(line) }))
+      .filter((row) => row.tokens.length);
+
+    const matched = [];
+    const missing = [];
+    rows.forEach((row) => {
+      const hasMatch = row.tokens.some((token) => availableTokens.has(token));
+      if (hasMatch) matched.push(row.label);
+      else missing.push(row.label);
+    });
+
+    const total = rows.length;
+    let matchedCount = matched.length;
+    let score = total ? matchedCount / total : 0;
+    const keywordMatches = Array.from(keywordTokens(recipe)).filter((token) => availableTokens.has(token));
+    if (!matchedCount && keywordMatches.length) {
+      matched.push("cuvânt-cheie: " + keywordMatches.slice(0, 3).join(", "));
+      matchedCount = 1;
+      score = total ? Math.min(.28, 1 / total) : .2;
+    }
+    return { recipe, matched, missing, total, matchedCount, missingCount: missing.length, score };
+  }
+
+  function matchBadge(match) {
+    if (match.missingCount === 0) return "Complet";
+    if (match.score >= .88 || match.missingCount <= 1) return "Aproape complet";
+    return match.missingCount === 1 ? "Lipsește 1 ingredient" : "Lipsesc " + match.missingCount + " ingrediente";
+  }
+
+  function renderMatchChips(items, className) {
+    if (!items.length) return '<span class="match-chip">nimic de afișat</span>';
+    return items.slice(0, 8).map((item) => \`<span class="match-chip \${className || ""}">\${escapeHtml(item)}</span>\`).join("");
+  }
+
+  function ingredientMatchCard(match) {
+    const recipe = match.recipe;
+    const percent = Math.round(match.score * 100);
+    const titleId = "ingredient-match-" + recipe.slug;
+    const matchedText = match.matched.slice(0, 3).join(", ");
+    const missingText = match.missing.length ? " Mai lipsesc: " + match.missing.slice(0, 3).join(", ") + "." : " Ai toate ingredientele importante detectate.";
+    return \`
+      <a class="card recipe-card match-card" aria-labelledby="\${titleId}" href="\${recipeUrl(recipe.slug)}">
+        <div class="match-card-head">
+          <span class="category-pill">\${escapeHtml(recipe.category)}</span>
+          <span class="match-badge">\${escapeHtml(matchBadge(match))}</span>
+        </div>
+        <h3 id="\${titleId}">\${escapeHtml(recipe.name)}</h3>
+        <p>\${escapeHtml(recipe.description || "")}</p>
+        <div class="match-meter" aria-label="Potrivire \${percent}%"><span style="width: \${percent}%"></span></div>
+        <p class="match-detail"><strong>\${percent}% potrivire</strong> Recomandată fiindcă ai: \${escapeHtml(matchedText || "ingrediente potrivite")}.\${escapeHtml(missingText)}</p>
+        <div class="match-detail">
+          <strong>Ingrediente potrivite</strong>
+          <div class="match-chip-list">\${renderMatchChips(match.matched)}</div>
+        </div>
+        <div class="match-detail">
+          <strong>Ingrediente lipsă</strong>
+          <div class="match-chip-list">\${renderMatchChips(match.missing, "missing")}</div>
+        </div>
+      </a>
+    \`;
+  }
+
+  function renderMatchSection(title, matches) {
+    if (!matches.length) return "";
+    return \`
+      <section class="match-section" aria-labelledby="\${normalize(title).replace(/[^a-z0-9]+/g, "-")}">
+        <h2 id="\${normalize(title).replace(/[^a-z0-9]+/g, "-")}">\${escapeHtml(title)}</h2>
+        <div class="grid cards">\${matches.map(ingredientMatchCard).join("")}</div>
+      </section>
+    \`;
+  }
+
+  function setupIngredientMatcher() {
+    const form = document.getElementById("ingredientMatcherForm");
+    const input = document.getElementById("availableIngredients");
+    const chips = document.getElementById("ingredientChips");
+    const summary = document.getElementById("ingredientMatchSummary");
+    const results = document.getElementById("ingredientMatchResults");
+    const reset = document.getElementById("resetIngredientMatcher");
+    if (!form || !input || !chips || !summary || !results) return;
+
+    const storageKey = "arta-gatitului-available-ingredients";
+
+    function availableTokens() {
+      return Array.from(new Set(ingredientTokens(input.value)));
+    }
+
+    function renderChips(tokens) {
+      chips.innerHTML = tokens.length
+        ? tokens.map((token) => \`<span class="ingredient-chip">\${escapeHtml(token)}</span>\`).join("")
+        : '<span class="ingredient-chip">Scrie ingredientele de acasă</span>';
+    }
+
+    function run() {
+      const tokens = availableTokens();
+      const tokenSet = new Set(tokens);
+      renderChips(tokens);
+
+      if (!tokens.length) {
+        summary.textContent = "Introdu ingredientele ca să primești recomandări.";
+        results.innerHTML = '<div class="empty">Exemplu: pui, cartofi, ou, lapte, usturoi.</div>';
+        return;
+      }
+
+      window.localStorage.setItem(storageKey, input.value);
+      const matches = data.recipes
+        .map((recipe) => analyzeIngredientMatch(recipe, tokenSet))
+        .filter((match) => match.total > 0 && match.matchedCount > 0)
+        .sort((a, b) => {
+          const scoreDiff = b.score - a.score;
+          if (scoreDiff) return scoreDiff;
+          const missingDiff = a.missingCount - b.missingCount;
+          if (missingDiff) return missingDiff;
+          return a.recipe.name.localeCompare(b.recipe.name, "ro");
+        });
+
+      const ready = matches.filter((match) => match.score >= .88 || match.missingCount <= 1);
+      const almost = matches.filter((match) => !ready.includes(match) && match.score >= .34);
+      const weak = matches.filter((match) => !ready.includes(match) && !almost.includes(match) && match.score > 0).slice(0, 6);
+
+      summary.textContent = matches.length === 1
+        ? "1 rețetă se potrivește cu ingredientele introduse."
+        : matches.length + " rețete se potrivesc cu ingredientele introduse.";
+
+      results.innerHTML = matches.length
+        ? [
+            renderMatchSection("Poți găti acum", ready),
+            renderMatchSection("Îți lipsesc câteva ingrediente", almost.slice(0, 12)),
+            renderMatchSection("Potrivire slabă", weak)
+          ].join("")
+        : '<div class="empty">Nu am găsit potriviri încă. Încearcă ingrediente mai simple, de exemplu „pui”, „cartofi”, „ouă” sau „lapte”.</div>';
+      results.classList.remove("is-refreshing");
+      void results.offsetWidth;
+      results.classList.add("is-refreshing");
+    }
+
+    input.addEventListener("input", () => renderChips(availableTokens()));
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      run();
+    });
+    reset?.addEventListener("click", () => {
+      input.value = "";
+      window.localStorage.removeItem(storageKey);
+      run();
+      input.focus();
+    });
+
+    const saved = window.localStorage.getItem(storageKey);
+    if (saved) input.value = saved;
+    run();
+  }
+
   function renderList(lines, ordered) {
     const tag = ordered ? "ol" : "ul";
     const items = (lines || []).map((line) => {
@@ -2587,6 +3019,48 @@ function jsFile() {
     \`;
   }
 
+  function sharedTokenCount(a, b) {
+    let count = 0;
+    a.forEach((token) => {
+      if (b.has(token)) count += 1;
+    });
+    return count;
+  }
+
+  function importantTitleTokens(recipe) {
+    return new Set(ingredientTokens(recipe && recipe.name));
+  }
+
+  function keywordTokens(recipe) {
+    return new Set(((recipe && recipe.keywords) || []).flatMap(tokenizeText));
+  }
+
+  function similarRecipes(currentRecipe) {
+    if (!currentRecipe) return [];
+    const currentCategory = normalize(currentRecipe.category);
+    const currentIngredients = recipeIngredientTokens(currentRecipe);
+    const currentKeywords = keywordTokens(currentRecipe);
+    const currentTitle = importantTitleTokens(currentRecipe);
+
+    return data.recipes
+      .filter((recipe) => recipe.slug !== currentRecipe.slug)
+      .map((recipe) => {
+        const sameCategory = normalize(recipe.category) === currentCategory ? 3 : 0;
+        const keywordScore = sharedTokenCount(currentKeywords, keywordTokens(recipe)) * 2;
+        const ingredientScore = sharedTokenCount(currentIngredients, recipeIngredientTokens(recipe));
+        const titleScore = sharedTokenCount(currentTitle, importantTitleTokens(recipe));
+        return { recipe, score: sameCategory + keywordScore + ingredientScore + titleScore };
+      })
+      .filter((item) => item.score > 0)
+      .sort((a, b) => {
+        const scoreDiff = b.score - a.score;
+        if (scoreDiff) return scoreDiff;
+        return a.recipe.name.localeCompare(b.recipe.name, "ro");
+      })
+      .slice(0, 6)
+      .map((item) => item.recipe);
+  }
+
   function renderRecipeDetail() {
     const el = document.getElementById("recipeDetail");
     if (!el) return;
@@ -2599,9 +3073,7 @@ function jsFile() {
 
     document.title = recipe.name + " | Arta Gătitului";
     const catSlug = categorySlug(recipe.category);
-    const related = data.recipes
-      .filter((item) => item.category === recipe.category && item.slug !== recipe.slug)
-      .slice(0, 3);
+    const related = similarRecipes(recipe);
 
     el.innerHTML = \`
       <article class="recipe-detail-card">
@@ -2628,7 +3100,10 @@ function jsFile() {
         </div>
         \${(recipe.extras || []).map(steakCalculator).join("")}
       </article>
-      \${related.length ? \`<section class="related"><h2>Din aceeași categorie</h2><div class="grid cards">\${related.map(card).join("")}</div></section>\` : ""}
+      <section class="related" aria-labelledby="similarRecipesTitle">
+        <h2 id="similarRecipesTitle">Rețete similare</h2>
+        \${related.length ? \`<div class="grid cards">\${related.map(card).join("")}</div>\` : '<div class="empty">Nu există încă rețete similare.</div>'}
+      </section>
     \`;
   }
 
@@ -3377,6 +3852,49 @@ function jsFile() {
     }
   }
 
+  function setupInstallPrompt() {
+    const prompt = document.getElementById("installPrompt");
+    const installButton = prompt?.querySelector("[data-install-action]");
+    const dismissButton = prompt?.querySelector("[data-install-dismiss]");
+    if (!prompt || !installButton || !dismissButton) return;
+
+    const dismissedKey = "arta-gatitului-install-dismissed";
+    let deferredPrompt = null;
+
+    function hide() {
+      prompt.hidden = true;
+    }
+
+    if (window.localStorage.getItem(dismissedKey) === "true") hide();
+
+    window.addEventListener("beforeinstallprompt", (event) => {
+      if (window.localStorage.getItem(dismissedKey) === "true") return;
+      event.preventDefault();
+      deferredPrompt = event;
+      prompt.hidden = false;
+    });
+
+    installButton.addEventListener("click", async () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice.catch(() => null);
+      deferredPrompt = null;
+      hide();
+    });
+
+    dismissButton.addEventListener("click", () => {
+      window.localStorage.setItem(dismissedKey, "true");
+      hide();
+    });
+  }
+
+  function registerServiceWorker() {
+    if (!("serviceWorker" in navigator)) return;
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register(root + "service-worker.js", { scope: root || "./" }).catch(() => {});
+    });
+  }
+
   function setupMobileMenu() {
     const btn = document.querySelector(".mobile-menu-btn");
     const links = document.querySelector(".nav-links");
@@ -3458,19 +3976,202 @@ function jsFile() {
     renderCategories();
     setupSearch();
     setupPrefilledSearch();
+    setupIngredientMatcher();
     renderRecipeDetail();
     renderCategoryPage();
     setupRandomizer();
     setupSteakCalculators();
     setupRecipeBuilder();
+    setupInstallPrompt();
+    registerServiceWorker();
   });
 })();
 `;
 }
 
+function manifestFile() {
+  return JSON.stringify({
+    name: SITE_NAME,
+    short_name: 'Rețete',
+    description: 'Rețete de acasă, căutare după ingrediente și idei de meniu.',
+    start_url: './',
+    scope: './',
+    display: 'standalone',
+    background_color: '#0f1117',
+    theme_color: '#0f1117',
+    icons: [
+      { src: 'assets/icons/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
+      { src: 'assets/icons/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
+    ],
+  }, null, 2) + '\n';
+}
+
+function serviceWorkerFile(recipes, categories) {
+  const cacheName = `arta-gatitului-${Date.now()}`;
+  const coreAssets = Array.from(new Set([
+    './',
+    'index.html',
+    'cauta.html',
+    'ce-pot-gati.html',
+    'categorii.html',
+    'adauga-reteta.html',
+    'offline.html',
+    'manifest.json',
+    'manifest.webmanifest',
+    'assets/css/style.css',
+    'assets/js/recipes.js',
+    'assets/js/site.js',
+    'assets/icons/icon-192.png',
+    'assets/icons/icon-512.png',
+    'portofoliu/',
+    'randomizer/',
+    ...categories.flatMap((category) => [`${category.slug}/`, `categorie/${category.slug}/`]),
+    ...recipes.map((recipe) => `retete/${recipe.slug}/`),
+  ]));
+
+  return `const CACHE_NAME = ${JSON.stringify(cacheName)};
+const CORE_ASSETS = ${JSON.stringify(coreAssets, null, 2)};
+const OFFLINE_URL = "offline.html";
+
+function cacheUrl(path) {
+  return new URL(path, self.registration.scope).toString();
+}
+
+self.addEventListener("install", (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then((cache) => cache.addAll(CORE_ASSETS.map(cacheUrl)))
+      .then(() => self.skipWaiting())
+  );
+});
+
+self.addEventListener("activate", (event) => {
+  event.waitUntil(
+    caches.keys()
+      .then((keys) => Promise.all(keys
+        .filter((key) => key.startsWith("arta-gatitului-") && key !== CACHE_NAME)
+        .map((key) => caches.delete(key))))
+      .then(() => self.clients.claim())
+  );
+});
+
+self.addEventListener("fetch", (event) => {
+  const request = event.request;
+  if (request.method !== "GET") return;
+
+  const url = new URL(request.url);
+  if (url.origin !== self.location.origin) return;
+
+  if (request.mode === "navigate") {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+          return response;
+        })
+        .catch(async () => {
+          const cached = await caches.match(request);
+          return cached || caches.match(cacheUrl(OFFLINE_URL));
+        })
+    );
+    return;
+  }
+
+  event.respondWith(
+    caches.match(request)
+      .then((cached) => cached || fetch(request)
+        .then((response) => {
+          if (!response || response.status !== 200) return response;
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+          return response;
+        })
+        .catch(() => cached))
+  );
+});
+`;
+}
+
+const CRC_TABLE = Array.from({ length: 256 }, (_, index) => {
+  let value = index;
+  for (let bit = 0; bit < 8; bit += 1) {
+    value = value & 1 ? 0xedb88320 ^ (value >>> 1) : value >>> 1;
+  }
+  return value >>> 0;
+});
+
+function crc32(buffer) {
+  let crc = 0xffffffff;
+  for (const byte of buffer) {
+    crc = CRC_TABLE[(crc ^ byte) & 0xff] ^ (crc >>> 8);
+  }
+  return (crc ^ 0xffffffff) >>> 0;
+}
+
+function pngChunk(type, data = Buffer.alloc(0)) {
+  const typeBuffer = Buffer.from(type);
+  const length = Buffer.alloc(4);
+  length.writeUInt32BE(data.length, 0);
+  const crc = Buffer.alloc(4);
+  crc.writeUInt32BE(crc32(Buffer.concat([typeBuffer, data])), 0);
+  return Buffer.concat([length, typeBuffer, data, crc]);
+}
+
+function iconPng(size) {
+  const rowLength = size * 4 + 1;
+  const raw = Buffer.alloc(rowLength * size);
+  const center = size / 2;
+  const radius = size * .32;
+  const accentRadius = size * .18;
+
+  for (let y = 0; y < size; y += 1) {
+    const row = y * rowLength;
+    raw[row] = 0;
+    for (let x = 0; x < size; x += 1) {
+      const offset = row + 1 + x * 4;
+      const distance = Math.hypot(x - center, y - center);
+      const accentDistance = Math.hypot(x - center * 1.28, y - center * .72);
+      const isMark = distance < radius;
+      const isAccent = accentDistance < accentRadius;
+      const stripe = Math.abs(x - y) < size * .035;
+      const color = isAccent
+        ? [98, 214, 168]
+        : isMark || stripe
+          ? [255, 138, 91]
+          : [15, 17, 23];
+      raw[offset] = color[0];
+      raw[offset + 1] = color[1];
+      raw[offset + 2] = color[2];
+      raw[offset + 3] = 255;
+    }
+  }
+
+  const header = Buffer.alloc(13);
+  header.writeUInt32BE(size, 0);
+  header.writeUInt32BE(size, 4);
+  header[8] = 8;
+  header[9] = 6;
+  header[10] = 0;
+  header[11] = 0;
+  header[12] = 0;
+
+  return Buffer.concat([
+    Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]),
+    pngChunk('IHDR', header),
+    pngChunk('IDAT', deflateSync(raw)),
+    pngChunk('IEND'),
+  ]);
+}
+
 async function writeFile(filePath, contents) {
   await fs.mkdir(path.dirname(filePath), { recursive: true });
   await fs.writeFile(filePath, contents, 'utf8');
+}
+
+async function writeBinary(filePath, contents) {
+  await fs.mkdir(path.dirname(filePath), { recursive: true });
+  await fs.writeFile(filePath, contents);
 }
 
 async function main() {
@@ -3485,11 +4186,18 @@ async function main() {
   await writeFile(path.join(ROOT, 'assets', 'js', 'recipes.js'), dataFile(categories, recipes));
   await writeFile(path.join(ROOT, 'assets', 'js', 'site.js'), jsFile());
   await writeFile(path.join(ROOT, 'assets', 'css', 'style.css'), cssFile());
+  await writeFile(path.join(ROOT, 'manifest.json'), manifestFile());
+  await writeFile(path.join(ROOT, 'manifest.webmanifest'), manifestFile());
+  await writeFile(path.join(ROOT, 'service-worker.js'), serviceWorkerFile(recipes, categories));
+  await writeBinary(path.join(ROOT, 'assets', 'icons', 'icon-192.png'), iconPng(192));
+  await writeBinary(path.join(ROOT, 'assets', 'icons', 'icon-512.png'), iconPng(512));
 
   await writeFile(path.join(ROOT, 'index.html'), homePage());
   await writeFile(path.join(ROOT, 'adauga-reteta.html'), recipeBuilderPage());
   await writeFile(path.join(ROOT, 'categorii.html'), categoriesIndexPage());
   await writeFile(path.join(ROOT, 'cauta.html'), searchPage());
+  await writeFile(path.join(ROOT, 'ce-pot-gati.html'), ingredientMatcherPage());
+  await writeFile(path.join(ROOT, 'offline.html'), offlinePage());
   await writeFile(path.join(ROOT, 'portofoliu', 'index.html'), portfolioPage());
   await writeFile(path.join(ROOT, 'randomizer', 'index.html'), randomizerPage());
   if (soonSection) {

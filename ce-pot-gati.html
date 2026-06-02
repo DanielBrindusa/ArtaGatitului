@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Arta Gătitului</title>
-  <meta name="description" content="Viață ocupată, mâncare sănătoasă. Rețete organizate pe categorii și căutare după ingrediente.">
+  <title>Ce pot găti? | Arta Gătitului</title>
+  <meta name="description" content="Recomandări de rețete în funcție de ingredientele pe care le ai deja acasă.">
   <meta name="theme-color" content="#0f1117">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Arta Gătitului">
@@ -56,39 +56,34 @@
   </div>
 </div>
 
-      <main id="main-content">
-        <section class="hero hero-home">
-          <div class="hero-inner">
-            <p class="eyebrow">Viață ocupată, mâncare sănătoasă</p>
-            <h1>Arta Gătitului</h1>
-            <p class="lead">Rețetele tale, adunate într-un site rapid, curat și ușor de folosit pe orice ecran.</p>
-            <form class="hero-search" action="cauta.html" method="get" role="search">
-              <label class="sr-only" for="homeSearch">Caută după rețetă sau ingredient</label>
-              <input id="homeSearch" name="q" type="search" placeholder="Caută după rețetă sau ingredient" autocomplete="off">
-              <button class="btn" type="submit">Caută</button>
-            </form>
+      <main class="section ingredient-page" id="main-content">
+        <div class="page-title">
+          <p class="eyebrow">Ingredient matcher</p>
+          <h1>Ce pot găti cu ingredientele pe care le am?</h1>
+          <p>Introdu ingredientele pe care le ai deja acasă, separate prin virgulă sau spațiu. Îți vom arăta rețetele pe care le poți prepara complet sau aproape complet.</p>
+        </div>
+
+        <section class="ingredient-panel" aria-labelledby="ingredientMatcherTitle">
+          <div class="search-panel-head">
+            <h2 id="ingredientMatcherTitle">Caută după ingrediente disponibile</h2>
+            <p>Căutarea ignoră diacriticele și folosește cuvinte complete, deci „galuste” găsește „găluște”, iar „ou” nu se potrivește cu fragmente ascunse în cuvinte mai lungi.</p>
           </div>
+          <form id="ingredientMatcherForm" class="ingredient-form">
+            <label class="field ingredient-field">
+              <span>Ingredientele tale</span>
+              <textarea id="availableIngredients" rows="4" placeholder="ex. pui, cartofi, ou, lapte, usturoi" autocomplete="off"></textarea>
+            </label>
+            <div class="ingredient-actions">
+              <button class="btn" type="submit">Vezi ce pot găti</button>
+              <button class="btn secondary" type="button" id="resetIngredientMatcher">Resetează</button>
+            </div>
+          </form>
+          <div id="ingredientChips" class="ingredient-chips" aria-label="Ingrediente detectate"></div>
+          <p class="builder-callout ingredient-note">Pentru rezultate mai bune, adaugă în rețete ingrediente și cuvinte-cheie simple, de exemplu: ou, ouă, pui, cartofi.</p>
         </section>
 
-        <section class="section compact">
-          <div class="section-head">
-            <div>
-              <p class="eyebrow">Categorii</p>
-              <h2>Alege după poftă</h2>
-            </div>
-          </div>
-          <div id="categoryGrid" class="grid categories"></div>
-        </section>
-
-        <section class="section">
-          <div class="section-head">
-            <div>
-              <p class="eyebrow">Rețete</p>
-              <h2>Rețete pentru acasă</h2>
-            </div>
-          </div>
-          <div id="featuredRecipes" class="grid cards"></div>
-        </section>
+        <div id="ingredientMatchSummary" class="count" aria-live="polite"></div>
+        <div id="ingredientMatchResults" class="ingredient-results"></div>
       </main>
 
     <footer class="footer">
