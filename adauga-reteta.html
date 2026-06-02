@@ -10,8 +10,8 @@
   <meta name="apple-mobile-web-app-title" content="Arta Gătitului">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="manifest" href="manifest.json">
-  <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png">
-  <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
+  <link rel="icon" type="image/png" href="assets/icons/icon.png">
+  <link rel="apple-touch-icon" href="assets/icons/icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Source+Sans+3:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -77,6 +77,7 @@
                 <li>Alege categoria exactă din listă.</li>
                 <li>Adaugă descrierea scurtă.</li>
                 <li>Adaugă ingredientele și pașii de preparare.</li>
+                <li>Adaugă lista „Înainte să începi” și etichetele care descriu corect rețeta.</li>
                 <li>Verifică previzualizarea din dreapta.</li>
               </ol>
             </article>
@@ -121,6 +122,7 @@
                 <li>Rețeta apare în căutare.</li>
                 <li>Rețeta apare în categoria corectă.</li>
                 <li>Pagina rețetei se deschide corect.</li>
+                <li>Checklist-ul și etichetele apar doar dacă ai completat acele câmpuri.</li>
                 <li>Cardul arată bine pe mobil și desktop.</li>
                 <li>Randomizer-ul o poate folosi dacă categoria este inclusă.</li>
               </ul>
@@ -129,6 +131,10 @@
 
           <div class="builder-callout">
             <strong>Notă despre căutare și „Ce pot găti?”:</strong> potrivirile funcționează pe cuvinte complete. Pentru rezultate mai bune, folosește ingrediente și cuvinte-cheie simple, de exemplu <code>ou</code>, <code>ouă</code>, <code>pui</code>, <code>cartofi</code>.
+          </div>
+
+          <div class="builder-callout">
+            <strong>Notă despre etichete și evaluări:</strong> alege doar etichetele care descriu corect rețeta. Datele de evaluări publice se completează doar dacă ai valori reale; site-ul static nu inventează și nu agregă automat evaluări de la vizitatori.
           </div>
         </section>
 
@@ -188,6 +194,17 @@
               <div id="builderIngredients" class="builder-list" data-list="ingredients"></div>
             </section>
 
+            <section class="builder-list-section" aria-labelledby="beforeStartBuilderTitle">
+              <div class="builder-list-head">
+                <div>
+                  <h3 id="beforeStartBuilderTitle">Înainte să începi</h3>
+                  <p class="builder-note">Adaugă aici lucrurile pe care utilizatorul trebuie să le pregătească înainte să înceapă rețeta: preîncălzirea cuptorului, scoaterea ingredientelor din frigider, pregătirea vaselor etc.</p>
+                </div>
+                <button class="btn secondary" type="button" data-add-row="beforeStart">Adaugă verificare</button>
+              </div>
+              <div id="builderBeforeStart" class="builder-list" data-list="beforeStart"></div>
+            </section>
+
             <section class="builder-list-section" aria-labelledby="stepsTitle">
               <div class="builder-list-head">
                 <h3 id="stepsTitle">Pași de preparare *</h3>
@@ -205,6 +222,47 @@
               <span>Cuvinte cheie / tag-uri</span>
               <input id="builderKeywords" type="text" placeholder="ex. rapid, pui, cină">
             </label>
+
+            <section class="builder-list-section" aria-labelledby="builderTagsTitle">
+              <div class="builder-list-head">
+                <div>
+                  <h3 id="builderTagsTitle">Etichete / Caracteristici</h3>
+                  <p class="builder-note">Alege doar etichetele care descriu corect rețeta. Etichetele ajută la căutare, filtrare și recomandări.</p>
+                </div>
+              </div>
+              <div id="builderTags" class="builder-tags"></div>
+            </section>
+
+            <details class="builder-list-section builder-advanced">
+              <summary>Date evaluări publice / agregate</summary>
+              <p class="builder-note">Completează aceste valori doar dacă ai date reale. Nu sunt generate automat de site-ul static.</p>
+              <div class="builder-form-grid">
+                <label class="field">
+                  <span>Evaluare generală medie</span>
+                  <input id="builderOverallAverage" type="number" min="1" max="5" step="0.1" placeholder="ex. 4.6">
+                </label>
+                <label class="field">
+                  <span>Gust mediu</span>
+                  <input id="builderTasteAverage" type="number" min="1" max="5" step="0.1" placeholder="ex. 4.7">
+                </label>
+                <label class="field">
+                  <span>Claritate medie</span>
+                  <input id="builderClarityAverage" type="number" min="1" max="5" step="0.1" placeholder="ex. 4.5">
+                </label>
+                <label class="field">
+                  <span>Complexitate medie</span>
+                  <input id="builderComplexityAverage" type="number" min="1" max="5" step="0.1" placeholder="ex. 2.3">
+                </label>
+                <label class="field">
+                  <span>Aș găti din nou (%)</span>
+                  <input id="builderCookAgainPercent" type="number" min="0" max="100" step="1" placeholder="ex. 91">
+                </label>
+                <label class="field">
+                  <span>Număr evaluări</span>
+                  <input id="builderTotalRatings" type="number" min="0" step="1" placeholder="ex. 24">
+                </label>
+              </div>
+            </details>
 
             <div class="builder-actions">
               <button class="btn" type="button" id="copyRecipeExport">Copiază datele rețetei</button>
