@@ -12,10 +12,16 @@
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/png" href="assets/icons/icon.png">
   <link rel="apple-touch-icon" href="assets/icons/icon.png">
+  <script>
+    try {
+      const savedTheme = localStorage.getItem('arta-gatitului-theme');
+      if (savedTheme) document.documentElement.dataset.theme = savedTheme;
+    } catch {}
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Source+Sans+3:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/style.css?v=mpwmp5dr">
 </head>
 <body>
 <a class="skip-link" href="#main-content">Sari la conținut</a>
@@ -32,6 +38,16 @@
           <a href="randomizer/">Randomizer</a>
           <a href="cauta.html">Caută</a>
         </nav>
+        <div class="nav-tools" aria-label="Instrumente rapide">
+          <button class="nav-tool" type="button" data-open-command aria-label="Caută rapid rețete, categorii sau etichete">
+            <span aria-hidden="true">K</span>
+            <span>Rapid</span>
+          </button>
+          <button class="nav-tool" type="button" data-theme-toggle aria-expanded="false" aria-controls="themePanel">
+            <span aria-hidden="true">A</span>
+            <span>Aspect</span>
+          </button>
+        </div>
         <button class="mobile-menu-btn" type="button" aria-expanded="false" aria-controls="siteNav" aria-label="Deschide meniul de categorii">
           <span aria-hidden="true">☰</span>
           <span>Categorii</span>
@@ -50,23 +66,58 @@
     </header>
 <div class="install-toast" id="installPrompt" hidden>
   <p>Instalează Arta Gătitului pe telefon pentru acces rapid la rețete.</p>
+  <p class="install-help" data-install-help hidden></p>
   <div>
     <button class="btn" type="button" data-install-action>Instalează</button>
     <button class="btn secondary" type="button" data-install-dismiss>Mai târziu</button>
   </div>
 </div>
+<div class="scroll-progress" data-scroll-progress aria-hidden="true"><span></span></div>
+<div class="offline-badge" id="offlineBadge" hidden aria-live="polite">Offline</div>
+<div class="theme-panel" id="themePanel" hidden aria-hidden="true">
+  <p class="eyebrow">Aspect</p>
+  <div class="theme-options" role="group" aria-label="Alege tema site-ului">
+    <button type="button" data-theme-choice="" aria-pressed="true">Cald</button>
+    <button type="button" data-theme-choice="cream" aria-pressed="false">Crem</button>
+    <button type="button" data-theme-choice="contrast" aria-pressed="false">Contrast</button>
+    <button type="button" data-theme-choice="night" aria-pressed="false">Noapte</button>
+  </div>
+</div>
+<div class="command-palette" id="commandPalette" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="commandPaletteTitle">
+  <button class="command-backdrop" type="button" data-command-backdrop aria-label="Închide căutarea rapidă"></button>
+  <section class="command-dialog" role="document">
+    <div class="command-head">
+      <h2 id="commandPaletteTitle">Caută rapid</h2>
+      <button class="mini-btn" type="button" data-command-close aria-label="Închide">×</button>
+    </div>
+    <label class="sr-only" for="commandPaletteInput">Caută rapid rețete, categorii sau etichete</label>
+    <input id="commandPaletteInput" type="search" placeholder="Caută rapid rețete, categorii sau etichete..." autocomplete="off">
+    <div id="commandPaletteResults" class="command-results" role="listbox" aria-live="polite"></div>
+  </section>
+</div>
 
       <main id="main-content">
         <section class="hero hero-home">
           <div class="hero-inner">
-            <p class="eyebrow">Viață ocupată, mâncare sănătoasă</p>
+            <p class="eyebrow">Ce gătim azi?</p>
             <h1>Arta Gătitului</h1>
-            <p class="lead">Rețetele tale, adunate într-un site rapid, curat și ușor de folosit pe orice ecran.</p>
+            <p class="lead">Rețetele tale într-o aplicație statică rapidă, cu căutare vie, categorii clare și idei bune pentru orice masă.</p>
             <form class="hero-search" action="cauta.html" method="get" role="search">
-              <label class="sr-only" for="homeSearch">Caută după rețetă sau ingredient</label>
-              <input id="homeSearch" name="q" type="search" placeholder="Caută după rețetă sau ingredient" autocomplete="off">
+              <label class="sr-only" for="homeSearch">Caută după ingredient, rețetă sau etichetă</label>
+              <input id="homeSearch" name="q" type="search" placeholder="Caută după ingredient, rețetă sau etichetă" autocomplete="off">
               <button class="btn" type="submit">Caută</button>
             </form>
+            <div class="hero-actions">
+              <button class="btn" type="button" id="surpriseRecipeButton">Surprinde-mă cu o rețetă</button>
+              <a class="btn secondary" href="ce-pot-gati.html">Ce pot găti?</a>
+            </div>
+            <div class="hero-chips" aria-label="Sugestii rapide">
+              <a href="mic-dejun/">Mic dejun</a>
+              <a href="fel-principal/">Fel principal</a>
+              <a href="desert/">Desert</a>
+              <a href="cauta.html?q=rapid">Rapid</a>
+              <a href="cauta.html?q=cremos">Cremos</a>
+            </div>
           </div>
         </section>
 
@@ -97,7 +148,7 @@
     </footer>
 <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 <script>window.ARTA_ROOT = "";</script>
-<script src="assets/js/recipes.js"></script>
-<script src="assets/js/site.js"></script>
+<script src="assets/js/recipes.js?v=mpwmp5dr"></script>
+<script src="assets/js/site.js?v=mpwmp5dr"></script>
 </body>
 </html>

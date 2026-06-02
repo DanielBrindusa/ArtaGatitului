@@ -6,6 +6,7 @@ const ROOT = process.cwd();
 const INVENTORY_PATH = path.join(ROOT, 'site-audit', 'godaddy-page-text-inventory.json');
 const RECIPES_MD_PATH = path.join(ROOT, 'site-audit', 'godaddy-recipes-only.md');
 const SOURCE_ICON_PATH = path.join(ROOT, 'icon.png');
+const BUILD_VERSION = Date.now().toString(36);
 
 const SITE_NAME = 'Arta Gătitului';
 const HERO_IMAGE = 'https://img1.wsimg.com/isteam/stock/19687/:/rs=w:1800,m';
@@ -277,6 +278,16 @@ function nav(root) {
         <nav class="nav-primary" aria-label="Navigație principală">
           ${primaryLinks.map(([label, href]) => `<a href="${root}${href}">${label}</a>`).join('\n          ')}
         </nav>
+        <div class="nav-tools" aria-label="Instrumente rapide">
+          <button class="nav-tool" type="button" data-open-command aria-label="Caută rapid rețete, categorii sau etichete">
+            <span aria-hidden="true">K</span>
+            <span>Rapid</span>
+          </button>
+          <button class="nav-tool" type="button" data-theme-toggle aria-expanded="false" aria-controls="themePanel">
+            <span aria-hidden="true">A</span>
+            <span>Aspect</span>
+          </button>
+        </div>
         <button class="mobile-menu-btn" type="button" aria-expanded="false" aria-controls="siteNav" aria-label="Deschide meniul de categorii">
           <span aria-hidden="true">☰</span>
           <span>Categorii</span>
@@ -312,27 +323,57 @@ function page({ title, description, root = '', bodyAttrs = '', main }) {
   <link rel="manifest" href="${root}manifest.json">
   <link rel="icon" type="image/png" href="${root}assets/icons/icon.png">
   <link rel="apple-touch-icon" href="${root}assets/icons/icon.png">
+  <script>
+    try {
+      const savedTheme = localStorage.getItem('arta-gatitului-theme');
+      if (savedTheme) document.documentElement.dataset.theme = savedTheme;
+    } catch {}
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Source+Sans+3:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="${root}assets/css/style.css">
+  <link rel="stylesheet" href="${root}assets/css/style.css?v=${BUILD_VERSION}">
 </head>
 <body${bodyAttrs ? ` ${bodyAttrs}` : ''}>
 <a class="skip-link" href="#main-content">Sari la conținut</a>
 ${nav(root)}
 <div class="install-toast" id="installPrompt" hidden>
   <p>Instalează Arta Gătitului pe telefon pentru acces rapid la rețete.</p>
+  <p class="install-help" data-install-help hidden></p>
   <div>
     <button class="btn" type="button" data-install-action>Instalează</button>
     <button class="btn secondary" type="button" data-install-dismiss>Mai târziu</button>
   </div>
 </div>
+<div class="scroll-progress" data-scroll-progress aria-hidden="true"><span></span></div>
+<div class="offline-badge" id="offlineBadge" hidden aria-live="polite">Offline</div>
+<div class="theme-panel" id="themePanel" hidden aria-hidden="true">
+  <p class="eyebrow">Aspect</p>
+  <div class="theme-options" role="group" aria-label="Alege tema site-ului">
+    <button type="button" data-theme-choice="" aria-pressed="true">Cald</button>
+    <button type="button" data-theme-choice="cream" aria-pressed="false">Crem</button>
+    <button type="button" data-theme-choice="contrast" aria-pressed="false">Contrast</button>
+    <button type="button" data-theme-choice="night" aria-pressed="false">Noapte</button>
+  </div>
+</div>
+<div class="command-palette" id="commandPalette" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="commandPaletteTitle">
+  <button class="command-backdrop" type="button" data-command-backdrop aria-label="Închide căutarea rapidă"></button>
+  <section class="command-dialog" role="document">
+    <div class="command-head">
+      <h2 id="commandPaletteTitle">Caută rapid</h2>
+      <button class="mini-btn" type="button" data-command-close aria-label="Închide">×</button>
+    </div>
+    <label class="sr-only" for="commandPaletteInput">Caută rapid rețete, categorii sau etichete</label>
+    <input id="commandPaletteInput" type="search" placeholder="Caută rapid rețete, categorii sau etichete..." autocomplete="off">
+    <div id="commandPaletteResults" class="command-results" role="listbox" aria-live="polite"></div>
+  </section>
+</div>
 ${main}
 ${footer(root)}
 <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 <script>window.ARTA_ROOT = "${root}";</script>
-<script src="${root}assets/js/recipes.js"></script>
-<script src="${root}assets/js/site.js"></script>
+<script src="${root}assets/js/recipes.js?v=${BUILD_VERSION}"></script>
+<script src="${root}assets/js/site.js?v=${BUILD_VERSION}"></script>
 </body>
 </html>
 `;
@@ -346,14 +387,25 @@ function homePage() {
       <main id="main-content">
         <section class="hero hero-home">
           <div class="hero-inner">
-            <p class="eyebrow">Viață ocupată, mâncare sănătoasă</p>
+            <p class="eyebrow">Ce gătim azi?</p>
             <h1>${SITE_NAME}</h1>
-            <p class="lead">Rețetele tale, adunate într-un site rapid, curat și ușor de folosit pe orice ecran.</p>
+            <p class="lead">Rețetele tale într-o aplicație statică rapidă, cu căutare vie, categorii clare și idei bune pentru orice masă.</p>
             <form class="hero-search" action="cauta.html" method="get" role="search">
-              <label class="sr-only" for="homeSearch">Caută după rețetă sau ingredient</label>
-              <input id="homeSearch" name="q" type="search" placeholder="Caută după rețetă sau ingredient" autocomplete="off">
+              <label class="sr-only" for="homeSearch">Caută după ingredient, rețetă sau etichetă</label>
+              <input id="homeSearch" name="q" type="search" placeholder="Caută după ingredient, rețetă sau etichetă" autocomplete="off">
               <button class="btn" type="submit">Caută</button>
             </form>
+            <div class="hero-actions">
+              <button class="btn" type="button" id="surpriseRecipeButton">Surprinde-mă cu o rețetă</button>
+              <a class="btn secondary" href="ce-pot-gati.html">Ce pot găti?</a>
+            </div>
+            <div class="hero-chips" aria-label="Sugestii rapide">
+              <a href="mic-dejun/">Mic dejun</a>
+              <a href="fel-principal/">Fel principal</a>
+              <a href="desert/">Desert</a>
+              <a href="cauta.html?q=rapid">Rapid</a>
+              <a href="cauta.html?q=cremos">Cremos</a>
+            </div>
           </div>
         </section>
 
@@ -859,6 +911,57 @@ function cssFile() {
   --container: 1180px;
 }
 
+:root[data-theme="cream"] {
+  --color-bg: #18120f;
+  --color-bg-soft: #211812;
+  --color-surface: rgba(43, 31, 24, .94);
+  --color-surface-alt: rgba(55, 40, 30, .94);
+  --color-text: #fff7ee;
+  --color-text-muted: #e8c8ad;
+  --color-primary: #ff9a62;
+  --color-primary-hover: #ffc09a;
+  --color-primary-soft: rgba(255, 154, 98, .18);
+  --color-secondary: #8be4b8;
+  --color-secondary-hover: #b6f5d4;
+  --color-border: rgba(255, 226, 202, .24);
+  --color-focus: rgba(255, 192, 154, .72);
+  --color-focus-soft: rgba(255, 192, 154, .24);
+}
+
+:root[data-theme="contrast"] {
+  --color-bg: #050507;
+  --color-bg-soft: #0c0c10;
+  --color-surface: #101015;
+  --color-surface-alt: #15151c;
+  --color-text: #ffffff;
+  --color-text-muted: #f3e4d7;
+  --color-primary: #ffd166;
+  --color-primary-hover: #ffe7a3;
+  --color-primary-soft: rgba(255, 209, 102, .2);
+  --color-secondary: #7fffd4;
+  --color-secondary-hover: #c7fff0;
+  --color-border: rgba(255, 255, 255, .34);
+  --color-focus: rgba(127, 255, 212, .9);
+  --color-focus-soft: rgba(127, 255, 212, .24);
+}
+
+:root[data-theme="night"] {
+  --color-bg: #090d14;
+  --color-bg-soft: #101827;
+  --color-surface: rgba(16, 24, 39, .94);
+  --color-surface-alt: rgba(24, 34, 52, .94);
+  --color-text: #f4f7ff;
+  --color-text-muted: #c7d3e9;
+  --color-primary: #8bd3ff;
+  --color-primary-hover: #bfe8ff;
+  --color-primary-soft: rgba(139, 211, 255, .17);
+  --color-secondary: #ffc078;
+  --color-secondary-hover: #ffe0b6;
+  --color-border: rgba(204, 222, 255, .2);
+  --color-focus: rgba(139, 211, 255, .7);
+  --color-focus-soft: rgba(139, 211, 255, .24);
+}
+
 *,
 *::before,
 *::after {
@@ -867,6 +970,7 @@ function cssFile() {
 
 html {
   scroll-behavior: smooth;
+  color-scheme: dark;
 }
 
 body {
@@ -878,6 +982,7 @@ body {
   color: var(--color-text);
   background: var(--color-bg);
   overflow-x: hidden;
+  transition: background-color .24s ease, color .24s ease;
 }
 
 body::before {
@@ -931,6 +1036,42 @@ body::after {
   }
 }
 
+@keyframes subtlePulse {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: none;
+  }
+
+  50% {
+    transform: scale(1.015);
+    box-shadow: 0 0 0 8px var(--color-focus-soft);
+  }
+}
+
+@keyframes slideFade {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes timerPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 138, 91, .16);
+  }
+
+  50% {
+    box-shadow: 0 0 0 10px rgba(255, 138, 91, 0);
+  }
+}
+
 @keyframes pageEnter {
   from {
     opacity: 0;
@@ -957,6 +1098,10 @@ svg {
 
 img {
   height: auto;
+}
+
+[hidden] {
+  display: none !important;
 }
 
 main,
@@ -1081,11 +1226,18 @@ p {
   border-radius: var(--radius-lg);
   background: rgba(24, 29, 41, .98);
   box-shadow: var(--shadow-card);
+  animation: slideFade .24s ease both;
 }
 
 .install-toast p {
   color: var(--color-text-muted);
   font-weight: 800;
+}
+
+.install-toast .install-help {
+  margin-top: var(--space-2);
+  color: var(--color-text);
+  font-weight: 700;
 }
 
 .install-toast div {
@@ -1153,6 +1305,65 @@ p {
   align-items: center;
   gap: var(--space-1);
   overflow-x: visible;
+}
+
+.nav-tools {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.nav-tool {
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 40px;
+  min-width: 40px;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, .045);
+  color: var(--color-text);
+  font: inherit;
+  font-weight: 900;
+  cursor: pointer;
+  transition: border-color .18s ease, background-color .18s ease, color .18s ease, transform .18s ease, box-shadow .18s ease;
+}
+
+.nav-tool span:first-child {
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-sm);
+  background: var(--color-primary-soft);
+  color: var(--color-primary-hover);
+  font-size: .76rem;
+}
+
+.nav-tool::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(120px circle at var(--mx, 50%) var(--my, 50%), rgba(255, 255, 255, .14), transparent 52%);
+  opacity: 0;
+  transition: opacity .18s ease;
+}
+
+.nav-tool:hover,
+.nav-tool[aria-expanded="true"] {
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
+  color: var(--color-primary-hover);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, .18);
+}
+
+.nav-tool:hover::before {
+  opacity: 1;
 }
 
 .nav-primary a,
@@ -1240,6 +1451,7 @@ p {
 }
 
 .hero {
+  position: relative;
   min-height: 500px;
   display: flex;
   align-items: center;
@@ -1247,9 +1459,39 @@ p {
   background-image: linear-gradient(90deg, rgba(15, 17, 23, .92), rgba(15, 17, 23, .54)), url('${HERO_IMAGE}');
   background-size: cover;
   background-position: center;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    linear-gradient(104deg, transparent 12%, rgba(255, 255, 255, .08) 18%, transparent 26%),
+    linear-gradient(118deg, transparent 54%, rgba(98, 214, 168, .08) 61%, transparent 70%),
+    linear-gradient(82deg, transparent 70%, rgba(255, 138, 91, .1) 78%, transparent 86%);
+  opacity: .65;
+  transform: translateX(-6%);
+  animation: steamDrift 12s ease-in-out infinite alternate;
+}
+
+@keyframes steamDrift {
+  from {
+    opacity: .36;
+    transform: translateX(-8%) translateY(8px);
+  }
+
+  to {
+    opacity: .76;
+    transform: translateX(5%) translateY(-8px);
+  }
 }
 
 .hero-inner {
+  position: relative;
   width: min(var(--container), 100%);
   margin: 0 auto;
   padding: var(--space-8) var(--space-4);
@@ -1297,6 +1539,14 @@ p {
   border-radius: var(--radius-lg);
   background: rgba(24, 29, 41, .72);
   box-shadow: 0 18px 46px rgba(0, 0, 0, .24);
+  transition: border-color .2s ease, box-shadow .2s ease, background-color .2s ease, transform .2s ease;
+}
+
+.hero-search:focus-within {
+  border-color: rgba(255, 138, 91, .52);
+  background: rgba(24, 29, 41, .86);
+  box-shadow: 0 22px 54px rgba(0, 0, 0, .34), 0 0 0 4px var(--color-focus-soft);
+  transform: translateY(-1px);
 }
 
 .hero-search input {
@@ -1312,7 +1562,38 @@ p {
   margin-top: var(--space-4);
 }
 
+.hero-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  max-width: 720px;
+  margin-top: var(--space-4);
+}
+
+.hero-chips a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid rgba(255, 255, 255, .2);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .09);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 900;
+  transition: border-color .18s ease, background-color .18s ease, transform .18s ease;
+}
+
+.hero-chips a:hover,
+.hero-chips a:focus-visible {
+  border-color: rgba(255, 255, 255, .42);
+  background: rgba(255, 255, 255, .16);
+  transform: translateY(-2px);
+}
+
 .btn {
+  position: relative;
+  overflow: hidden;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1331,6 +1612,21 @@ p {
   transition: background-color .16s ease, border-color .16s ease, color .16s ease, box-shadow .16s ease, transform .16s ease;
 }
 
+.btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(160px circle at var(--mx, 50%) var(--my, 50%), rgba(255, 255, 255, .26), transparent 52%);
+  opacity: 0;
+  transition: opacity .18s ease;
+}
+
+.btn > * {
+  position: relative;
+  z-index: 1;
+}
+
 .btn:disabled {
   cursor: not-allowed;
   opacity: .64;
@@ -1340,10 +1636,15 @@ p {
   border-color: var(--color-primary-hover);
   background: var(--color-primary-hover);
   color: #1a100c;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, .2);
+}
+
+.btn:hover::before {
+  opacity: 1;
 }
 
 .btn:active {
-  transform: translateY(1px);
+  transform: translateY(1px) scale(.985);
 }
 
 .btn.light {
@@ -1448,6 +1749,8 @@ p {
 
 .card {
   position: relative;
+  --tilt-x: 0deg;
+  --tilt-y: 0deg;
   min-height: 100%;
   padding: var(--space-5);
   display: flex;
@@ -1458,7 +1761,8 @@ p {
   text-decoration: none;
   overflow-wrap: anywhere;
   animation: softReveal .42s ease both;
-  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+  transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease, background-color .22s ease;
+  will-change: transform;
 }
 
 .card::before {
@@ -1466,7 +1770,9 @@ p {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: linear-gradient(135deg, rgba(255, 138, 91, .18), transparent 38%, rgba(98, 214, 168, .12));
+  background:
+    radial-gradient(320px circle at var(--mx, 20%) var(--my, 0%), rgba(255, 255, 255, .12), transparent 42%),
+    linear-gradient(135deg, rgba(255, 138, 91, .18), transparent 38%, rgba(98, 214, 168, .12));
   opacity: .72;
 }
 
@@ -1528,6 +1834,7 @@ p {
 }
 
 .tag-chip {
+  position: relative;
   display: inline-flex;
   align-items: center;
   min-height: 32px;
@@ -1538,6 +1845,19 @@ p {
   color: var(--color-secondary-hover);
   font-size: .94rem;
   font-weight: 900;
+  text-decoration: none;
+  transition: border-color .18s ease, background-color .18s ease, color .18s ease, transform .18s ease, box-shadow .18s ease;
+}
+
+.tag-chip:hover,
+.tag-chip:focus-visible,
+.ingredient-chip:hover,
+.match-chip:hover {
+  border-color: var(--color-secondary);
+  background: rgba(98, 214, 168, .16);
+  color: var(--color-secondary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, .16);
 }
 
 .tag-chip.small {
@@ -1556,6 +1876,8 @@ p {
 
 .category-card {
   position: relative;
+  --tilt-x: 0deg;
+  --tilt-y: 0deg;
   min-height: 158px;
   padding: var(--space-5);
   color: var(--color-text);
@@ -1564,6 +1886,7 @@ p {
   overflow-wrap: anywhere;
   animation: softReveal .42s ease both;
   transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease, background-color .2s ease;
+  will-change: transform;
 }
 
 .category-card::after {
@@ -1577,6 +1900,23 @@ p {
   background: var(--color-primary);
 }
 
+.category-card::before {
+  content: attr(data-icon);
+  position: absolute;
+  right: var(--space-4);
+  top: var(--space-4);
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 214, 186, .14);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, .055);
+  color: var(--color-primary-hover);
+  font-family: "Source Sans 3", system-ui, sans-serif;
+  font-weight: 900;
+}
+
 .category-card:nth-child(2n)::after {
   background: var(--color-secondary);
 }
@@ -1587,6 +1927,7 @@ p {
 
 .category-card strong {
   display: block;
+  max-width: calc(100% - 58px);
   margin-bottom: var(--space-2);
   font-family: Cinzel, Georgia, serif;
   font-size: 1.16rem;
@@ -1683,6 +2024,7 @@ p {
 
 .ingredient-chip,
 .match-chip {
+  position: relative;
   display: inline-flex;
   align-items: center;
   min-height: 32px;
@@ -1693,6 +2035,7 @@ p {
   color: var(--color-text);
   font-size: .94rem;
   font-weight: 900;
+  transition: border-color .18s ease, background-color .18s ease, color .18s ease, transform .18s ease, box-shadow .18s ease;
 }
 
 .ingredient-note {
@@ -1816,12 +2159,36 @@ textarea:focus {
 }
 
 .empty {
+  position: relative;
+  overflow: hidden;
   padding: var(--space-5);
   border: 2px dashed rgba(255, 214, 186, .32);
   border-radius: var(--radius-lg);
   background: var(--color-surface);
   color: var(--color-text-muted);
   text-align: center;
+  animation: slideFade .24s ease both;
+}
+
+.empty::before {
+  content: "";
+  display: block;
+  width: 42px;
+  height: 42px;
+  margin: 0 auto var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background:
+    linear-gradient(135deg, var(--color-primary-soft), transparent),
+    rgba(255, 255, 255, .04);
+}
+
+.empty-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
 }
 
 .recipe-detail-card {
@@ -1861,6 +2228,32 @@ textarea:focus {
   margin-top: var(--space-5);
 }
 
+.recipe-timeline {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+}
+
+.recipe-timeline div {
+  position: relative;
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, .045);
+}
+
+.recipe-timeline span {
+  display: block;
+  color: var(--color-text-muted);
+  font-weight: 800;
+}
+
+.recipe-timeline strong {
+  display: block;
+  color: var(--color-text);
+  font-size: 1.12rem;
+}
+
 .before-start,
 .recipe-tags,
 .recipe-rating {
@@ -1891,6 +2284,12 @@ textarea:focus {
   border-radius: var(--radius-sm);
   background: rgba(255, 255, 255, .04);
   cursor: pointer;
+  transition: border-color .18s ease, background-color .18s ease, transform .18s ease;
+}
+
+.before-list label.is-checked {
+  border-color: rgba(98, 214, 168, .35);
+  background: rgba(98, 214, 168, .08);
 }
 
 .before-list input {
@@ -1999,6 +2398,11 @@ textarea:focus {
 .rating-options input,
 .choice-row input {
   position: absolute;
+  width: 1px;
+  min-height: 1px;
+  margin: 0;
+  padding: 0;
+  border: 0;
   opacity: 0;
   pointer-events: none;
 }
@@ -2347,6 +2751,11 @@ ol.clean li {
 
 .builder-tag-options input {
   position: absolute;
+  width: 1px;
+  min-height: 1px;
+  margin: 0;
+  padding: 0;
+  border: 0;
   opacity: 0;
   pointer-events: none;
 }
@@ -2597,6 +3006,276 @@ ol.clean li {
   display: block;
 }
 
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 90;
+  width: 100%;
+  height: 3px;
+  pointer-events: none;
+  opacity: 0;
+  background: transparent;
+  transition: opacity .18s ease;
+}
+
+.scroll-progress.is-visible {
+  opacity: 1;
+}
+
+.scroll-progress span {
+  display: block;
+  width: var(--progress, 0%);
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+  box-shadow: 0 0 18px var(--color-focus-soft);
+}
+
+.theme-panel {
+  position: fixed;
+  top: 74px;
+  right: var(--space-4);
+  z-index: 72;
+  width: min(320px, calc(100vw - 32px));
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: rgba(24, 29, 41, .98);
+  box-shadow: var(--shadow-card);
+  animation: slideFade .2s ease both;
+}
+
+.theme-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.theme-options button {
+  min-height: 42px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, .045);
+  color: var(--color-text);
+  font: inherit;
+  font-weight: 900;
+  cursor: pointer;
+  transition: border-color .18s ease, background-color .18s ease, color .18s ease, transform .18s ease;
+}
+
+.theme-options button[aria-pressed="true"],
+.theme-options button:hover,
+.theme-options button:focus-visible {
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
+  color: var(--color-primary-hover);
+}
+
+.command-palette {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  display: grid;
+  place-items: start center;
+  padding: min(10vh, 72px) var(--space-4) var(--space-4);
+}
+
+body.command-open {
+  overflow: hidden;
+}
+
+.command-backdrop {
+  position: fixed;
+  inset: 0;
+  border: 0;
+  background: rgba(5, 6, 10, .68);
+  backdrop-filter: blur(10px);
+  cursor: pointer;
+}
+
+.command-dialog {
+  position: relative;
+  width: min(720px, 100%);
+  max-height: min(720px, calc(100vh - 40px));
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: rgba(24, 29, 41, .98);
+  box-shadow: var(--shadow-card);
+  animation: pageEnter .22s cubic-bezier(.2, .7, .2, 1) both;
+}
+
+.command-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.command-head h2 {
+  font-size: 1.34rem;
+}
+
+.command-results {
+  display: grid;
+  gap: var(--space-2);
+  max-height: min(56vh, 470px);
+  overflow: auto;
+  padding-right: 2px;
+}
+
+.command-section-title {
+  margin-top: var(--space-2);
+  color: var(--color-primary-hover);
+  font-size: .78rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.command-item {
+  width: 100%;
+  min-height: 54px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--space-3);
+  align-items: center;
+  padding: var(--space-3);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, .045);
+  color: var(--color-text);
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  transition: border-color .18s ease, background-color .18s ease, transform .18s ease;
+}
+
+.command-item:hover,
+.command-item.is-active,
+.command-item:focus-visible {
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
+  transform: translateY(-1px);
+}
+
+.command-type {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, .07);
+  color: var(--color-primary-hover);
+  font-weight: 900;
+}
+
+.command-title {
+  display: block;
+  font-weight: 900;
+}
+
+.command-meta {
+  display: block;
+  color: var(--color-text-muted);
+  font-size: .92rem;
+}
+
+.quick-actions {
+  position: fixed;
+  right: var(--space-4);
+  bottom: calc(var(--space-4) + 74px);
+  z-index: 68;
+  display: grid;
+  gap: var(--space-2);
+}
+
+.quick-action {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: rgba(24, 29, 41, .94);
+  color: var(--color-text);
+  text-decoration: none;
+  font: inherit;
+  font-weight: 900;
+  box-shadow: var(--shadow-soft);
+  cursor: pointer;
+  transition: border-color .18s ease, background-color .18s ease, color .18s ease, transform .18s ease, opacity .18s ease;
+}
+
+.quick-action:hover,
+.quick-action:focus-visible {
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
+  color: var(--color-primary-hover);
+  transform: translateY(-2px);
+}
+
+.quick-action.is-muted {
+  opacity: .56;
+}
+
+.quick-action-status {
+  position: absolute;
+  right: 58px;
+  bottom: 0;
+  min-width: max-content;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-secondary-hover);
+  font-weight: 900;
+  box-shadow: var(--shadow-soft);
+  animation: slideFade .18s ease both;
+}
+
+.offline-badge {
+  position: fixed;
+  left: var(--space-4);
+  bottom: var(--space-4);
+  z-index: 70;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-primary-hover);
+  font-weight: 900;
+  box-shadow: var(--shadow-soft);
+}
+
+.reveal-ready [data-reveal] {
+  opacity: 0;
+  transform: translateY(16px);
+}
+
+.reveal-ready [data-reveal].is-revealed {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity .46s ease, transform .46s cubic-bezier(.2, .7, .2, 1);
+  transition-delay: calc(var(--stagger, 0) * 42ms);
+}
+
+.pulse-once {
+  animation: subtlePulse .36s ease both;
+}
+
+.builder-status.is-success,
+.rating-status-success {
+  color: var(--color-secondary-hover);
+  animation: slideFade .2s ease both;
+}
+
+.steak-timer.is-running .timer-display {
+  animation: timerPulse 1.6s ease-in-out infinite;
+  border-color: var(--color-primary);
+}
+
 .footer {
   margin-top: var(--space-6);
   padding: var(--space-6) var(--space-4);
@@ -2612,6 +3291,19 @@ ol.clean li {
 .footer a {
   color: var(--color-primary-hover);
   font-weight: 900;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .recipe-card.is-pointer-active,
+  .category-card.is-pointer-active {
+    transform: perspective(900px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y)) translateY(-5px);
+  }
+
+  .recipe-card.is-pointer-active,
+  .category-card.is-pointer-active {
+    border-color: rgba(255, 138, 91, .5);
+    box-shadow: var(--shadow-card);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -2631,6 +3323,11 @@ ol.clean li {
 
   body::after {
     display: none;
+  }
+
+  .hero::before,
+  .steak-timer.is-running .timer-display {
+    animation: none !important;
   }
 
   body.page-leaving main,
@@ -2761,6 +3458,22 @@ ol.clean li {
     font-size: .9rem;
   }
 
+  .nav-tools {
+    flex: 0 0 auto;
+  }
+
+  .nav-tool span:last-child {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
   .nav-links {
     top: calc(100% + var(--space-2));
     left: var(--space-3);
@@ -2873,6 +3586,37 @@ ol.clean li {
     bottom: var(--space-3);
     width: calc(100vw - 24px);
   }
+
+  .theme-panel {
+    top: 82px;
+    right: var(--space-3);
+    width: calc(100vw - 24px);
+  }
+
+  .command-palette {
+    padding: 0;
+    place-items: stretch;
+  }
+
+  .command-dialog {
+    width: 100%;
+    min-height: 100vh;
+    max-height: 100vh;
+    border-radius: 0;
+    border-left: 0;
+    border-right: 0;
+  }
+
+  .quick-actions {
+    right: var(--space-3);
+    bottom: var(--space-3);
+    grid-template-columns: repeat(4, 44px);
+  }
+
+  .quick-action {
+    width: 44px;
+    height: 44px;
+  }
 }
 
 @media (max-width: 430px) {
@@ -2891,6 +3635,10 @@ ol.clean li {
 
   .nav-primary {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .nav-tools {
+    order: 2;
   }
 
   .nav-primary a {
@@ -2913,6 +3661,10 @@ ol.clean li {
 
   .steak-result {
     padding: var(--space-4);
+  }
+
+  .quick-actions {
+    grid-template-columns: repeat(3, 44px);
   }
 }
 
@@ -2967,6 +3719,9 @@ function jsFile() {
     technique: { label: "Tehnică", options: ["Fierbere", "Coacere", "Prăjire", "Sotare", "Marinare", "Frământare", "La tigaie", "La cuptor", "Fără gătire"] }
   };
   const TAG_CARD_PRIORITY = ["complexity", "time", "context", "equipment", "technique", "taste", "diet"];
+  const THEME_KEY = "arta-gatitului-theme";
+  const prefersReducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let revealObserver = null;
 
   function normalize(value) {
     return String(value || "")
@@ -2993,9 +3748,27 @@ function jsFile() {
     return root + slug + "/";
   }
 
+  function searchUrl(query) {
+    return root + "cauta.html?q=" + encodeURIComponent(query);
+  }
+
   function categorySlug(name) {
     const category = data.categories.find((item) => item.name === name);
     return category ? category.slug : normalize(name).replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+  }
+
+  function categoryIcon(name) {
+    const key = normalize(name).replace(/[^a-z0-9]+/g, "-");
+    const icons = {
+      "mic-dejun": "MD",
+      "fel-principal": "FP",
+      "fel-secundar": "FS",
+      desert: "DS",
+      bauturi: "BT",
+      salate: "SL",
+      rontaieli: "RN"
+    };
+    return icons[key] || (String(name || "").trim().slice(0, 2).toUpperCase() || "AG");
   }
 
   function recipeBySlug(slug) {
@@ -3094,7 +3867,7 @@ function jsFile() {
           \${entries.map((group) => \`
             <div class="tag-group">
               <h3>\${escapeHtml(group.label)}</h3>
-              <div class="tag-list">\${group.tags.map((tag) => \`<span class="tag-chip">\${escapeHtml(tag)}</span>\`).join("")}</div>
+              <div class="tag-list">\${group.tags.map((tag) => \`<a class="tag-chip tag-link" href="\${searchUrl(tag)}">\${escapeHtml(tag)}</a>\`).join("")}</div>
             </div>
           \`).join("")}
         </div>
@@ -3123,6 +3896,41 @@ function jsFile() {
     return queryTokens.every((token) => tokens.has(token));
   }
 
+  function applyStagger(container) {
+    if (!container) return;
+    Array.from(container.children).forEach((child, index) => {
+      if (child && child.style) child.style.setProperty("--stagger", Math.min(index, 14));
+    });
+  }
+
+  function markRevealTargets(scope) {
+    if (prefersReducedMotion) return;
+    const rootEl = scope || document;
+    rootEl.querySelectorAll(".section, .page-title, .search-panel, .ingredient-panel, .randomizer-panel, .builder-card, .box, .card, .category-card, .recipe-detail-card, .related, .meal-slot").forEach((el) => {
+      if (!el.hasAttribute("data-reveal")) el.setAttribute("data-reveal", "");
+      if (revealObserver) revealObserver.observe(el);
+      else if (document.documentElement.classList.contains("reveal-ready")) el.classList.add("is-revealed");
+    });
+  }
+
+  function pulseElement(el) {
+    if (!el || prefersReducedMotion) return;
+    el.classList.remove("pulse-once");
+    void el.offsetWidth;
+    el.classList.add("pulse-once");
+  }
+
+  function emptyState(message, actions) {
+    const actionMarkup = actions === false ? "" : [
+      '<div class="empty-actions">',
+      '<button class="btn secondary" type="button" data-clear-search>Curăță căutarea</button>',
+      '<a class="btn secondary" href="' + root + 'cauta.html">Vezi toate rețetele</a>',
+      '<a class="btn secondary" href="' + root + 'categorii.html">Explorează categoriile</a>',
+      '</div>'
+    ].join("");
+    return '<div class="empty"><p>' + escapeHtml(message) + '</p>' + actionMarkup + '</div>';
+  }
+
   function card(recipe) {
     const ingredients = (recipe.ingredients || []).filter((line) => !isSubheading(line)).slice(0, 5).join(", ");
     const titleId = "recipe-card-" + recipe.slug;
@@ -3141,6 +3949,9 @@ function jsFile() {
     const el = document.getElementById(elementId);
     if (!el) return;
     el.innerHTML = recipes.length ? recipes.map(card).join("") : '<div class="empty">Nu există rețete de afișat încă.</div>';
+    if (!recipes.length) el.innerHTML = emptyState("Nu există rețete de afișat încă.", false);
+    applyStagger(el);
+    markRevealTargets(el);
   }
 
   function renderFeatured() {
@@ -3158,12 +3969,14 @@ function jsFile() {
       const count = data.recipes.filter((recipe) => recipe.category === category.name).length;
       const countLabel = count === 1 ? "1 rețetă" : count + " rețete";
       return \`
-        <a class="category-card" href="\${categoryUrl(category.slug)}">
+        <a class="category-card" href="\${categoryUrl(category.slug)}" data-icon="\${escapeHtml(categoryIcon(category.name))}">
           <strong>\${escapeHtml(category.name)}</strong>
           <span>\${escapeHtml(category.description)}<br>\${count ? countLabel : "urmează rețete noi"}</span>
         </a>
       \`;
     }).join("");
+    applyStagger(el);
+    markRevealTargets(el);
   }
 
   function setupSearch() {
@@ -3186,6 +3999,10 @@ function jsFile() {
 
       count.textContent = matches.length === 1 ? "1 rețetă găsită" : \`\${matches.length} rețete găsite\`;
       results.innerHTML = matches.length ? matches.map(card).join("") : '<div class="empty">Nu am găsit nicio rețetă. Încearcă un ingredient, o categorie sau mai puține cuvinte.</div>';
+      pulseElement(count);
+      if (!matches.length) results.innerHTML = emptyState("Nu am găsit nicio rețetă. Încearcă alt ingredient sau explorează categoriile.");
+      applyStagger(results);
+      markRevealTargets(results);
       results.classList.remove("is-refreshing");
       void results.offsetWidth;
       results.classList.add("is-refreshing");
@@ -3193,6 +4010,14 @@ function jsFile() {
 
     input.addEventListener("input", run);
     category.addEventListener("change", run);
+    results.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-clear-search]");
+      if (!button) return;
+      input.value = "";
+      category.value = "all";
+      run();
+      input.focus();
+    });
     run();
   }
 
@@ -3310,6 +4135,7 @@ function jsFile() {
       if (!tokens.length) {
         summary.textContent = "Introdu ingredientele ca să primești recomandări.";
         results.innerHTML = '<div class="empty">Exemplu: pui, cartofi, ou, lapte, usturoi.</div>';
+        results.innerHTML = emptyState("Exemplu: pui, cartofi, ou, lapte, usturoi.", false);
         return;
       }
 
@@ -3340,6 +4166,9 @@ function jsFile() {
             renderMatchSection("Potrivire slabă", weak)
           ].join("")
         : '<div class="empty">Nu am găsit potriviri încă. Încearcă ingrediente mai simple, de exemplu „pui”, „cartofi”, „ouă” sau „lapte”.</div>';
+      if (!matches.length) results.innerHTML = emptyState("Nu am găsit potriviri încă. Încearcă ingrediente mai simple, de exemplu pui, cartofi, ouă sau lapte.", false);
+      applyStagger(results);
+      markRevealTargets(results);
       results.classList.remove("is-refreshing");
       void results.offsetWidth;
       results.classList.add("is-refreshing");
@@ -3609,6 +4438,17 @@ function jsFile() {
       .map((item) => item.recipe);
   }
 
+  function recipeTimeline(recipe) {
+    const markers = [];
+    if (recipe && recipe.prepTime) markers.push(["Pregătire", recipe.prepTime]);
+    if (recipe && recipe.cookTime) markers.push(["Gătire", recipe.cookTime]);
+    if (recipe && recipe.restTime) markers.push(["Odihnire", recipe.restTime]);
+    if (!markers.length) return "";
+    return '<section class="recipe-timeline box" aria-label="Timeline rețetă">' +
+      markers.map((item) => '<div><span>' + escapeHtml(item[0]) + '</span><strong>' + escapeHtml(item[1]) + '</strong></div>').join("") +
+      '</section>';
+  }
+
   function renderRecipeDetail() {
     const el = document.getElementById("recipeDetail");
     if (!el) return;
@@ -3635,6 +4475,7 @@ function jsFile() {
             <a class="btn secondary" href="\${categoryUrl(catSlug)}">Înapoi la categorie</a>
           </div>
         </div>
+        \${recipeTimeline(recipe)}
         \${beforeStartSection(recipe)}
         <div class="recipe-layout">
           <section class="box">
@@ -3656,6 +4497,8 @@ function jsFile() {
         \${related.length ? \`<div class="grid cards">\${related.map(card).join("")}</div>\` : '<div class="empty">Nu există încă rețete similare.</div>'}
       </section>
     \`;
+    markRevealTargets(el);
+    el.querySelectorAll(".grid").forEach(applyStagger);
   }
 
   function renderCategoryPage() {
@@ -3721,6 +4564,8 @@ function jsFile() {
       result.innerHTML = data.recipes.length
         ? \`<div class="meal-grid">\${slots.map(mealCard).join("")}</div>\`
         : '<div class="empty">Nu există încă rețete pentru randomizer.</div>';
+      applyStagger(result);
+      markRevealTargets(result);
       result.classList.remove("is-refreshing");
       void result.offsetWidth;
       result.classList.add("is-refreshing");
@@ -3745,6 +4590,7 @@ function jsFile() {
       const time = calculator.querySelector("[data-steak-time]");
       const phase = calculator.querySelector("[data-steak-phase]");
       const status = calculator.querySelector("[data-steak-status]");
+      const timerBox = calculator.querySelector(".steak-timer");
       const startButton = calculator.querySelector("[data-steak-start-timer]");
       const pauseButton = calculator.querySelector("[data-steak-pause-timer]");
       const resetButton = calculator.querySelector("[data-steak-reset-timer]");
@@ -3884,6 +4730,7 @@ function jsFile() {
       function stopTimer() {
         if (timer) window.clearInterval(timer);
         timer = null;
+        if (timerBox) timerBox.classList.remove("is-running");
       }
 
       function resetTimer(updateStatus = true) {
@@ -3938,6 +4785,7 @@ function jsFile() {
         if (timer) return;
         startButton.textContent = "Rulează";
         status.textContent = "Timer pornit. Vei auzi un semnal la întoarcere, la finalul gătirii și după odihnire.";
+        if (timerBox) timerBox.classList.add("is-running");
         timer = window.setInterval(tick, 1000);
       });
       pauseButton.addEventListener("click", () => {
@@ -4007,6 +4855,10 @@ function jsFile() {
 
     function setStatus(message) {
       if (els.status) els.status.textContent = message || "";
+      if (els.status) {
+        els.status.classList.toggle("is-success", Boolean(message));
+        pulseElement(els.status);
+      }
     }
 
     function createText(tag, className, text) {
@@ -4570,8 +5422,10 @@ function jsFile() {
 
       const storageKey = "artaGatituluiRatings:" + slug;
 
-      function setStatus(message) {
+      function setStatus(message, success = false) {
         status.textContent = message || "";
+        status.classList.toggle("rating-status-success", Boolean(message && success));
+        pulseElement(status);
       }
 
       function setGroupValue(group, value) {
@@ -4640,13 +5494,13 @@ function jsFile() {
         }
         window.localStorage.setItem(storageKey, JSON.stringify(rating));
         renderPersonalNote(rating);
-        setStatus("Evaluarea ta a fost salvată pe acest dispozitiv.");
+        setStatus("Evaluarea ta a fost salvată pe acest dispozitiv.", true);
       });
 
       reset.addEventListener("click", () => {
         window.localStorage.removeItem(storageKey);
         clearValues();
-        setStatus("Evaluarea ta locală a fost ștearsă.");
+        setStatus("Evaluarea ta locală a fost ștearsă.", true);
       });
 
       loadRating();
@@ -4657,26 +5511,48 @@ function jsFile() {
     const prompt = document.getElementById("installPrompt");
     const installButton = prompt?.querySelector("[data-install-action]");
     const dismissButton = prompt?.querySelector("[data-install-dismiss]");
+    const help = prompt?.querySelector("[data-install-help]");
     if (!prompt || !installButton || !dismissButton) return;
 
     const dismissedKey = "arta-gatitului-install-dismissed";
     let deferredPrompt = null;
+    let nativePromptAvailable = false;
+
+    function isInstalled() {
+      return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+    }
 
     function hide() {
       prompt.hidden = true;
     }
 
-    if (window.localStorage.getItem(dismissedKey) === "true") hide();
+    function showFallbackHint() {
+      if (isInstalled() || window.localStorage.getItem(dismissedKey) === "true" || nativePromptAvailable) return;
+      if (help) {
+        help.hidden = false;
+        help.textContent = "Pe Android folosește meniul browserului și alege Adaugă pe ecranul principal. Pe iPhone: Partajare, apoi Adaugă la ecranul principal.";
+      }
+      installButton.textContent = "Cum instalez?";
+      prompt.hidden = false;
+    }
+
+    if (isInstalled() || window.localStorage.getItem(dismissedKey) === "true") hide();
 
     window.addEventListener("beforeinstallprompt", (event) => {
       if (window.localStorage.getItem(dismissedKey) === "true") return;
       event.preventDefault();
+      nativePromptAvailable = true;
       deferredPrompt = event;
+      if (help) help.hidden = true;
+      installButton.textContent = "Instalează";
       prompt.hidden = false;
     });
 
     installButton.addEventListener("click", async () => {
-      if (!deferredPrompt) return;
+      if (!deferredPrompt) {
+        showFallbackHint();
+        return;
+      }
       deferredPrompt.prompt();
       await deferredPrompt.userChoice.catch(() => null);
       deferredPrompt = null;
@@ -4687,6 +5563,13 @@ function jsFile() {
       window.localStorage.setItem(dismissedKey, "true");
       hide();
     });
+
+    window.addEventListener("appinstalled", () => {
+      window.localStorage.setItem(dismissedKey, "true");
+      hide();
+    });
+
+    window.setTimeout(showFallbackHint, 2200);
   }
 
   function registerServiceWorker() {
@@ -4727,6 +5610,370 @@ function jsFile() {
         link.classList.add("active");
         link.setAttribute("aria-current", "page");
       }
+    });
+  }
+
+  function setupScrollReveal() {
+    if (prefersReducedMotion) return;
+    document.documentElement.classList.add("reveal-ready");
+    if (!("IntersectionObserver" in window)) {
+      markRevealTargets(document);
+      document.querySelectorAll("[data-reveal]").forEach((el) => el.classList.add("is-revealed"));
+      return;
+    }
+    revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add("is-revealed");
+        revealObserver.unobserve(entry.target);
+      });
+    }, { rootMargin: "0px 0px -8% 0px", threshold: .08 });
+    document.querySelectorAll(".grid").forEach(applyStagger);
+    markRevealTargets(document);
+  }
+
+  function setupPointerEffects() {
+    if (prefersReducedMotion) return;
+    const canHover = window.matchMedia && window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+    if (!canHover) return;
+    const selector = ".card, .category-card, .btn, .nav-tool, .tag-chip, .ingredient-chip, .match-chip";
+    document.addEventListener("pointermove", (event) => {
+      const el = event.target.closest(selector);
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+      el.style.setProperty("--mx", x + "px");
+      el.style.setProperty("--my", y + "px");
+      if (el.classList.contains("recipe-card") || el.classList.contains("category-card")) {
+        const tiltY = ((x / rect.width) - .5) * 5;
+        const tiltX = ((y / rect.height) - .5) * -5;
+        el.style.setProperty("--tilt-x", tiltX.toFixed(2) + "deg");
+        el.style.setProperty("--tilt-y", tiltY.toFixed(2) + "deg");
+        el.classList.add("is-pointer-active");
+      }
+    });
+    document.addEventListener("pointerout", (event) => {
+      const el = event.target.closest(selector);
+      if (!el) return;
+      el.classList.remove("is-pointer-active");
+      el.style.removeProperty("--tilt-x");
+      el.style.removeProperty("--tilt-y");
+    });
+  }
+
+  function setupHeroSurprise() {
+    const button = document.getElementById("surpriseRecipeButton");
+    if (!button) return;
+    button.addEventListener("click", () => {
+      const recipe = pickRandom(data.recipes);
+      if (recipe) window.location.href = recipeUrl(recipe.slug);
+    });
+  }
+
+  function commandRecords() {
+    const pages = [
+      { type: "Pagini", code: "PG", title: "Acasă", meta: "Pagina principală", url: root + "index.html" },
+      { type: "Pagini", code: "PG", title: "Portofoliu", meta: "Toate categoriile", url: root + "portofoliu/" },
+      { type: "Pagini", code: "PG", title: "Ce pot găti?", meta: "Potrivire după ingrediente", url: root + "ce-pot-gati.html" },
+      { type: "Pagini", code: "PG", title: "Randomizer", meta: "Meniu complet aleatoriu", url: root + "randomizer/" },
+      { type: "Pagini", code: "PG", title: "Caută", meta: "Căutare în rețete", url: root + "cauta.html" },
+      { type: "Pagini", code: "PG", title: "Creator rețetă", meta: "Adaugă o rețetă local", url: root + "adauga-reteta.html" }
+    ];
+    const recipes = data.recipes.map((recipe) => ({
+      type: "Rețete",
+      code: "RT",
+      title: recipe.name,
+      meta: recipe.category,
+      url: recipeUrl(recipe.slug),
+      tokens: recipeSearchTokens(recipe)
+    }));
+    const categories = data.categories.map((category) => ({
+      type: "Categorii",
+      code: categoryIcon(category.name),
+      title: category.name,
+      meta: category.description,
+      url: categoryUrl(category.slug),
+      tokens: new Set(tokenizeText(category.name + " " + category.description))
+    }));
+    const tagNames = Array.from(new Set(data.recipes.flatMap(flatTags))).sort((a, b) => a.localeCompare(b, "ro"));
+    const tags = tagNames.map((tag) => ({
+      type: "Etichete",
+      code: "ET",
+      title: tag,
+      meta: "Filtrează după etichetă",
+      url: searchUrl(tag),
+      tokens: new Set(tokenizeText(tag))
+    }));
+    return [...recipes, ...categories, ...tags, ...pages.map((page) => ({
+      ...page,
+      tokens: new Set(tokenizeText(page.title + " " + page.meta))
+    }))];
+  }
+
+  function setupCommandPalette() {
+    const palette = document.getElementById("commandPalette");
+    const input = document.getElementById("commandPaletteInput");
+    const results = document.getElementById("commandPaletteResults");
+    const openers = document.querySelectorAll("[data-open-command]");
+    if (!palette || !input || !results) return;
+
+    const records = commandRecords();
+    let activeIndex = 0;
+    let visible = [];
+    let previousFocus = null;
+    let openedAt = 0;
+
+    function isTypingTarget(target) {
+      return target && (target.matches("input, textarea, select") || target.isContentEditable);
+    }
+
+    function recordMatches(record, tokens) {
+      if (!tokens.length) return true;
+      return tokens.every((token) => record.tokens.has(token));
+    }
+
+    function render() {
+      const tokens = tokenizeText(input.value);
+      visible = records
+        .filter((record) => recordMatches(record, tokens))
+        .slice(0, tokens.length ? 18 : 12);
+      activeIndex = Math.min(activeIndex, Math.max(visible.length - 1, 0));
+      if (!visible.length) {
+        results.innerHTML = '<div class="empty">Nu am găsit rezultate.</div>';
+        input.removeAttribute("aria-activedescendant");
+        return;
+      }
+      let lastType = "";
+      results.innerHTML = visible.map((record, index) => {
+        const section = record.type !== lastType ? '<div class="command-section-title">' + escapeHtml(record.type) + '</div>' : "";
+        lastType = record.type;
+        const id = "command-result-" + index;
+        return section +
+          '<button class="command-item' + (index === activeIndex ? ' is-active' : '') + '" id="' + id + '" type="button" role="option" aria-selected="' + (index === activeIndex ? "true" : "false") + '" data-command-index="' + index + '">' +
+          '<span class="command-type" aria-hidden="true">' + escapeHtml(record.code) + '</span>' +
+          '<span><span class="command-title">' + escapeHtml(record.title) + '</span><span class="command-meta">' + escapeHtml(record.meta || record.type) + '</span></span>' +
+          '</button>';
+      }).join("");
+      input.setAttribute("aria-activedescendant", "command-result-" + activeIndex);
+      applyStagger(results);
+    }
+
+    function openCommand(trigger) {
+      previousFocus = trigger || document.activeElement;
+      openedAt = Date.now();
+      palette.hidden = false;
+      palette.setAttribute("aria-hidden", "false");
+      document.body.classList.add("command-open");
+      input.value = "";
+      render();
+      window.setTimeout(() => input.focus(), 0);
+    }
+
+    function closeCommand(force = false) {
+      if (!force && Date.now() - openedAt < 180) return;
+      palette.hidden = true;
+      palette.setAttribute("aria-hidden", "true");
+      document.body.classList.remove("command-open");
+      if (previousFocus && typeof previousFocus.focus === "function") previousFocus.focus();
+    }
+
+    function openActive() {
+      const record = visible[activeIndex];
+      if (record) window.location.href = record.url;
+    }
+
+    function bindOpenButton(button) {
+      button.addEventListener("pointerdown", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        openCommand(button);
+      });
+      button.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        if (palette.hidden) openCommand(button);
+      });
+    }
+
+    openers.forEach(bindOpenButton);
+    function handleOpenGesture(event) {
+      const button = event.target.closest("[data-open-command]");
+      if (!button || palette.contains(button)) return;
+      event.preventDefault();
+      event.stopPropagation();
+      if (palette.hidden) openCommand(button);
+    }
+
+    document.addEventListener("pointerdown", handleOpenGesture, true);
+    document.addEventListener("click", handleOpenGesture, true);
+    palette.querySelector("[data-command-backdrop]")?.addEventListener("pointerdown", () => closeCommand());
+    palette.querySelectorAll("[data-command-close]").forEach((button) => button.addEventListener("click", () => closeCommand(true)));
+    input.addEventListener("input", () => {
+      activeIndex = 0;
+      render();
+    });
+    results.addEventListener("click", (event) => {
+      const item = event.target.closest("[data-command-index]");
+      if (!item) return;
+      activeIndex = Number(item.dataset.commandIndex) || 0;
+      openActive();
+    });
+    document.addEventListener("keydown", (event) => {
+      const isShortcut = (event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k";
+      const isSlash = event.key === "/" && !isTypingTarget(event.target);
+      if ((isShortcut || isSlash) && palette.hidden) {
+        event.preventDefault();
+        openCommand(document.activeElement);
+        return;
+      }
+      if (palette.hidden) return;
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closeCommand(true);
+      } else if (event.key === "ArrowDown") {
+        event.preventDefault();
+        activeIndex = Math.min(activeIndex + 1, visible.length - 1);
+        render();
+      } else if (event.key === "ArrowUp") {
+        event.preventDefault();
+        activeIndex = Math.max(activeIndex - 1, 0);
+        render();
+      } else if (event.key === "Enter") {
+        event.preventDefault();
+        openActive();
+      }
+    });
+  }
+
+  function setupThemeSwitcher() {
+    const panel = document.getElementById("themePanel");
+    const toggle = document.querySelector("[data-theme-toggle]");
+    if (!panel || !toggle) return;
+    const buttons = Array.from(panel.querySelectorAll("[data-theme-choice]"));
+
+    function applyTheme(theme) {
+      if (theme) {
+        document.documentElement.dataset.theme = theme;
+        window.localStorage.setItem(THEME_KEY, theme);
+      } else {
+        document.documentElement.removeAttribute("data-theme");
+        window.localStorage.removeItem(THEME_KEY);
+      }
+      buttons.forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.themeChoice === theme)));
+    }
+
+    function setOpen(open) {
+      panel.hidden = !open;
+      panel.setAttribute("aria-hidden", String(!open));
+      toggle.setAttribute("aria-expanded", String(open));
+    }
+
+    applyTheme(window.localStorage.getItem(THEME_KEY) || document.documentElement.dataset.theme || "");
+    toggle.addEventListener("click", () => setOpen(panel.hidden));
+    buttons.forEach((button) => {
+      button.addEventListener("click", () => {
+        applyTheme(button.dataset.themeChoice || "");
+        setOpen(false);
+      });
+    });
+    document.addEventListener("click", (event) => {
+      if (panel.hidden) return;
+      if (!panel.contains(event.target) && !toggle.contains(event.target)) setOpen(false);
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") setOpen(false);
+    });
+  }
+
+  function setupQuickActions() {
+    if (document.querySelector(".quick-actions")) return;
+    const hasRating = Boolean(document.querySelector("[data-rating-panel]"));
+    const wrap = document.createElement("div");
+    wrap.className = "quick-actions";
+    wrap.setAttribute("aria-label", "Acțiuni rapide");
+    wrap.innerHTML = [
+      '<button class="quick-action" type="button" data-quick-top aria-label="Sus" title="Sus">↑</button>',
+      '<button class="quick-action" type="button" data-open-command aria-label="Caută rapid" title="Caută rapid">K</button>',
+      '<button class="quick-action" type="button" data-quick-random aria-label="Rețetă aleatorie" title="Rețetă aleatorie">R</button>',
+      hasRating ? '<button class="quick-action" type="button" data-quick-rate aria-label="Evaluează rețeta" title="Evaluează">★</button>' : "",
+      '<button class="quick-action" type="button" data-quick-copy aria-label="Copiază linkul" title="Copiază linkul">⧉</button>',
+      '<span class="quick-action-status" data-quick-status hidden></span>'
+    ].join("");
+    document.body.append(wrap);
+    const status = wrap.querySelector("[data-quick-status]");
+    function flash(message) {
+      if (!status) return;
+      status.textContent = message;
+      status.hidden = false;
+      window.setTimeout(() => {
+        status.hidden = true;
+      }, 1400);
+    }
+    wrap.addEventListener("click", async (event) => {
+      const button = event.target.closest("button");
+      if (!button) return;
+      if (button.matches("[data-quick-top]")) {
+        window.scrollTo({ top: 0, behavior: prefersReducedMotion ? "auto" : "smooth" });
+      } else if (button.matches("[data-quick-random]")) {
+        const recipe = pickRandom(data.recipes);
+        if (recipe) window.location.href = recipeUrl(recipe.slug);
+      } else if (button.matches("[data-quick-rate]")) {
+        const rating = document.querySelector("[data-rating-panel]");
+        if (rating) rating.scrollIntoView({ behavior: prefersReducedMotion ? "auto" : "smooth", block: "start" });
+      } else if (button.matches("[data-quick-copy]")) {
+        try {
+          await navigator.clipboard.writeText(window.location.href);
+          flash("Copiat!");
+        } catch {
+          flash("Selectează linkul din bară.");
+        }
+      }
+    });
+  }
+
+  function setupScrollProgress() {
+    const progress = document.querySelector("[data-scroll-progress]");
+    if (!progress || !document.body.dataset.recipeSlug) return;
+    const bar = progress.querySelector("span");
+    progress.classList.add("is-visible");
+    let ticking = false;
+    function update() {
+      const max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+      const value = Math.min(100, Math.max(0, (window.scrollY / max) * 100));
+      progress.style.setProperty("--progress", value.toFixed(2) + "%");
+      if (bar) bar.style.width = value.toFixed(2) + "%";
+      ticking = false;
+    }
+    function requestUpdate() {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(update);
+    }
+    window.addEventListener("scroll", requestUpdate, { passive: true });
+    window.addEventListener("resize", requestUpdate);
+    update();
+  }
+
+  function setupOfflineBadge() {
+    const badge = document.getElementById("offlineBadge");
+    if (!badge) return;
+    function update() {
+      badge.hidden = navigator.onLine !== false;
+    }
+    window.addEventListener("online", update);
+    window.addEventListener("offline", update);
+    update();
+  }
+
+  function setupBeforeStartChecklist() {
+    document.addEventListener("change", (event) => {
+      const input = event.target.closest(".before-list input[type='checkbox']");
+      if (!input) return;
+      const label = input.closest("label");
+      if (!label) return;
+      label.classList.toggle("is-checked", input.checked);
+      if (input.checked) pulseElement(label);
     });
   }
 
@@ -4772,6 +6019,7 @@ function jsFile() {
     setupPageTransitions();
     setupMobileMenu();
     markActiveNav();
+    setupThemeSwitcher();
     renderFeatured();
     renderAllRecipes();
     renderCategories();
@@ -4784,6 +6032,14 @@ function jsFile() {
     setupRandomizer();
     setupSteakCalculators();
     setupRecipeBuilder();
+    setupHeroSurprise();
+    setupBeforeStartChecklist();
+    setupQuickActions();
+    setupCommandPalette();
+    setupScrollProgress();
+    setupScrollReveal();
+    setupPointerEffects();
+    setupOfflineBadge();
     setupInstallPrompt();
     registerServiceWorker();
   });
@@ -4796,14 +6052,18 @@ function manifestFile() {
     name: SITE_NAME,
     short_name: 'Rețete',
     description: 'Rețete de acasă, căutare după ingrediente și idei de meniu.',
+    id: './',
     start_url: './',
     scope: './',
     display: 'standalone',
+    display_override: ['standalone', 'minimal-ui'],
     background_color: '#0f1117',
     theme_color: '#0f1117',
+    categories: ['food', 'lifestyle'],
+    prefer_related_applications: false,
     icons: [
-      { src: 'assets/icons/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
-      { src: 'assets/icons/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
+      { src: 'assets/icons/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+      { src: 'assets/icons/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
     ],
   }, null, 2) + '\n';
 }
@@ -4821,8 +6081,11 @@ function serviceWorkerFile(recipes, categories) {
     'manifest.json',
     'manifest.webmanifest',
     'assets/css/style.css',
+    `assets/css/style.css?v=${BUILD_VERSION}`,
     'assets/js/recipes.js',
+    `assets/js/recipes.js?v=${BUILD_VERSION}`,
     'assets/js/site.js',
+    `assets/js/site.js?v=${BUILD_VERSION}`,
     'assets/icons/icon.png',
     'assets/icons/icon-192.png',
     'assets/icons/icon-512.png',

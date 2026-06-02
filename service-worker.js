@@ -1,4 +1,4 @@
-const CACHE_NAME = "arta-gatitului-1780387010742";
+const CACHE_NAME = "arta-gatitului-1780404211118";
 const CORE_ASSETS = [
   "./",
   "index.html",
@@ -10,8 +10,11 @@ const CORE_ASSETS = [
   "manifest.json",
   "manifest.webmanifest",
   "assets/css/style.css",
+  "assets/css/style.css?v=mpwmp5dr",
   "assets/js/recipes.js",
+  "assets/js/recipes.js?v=mpwmp5dr",
   "assets/js/site.js",
+  "assets/js/site.js?v=mpwmp5dr",
   "assets/icons/icon.png",
   "assets/icons/icon-192.png",
   "assets/icons/icon-512.png",
