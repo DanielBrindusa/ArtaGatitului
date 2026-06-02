@@ -57,6 +57,622 @@ const RECIPE_ALIASES = {
   'tocanita-de-pui-cu-ardei-copti': 'tocanita-de-pui-cu-ardei',
 };
 
+const RECIPE_METADATA = {
+  'ciorba-de-fasole': {
+    beforeStart: [
+      'Pune fasolea la înmuiat cu o zi înainte și aruncă apa înainte de fierbere.',
+      'Pregătește o oală încăpătoare pentru schimbarea apei la primele clocote.',
+      'Curăță și taie ceapa, ardeiul și morcovul înainte să pornești focul.',
+      'Pregătește afumătura, pasta de tomate și leușteanul pentru momentul potrivit.',
+    ],
+    tags: {
+      taste: ['Sărat', 'Sățios', 'Aromat', 'Rustic'],
+      complexity: ['Complexitate medie', 'Necesită atenție'],
+      time: ['Necesită timp de așteptare', 'Bună pentru pregătit din timp'],
+      context: ['Prânz', 'Cină', 'Pentru familie', 'Comfort food'],
+      diet: ['Cu carne'],
+      equipment: ['La oală'],
+      technique: ['Fierbere', 'Sotare'],
+    },
+  },
+  'supa-de-pui-cu-galuste': {
+    beforeStart: [
+      'Curăță legumele și pregătește o oală mare înainte să pui puiul la fiert.',
+      'Ține la îndemână o spumieră ca să cureți supa în timpul fierberii.',
+      'Pregătește separat bolul pentru compoziția de găluște.',
+      'Citește pașii pentru momentul în care se adaugă găluștele și pătrunjelul.',
+    ],
+    tags: {
+      taste: ['Sărat', 'Aromat', 'Ușor'],
+      complexity: ['Complexitate medie', 'Necesită atenție'],
+      context: ['Prânz', 'Cină', 'Pentru familie', 'Comfort food'],
+      diet: ['Cu carne'],
+      equipment: ['La oală'],
+      technique: ['Fierbere'],
+    },
+  },
+  'carne-cu-varza-murata': {
+    beforeStart: [
+      'Taie carnea de porc în cuburi aproximativ egale.',
+      'Pregătește tigaia și apa măsurată înainte să pornești focul.',
+      'Scurge varza murată dacă este foarte zemoasă.',
+      'Lasă loc în tigaie ca bucățile de carne să se rumenească uniform.',
+    ],
+    tags: {
+      taste: ['Sărat', 'Acrișor', 'Sățios', 'Rustic'],
+      complexity: ['Ușor', 'Risc mic de greșeală'],
+      context: ['Prânz', 'Cină', 'Comfort food'],
+      diet: ['Cu carne', 'Fără lactate', 'Fără ou'],
+      equipment: ['La tigaie'],
+      technique: ['Prăjire', 'La tigaie'],
+    },
+  },
+  'cartofi-prajiti-cu-sos': {
+    beforeStart: [
+      'Curăță și taie cartofii înainte să încălzești apa sau uleiul.',
+      'Pregătește ingredientele pentru sos într-un bol separat.',
+      'Lasă cartofii să se răcească după opărire, ca să se prăjească mai bine.',
+      'Pregătește o farfurie cu șervețel pentru cartofii scoși din ulei.',
+      'Nu aglomera tigaia când prăjești cartofii.',
+    ],
+    tags: {
+      taste: ['Crocant', 'Cremos', 'Acrișor', 'Fresh', 'Sățios'],
+      complexity: ['Complexitate medie', 'Necesită atenție'],
+      context: ['Gustare', 'Prânz', 'Pentru weekend'],
+      diet: ['Fără carne', 'Vegetarian'],
+      equipment: ['La tigaie', 'La oală'],
+      technique: ['Fierbere', 'Prăjire', 'La tigaie'],
+    },
+  },
+  'chiftele-de-pui': {
+    beforeStart: [
+      'Fierbe pulpele de pui înainte să pregătești compoziția.',
+      'Pregătește un bol pentru carne, ouă, făină și condimente.',
+      'Păstrează puțină supă de la fierbere pentru compoziție.',
+      'Încălzește uleiul la foc mediu și pregătește o farfurie pentru chiftelele prăjite.',
+    ],
+    tags: {
+      taste: ['Sărat', 'Sățios'],
+      complexity: ['Complexitate medie', 'Necesită atenție'],
+      time: ['Sub 60 minute'],
+      context: ['Prânz', 'Cină', 'Pentru familie'],
+      diet: ['Cu carne'],
+      equipment: ['La oală', 'La tigaie'],
+      technique: ['Fierbere', 'Prăjire', 'La tigaie'],
+    },
+  },
+  'conopida-cu-orez-1': {
+    beforeStart: [
+      'Spală conopida și taie-o în bucăți medii înainte să încălzești uleiul.',
+      'Pregătește farfuria cu pesmet și bolul cu ou bătut.',
+      'Curăță și toacă ceapa și usturoiul pentru sos înainte de gătire.',
+      'Pregătește blenderul de mână pentru omogenizarea sosului.',
+      'Ține la îndemână o farfurie pentru bucățile de conopidă prăjite.',
+    ],
+    tags: {
+      taste: ['Crocant', 'Condimentat', 'Cremos', 'Sățios'],
+      complexity: ['Complexitate medie', 'Necesită atenție'],
+      context: ['Prânz', 'Cină', 'Pentru weekend'],
+      diet: ['Fără carne', 'Vegetarian'],
+      equipment: ['La tigaie', 'Necesită blender'],
+      technique: ['Prăjire', 'Sotare', 'La tigaie'],
+    },
+  },
+  'dovlecel-pane': {
+    beforeStart: [
+      'Feliază dovlecelul în rondele înainte să încălzești tigaia.',
+      'Pregătește separat farfuria cu făină și bolul cu ou bătut.',
+      'Încălzește uleiul la foc mediu și verifică să nu fie prea încins.',
+      'Pregătește o farfurie pentru rondelele prăjite.',
+    ],
+    tags: {
+      taste: ['Crocant', 'Sărat', 'Ușor'],
+      complexity: ['Ușor', 'Necesită atenție'],
+      time: ['Sub 30 minute'],
+      context: ['Gustare', 'Prânz', 'Pentru zile aglomerate'],
+      diet: ['Fără carne', 'Vegetarian'],
+      equipment: ['La tigaie'],
+      technique: ['Prăjire', 'La tigaie'],
+    },
+  },
+  'fajitas-de-pui': {
+    beforeStart: [
+      'Taie puiul și legumele înainte să pornești focul.',
+      'Condimentează puiul într-un bol separat.',
+      'Pregătește tigaia și uleiul de măsline pentru sotare.',
+      'Ține zeama de lămâie și usturoiul la îndemână pentru final.',
+    ],
+    tags: {
+      taste: ['Condimentat', 'Sățios', 'Fresh'],
+      complexity: ['Complexitate medie', 'Risc mic de greșeală'],
+      time: ['Sub 60 minute'],
+      context: ['Prânz', 'Cină', 'Pentru familie'],
+      diet: ['Cu carne'],
+      equipment: ['La tigaie'],
+      technique: ['Sotare', 'La tigaie'],
+    },
+  },
+  'gulas-cu-spaetzle': {
+    beforeStart: [
+      'Curăță ceapa, cartofii și usturoiul înainte să încălzești oala.',
+      'Taie carnea în cuburi și ține condimentele pregătite.',
+      'Spală cartofii tăiați și lasă-i în apă până îi adaugi.',
+      'Pregătește apa și pasta de gulaș pentru etapa de fierbere.',
+    ],
+    tags: {
+      taste: ['Sățios', 'Condimentat', 'Aromat', 'Rustic'],
+      complexity: ['Complexitate medie'],
+      context: ['Prânz', 'Cină', 'Comfort food'],
+      diet: ['Cu carne'],
+      equipment: ['La oală'],
+      technique: ['Sotare', 'Fierbere'],
+    },
+  },
+  'mancare-de-mazare-cu-pui': {
+    beforeStart: [
+      'Taie pieptul de pui în cuburi medii.',
+      'Pregătește legumele, mărarul și condimentele înainte să încălzești oala.',
+      'Măsoară făina și smântâna pentru compoziția adăugată spre final.',
+      'Ține o linguriță la îndemână pentru adăugarea treptată a compoziției.',
+    ],
+    tags: {
+      taste: ['Cremos', 'Sățios', 'Aromat'],
+      complexity: ['Complexitate medie'],
+      time: ['Sub 60 minute'],
+      context: ['Prânz', 'Cină', 'Pentru familie'],
+      diet: ['Cu carne'],
+      equipment: ['La oală'],
+      technique: ['Sotare', 'Fierbere'],
+    },
+  },
+  'peste-cu-cartofi-natur': {
+    beforeStart: [
+      'Usucă peștele cu prosoape de hârtie înainte de marinare.',
+      'Pregătește marinada și lasă peștele la rece cel puțin 3 ore.',
+      'Preîncălzește cuptorul înainte să pui peștele în tavă.',
+      'Curăță și taie cartofii pentru fierbere cât timp se pregătește peștele.',
+    ],
+    tags: {
+      taste: ['Acrișor', 'Ușor', 'Aromat'],
+      complexity: ['Complexitate medie', 'Necesită atenție'],
+      time: ['Necesită timp de așteptare', 'Bună pentru pregătit din timp'],
+      context: ['Prânz', 'Cină', 'Pentru weekend'],
+      diet: ['Cu carne'],
+      equipment: ['Necesită cuptor', 'Necesită tavă', 'La oală'],
+      technique: ['Marinare', 'Coacere', 'Fierbere', 'La cuptor'],
+    },
+  },
+  'pui-cu-lamaie-si-cartofi': {
+    beforeStart: [
+      'Taie puiul și pregătește farfuriile pentru făină și ou cu parmezan.',
+      'Spală cartofii și pregătește condimentele înainte să începi gătirea.',
+      'Rade parmezanul și toacă ceapa verde înainte să pornești focul.',
+      'Pregătește lămâia, untul și usturoiul pentru sos.',
+    ],
+    tags: {
+      taste: ['Acrișor', 'Crocant', 'Sățios', 'Aromat'],
+      complexity: ['Complexitate medie', 'Necesită atenție'],
+      context: ['Prânz', 'Cină', 'Pentru familie'],
+      diet: ['Cu carne'],
+      equipment: ['La tigaie'],
+      technique: ['Prăjire', 'La tigaie'],
+    },
+  },
+  'pui-dulce-acrisor-cu-orez': {
+    beforeStart: [
+      'Taie puiul și pregătește făina și oul pentru acoperire.',
+      'Amestecă sosul dulce-acrișor înainte să pornești gătirea.',
+      'Întinde foaia de copt în tavă.',
+      'Preîncălzește cuptorul la temperatura indicată în rețetă.',
+      'Pregătește orezul și apa pentru fierbere.',
+    ],
+    tags: {
+      taste: ['Dulce', 'Acrișor', 'Sățios'],
+      complexity: ['Complexitate medie', 'Necesită atenție'],
+      context: ['Prânz', 'Cină', 'Pentru familie'],
+      diet: ['Cu carne'],
+      equipment: ['Necesită cuptor', 'Necesită tavă', 'La oală'],
+      technique: ['Coacere', 'Fierbere', 'La cuptor'],
+    },
+  },
+  'pulpe-de-pui-cu-orzo': {
+    beforeStart: [
+      'Condimentează pulpele înainte să încălzești tigaia.',
+      'Taie ciupercile, toacă pătrunjelul și rade parmezanul dinainte.',
+      'Pregătește orzo-ul și lichidul necesar pentru gătire.',
+      'Ține untul, uleiul și usturoiul la îndemână pentru începutul gătirii.',
+    ],
+    tags: {
+      taste: ['Cremos', 'Sățios', 'Aromat'],
+      complexity: ['Complexitate medie'],
+      context: ['Prânz', 'Cină', 'Pentru familie'],
+      diet: ['Cu carne'],
+      equipment: ['La tigaie'],
+      technique: ['Sotare', 'La tigaie'],
+    },
+  },
+  'rata-la-cuptor-umpluta': {
+    beforeStart: [
+      'Spală și usucă bine rața înainte de marinare.',
+      'Planifică marinarea din timp, deoarece rața stă condimentată aproximativ 24 de ore.',
+      'Curăță ceapa, usturoiul, cartofii și fructele pentru umplutură și garnitură.',
+      'Pregătește tava și preîncălzește cuptorul înainte de coacere.',
+      'Spală orezul și pregătește ingredientele pentru umplutură înainte să umpli rața.',
+    ],
+    tags: {
+      taste: ['Sățios', 'Aromat', 'Rustic'],
+      complexity: ['Complexitate ridicată', 'Necesită atenție'],
+      time: ['Necesită timp de așteptare', 'Bună pentru pregătit din timp'],
+      context: ['Cină', 'Pentru musafiri', 'Pentru weekend'],
+      diet: ['Cu carne'],
+      equipment: ['Necesită cuptor', 'Necesită tavă'],
+      technique: ['Marinare', 'Coacere', 'La cuptor'],
+    },
+  },
+  'snitel-pufos-de-pui': {
+    beforeStart: [
+      'Taie și bate pieptul de pui înainte să pregătești tigaia.',
+      'Pregătește farfuria cu făină și bolul cu ou bătut.',
+      'Încălzește uleiul la foc mediu ca șnițelul să se rumenească fără să se ardă.',
+      'Pregătește o farfurie pentru bucățile prăjite.',
+    ],
+    tags: {
+      taste: ['Crocant', 'Sărat', 'Sățios'],
+      complexity: ['Complexitate medie', 'Necesită atenție'],
+      time: ['Sub 30 minute'],
+      context: ['Prânz', 'Cină', 'Pentru familie'],
+      diet: ['Cu carne'],
+      equipment: ['La tigaie'],
+      technique: ['Prăjire', 'La tigaie'],
+    },
+  },
+  shakshuka: {
+    beforeStart: [
+      'Taie ardeii și ceapa înainte să încălzești tigaia.',
+      'Pregătește usturoiul, conserva de roșii, bulionul și condimentele.',
+      'Toacă pătrunjelul și pregătește feta pentru final.',
+      'Citește pașii pentru momentul în care se adaugă ouăle, ca să nu le gătești prea mult.',
+    ],
+    tags: {
+      taste: ['Sățios', 'Condimentat', 'Aromat'],
+      complexity: ['Complexitate medie', 'Necesită atenție'],
+      time: ['Sub 60 minute'],
+      context: ['Mic dejun', 'Prânz', 'Cină', 'Comfort food'],
+      diet: ['Fără carne', 'Vegetarian'],
+      equipment: ['La tigaie'],
+      technique: ['Sotare', 'Fierbere', 'La tigaie'],
+    },
+  },
+  'steak-de-vita': {
+    beforeStart: [
+      'Scoate carnea din frigider cu 20-30 minute înainte.',
+      'Tamponează steak-ul cu șervețele, ca suprafața să fie uscată.',
+      'Pregătește tigaia aleasă, cleștele și un loc pentru odihnirea cărnii.',
+      'Citește pașii și setează calculatorul înainte să pui carnea în tigaie.',
+      'Pregătește un timer sau folosește timerul din pagină.',
+    ],
+    tags: {
+      taste: ['Sățios', 'Aromat'],
+      complexity: ['Necesită atenție'],
+      context: ['Cină', 'Pentru weekend'],
+      diet: ['Cu carne'],
+      equipment: ['La tigaie', 'Necesită termometru'],
+      technique: ['La tigaie', 'Marinare'],
+    },
+  },
+  'tocanita-de-cartofi': {
+    beforeStart: [
+      'Curăță ceapa, cartofii și usturoiul înainte să încălzești oala.',
+      'Taie carnea în cuburi și pregătește mixul de legume.',
+      'Spală cartofii tăiați și ține-i în apă până îi adaugi.',
+      'Pregătește condimentele și pătrunjelul pentru final.',
+    ],
+    tags: {
+      taste: ['Sățios', 'Rustic', 'Aromat'],
+      complexity: ['Complexitate medie'],
+      context: ['Prânz', 'Cină', 'Pentru familie', 'Comfort food'],
+      diet: ['Cu carne'],
+      equipment: ['La oală'],
+      technique: ['Sotare', 'Fierbere'],
+    },
+  },
+  'tocanita-de-pui-cu-ardei': {
+    beforeStart: [
+      'Pregătește pulpele de pui și taie legumele înainte să începi gătirea.',
+      'Ține ardeii copți, bulionul și condimentele la îndemână.',
+      'Pregătește oala sau tigaia adâncă pentru tocăniță.',
+      'Toacă pătrunjelul pentru servire înainte de final.',
+    ],
+    tags: {
+      taste: ['Sățios', 'Aromat', 'Condimentat'],
+      complexity: ['Ușor', 'Risc mic de greșeală'],
+      context: ['Prânz', 'Cină', 'Pentru familie'],
+      diet: ['Cu carne'],
+      equipment: ['La oală'],
+      technique: ['Sotare', 'Fierbere'],
+    },
+  },
+  'placinta-cu-dovleac': {
+    beforeStart: [
+      'Citește rețeta complet înainte să începi, fiindcă dovleacul se coace înainte de umplere.',
+      'Preîncălzește cuptorul pentru coacerea dovleacului.',
+      'Măsoară condimentele, zahărul și ingredientele pentru umplutură.',
+      'Pregătește aluatul rece, tava și hârtia de copt.',
+      'Bate oul pentru uns plăcintelele înainte să le bagi la cuptor.',
+    ],
+    tags: {
+      taste: ['Dulce', 'Aromat', 'Fin'],
+      complexity: ['Complexitate medie', 'Necesită atenție'],
+      context: ['Pentru weekend', 'Pentru musafiri'],
+      diet: ['Fără carne', 'Vegetarian'],
+      equipment: ['Necesită cuptor', 'Necesită tavă'],
+      technique: ['Coacere', 'La cuptor'],
+    },
+  },
+  'charcuterie-board': {
+    beforeStart: [
+      'Pregătește blatul sau platoul pe care vei așeza ingredientele.',
+      'Spală și usucă roșiile, castravetele, ardeiul și salata.',
+      'Feliază brânzeturile, salamul și legumele înainte de asamblare.',
+      'Ține grisinele și biscuiții separat până la servire, ca să rămână crocante.',
+    ],
+    tags: {
+      taste: ['Sărat', 'Fresh', 'Ușor'],
+      complexity: ['Începător', 'Ușor', 'Risc mic de greșeală'],
+      time: ['Sub 15 minute', 'Rețetă rapidă'],
+      context: ['Gustare', 'Pentru musafiri', 'Pentru weekend'],
+      diet: ['Cu carne'],
+      technique: ['Fără gătire'],
+    },
+  },
+  'fructe-cu-nutella': {
+    beforeStart: [
+      'Spală și usucă fructele înainte să le feliezi.',
+      'Răcește fructele dacă vrei gustarea mai fresh.',
+      'Pregătește un cuțit mic și un bol sau o farfurie pentru servire.',
+      'Scoate Nutella la îndemână ca să porționezi ușor cantitatea dorită.',
+    ],
+    tags: {
+      taste: ['Dulce', 'Fresh', 'Ușor'],
+      complexity: ['Începător', 'Ușor', 'Risc mic de greșeală'],
+      time: ['Sub 15 minute', 'Rețetă rapidă'],
+      context: ['Gustare', 'Pentru zile aglomerate'],
+      diet: ['Fără carne', 'Vegetarian'],
+      technique: ['Fără gătire'],
+    },
+  },
+  'mar-cu-unt-de-arahide': {
+    beforeStart: [
+      'Spală mărul înainte să îl feliezi.',
+      'Pregătește un cuțit și o farfurie pentru servire.',
+      'Amestecă untul de arahide dacă s-a separat în borcan.',
+      'Taie feliile chiar înainte de servire ca să rămână proaspete.',
+    ],
+    tags: {
+      taste: ['Dulce', 'Fresh', 'Ușor'],
+      complexity: ['Începător', 'Ușor', 'Risc mic de greșeală'],
+      time: ['Sub 15 minute', 'Rețetă rapidă'],
+      context: ['Gustare', 'Pentru zile aglomerate'],
+      diet: ['Fără carne', 'Vegetarian', 'Fără lactate', 'Fără ou'],
+      technique: ['Fără gătire'],
+    },
+  },
+  'paine-prajita-unt-arahide': {
+    beforeStart: [
+      'Pregătește pâinea și untul de arahide înainte să prăjești feliile.',
+      'Spală și taie fructele în rondele.',
+      'Prăjește pâinea doar cât să devină crocantă, nu arsă.',
+      'Asamblează feliile imediat după prăjire.',
+    ],
+    tags: {
+      taste: ['Dulce', 'Crocant', 'Ușor'],
+      complexity: ['Începător', 'Ușor', 'Risc mic de greșeală'],
+      time: ['Sub 15 minute', 'Rețetă rapidă'],
+      context: ['Mic dejun', 'Gustare', 'Pentru zile aglomerate'],
+      diet: ['Fără carne', 'Vegetarian'],
+    },
+  },
+  'salata-de-ciuperci': {
+    beforeStart: [
+      'Curăță, spală și taie ciupercile înainte să încălzești tigaia.',
+      'Rade parmezanul și pregătește usturoiul.',
+      'Lasă compoziția de ciuperci să se răcească înainte să adaugi maioneza și iaurtul.',
+      'Pregătește pâinea prăjită și roșiile cherry pentru servire.',
+    ],
+    tags: {
+      taste: ['Cremos', 'Sărat', 'Sățios'],
+      complexity: ['Complexitate medie', 'Necesită atenție'],
+      time: ['Necesită timp de așteptare', 'Bună pentru pregătit din timp'],
+      context: ['Gustare', 'Prânz', 'Pentru familie'],
+      diet: ['Fără carne', 'Vegetarian'],
+      equipment: ['La tigaie'],
+      technique: ['Sotare', 'La tigaie'],
+    },
+  },
+  'avocado-cu-bacon': {
+    beforeStart: [
+      'Pregătește oala pentru ouă și tigaia pentru bacon.',
+      'Spală roșiile și ceapa verde înainte să le toci.',
+      'Alege un avocado copt, ca pasta să iasă cremoasă.',
+      'Pregătește pâinea pentru prăjire înainte de asamblare.',
+    ],
+    tags: {
+      taste: ['Sărat', 'Cremos', 'Crocant', 'Sățios'],
+      complexity: ['Ușor'],
+      time: ['Sub 30 minute'],
+      context: ['Mic dejun', 'Pentru weekend'],
+      diet: ['Cu carne'],
+      equipment: ['La oală', 'La tigaie'],
+      technique: ['Fierbere', 'Prăjire', 'La tigaie'],
+    },
+  },
+  'bagheta-bistro': {
+    beforeStart: [
+      'Taie bagheta pe lungime fără să rupi complet bucățile.',
+      'Spală și usucă frunzele de salată.',
+      'Pregătește untul, brânza, șunca și iaurtul înainte de asamblare.',
+      'Asamblează bagheta aproape de servire ca să rămână proaspătă.',
+    ],
+    tags: {
+      taste: ['Sărat', 'Fresh', 'Ușor'],
+      complexity: ['Începător', 'Ușor', 'Risc mic de greșeală'],
+      time: ['Sub 15 minute', 'Rețetă rapidă'],
+      context: ['Mic dejun', 'Gustare', 'Pentru zile aglomerate'],
+      diet: ['Cu carne'],
+      technique: ['Fără gătire'],
+    },
+  },
+  'clatite-cu-mere': {
+    beforeStart: [
+      'Măsoară ingredientele uscate și lichide înainte să faci aluatul.',
+      'Spală, curăță și rade mărul pe răzătoarea fină.',
+      'Pregătește tigaia de clătite și încălzește-o la foc potrivit.',
+      'Taie fructele pentru servire înainte să începi coacerea clătitelor.',
+    ],
+    tags: {
+      taste: ['Dulce', 'Aromat'],
+      complexity: ['Complexitate medie', 'Necesită atenție'],
+      time: ['Sub 30 minute'],
+      context: ['Mic dejun', 'Pentru weekend'],
+      diet: ['Fără carne', 'Vegetarian'],
+      equipment: ['La tigaie'],
+      technique: ['La tigaie'],
+    },
+  },
+  'gris-cu-lapte-si-cocos': {
+    beforeStart: [
+      'Măsoară laptele, grișul și zahărul înainte să pornești focul.',
+      'Pregătește o oală medie și o lingură pentru amestecat constant.',
+      'Ține toppingurile pregătite pentru servire.',
+      'Folosește foc mic-mediu ca să nu se prindă laptele.',
+    ],
+    tags: {
+      taste: ['Dulce', 'Cremos', 'Fin'],
+      complexity: ['Începător', 'Ușor', 'Risc mic de greșeală'],
+      time: ['Sub 15 minute', 'Rețetă rapidă'],
+      context: ['Mic dejun', 'Pentru zile aglomerate', 'Comfort food'],
+      diet: ['Fără carne', 'Vegetarian'],
+      equipment: ['La oală'],
+      technique: ['Fierbere'],
+    },
+  },
+  'omleta-cu-spanac': {
+    beforeStart: [
+      'Bate ouăle cu sare și piper înainte să încălzești tigaia.',
+      'Spală spanacul și legumele pentru servire.',
+      'Pregătește brânza, măslinele și roșiile înainte de gătire.',
+      'Încălzește tigaia la foc mic-mediu pentru o omletă mai controlată.',
+    ],
+    tags: {
+      taste: ['Sărat', 'Ușor', 'Fresh'],
+      complexity: ['Ușor', 'Risc mic de greșeală'],
+      time: ['Sub 15 minute', 'Rețetă rapidă'],
+      context: ['Mic dejun', 'Pentru zile aglomerate'],
+      diet: ['Fără carne', 'Vegetarian'],
+      equipment: ['La tigaie'],
+      technique: ['La tigaie', 'Prăjire'],
+    },
+  },
+  'ou-posat-cu-avocado': {
+    beforeStart: [
+      'Pregătește cratița cu apă și cana cu folie alimentară înainte să începi.',
+      'Unge folia cu puțin ulei ca oul să se desprindă mai ușor.',
+      'Taie somonul, castravetele și ceapa înainte de asamblare.',
+      'Pisează avocado cu lămâie și sare aproape de servire.',
+      'Pregătește pâinea pentru prăjire înainte să scoți oul din apă.',
+    ],
+    tags: {
+      taste: ['Fresh', 'Cremos', 'Sățios'],
+      complexity: ['Complexitate medie', 'Necesită atenție'],
+      time: ['Sub 30 minute'],
+      context: ['Mic dejun', 'Pentru weekend'],
+      diet: ['Cu carne'],
+      equipment: ['La oală'],
+      technique: ['Fierbere'],
+    },
+  },
+  'ovaz-cu-lapte': {
+    beforeStart: [
+      'Măsoară laptele, ovăzul și zahărul înainte să pornești focul.',
+      'Pregătește o oală medie și o lingură pentru amestecat.',
+      'Ține fructele, gemul sau siropul pregătite pentru servire.',
+      'Amestecă des ca ovăzul să nu se lipească de fundul oalei.',
+    ],
+    tags: {
+      taste: ['Dulce', 'Cremos', 'Fin'],
+      complexity: ['Începător', 'Ușor', 'Risc mic de greșeală'],
+      time: ['Sub 15 minute', 'Rețetă rapidă'],
+      context: ['Mic dejun', 'Pentru zile aglomerate', 'Comfort food'],
+      diet: ['Fără carne', 'Vegetarian'],
+      equipment: ['La oală'],
+      technique: ['Fierbere'],
+    },
+  },
+  'ovaz-peste-noapte': {
+    beforeStart: [
+      'Pregătește un borcan mediu curat, cu capac.',
+      'Măsoară laptele, iaurtul, mierea, ovăzul și semințele de chia.',
+      'Amestecă bine baza înainte să adaugi ovăzul.',
+      'Planifică rețeta cu o seară înainte, deoarece stă la frigider peste noapte.',
+    ],
+    tags: {
+      taste: ['Dulce', 'Cremos', 'Fresh'],
+      complexity: ['Începător', 'Ușor', 'Risc mic de greșeală'],
+      time: ['Necesită timp de așteptare', 'Bună pentru pregătit din timp'],
+      context: ['Mic dejun', 'Pentru zile aglomerate'],
+      diet: ['Fără carne', 'Vegetarian'],
+      technique: ['Fără gătire'],
+    },
+  },
+  'sandwitch-cu-mozzarella': {
+    beforeStart: [
+      'Prăjește feliile de pâine înainte de asamblare.',
+      'Taie roșia și mozzarella în felii egale.',
+      'Pregătește șunca, spanacul, crema de brânză și guacamole-ul.',
+      'Asamblează sandwich-ul aproape de servire ca pâinea să rămână crocantă.',
+    ],
+    tags: {
+      taste: ['Sărat', 'Fresh', 'Cremos'],
+      complexity: ['Începător', 'Ușor', 'Risc mic de greșeală'],
+      time: ['Sub 15 minute', 'Rețetă rapidă'],
+      context: ['Mic dejun', 'Gustare', 'Pentru zile aglomerate'],
+      diet: ['Cu carne'],
+    },
+  },
+  'sandwitch-cu-ton': {
+    beforeStart: [
+      'Prăjește feliile de pâine înainte să pregătești compoziția.',
+      'Scurge bine tonul de lichid.',
+      'Taie ceapa, ardeiul și castraveții murați în cuburi mici.',
+      'Pregătește maioneza, lămâia și Tabasco-ul pentru ajustarea gustului.',
+    ],
+    tags: {
+      taste: ['Sărat', 'Acrișor', 'Fresh', 'Sățios'],
+      complexity: ['Începător', 'Ușor', 'Risc mic de greșeală'],
+      time: ['Sub 15 minute', 'Rețetă rapidă'],
+      context: ['Mic dejun', 'Gustare', 'Pentru zile aglomerate'],
+      diet: ['Cu carne'],
+    },
+  },
+  'toast-cu-ou-si-avocado': {
+    beforeStart: [
+      'Încălzește tigaia la foc mic-mediu înainte să adaugi ouăle.',
+      'Prăjește pâinea înainte de asamblare.',
+      'Bate ouăle cu sare și piper într-un bol mic.',
+      'Taie avocado și pregătește semințele și legumele pentru servire.',
+    ],
+    tags: {
+      taste: ['Cremos', 'Sățios', 'Fresh'],
+      complexity: ['Ușor'],
+      time: ['Sub 15 minute', 'Rețetă rapidă'],
+      context: ['Mic dejun', 'Pentru zile aglomerate'],
+      diet: ['Fără carne', 'Vegetarian'],
+      equipment: ['La tigaie'],
+      technique: ['La tigaie'],
+    },
+  },
+};
+
 function slugify(value) {
   return String(value || '')
     .normalize('NFD')
@@ -199,24 +815,28 @@ function mergeRecipes(parsedRecipes, categoryMap) {
   }).map(enrichRecipeMetadata);
 }
 
+function mergeTagGroups(...groups) {
+  return groups.reduce((merged, group) => {
+    if (!group || typeof group !== 'object') return merged;
+    for (const [key, values] of Object.entries(group)) {
+      const clean = Array.isArray(values) ? values.map((value) => String(value || '').trim()).filter(Boolean) : [];
+      if (!clean.length) continue;
+      merged[key] = Array.from(new Set([...(merged[key] || []), ...clean]));
+    }
+    return merged;
+  }, {});
+}
+
 function enrichRecipeMetadata(recipe) {
-  if (recipe.slug !== 'steak-de-vita') return recipe;
+  const metadata = RECIPE_METADATA[recipe.slug] || {};
+  const beforeStart = Array.isArray(recipe.beforeStart) && recipe.beforeStart.length
+    ? recipe.beforeStart
+    : metadata.beforeStart || [];
+  const tags = mergeTagGroups(metadata.tags, recipe.tags);
   return {
     ...recipe,
-    beforeStart: recipe.beforeStart || [
-      'Scoate carnea din frigider cu 20-30 minute înainte.',
-      'Tamponează steak-ul cu șervețele, ca suprafața să fie uscată.',
-      'Pregătește tigaia, cleștele și un loc pentru odihnirea cărnii.',
-      'Citește pașii și setează calculatorul înainte să pui carnea în tigaie.',
-    ],
-    tags: recipe.tags || {
-      taste: ['Sățios', 'Aromat'],
-      complexity: ['Necesită atenție'],
-      context: ['Cină', 'Pentru weekend'],
-      diet: ['Cu carne'],
-      equipment: ['La tigaie', 'Necesită termometru'],
-      technique: ['La tigaie'],
-    },
+    beforeStart,
+    tags,
   };
 }
 
