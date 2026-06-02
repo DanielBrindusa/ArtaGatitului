@@ -144,6 +144,8 @@ header,
 .randomizer-panel,
 .builder-card,
 .steak-calculator,
+.ingredient-panel,
+.ingredient-results,
 .box {
   min-width: 0;
 }
@@ -228,14 +230,39 @@ p {
   transform: translateY(-160%);
   padding: var(--space-3) var(--space-4);
   border-radius: var(--radius-sm);
-  background: var(--color-text);
-  color: #fff;
+  background: var(--color-primary);
+  color: #1a100c;
   text-decoration: none;
   font-weight: 800;
 }
 
 .skip-link:focus {
   transform: translateY(0);
+}
+
+.install-toast {
+  position: fixed;
+  right: var(--space-4);
+  bottom: var(--space-4);
+  z-index: 70;
+  width: min(420px, calc(100vw - 32px));
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: rgba(24, 29, 41, .98);
+  box-shadow: var(--shadow-card);
+}
+
+.install-toast p {
+  color: var(--color-text-muted);
+  font-weight: 800;
+}
+
+.install-toast div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
 }
 
 .site-header {
@@ -579,6 +606,7 @@ p {
 .randomizer-panel,
 .soon-card,
 .builder-card,
+.ingredient-panel,
 .box,
 .steak-calculator {
   border: 1px solid var(--color-border);
@@ -736,6 +764,13 @@ p {
   animation: softReveal .42s ease both;
 }
 
+.ingredient-panel {
+  margin-bottom: var(--space-5);
+  padding: var(--space-5);
+  background: var(--color-surface);
+  animation: softReveal .42s ease both;
+}
+
 .search-panel-head {
   max-width: 720px;
   margin-bottom: var(--space-5);
@@ -755,6 +790,122 @@ p {
   grid-template-columns: minmax(0, 1fr) 260px;
   gap: var(--space-4);
   align-items: end;
+}
+
+.ingredient-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-4);
+  align-items: end;
+}
+
+.ingredient-field textarea {
+  min-height: 128px;
+  resize: vertical;
+}
+
+.ingredient-actions {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 190px;
+}
+
+.ingredient-chips,
+.match-chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.ingredient-chips {
+  margin-top: var(--space-4);
+}
+
+.ingredient-chip,
+.match-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .045);
+  color: var(--color-text);
+  font-size: .94rem;
+  font-weight: 900;
+}
+
+.ingredient-note {
+  margin-top: var(--space-4);
+}
+
+.ingredient-results {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.match-section h2 {
+  margin-bottom: var(--space-4);
+  font-size: 1.55rem;
+}
+
+.match-card {
+  gap: var(--space-3);
+}
+
+.match-card p {
+  margin-bottom: 0;
+}
+
+.match-card-head {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  align-items: start;
+}
+
+.match-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  background: rgba(98, 214, 168, .16);
+  color: var(--color-secondary-hover);
+  font-size: .82rem;
+  font-weight: 900;
+  text-align: center;
+}
+
+.match-meter {
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .08);
+}
+
+.match-meter span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+}
+
+.match-detail {
+  color: var(--color-text-muted);
+  font-size: .96rem;
+}
+
+.match-detail strong {
+  display: block;
+  margin-bottom: var(--space-1);
+  color: var(--color-text);
+}
+
+.match-chip.missing {
+  border-color: rgba(255, 138, 91, .35);
+  color: var(--color-primary-hover);
+  background: rgba(255, 138, 91, .1);
 }
 
 .field {
@@ -923,7 +1074,8 @@ ol.clean li {
 }
 
 .random-result.is-refreshing,
-#searchResults.is-refreshing {
+#searchResults.is-refreshing,
+#ingredientMatchResults.is-refreshing {
   animation: softReveal .28s ease both;
 }
 
@@ -1394,6 +1546,7 @@ ol.clean li {
   .recipe-layout,
   .recipe-hero,
   .search-row,
+  .ingredient-form,
   .builder-layout,
   .builder-form-grid,
   .builder-guide-grid,
@@ -1545,6 +1698,7 @@ ol.clean li {
   .category-card,
   .recipe-detail-card,
   .search-panel,
+  .ingredient-panel,
   .randomizer-panel,
   .soon-card,
   .builder-card,
@@ -1576,8 +1730,17 @@ ol.clean li {
   }
 
   .detail-meta .btn,
+  .ingredient-actions .btn,
   .steak-actions .btn {
     width: 100%;
+  }
+
+  .ingredient-actions {
+    min-width: 0;
+  }
+
+  .match-card-head {
+    display: grid;
   }
 
   .meal-slot .recipe-card,
@@ -1587,6 +1750,12 @@ ol.clean li {
 
   .timer-display {
     font-size: 1.72rem;
+  }
+
+  .install-toast {
+    right: var(--space-3);
+    bottom: var(--space-3);
+    width: calc(100vw - 24px);
   }
 }
 

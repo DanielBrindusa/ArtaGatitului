@@ -45,6 +45,42 @@
     return normalize(value).match(/[a-z0-9]+/g) || [];
   }
 
+  const IGNORED_INGREDIENT_TOKENS = new Set([
+    "g", "gr", "kg", "ml", "l", "litru", "litri", "lingura", "linguri", "lingurita", "lingurite",
+    "buc", "bucata", "bucati", "felie", "felii", "cana", "cani", "pachet", "pachete",
+    "dupa", "gust", "aproximativ", "optional", "proaspat", "proaspata", "proaspete",
+    "de", "din", "cu", "si", "sau", "la", "pentru", "cat", "cate", "putin", "putina"
+  ]);
+
+  const INGREDIENT_ALIASES = {
+    ou: ["oua"],
+    oua: ["ou"],
+    cartof: ["cartofi"],
+    cartofi: ["cartof"],
+    rosie: ["rosii"],
+    rosii: ["rosie"],
+    ceapa: ["cepe"],
+    cepe: ["ceapa"],
+    galusca: ["galuste"],
+    galuste: ["galusca"],
+    lamaie: ["lamai"],
+    lamai: ["lamaie"]
+  };
+
+  function expandIngredientToken(token) {
+    return [token, ...(INGREDIENT_ALIASES[token] || [])];
+  }
+
+  function ingredientTokens(value) {
+    return Array.from(new Set(tokenizeText(value)
+      .filter((token) => !/^\d+$/.test(token) && !IGNORED_INGREDIENT_TOKENS.has(token))
+      .flatMap(expandIngredientToken)));
+  }
+
+  function recipeIngredientTokens(recipe) {
+    return new Set(((recipe && recipe.ingredients) || []).flatMap(ingredientTokens));
+  }
+
   function recipeSearchTokens(recipe) {
     return new Set(tokenizeText([
       recipe && recipe.name,
@@ -146,6 +182,162 @@
     }
   }
 
+  function analyzeIngredientMatch(recipe, availableTokens) {
+    const rows = ((recipe && recipe.ingredients) || [])
+      .filter((line) => !isSubheading(line))
+      .map((line) => ({ label: line, tokens: ingredientTokens(line) }))
+      .filter((row) => row.tokens.length);
+
+    const matched = [];
+    const missing = [];
+    rows.forEach((row) => {
+      const hasMatch = row.tokens.some((token) => availableTokens.has(token));
+      if (hasMatch) matched.push(row.label);
+      else missing.push(row.label);
+    });
+
+    const total = rows.length;
+    let matchedCount = matched.length;
+    let score = total ? matchedCount / total : 0;
+    const keywordMatches = Array.from(keywordTokens(recipe)).filter((token) => availableTokens.has(token));
+    if (!matchedCount && keywordMatches.length) {
+      matched.push("cuvânt-cheie: " + keywordMatches.slice(0, 3).join(", "));
+      matchedCount = 1;
+      score = total ? Math.min(.28, 1 / total) : .2;
+    }
+    return { recipe, matched, missing, total, matchedCount, missingCount: missing.length, score };
+  }
+
+  function matchBadge(match) {
+    if (match.missingCount === 0) return "Complet";
+    if (match.score >= .88 || match.missingCount <= 1) return "Aproape complet";
+    return match.missingCount === 1 ? "Lipsește 1 ingredient" : "Lipsesc " + match.missingCount + " ingrediente";
+  }
+
+  function renderMatchChips(items, className) {
+    if (!items.length) return '<span class="match-chip">nimic de afișat</span>';
+    return items.slice(0, 8).map((item) => `<span class="match-chip ${className || ""}">${escapeHtml(item)}</span>`).join("");
+  }
+
+  function ingredientMatchCard(match) {
+    const recipe = match.recipe;
+    const percent = Math.round(match.score * 100);
+    const titleId = "ingredient-match-" + recipe.slug;
+    const matchedText = match.matched.slice(0, 3).join(", ");
+    const missingText = match.missing.length ? " Mai lipsesc: " + match.missing.slice(0, 3).join(", ") + "." : " Ai toate ingredientele importante detectate.";
+    return `
+      <a class="card recipe-card match-card" aria-labelledby="${titleId}" href="${recipeUrl(recipe.slug)}">
+        <div class="match-card-head">
+          <span class="category-pill">${escapeHtml(recipe.category)}</span>
+          <span class="match-badge">${escapeHtml(matchBadge(match))}</span>
+        </div>
+        <h3 id="${titleId}">${escapeHtml(recipe.name)}</h3>
+        <p>${escapeHtml(recipe.description || "")}</p>
+        <div class="match-meter" aria-label="Potrivire ${percent}%"><span style="width: ${percent}%"></span></div>
+        <p class="match-detail"><strong>${percent}% potrivire</strong> Recomandată fiindcă ai: ${escapeHtml(matchedText || "ingrediente potrivite")}.${escapeHtml(missingText)}</p>
+        <div class="match-detail">
+          <strong>Ingrediente potrivite</strong>
+          <div class="match-chip-list">${renderMatchChips(match.matched)}</div>
+        </div>
+        <div class="match-detail">
+          <strong>Ingrediente lipsă</strong>
+          <div class="match-chip-list">${renderMatchChips(match.missing, "missing")}</div>
+        </div>
+      </a>
+    `;
+  }
+
+  function renderMatchSection(title, matches) {
+    if (!matches.length) return "";
+    return `
+      <section class="match-section" aria-labelledby="${normalize(title).replace(/[^a-z0-9]+/g, "-")}">
+        <h2 id="${normalize(title).replace(/[^a-z0-9]+/g, "-")}">${escapeHtml(title)}</h2>
+        <div class="grid cards">${matches.map(ingredientMatchCard).join("")}</div>
+      </section>
+    `;
+  }
+
+  function setupIngredientMatcher() {
+    const form = document.getElementById("ingredientMatcherForm");
+    const input = document.getElementById("availableIngredients");
+    const chips = document.getElementById("ingredientChips");
+    const summary = document.getElementById("ingredientMatchSummary");
+    const results = document.getElementById("ingredientMatchResults");
+    const reset = document.getElementById("resetIngredientMatcher");
+    if (!form || !input || !chips || !summary || !results) return;
+
+    const storageKey = "arta-gatitului-available-ingredients";
+
+    function availableTokens() {
+      return Array.from(new Set(ingredientTokens(input.value)));
+    }
+
+    function renderChips(tokens) {
+      chips.innerHTML = tokens.length
+        ? tokens.map((token) => `<span class="ingredient-chip">${escapeHtml(token)}</span>`).join("")
+        : '<span class="ingredient-chip">Scrie ingredientele de acasă</span>';
+    }
+
+    function run() {
+      const tokens = availableTokens();
+      const tokenSet = new Set(tokens);
+      renderChips(tokens);
+
+      if (!tokens.length) {
+        summary.textContent = "Introdu ingredientele ca să primești recomandări.";
+        results.innerHTML = '<div class="empty">Exemplu: pui, cartofi, ou, lapte, usturoi.</div>';
+        return;
+      }
+
+      window.localStorage.setItem(storageKey, input.value);
+      const matches = data.recipes
+        .map((recipe) => analyzeIngredientMatch(recipe, tokenSet))
+        .filter((match) => match.total > 0 && match.matchedCount > 0)
+        .sort((a, b) => {
+          const scoreDiff = b.score - a.score;
+          if (scoreDiff) return scoreDiff;
+          const missingDiff = a.missingCount - b.missingCount;
+          if (missingDiff) return missingDiff;
+          return a.recipe.name.localeCompare(b.recipe.name, "ro");
+        });
+
+      const ready = matches.filter((match) => match.score >= .88 || match.missingCount <= 1);
+      const almost = matches.filter((match) => !ready.includes(match) && match.score >= .34);
+      const weak = matches.filter((match) => !ready.includes(match) && !almost.includes(match) && match.score > 0).slice(0, 6);
+
+      summary.textContent = matches.length === 1
+        ? "1 rețetă se potrivește cu ingredientele introduse."
+        : matches.length + " rețete se potrivesc cu ingredientele introduse.";
+
+      results.innerHTML = matches.length
+        ? [
+            renderMatchSection("Poți găti acum", ready),
+            renderMatchSection("Îți lipsesc câteva ingrediente", almost.slice(0, 12)),
+            renderMatchSection("Potrivire slabă", weak)
+          ].join("")
+        : '<div class="empty">Nu am găsit potriviri încă. Încearcă ingrediente mai simple, de exemplu „pui”, „cartofi”, „ouă” sau „lapte”.</div>';
+      results.classList.remove("is-refreshing");
+      void results.offsetWidth;
+      results.classList.add("is-refreshing");
+    }
+
+    input.addEventListener("input", () => renderChips(availableTokens()));
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      run();
+    });
+    reset?.addEventListener("click", () => {
+      input.value = "";
+      window.localStorage.removeItem(storageKey);
+      run();
+      input.focus();
+    });
+
+    const saved = window.localStorage.getItem(storageKey);
+    if (saved) input.value = saved;
+    run();
+  }
+
   function renderList(lines, ordered) {
     const tag = ordered ? "ol" : "ul";
     const items = (lines || []).map((line) => {
@@ -241,6 +433,48 @@
     `;
   }
 
+  function sharedTokenCount(a, b) {
+    let count = 0;
+    a.forEach((token) => {
+      if (b.has(token)) count += 1;
+    });
+    return count;
+  }
+
+  function importantTitleTokens(recipe) {
+    return new Set(ingredientTokens(recipe && recipe.name));
+  }
+
+  function keywordTokens(recipe) {
+    return new Set(((recipe && recipe.keywords) || []).flatMap(tokenizeText));
+  }
+
+  function similarRecipes(currentRecipe) {
+    if (!currentRecipe) return [];
+    const currentCategory = normalize(currentRecipe.category);
+    const currentIngredients = recipeIngredientTokens(currentRecipe);
+    const currentKeywords = keywordTokens(currentRecipe);
+    const currentTitle = importantTitleTokens(currentRecipe);
+
+    return data.recipes
+      .filter((recipe) => recipe.slug !== currentRecipe.slug)
+      .map((recipe) => {
+        const sameCategory = normalize(recipe.category) === currentCategory ? 3 : 0;
+        const keywordScore = sharedTokenCount(currentKeywords, keywordTokens(recipe)) * 2;
+        const ingredientScore = sharedTokenCount(currentIngredients, recipeIngredientTokens(recipe));
+        const titleScore = sharedTokenCount(currentTitle, importantTitleTokens(recipe));
+        return { recipe, score: sameCategory + keywordScore + ingredientScore + titleScore };
+      })
+      .filter((item) => item.score > 0)
+      .sort((a, b) => {
+        const scoreDiff = b.score - a.score;
+        if (scoreDiff) return scoreDiff;
+        return a.recipe.name.localeCompare(b.recipe.name, "ro");
+      })
+      .slice(0, 6)
+      .map((item) => item.recipe);
+  }
+
   function renderRecipeDetail() {
     const el = document.getElementById("recipeDetail");
     if (!el) return;
@@ -253,9 +487,7 @@
 
     document.title = recipe.name + " | Arta Gătitului";
     const catSlug = categorySlug(recipe.category);
-    const related = data.recipes
-      .filter((item) => item.category === recipe.category && item.slug !== recipe.slug)
-      .slice(0, 3);
+    const related = similarRecipes(recipe);
 
     el.innerHTML = `
       <article class="recipe-detail-card">
@@ -282,7 +514,10 @@
         </div>
         ${(recipe.extras || []).map(steakCalculator).join("")}
       </article>
-      ${related.length ? `<section class="related"><h2>Din aceeași categorie</h2><div class="grid cards">${related.map(card).join("")}</div></section>` : ""}
+      <section class="related" aria-labelledby="similarRecipesTitle">
+        <h2 id="similarRecipesTitle">Rețete similare</h2>
+        ${related.length ? `<div class="grid cards">${related.map(card).join("")}</div>` : '<div class="empty">Nu există încă rețete similare.</div>'}
+      </section>
     `;
   }
 
@@ -1031,6 +1266,49 @@
     }
   }
 
+  function setupInstallPrompt() {
+    const prompt = document.getElementById("installPrompt");
+    const installButton = prompt?.querySelector("[data-install-action]");
+    const dismissButton = prompt?.querySelector("[data-install-dismiss]");
+    if (!prompt || !installButton || !dismissButton) return;
+
+    const dismissedKey = "arta-gatitului-install-dismissed";
+    let deferredPrompt = null;
+
+    function hide() {
+      prompt.hidden = true;
+    }
+
+    if (window.localStorage.getItem(dismissedKey) === "true") hide();
+
+    window.addEventListener("beforeinstallprompt", (event) => {
+      if (window.localStorage.getItem(dismissedKey) === "true") return;
+      event.preventDefault();
+      deferredPrompt = event;
+      prompt.hidden = false;
+    });
+
+    installButton.addEventListener("click", async () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice.catch(() => null);
+      deferredPrompt = null;
+      hide();
+    });
+
+    dismissButton.addEventListener("click", () => {
+      window.localStorage.setItem(dismissedKey, "true");
+      hide();
+    });
+  }
+
+  function registerServiceWorker() {
+    if (!("serviceWorker" in navigator)) return;
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register(root + "service-worker.js", { scope: root || "./" }).catch(() => {});
+    });
+  }
+
   function setupMobileMenu() {
     const btn = document.querySelector(".mobile-menu-btn");
     const links = document.querySelector(".nav-links");
@@ -1112,10 +1390,13 @@
     renderCategories();
     setupSearch();
     setupPrefilledSearch();
+    setupIngredientMatcher();
     renderRecipeDetail();
     renderCategoryPage();
     setupRandomizer();
     setupSteakCalculators();
     setupRecipeBuilder();
+    setupInstallPrompt();
+    registerServiceWorker();
   });
 })();

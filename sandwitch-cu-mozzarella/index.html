@@ -5,6 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sandwitch cu mozzarella | Arta Gătitului</title>
   <meta name="description" content="Feliile de paine se prajesc pana devin usor crocante.">
+  <meta name="theme-color" content="#0f1117">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Arta Gătitului">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="icon" type="image/png" sizes="192x192" href="../assets/icons/icon-192.png">
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Source+Sans+3:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -20,8 +27,8 @@
           <span>Arta Gătitului</span>
         </a>
         <nav class="nav-primary" aria-label="Navigație principală">
-          <a href="../index.html">Acasă</a>
           <a href="../portofoliu/">Portofoliu</a>
+          <a href="../ce-pot-gati.html">Ce pot găti?</a>
           <a href="../randomizer/">Randomizer</a>
           <a href="../cauta.html">Caută</a>
         </nav>
@@ -41,6 +48,13 @@
         </nav>
       </div>
     </header>
+<div class="install-toast" id="installPrompt" hidden>
+  <p>Instalează Arta Gătitului pe telefon pentru acces rapid la rețete.</p>
+  <div>
+    <button class="btn" type="button" data-install-action>Instalează</button>
+    <button class="btn secondary" type="button" data-install-dismiss>Mai târziu</button>
+  </div>
+</div>
 
       <main class="section" id="main-content">
         <div id="recipeDetail"></div>
