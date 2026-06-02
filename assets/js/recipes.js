@@ -72,11 +72,47 @@ window.ARTA_DATA = {
         "Dupa ce s-a oprit focul, se adauga leustenul.",
         "Se serveste cald impreuna paine proaspata."
       ],
-      "beforeStart": [],
+      "beforeStart": [
+        "Pune fasolea la înmuiat cu o zi înainte și aruncă apa înainte de fierbere.",
+        "Pregătește o oală încăpătoare pentru schimbarea apei la primele clocote.",
+        "Curăță și taie ceapa, ardeiul și morcovul înainte să pornești focul.",
+        "Pregătește afumătura, pasta de tomate și leușteanul pentru momentul potrivit."
+      ],
       "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/ciorba-de-fasole",
-      "tags": {},
+      "tags": {
+        "taste": [
+          "Sărat",
+          "Sățios",
+          "Aromat",
+          "Rustic"
+        ],
+        "complexity": [
+          "Complexitate medie",
+          "Necesită atenție"
+        ],
+        "time": [
+          "Necesită timp de așteptare",
+          "Bună pentru pregătit din timp"
+        ],
+        "context": [
+          "Prânz",
+          "Cină",
+          "Pentru familie",
+          "Comfort food"
+        ],
+        "diet": [
+          "Cu carne"
+        ],
+        "equipment": [
+          "La oală"
+        ],
+        "technique": [
+          "Fierbere",
+          "Sotare"
+        ]
+      },
       "ratingSummary": null,
       "keywords": [
         "ciorba",
@@ -105,7 +141,31 @@ window.ARTA_DATA = {
         "pasta",
         "tomate",
         "2",
-        "linguri"
+        "linguri",
+        "sarat",
+        "satios",
+        "aromat",
+        "rustic",
+        "complexitate",
+        "medie",
+        "necesita",
+        "atentie",
+        "timp",
+        "asteptare",
+        "buna",
+        "pentru",
+        "pregatit",
+        "din",
+        "pranz",
+        "cina",
+        "familie",
+        "comfort",
+        "food",
+        "carne",
+        "la",
+        "oala",
+        "fierbere",
+        "sotare"
       ]
     },
     {
@@ -134,11 +194,41 @@ window.ARTA_DATA = {
         "Separat, intr-un bol, se bate oul, se condimenteaza cu sare si piper, se adauga 3 linguri de apa din supa si gris pana ajunge la textura dorita (textura unui smoothie).",
         "La final, in ultimele 5 minute, se adauga in oaal clocotinda galustele apoi cubul Magi si patrunjelul frunze."
       ],
-      "beforeStart": [],
+      "beforeStart": [
+        "Curăță legumele și pregătește o oală mare înainte să pui puiul la fiert.",
+        "Ține la îndemână o spumieră ca să cureți supa în timpul fierberii.",
+        "Pregătește separat bolul pentru compoziția de găluște.",
+        "Citește pașii pentru momentul în care se adaugă găluștele și pătrunjelul."
+      ],
       "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/supa-de-pui-cu-galuste",
-      "tags": {},
+      "tags": {
+        "taste": [
+          "Sărat",
+          "Aromat",
+          "Ușor"
+        ],
+        "complexity": [
+          "Complexitate medie",
+          "Necesită atenție"
+        ],
+        "context": [
+          "Prânz",
+          "Cină",
+          "Pentru familie",
+          "Comfort food"
+        ],
+        "diet": [
+          "Cu carne"
+        ],
+        "equipment": [
+          "La oală"
+        ],
+        "technique": [
+          "Fierbere"
+        ]
+      },
       "ratingSummary": null,
       "keywords": [
         "supa",
@@ -167,7 +257,23 @@ window.ARTA_DATA = {
         "1-2",
         "legatura",
         "oua",
-        "gris"
+        "gris",
+        "sarat",
+        "aromat",
+        "usor",
+        "complexitate",
+        "medie",
+        "necesita",
+        "atentie",
+        "pranz",
+        "cina",
+        "pentru",
+        "familie",
+        "comfort",
+        "food",
+        "la",
+        "oala",
+        "fierbere"
       ]
     },
     {
@@ -188,11 +294,44 @@ window.ARTA_DATA = {
         "Intr-o tigaie medie se adauga putin ulei si se prajeste carnea timp de ~8 minute. Se adauga o cana de apa (200 ml) si se fierbe pana se evapora toata apa. Se adauga din nou ulei si se mai prajeste carnea inca ~5 minute.",
         "Se serveste impreuna cu varza murata."
       ],
-      "beforeStart": [],
+      "beforeStart": [
+        "Taie carnea de porc în cuburi aproximativ egale.",
+        "Pregătește tigaia și apa măsurată înainte să pornești focul.",
+        "Scurge varza murată dacă este foarte zemoasă.",
+        "Lasă loc în tigaie ca bucățile de carne să se rumenească uniform."
+      ],
       "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/carne-cu-varza-murata",
-      "tags": {},
+      "tags": {
+        "taste": [
+          "Sărat",
+          "Acrișor",
+          "Sățios",
+          "Rustic"
+        ],
+        "complexity": [
+          "Ușor",
+          "Risc mic de greșeală"
+        ],
+        "context": [
+          "Prânz",
+          "Cină",
+          "Comfort food"
+        ],
+        "diet": [
+          "Cu carne",
+          "Fără lactate",
+          "Fără ou"
+        ],
+        "equipment": [
+          "La tigaie"
+        ],
+        "technique": [
+          "Prăjire",
+          "La tigaie"
+        ]
+      },
       "ratingSummary": null,
       "keywords": [
         "carne",
@@ -212,7 +351,26 @@ window.ARTA_DATA = {
         "ulei",
         "sare",
         "dupa",
-        "gust"
+        "gust",
+        "sarat",
+        "acrisor",
+        "satios",
+        "rustic",
+        "usor",
+        "risc",
+        "mic",
+        "de",
+        "greseala",
+        "pranz",
+        "cina",
+        "comfort",
+        "food",
+        "fara",
+        "lactate",
+        "ou",
+        "la",
+        "tigaie",
+        "prajire"
       ]
     },
     {
@@ -246,11 +404,47 @@ window.ARTA_DATA = {
         "Se razuieste putina coaja de lamaie marunt si se toaca frunzele de menta tocate, zeama de lamaie, piperul si mararul.",
         "Se lasa la frigider 5-10 minute."
       ],
-      "beforeStart": [],
+      "beforeStart": [
+        "Curăță și taie cartofii înainte să încălzești apa sau uleiul.",
+        "Pregătește ingredientele pentru sos într-un bol separat.",
+        "Lasă cartofii să se răcească după opărire, ca să se prăjească mai bine.",
+        "Pregătește o farfurie cu șervețel pentru cartofii scoși din ulei.",
+        "Nu aglomera tigaia când prăjești cartofii."
+      ],
       "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/cartofi-prajiti-cu-sos",
-      "tags": {},
+      "tags": {
+        "taste": [
+          "Crocant",
+          "Cremos",
+          "Acrișor",
+          "Fresh",
+          "Sățios"
+        ],
+        "complexity": [
+          "Complexitate medie",
+          "Necesită atenție"
+        ],
+        "context": [
+          "Gustare",
+          "Prânz",
+          "Pentru weekend"
+        ],
+        "diet": [
+          "Fără carne",
+          "Vegetarian"
+        ],
+        "equipment": [
+          "La tigaie",
+          "La oală"
+        ],
+        "technique": [
+          "Fierbere",
+          "Prăjire",
+          "La tigaie"
+        ]
+      },
       "ratingSummary": null,
       "keywords": [
         "cartofi",
@@ -285,7 +479,28 @@ window.ARTA_DATA = {
         "marar",
         "lingurita",
         "sare",
-        "piper"
+        "piper",
+        "crocant",
+        "cremos",
+        "acrisor",
+        "fresh",
+        "satios",
+        "complexitate",
+        "medie",
+        "necesita",
+        "atentie",
+        "gustare",
+        "pranz",
+        "pentru",
+        "weekend",
+        "fara",
+        "carne",
+        "vegetarian",
+        "la",
+        "tigaie",
+        "oala",
+        "fierbere",
+        "prajire"
       ]
     },
     {
@@ -309,11 +524,45 @@ window.ARTA_DATA = {
         "Intr-un bol se adauga carnea, faina, ouale, vegeta, piperul si cele doua linguri de apa (supa rezultata din fierbere). Compozitia trebuie sa fie consistenta.",
         "Intr-o tigaie mica, se incalzeste uleiul si se adauga chiftelele care se prajesc timp de ~5 minute la foc mediu spe mic."
       ],
-      "beforeStart": [],
+      "beforeStart": [
+        "Fierbe pulpele de pui înainte să pregătești compoziția.",
+        "Pregătește un bol pentru carne, ouă, făină și condimente.",
+        "Păstrează puțină supă de la fierbere pentru compoziție.",
+        "Încălzește uleiul la foc mediu și pregătește o farfurie pentru chiftelele prăjite."
+      ],
       "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/chiftele-de-pui",
-      "tags": {},
+      "tags": {
+        "taste": [
+          "Sărat",
+          "Sățios"
+        ],
+        "complexity": [
+          "Complexitate medie",
+          "Necesită atenție"
+        ],
+        "time": [
+          "Sub 60 minute"
+        ],
+        "context": [
+          "Prânz",
+          "Cină",
+          "Pentru familie"
+        ],
+        "diet": [
+          "Cu carne"
+        ],
+        "equipment": [
+          "La oală",
+          "La tigaie"
+        ],
+        "technique": [
+          "Fierbere",
+          "Prăjire",
+          "La tigaie"
+        ]
+      },
       "ratingSummary": null,
       "keywords": [
         "chiftele",
@@ -334,7 +583,27 @@ window.ARTA_DATA = {
         "vegeta",
         "piper",
         "dupa",
-        "gust"
+        "gust",
+        "sarat",
+        "satios",
+        "complexitate",
+        "medie",
+        "necesita",
+        "atentie",
+        "sub",
+        "60",
+        "minute",
+        "pranz",
+        "cina",
+        "pentru",
+        "familie",
+        "cu",
+        "carne",
+        "la",
+        "oala",
+        "tigaie",
+        "fierbere",
+        "prajire"
       ]
     },
     {
@@ -371,11 +640,46 @@ window.ARTA_DATA = {
         "Sos:",
         "Se curata si se taie marunt ceapa si usturoiul. Acestea se calesc in unt pana cand sunt aurii. In aceeasi tigaie se adauga conserva de rosii, curcuma, ghimbir, coriandru, boia si zahar. Se lasa la fiert si se amesteca pana totul este omogen. Dupa ce s-a omogenizat, se lasa la racit apoi se transfera totul intr-un blender de mana unde se mai adauga iaurt si sos picant. Dupa ce a fost belduit, se adauga intr-un bol si se decoreaza cu frunze de patrunjel."
       ],
-      "beforeStart": [],
+      "beforeStart": [
+        "Spală conopida și taie-o în bucăți medii înainte să încălzești uleiul.",
+        "Pregătește farfuria cu pesmet și bolul cu ou bătut.",
+        "Curăță și toacă ceapa și usturoiul pentru sos înainte de gătire.",
+        "Pregătește blenderul de mână pentru omogenizarea sosului.",
+        "Ține la îndemână o farfurie pentru bucățile de conopidă prăjite."
+      ],
       "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/conopida-cu-orez-1",
-      "tags": {},
+      "tags": {
+        "taste": [
+          "Crocant",
+          "Condimentat",
+          "Cremos",
+          "Sățios"
+        ],
+        "complexity": [
+          "Complexitate medie",
+          "Necesită atenție"
+        ],
+        "context": [
+          "Prânz",
+          "Cină",
+          "Pentru weekend"
+        ],
+        "diet": [
+          "Fără carne",
+          "Vegetarian"
+        ],
+        "equipment": [
+          "La tigaie",
+          "Necesită blender"
+        ],
+        "technique": [
+          "Prăjire",
+          "Sotare",
+          "La tigaie"
+        ]
+      },
       "ratingSummary": null,
       "keywords": [
         "conopida",
@@ -415,7 +719,27 @@ window.ARTA_DATA = {
         "coriandru",
         "zahar",
         "iaurt",
-        "patrunjel"
+        "patrunjel",
+        "crocant",
+        "condimentat",
+        "cremos",
+        "satios",
+        "complexitate",
+        "medie",
+        "necesita",
+        "atentie",
+        "pranz",
+        "cina",
+        "pentru",
+        "weekend",
+        "fara",
+        "carne",
+        "vegetarian",
+        "la",
+        "tigaie",
+        "blender",
+        "prajire",
+        "sotare"
       ]
     },
     {
@@ -443,11 +767,45 @@ window.ARTA_DATA = {
         "Se trec rondelele de dovlecel prin faina, apoi prin ou si se prajesc pe ambele parti in uleiul incins pana devin aurii.",
         "Se servesc impreuna cu rosiile, brinza si painea"
       ],
-      "beforeStart": [],
+      "beforeStart": [
+        "Feliază dovlecelul în rondele înainte să încălzești tigaia.",
+        "Pregătește separat farfuria cu făină și bolul cu ou bătut.",
+        "Încălzește uleiul la foc mediu și verifică să nu fie prea încins.",
+        "Pregătește o farfurie pentru rondelele prăjite."
+      ],
       "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/dovlecel-pane",
-      "tags": {},
+      "tags": {
+        "taste": [
+          "Crocant",
+          "Sărat",
+          "Ușor"
+        ],
+        "complexity": [
+          "Ușor",
+          "Necesită atenție"
+        ],
+        "time": [
+          "Sub 30 minute"
+        ],
+        "context": [
+          "Gustare",
+          "Prânz",
+          "Pentru zile aglomerate"
+        ],
+        "diet": [
+          "Fără carne",
+          "Vegetarian"
+        ],
+        "equipment": [
+          "La tigaie"
+        ],
+        "technique": [
+          "Prăjire",
+          "La tigaie"
+        ]
+      },
       "ratingSummary": null,
       "keywords": [
         "dovlecel",
@@ -468,7 +826,26 @@ window.ARTA_DATA = {
         "pe",
         "vatra",
         "dupa",
-        "gust"
+        "gust",
+        "crocant",
+        "sarat",
+        "usor",
+        "necesita",
+        "atentie",
+        "sub",
+        "30",
+        "minute",
+        "gustare",
+        "pranz",
+        "pentru",
+        "zile",
+        "aglomerate",
+        "fara",
+        "carne",
+        "vegetarian",
+        "la",
+        "tigaie",
+        "prajire"
       ]
     },
     {
@@ -507,11 +884,44 @@ window.ARTA_DATA = {
         "Se intorc lipiile si se incalzesc din nou pana devine crocanta si cea de-a doua jumatate.",
         "Se serveste cald cu muraturi reci."
       ],
-      "beforeStart": [],
+      "beforeStart": [
+        "Taie puiul și legumele înainte să pornești focul.",
+        "Condimentează puiul într-un bol separat.",
+        "Pregătește tigaia și uleiul de măsline pentru sotare.",
+        "Ține zeama de lămâie și usturoiul la îndemână pentru final."
+      ],
       "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/fajitas-de-pui",
-      "tags": {},
+      "tags": {
+        "taste": [
+          "Condimentat",
+          "Sățios",
+          "Fresh"
+        ],
+        "complexity": [
+          "Complexitate medie",
+          "Risc mic de greșeală"
+        ],
+        "time": [
+          "Sub 60 minute"
+        ],
+        "context": [
+          "Prânz",
+          "Cină",
+          "Pentru familie"
+        ],
+        "diet": [
+          "Cu carne"
+        ],
+        "equipment": [
+          "La tigaie"
+        ],
+        "technique": [
+          "Sotare",
+          "La tigaie"
+        ]
+      },
       "ratingSummary": null,
       "keywords": [
         "fajitas",
@@ -552,7 +962,27 @@ window.ARTA_DATA = {
         "unt",
         "topit",
         "dupa",
-        "gust"
+        "gust",
+        "condimentat",
+        "satios",
+        "fresh",
+        "complexitate",
+        "medie",
+        "risc",
+        "mic",
+        "greseala",
+        "sub",
+        "60",
+        "minute",
+        "pranz",
+        "cina",
+        "pentru",
+        "familie",
+        "cu",
+        "carne",
+        "la",
+        "tigaie",
+        "sotare"
       ]
     },
     {
@@ -588,11 +1018,41 @@ window.ARTA_DATA = {
         "Se lasa la fiert ~30 minute timp in care, in alta oala se fierb spaetzle (in ultimele ~10 minute). Se adauga spetzle in oala si se fierbe amestecand continu pana scade apa",
         "Se taie frunzele de patrunjel si se adauga peste mancarea fara a amesteca."
       ],
-      "beforeStart": [],
+      "beforeStart": [
+        "Curăță ceapa, cartofii și usturoiul înainte să încălzești oala.",
+        "Taie carnea în cuburi și ține condimentele pregătite.",
+        "Spală cartofii tăiați și lasă-i în apă până îi adaugi.",
+        "Pregătește apa și pasta de gulaș pentru etapa de fierbere."
+      ],
       "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/gulas-cu-spaetzle",
-      "tags": {},
+      "tags": {
+        "taste": [
+          "Sățios",
+          "Condimentat",
+          "Aromat",
+          "Rustic"
+        ],
+        "complexity": [
+          "Complexitate medie"
+        ],
+        "context": [
+          "Prânz",
+          "Cină",
+          "Comfort food"
+        ],
+        "diet": [
+          "Cu carne"
+        ],
+        "equipment": [
+          "La oală"
+        ],
+        "technique": [
+          "Sotare",
+          "Fierbere"
+        ]
+      },
       "ratingSummary": null,
       "keywords": [
         "gulas",
@@ -632,7 +1092,22 @@ window.ARTA_DATA = {
         "tomate",
         "frunze",
         "dupa",
-        "gust"
+        "gust",
+        "satios",
+        "condimentat",
+        "aromat",
+        "rustic",
+        "complexitate",
+        "medie",
+        "pranz",
+        "cina",
+        "comfort",
+        "food",
+        "carne",
+        "la",
+        "oala",
+        "sotare",
+        "fierbere"
       ]
     },
     {
@@ -659,11 +1134,43 @@ window.ARTA_DATA = {
         "Se adauga mazarea, mararul, sarea si piperul, se acopera cu apa si se lasa la fiert pe foc mediu ~30 minute.",
         "Intr-un bol mic se face o pasa densa de faina cu smantana pentru galuste. Acestea se adauga in oala spre final cu o lingurita treptat amestecand ocazional si se lasa la fiert alte ~3 minute."
       ],
-      "beforeStart": [],
+      "beforeStart": [
+        "Taie pieptul de pui în cuburi medii.",
+        "Pregătește legumele, mărarul și condimentele înainte să încălzești oala.",
+        "Măsoară făina și smântâna pentru compoziția adăugată spre final.",
+        "Ține o linguriță la îndemână pentru adăugarea treptată a compoziției."
+      ],
       "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/mancare-de-mazare-cu-pui",
-      "tags": {},
+      "tags": {
+        "taste": [
+          "Cremos",
+          "Sățios",
+          "Aromat"
+        ],
+        "complexity": [
+          "Complexitate medie"
+        ],
+        "time": [
+          "Sub 60 minute"
+        ],
+        "context": [
+          "Prânz",
+          "Cină",
+          "Pentru familie"
+        ],
+        "diet": [
+          "Cu carne"
+        ],
+        "equipment": [
+          "La oală"
+        ],
+        "technique": [
+          "Sotare",
+          "Fierbere"
+        ]
+      },
       "ratingSummary": null,
       "keywords": [
         "mancare",
@@ -694,7 +1201,24 @@ window.ARTA_DATA = {
         "sare",
         "piper",
         "dupa",
-        "gust"
+        "gust",
+        "cremos",
+        "satios",
+        "aromat",
+        "complexitate",
+        "medie",
+        "sub",
+        "60",
+        "minute",
+        "pranz",
+        "cina",
+        "pentru",
+        "familie",
+        "carne",
+        "la",
+        "oala",
+        "sotare",
+        "fierbere"
       ]
     },
     {
@@ -725,11 +1249,49 @@ window.ARTA_DATA = {
         "Se adauga unt intr-o tigaie si se pun cartofii fierti la prajit pentru ~3 minute.",
         "Se toaca patrunjelul si se pune peste cartofi."
       ],
-      "beforeStart": [],
+      "beforeStart": [
+        "Usucă peștele cu prosoape de hârtie înainte de marinare.",
+        "Pregătește marinada și lasă peștele la rece cel puțin 3 ore.",
+        "Preîncălzește cuptorul înainte să pui peștele în tavă.",
+        "Curăță și taie cartofii pentru fierbere cât timp se pregătește peștele."
+      ],
       "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/peste-cu-cartofi-natur",
-      "tags": {},
+      "tags": {
+        "taste": [
+          "Acrișor",
+          "Ușor",
+          "Aromat"
+        ],
+        "complexity": [
+          "Complexitate medie",
+          "Necesită atenție"
+        ],
+        "time": [
+          "Necesită timp de așteptare",
+          "Bună pentru pregătit din timp"
+        ],
+        "context": [
+          "Prânz",
+          "Cină",
+          "Pentru weekend"
+        ],
+        "diet": [
+          "Cu carne"
+        ],
+        "equipment": [
+          "Necesită cuptor",
+          "Necesită tavă",
+          "La oală"
+        ],
+        "technique": [
+          "Marinare",
+          "Coacere",
+          "Fierbere",
+          "La cuptor"
+        ]
+      },
       "ratingSummary": null,
       "keywords": [
         "peste",
@@ -755,7 +1317,32 @@ window.ARTA_DATA = {
         "apa",
         "patrunjel",
         "dupa",
-        "gust"
+        "gust",
+        "acrisor",
+        "usor",
+        "aromat",
+        "complexitate",
+        "medie",
+        "necesita",
+        "atentie",
+        "timp",
+        "de",
+        "asteptare",
+        "buna",
+        "pentru",
+        "pregatit",
+        "din",
+        "pranz",
+        "cina",
+        "weekend",
+        "carne",
+        "cuptor",
+        "tava",
+        "la",
+        "oala",
+        "marinare",
+        "coacere",
+        "fierbere"
       ]
     },
     {
@@ -798,11 +1385,42 @@ window.ARTA_DATA = {
         "In aceeasi tigaie se adauga supa de pui, zeama de lamaie, unt si doua linguri de faina. Se fierbe si se amesteca bine pana scade sosul. Se condimenteaza cu sare si piper si se adauga ceapa verde tocata. Puiul se transfera inapoi in tigaie si se fierbe pentru 2-3 minute.",
         "Se serveste cald impreuna cu cartofii."
       ],
-      "beforeStart": [],
+      "beforeStart": [
+        "Taie puiul și pregătește farfuriile pentru făină și ou cu parmezan.",
+        "Spală cartofii și pregătește condimentele înainte să începi gătirea.",
+        "Rade parmezanul și toacă ceapa verde înainte să pornești focul.",
+        "Pregătește lămâia, untul și usturoiul pentru sos."
+      ],
       "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/pui-cu-lamaie-si-cartofi",
-      "tags": {},
+      "tags": {
+        "taste": [
+          "Acrișor",
+          "Crocant",
+          "Sățios",
+          "Aromat"
+        ],
+        "complexity": [
+          "Complexitate medie",
+          "Necesită atenție"
+        ],
+        "context": [
+          "Prânz",
+          "Cină",
+          "Pentru familie"
+        ],
+        "diet": [
+          "Cu carne"
+        ],
+        "equipment": [
+          "La tigaie"
+        ],
+        "technique": [
+          "Prăjire",
+          "La tigaie"
+        ]
+      },
       "ratingSummary": null,
       "keywords": [
         "piept",
@@ -846,7 +1464,23 @@ window.ARTA_DATA = {
         "folie",
         "copt",
         "dupa",
-        "gust"
+        "gust",
+        "acrisor",
+        "crocant",
+        "satios",
+        "aromat",
+        "complexitate",
+        "medie",
+        "necesita",
+        "atentie",
+        "pranz",
+        "cina",
+        "pentru",
+        "familie",
+        "carne",
+        "la",
+        "tigaie",
+        "prajire"
       ]
     },
     {
@@ -884,11 +1518,45 @@ window.ARTA_DATA = {
         "Pana se coace puiul, se fierbe orezul impreuna cu putina sare, dupa gust.",
         "Se serveste cald."
       ],
-      "beforeStart": [],
+      "beforeStart": [
+        "Taie puiul și pregătește făina și oul pentru acoperire.",
+        "Amestecă sosul dulce-acrișor înainte să pornești gătirea.",
+        "Întinde foaia de copt în tavă.",
+        "Preîncălzește cuptorul la temperatura indicată în rețetă.",
+        "Pregătește orezul și apa pentru fierbere."
+      ],
       "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/pui-dulce-acrisor-cu-orez",
-      "tags": {},
+      "tags": {
+        "taste": [
+          "Dulce",
+          "Acrișor",
+          "Sățios"
+        ],
+        "complexity": [
+          "Complexitate medie",
+          "Necesită atenție"
+        ],
+        "context": [
+          "Prânz",
+          "Cină",
+          "Pentru familie"
+        ],
+        "diet": [
+          "Cu carne"
+        ],
+        "equipment": [
+          "Necesită cuptor",
+          "Necesită tavă",
+          "La oală"
+        ],
+        "technique": [
+          "Coacere",
+          "Fierbere",
+          "La cuptor"
+        ]
+      },
       "ratingSummary": null,
       "keywords": [
         "pui",
@@ -927,7 +1595,24 @@ window.ARTA_DATA = {
         "copt",
         "1",
         "dupa",
-        "gust"
+        "gust",
+        "acrisor",
+        "satios",
+        "complexitate",
+        "medie",
+        "necesita",
+        "atentie",
+        "pranz",
+        "cina",
+        "pentru",
+        "familie",
+        "carne",
+        "cuptor",
+        "tava",
+        "la",
+        "oala",
+        "coacere",
+        "fierbere"
       ]
     },
     {
@@ -970,11 +1655,40 @@ window.ARTA_DATA = {
         "In aceeasi tigaie se pun ciupercile la calit cu putin unt. Spre final se zdropseste usturoiul, cu presa de usturoi peste ciuperci si se mai caleste 1-2 min. Peste continutul tigaii, se adauga supa de pui si orzo. Se lasa la fiert mestecand frecvent pana scade. Se adauga parmezanul razuit si patrunjelul taiat marunt. Se amesteca bine impreuna cu un cubulet de unt si puiul.",
         "Se serveste cald impreuna cu sosul."
       ],
-      "beforeStart": [],
+      "beforeStart": [
+        "Condimentează pulpele înainte să încălzești tigaia.",
+        "Taie ciupercile, toacă pătrunjelul și rade parmezanul dinainte.",
+        "Pregătește orzo-ul și lichidul necesar pentru gătire.",
+        "Ține untul, uleiul și usturoiul la îndemână pentru începutul gătirii."
+      ],
       "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/pulpe-de-pui-cu-orzo",
-      "tags": {},
+      "tags": {
+        "taste": [
+          "Cremos",
+          "Sățios",
+          "Aromat"
+        ],
+        "complexity": [
+          "Complexitate medie"
+        ],
+        "context": [
+          "Prânz",
+          "Cină",
+          "Pentru familie"
+        ],
+        "diet": [
+          "Cu carne"
+        ],
+        "equipment": [
+          "La tigaie"
+        ],
+        "technique": [
+          "Sotare",
+          "La tigaie"
+        ]
+      },
       "ratingSummary": null,
       "keywords": [
         "pulpe",
@@ -1021,7 +1735,20 @@ window.ARTA_DATA = {
         "lamaie",
         "lamai",
         "dupa",
-        "gust"
+        "gust",
+        "cremos",
+        "satios",
+        "aromat",
+        "complexitate",
+        "medie",
+        "pranz",
+        "cina",
+        "pentru",
+        "familie",
+        "carne",
+        "la",
+        "tigaie",
+        "sotare"
       ]
     },
     {
@@ -1074,11 +1801,48 @@ window.ARTA_DATA = {
         "Intr-o oala mica se caramelizeaza zaharul la foc mic. Odata ce zaharul a fost complet caramelizat se adauga untul si zeama a doua portocale si se lasa la foc mic timp de ~5 minute.",
         "Se adauga scortisoara fructele, coniac/esenta rom si cuisoarele. Se lasa la fiert la foc mic timp de ~5 minute. Dupa oprirea focului se scot cuisoarele din sos."
       ],
-      "beforeStart": [],
+      "beforeStart": [
+        "Spală și usucă bine rața înainte de marinare.",
+        "Planifică marinarea din timp, deoarece rața stă condimentată aproximativ 24 de ore.",
+        "Curăță ceapa, usturoiul, cartofii și fructele pentru umplutură și garnitură.",
+        "Pregătește tava și preîncălzește cuptorul înainte de coacere.",
+        "Spală orezul și pregătește ingredientele pentru umplutură înainte să umpli rața."
+      ],
       "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/rata-la-cuptor-umpluta",
-      "tags": {},
+      "tags": {
+        "taste": [
+          "Sățios",
+          "Aromat",
+          "Rustic"
+        ],
+        "complexity": [
+          "Complexitate ridicată",
+          "Necesită atenție"
+        ],
+        "time": [
+          "Necesită timp de așteptare",
+          "Bună pentru pregătit din timp"
+        ],
+        "context": [
+          "Cină",
+          "Pentru musafiri",
+          "Pentru weekend"
+        ],
+        "diet": [
+          "Cu carne"
+        ],
+        "equipment": [
+          "Necesită cuptor",
+          "Necesită tavă"
+        ],
+        "technique": [
+          "Marinare",
+          "Coacere",
+          "La cuptor"
+        ]
+      },
       "ratingSummary": null,
       "keywords": [
         "rata",
@@ -1125,7 +1889,29 @@ window.ARTA_DATA = {
         "scortisoara",
         "cuisoare",
         "dupa",
-        "gust"
+        "gust",
+        "satios",
+        "aromat",
+        "rustic",
+        "complexitate",
+        "ridicata",
+        "necesita",
+        "atentie",
+        "timp",
+        "de",
+        "asteptare",
+        "buna",
+        "pentru",
+        "pregatit",
+        "din",
+        "cina",
+        "musafiri",
+        "weekend",
+        "cu",
+        "carne",
+        "tava",
+        "marinare",
+        "coacere"
       ]
     },
     {
@@ -1149,11 +1935,44 @@ window.ARTA_DATA = {
         "Intr-o tigaie medie/mare se incalzeste uleiul la foc mediu.",
         "Se trece pieptul de pui batut prin faina, apoi prin ou si se prajeste pe ambele parti in uleiul incins pana devine auriu."
       ],
-      "beforeStart": [],
+      "beforeStart": [
+        "Taie și bate pieptul de pui înainte să pregătești tigaia.",
+        "Pregătește farfuria cu făină și bolul cu ou bătut.",
+        "Încălzește uleiul la foc mediu ca șnițelul să se rumenească fără să se ardă.",
+        "Pregătește o farfurie pentru bucățile prăjite."
+      ],
       "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/snitel-pufos-de-pui",
-      "tags": {},
+      "tags": {
+        "taste": [
+          "Crocant",
+          "Sărat",
+          "Sățios"
+        ],
+        "complexity": [
+          "Complexitate medie",
+          "Necesită atenție"
+        ],
+        "time": [
+          "Sub 30 minute"
+        ],
+        "context": [
+          "Prânz",
+          "Cină",
+          "Pentru familie"
+        ],
+        "diet": [
+          "Cu carne"
+        ],
+        "equipment": [
+          "La tigaie"
+        ],
+        "technique": [
+          "Prăjire",
+          "La tigaie"
+        ]
+      },
       "ratingSummary": null,
       "keywords": [
         "rata",
@@ -1173,7 +1992,25 @@ window.ARTA_DATA = {
         "sare",
         "piper",
         "dupa",
-        "gust"
+        "gust",
+        "crocant",
+        "sarat",
+        "satios",
+        "complexitate",
+        "medie",
+        "necesita",
+        "atentie",
+        "sub",
+        "30",
+        "minute",
+        "pranz",
+        "cina",
+        "pentru",
+        "familie",
+        "cu",
+        "carne",
+        "tigaie",
+        "prajire"
       ]
     },
     {
@@ -1213,11 +2050,47 @@ window.ARTA_DATA = {
         "Gatire:",
         "Intr-o tigaie se adauga ulei si se caleste mix-ul de legume tocate cu ceapa si ardeiul capia timp de 5-10 minute. Se adauga condimentele, usturoiul zdrobit cu presa de usturoi si se caleste pentru inca 2-3 minute. Se adauga conserva de rosii cu bulionul si apa si fierbe cu capacul pus pentru aproximativ 25 min. Faci patru gauri in compozitie pentru oua si adaugi ouale in ele dupa care le mai gatesti cu capacul pus pentru inca 1-2 min (oua moi). La final se adauga feta si patrunjelul si se serveste cald cu paine ceabata."
       ],
-      "beforeStart": [],
+      "beforeStart": [
+        "Taie ardeii și ceapa înainte să încălzești tigaia.",
+        "Pregătește usturoiul, conserva de roșii, bulionul și condimentele.",
+        "Toacă pătrunjelul și pregătește feta pentru final.",
+        "Citește pașii pentru momentul în care se adaugă ouăle, ca să nu le gătești prea mult."
+      ],
       "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/shakshuka",
-      "tags": {},
+      "tags": {
+        "taste": [
+          "Sățios",
+          "Condimentat",
+          "Aromat"
+        ],
+        "complexity": [
+          "Complexitate medie",
+          "Necesită atenție"
+        ],
+        "time": [
+          "Sub 60 minute"
+        ],
+        "context": [
+          "Mic dejun",
+          "Prânz",
+          "Cină",
+          "Comfort food"
+        ],
+        "diet": [
+          "Fără carne",
+          "Vegetarian"
+        ],
+        "equipment": [
+          "La tigaie"
+        ],
+        "technique": [
+          "Sotare",
+          "Fierbere",
+          "La tigaie"
+        ]
+      },
       "ratingSummary": null,
       "keywords": [
         "shakshuka",
@@ -1266,7 +2139,30 @@ window.ARTA_DATA = {
         "chilly",
         "busuioc",
         "dupa",
-        "gust"
+        "gust",
+        "satios",
+        "condimentat",
+        "aromat",
+        "complexitate",
+        "medie",
+        "necesita",
+        "atentie",
+        "sub",
+        "60",
+        "minute",
+        "mic",
+        "dejun",
+        "pranz",
+        "cina",
+        "comfort",
+        "food",
+        "fara",
+        "carne",
+        "vegetarian",
+        "la",
+        "tigaie",
+        "sotare",
+        "fierbere"
       ]
     },
     {
@@ -1329,8 +2225,9 @@ window.ARTA_DATA = {
       "beforeStart": [
         "Scoate carnea din frigider cu 20-30 minute înainte.",
         "Tamponează steak-ul cu șervețele, ca suprafața să fie uscată.",
-        "Pregătește tigaia, cleștele și un loc pentru odihnirea cărnii.",
-        "Citește pașii și setează calculatorul înainte să pui carnea în tigaie."
+        "Pregătește tigaia aleasă, cleștele și un loc pentru odihnirea cărnii.",
+        "Citește pașii și setează calculatorul înainte să pui carnea în tigaie.",
+        "Pregătește un timer sau folosește timerul din pagină."
       ],
       "closing": "Poftă bună!",
       "extras": [
@@ -1360,7 +2257,8 @@ window.ARTA_DATA = {
           "Necesită termometru"
         ],
         "technique": [
-          "La tigaie"
+          "La tigaie",
+          "Marinare"
         ]
       },
       "ratingSummary": null,
@@ -1455,7 +2353,8 @@ window.ARTA_DATA = {
         "cina",
         "weekend",
         "cu",
-        "la"
+        "la",
+        "marinare"
       ]
     },
     {
@@ -1488,11 +2387,41 @@ window.ARTA_DATA = {
         "Se lasa la fiert ~45 minute.",
         "Se taie frunzele de patrunjel si se adauga peste mancarea fara a amesteca."
       ],
-      "beforeStart": [],
+      "beforeStart": [
+        "Curăță ceapa, cartofii și usturoiul înainte să încălzești oala.",
+        "Taie carnea în cuburi și pregătește mixul de legume.",
+        "Spală cartofii tăiați și ține-i în apă până îi adaugi.",
+        "Pregătește condimentele și pătrunjelul pentru final."
+      ],
       "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/tocanita-de-cartofi",
-      "tags": {},
+      "tags": {
+        "taste": [
+          "Sățios",
+          "Rustic",
+          "Aromat"
+        ],
+        "complexity": [
+          "Complexitate medie"
+        ],
+        "context": [
+          "Prânz",
+          "Cină",
+          "Pentru familie",
+          "Comfort food"
+        ],
+        "diet": [
+          "Cu carne"
+        ],
+        "equipment": [
+          "La oală"
+        ],
+        "technique": [
+          "Sotare",
+          "Fierbere"
+        ]
+      },
       "ratingSummary": null,
       "keywords": [
         "tocanita",
@@ -1529,7 +2458,24 @@ window.ARTA_DATA = {
         "soarelui",
         "frunze",
         "dupa",
-        "gust"
+        "gust",
+        "satios",
+        "rustic",
+        "aromat",
+        "complexitate",
+        "medie",
+        "pranz",
+        "cina",
+        "pentru",
+        "familie",
+        "comfort",
+        "food",
+        "cu",
+        "carne",
+        "la",
+        "oala",
+        "sotare",
+        "fierbere"
       ]
     },
     {
@@ -1557,11 +2503,41 @@ window.ARTA_DATA = {
         "Lasă tocănița să fiarbă până când sosul se leagă.",
         "Servește cu pătrunjel și pâine ciabatta."
       ],
-      "beforeStart": [],
+      "beforeStart": [
+        "Pregătește pulpele de pui și taie legumele înainte să începi gătirea.",
+        "Ține ardeii copți, bulionul și condimentele la îndemână.",
+        "Pregătește oala sau tigaia adâncă pentru tocăniță.",
+        "Toacă pătrunjelul pentru servire înainte de final."
+      ],
       "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/tocanita-de-pui-cu-ardei",
-      "tags": {},
+      "tags": {
+        "taste": [
+          "Sățios",
+          "Aromat",
+          "Condimentat"
+        ],
+        "complexity": [
+          "Ușor",
+          "Risc mic de greșeală"
+        ],
+        "context": [
+          "Prânz",
+          "Cină",
+          "Pentru familie"
+        ],
+        "diet": [
+          "Cu carne"
+        ],
+        "equipment": [
+          "La oală"
+        ],
+        "technique": [
+          "Sotare",
+          "Fierbere"
+        ]
+      },
       "ratingSummary": null,
       "keywords": [
         "tocanita",
@@ -1585,7 +2561,23 @@ window.ARTA_DATA = {
         "piper",
         "sare",
         "paine",
-        "ciabatta"
+        "ciabatta",
+        "satios",
+        "aromat",
+        "condimentat",
+        "usor",
+        "risc",
+        "mic",
+        "greseala",
+        "pranz",
+        "cina",
+        "pentru",
+        "familie",
+        "carne",
+        "la",
+        "oala",
+        "sotare",
+        "fierbere"
       ]
     },
     {
@@ -1613,11 +2605,43 @@ window.ARTA_DATA = {
         "Se bat ouale intr-un castron. Apoi cu o pensula se intinde oul pe placintelele pregatite de copt.",
         "Se baga la cuptor pentru 10-15 Min. la o temperatura de 200 °C."
       ],
-      "beforeStart": [],
+      "beforeStart": [
+        "Citește rețeta complet înainte să începi, fiindcă dovleacul se coace înainte de umplere.",
+        "Preîncălzește cuptorul pentru coacerea dovleacului.",
+        "Măsoară condimentele, zahărul și ingredientele pentru umplutură.",
+        "Pregătește aluatul rece, tava și hârtia de copt.",
+        "Bate oul pentru uns plăcintelele înainte să le bagi la cuptor."
+      ],
       "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/placinta-cu-dovleac",
-      "tags": {},
+      "tags": {
+        "taste": [
+          "Dulce",
+          "Aromat",
+          "Fin"
+        ],
+        "complexity": [
+          "Complexitate medie",
+          "Necesită atenție"
+        ],
+        "context": [
+          "Pentru weekend",
+          "Pentru musafiri"
+        ],
+        "diet": [
+          "Fără carne",
+          "Vegetarian"
+        ],
+        "equipment": [
+          "Necesită cuptor",
+          "Necesită tavă"
+        ],
+        "technique": [
+          "Coacere",
+          "La cuptor"
+        ]
+      },
       "ratingSummary": null,
       "keywords": [
         "placinta",
@@ -1650,7 +2674,23 @@ window.ARTA_DATA = {
         "aluat",
         "pentru",
         "foietaje",
-        "zahar"
+        "zahar",
+        "dulce",
+        "aromat",
+        "fin",
+        "complexitate",
+        "medie",
+        "necesita",
+        "atentie",
+        "weekend",
+        "musafiri",
+        "fara",
+        "carne",
+        "vegetarian",
+        "cuptor",
+        "tava",
+        "coacere",
+        "la"
       ]
     },
     {
@@ -1678,11 +2718,42 @@ window.ARTA_DATA = {
         "Se taie carnaciorii sticks in bucatele mici (~2 cm).",
         "Se aseaza toate ingredientele pe un blat de lemn si se servesc impreuna cu un pahar de vin alb."
       ],
-      "beforeStart": [],
+      "beforeStart": [
+        "Pregătește blatul sau platoul pe care vei așeza ingredientele.",
+        "Spală și usucă roșiile, castravetele, ardeiul și salata.",
+        "Feliază brânzeturile, salamul și legumele înainte de asamblare.",
+        "Ține grisinele și biscuiții separat până la servire, ca să rămână crocante."
+      ],
       "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/charcuterie-board",
-      "tags": {},
+      "tags": {
+        "taste": [
+          "Sărat",
+          "Fresh",
+          "Ușor"
+        ],
+        "complexity": [
+          "Începător",
+          "Ușor",
+          "Risc mic de greșeală"
+        ],
+        "time": [
+          "Sub 15 minute",
+          "Rețetă rapidă"
+        ],
+        "context": [
+          "Gustare",
+          "Pentru musafiri",
+          "Pentru weekend"
+        ],
+        "diet": [
+          "Cu carne"
+        ],
+        "technique": [
+          "Fără gătire"
+        ]
+      },
       "ratingSummary": null,
       "keywords": [
         "charcuterie",
@@ -1707,7 +2778,28 @@ window.ARTA_DATA = {
         "vin",
         "alb",
         "dupa",
-        "gust"
+        "gust",
+        "sarat",
+        "fresh",
+        "usor",
+        "incepator",
+        "risc",
+        "mic",
+        "de",
+        "greseala",
+        "sub",
+        "15",
+        "minute",
+        "reteta",
+        "rapida",
+        "gustare",
+        "pentru",
+        "musafiri",
+        "weekend",
+        "cu",
+        "carne",
+        "fara",
+        "gatire"
       ]
     },
     {
@@ -1724,11 +2816,42 @@ window.ARTA_DATA = {
         "Se feliaza fructele si se adauga jumatate de lingurita de nutella peste ele.",
         "Se savureaza fructele reci."
       ],
-      "beforeStart": [],
+      "beforeStart": [
+        "Spală și usucă fructele înainte să le feliezi.",
+        "Răcește fructele dacă vrei gustarea mai fresh.",
+        "Pregătește un cuțit mic și un bol sau o farfurie pentru servire.",
+        "Scoate Nutella la îndemână ca să porționezi ușor cantitatea dorită."
+      ],
       "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/fructe-cu-nutella",
-      "tags": {},
+      "tags": {
+        "taste": [
+          "Dulce",
+          "Fresh",
+          "Ușor"
+        ],
+        "complexity": [
+          "Începător",
+          "Ușor",
+          "Risc mic de greșeală"
+        ],
+        "time": [
+          "Sub 15 minute",
+          "Rețetă rapidă"
+        ],
+        "context": [
+          "Gustare",
+          "Pentru zile aglomerate"
+        ],
+        "diet": [
+          "Fără carne",
+          "Vegetarian"
+        ],
+        "technique": [
+          "Fără gătire"
+        ]
+      },
       "ratingSummary": null,
       "keywords": [
         "fructe",
@@ -1737,7 +2860,28 @@ window.ARTA_DATA = {
         "rontaieli",
         "banana-capsuni-mar-afine-kivi",
         "dupa",
-        "gust"
+        "gust",
+        "dulce",
+        "fresh",
+        "usor",
+        "incepator",
+        "risc",
+        "mic",
+        "de",
+        "greseala",
+        "sub",
+        "15",
+        "minute",
+        "reteta",
+        "rapida",
+        "gustare",
+        "pentru",
+        "zile",
+        "aglomerate",
+        "fara",
+        "carne",
+        "vegetarian",
+        "gatire"
       ]
     },
     {
@@ -1753,11 +2897,44 @@ window.ARTA_DATA = {
         "Se feliaza marul.",
         "Se pune unt de arahide pe feliile de mar."
       ],
-      "beforeStart": [],
+      "beforeStart": [
+        "Spală mărul înainte să îl feliezi.",
+        "Pregătește un cuțit și o farfurie pentru servire.",
+        "Amestecă untul de arahide dacă s-a separat în borcan.",
+        "Taie feliile chiar înainte de servire ca să rămână proaspete."
+      ],
       "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/mar-cu-unt-de-arahide",
-      "tags": {},
+      "tags": {
+        "taste": [
+          "Dulce",
+          "Fresh",
+          "Ușor"
+        ],
+        "complexity": [
+          "Începător",
+          "Ușor",
+          "Risc mic de greșeală"
+        ],
+        "time": [
+          "Sub 15 minute",
+          "Rețetă rapidă"
+        ],
+        "context": [
+          "Gustare",
+          "Pentru zile aglomerate"
+        ],
+        "diet": [
+          "Fără carne",
+          "Vegetarian",
+          "Fără lactate",
+          "Fără ou"
+        ],
+        "technique": [
+          "Fără gătire"
+        ]
+      },
       "ratingSummary": null,
       "keywords": [
         "mar",
@@ -1769,7 +2946,29 @@ window.ARTA_DATA = {
         "1",
         "buc",
         "2",
-        "linguri"
+        "linguri",
+        "dulce",
+        "fresh",
+        "usor",
+        "incepator",
+        "risc",
+        "mic",
+        "greseala",
+        "sub",
+        "15",
+        "minute",
+        "reteta",
+        "rapida",
+        "gustare",
+        "pentru",
+        "zile",
+        "aglomerate",
+        "fara",
+        "carne",
+        "vegetarian",
+        "lactate",
+        "ou",
+        "gatire"
       ]
     },
     {
@@ -1788,11 +2987,40 @@ window.ARTA_DATA = {
         "Se taie frictele rondele.",
         "Se pune unt de arahide pe feliile de paine prajita si se adauga feliile de fructe."
       ],
-      "beforeStart": [],
+      "beforeStart": [
+        "Pregătește pâinea și untul de arahide înainte să prăjești feliile.",
+        "Spală și taie fructele în rondele.",
+        "Prăjește pâinea doar cât să devină crocantă, nu arsă.",
+        "Asamblează feliile imediat după prăjire."
+      ],
       "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/paine-prajita-unt-arahide",
-      "tags": {},
+      "tags": {
+        "taste": [
+          "Dulce",
+          "Crocant",
+          "Ușor"
+        ],
+        "complexity": [
+          "Începător",
+          "Ușor",
+          "Risc mic de greșeală"
+        ],
+        "time": [
+          "Sub 15 minute",
+          "Rețetă rapidă"
+        ],
+        "context": [
+          "Mic dejun",
+          "Gustare",
+          "Pentru zile aglomerate"
+        ],
+        "diet": [
+          "Fără carne",
+          "Vegetarian"
+        ]
+      },
       "ratingSummary": null,
       "keywords": [
         "paine",
@@ -1807,7 +3035,27 @@ window.ARTA_DATA = {
         "linguri",
         "banana-capsune",
         "dupa",
-        "gust"
+        "gust",
+        "dulce",
+        "crocant",
+        "usor",
+        "incepator",
+        "risc",
+        "mic",
+        "greseala",
+        "sub",
+        "15",
+        "minute",
+        "reteta",
+        "rapida",
+        "dejun",
+        "gustare",
+        "pentru",
+        "zile",
+        "aglomerate",
+        "fara",
+        "carne",
+        "vegetarian"
       ]
     },
     {
@@ -1837,11 +3085,46 @@ window.ARTA_DATA = {
         "Compozitia se lasa la racit ~30 minute. Cand este rece se adauga maioneza si iaurtul si se amesteca bine.",
         "Se serveste pe paine prajita si cu rosii cherry."
       ],
-      "beforeStart": [],
+      "beforeStart": [
+        "Curăță, spală și taie ciupercile înainte să încălzești tigaia.",
+        "Rade parmezanul și pregătește usturoiul.",
+        "Lasă compoziția de ciuperci să se răcească înainte să adaugi maioneza și iaurtul.",
+        "Pregătește pâinea prăjită și roșiile cherry pentru servire."
+      ],
       "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/salata-de-ciuperci",
-      "tags": {},
+      "tags": {
+        "taste": [
+          "Cremos",
+          "Sărat",
+          "Sățios"
+        ],
+        "complexity": [
+          "Complexitate medie",
+          "Necesită atenție"
+        ],
+        "time": [
+          "Necesită timp de așteptare",
+          "Bună pentru pregătit din timp"
+        ],
+        "context": [
+          "Gustare",
+          "Prânz",
+          "Pentru familie"
+        ],
+        "diet": [
+          "Fără carne",
+          "Vegetarian"
+        ],
+        "equipment": [
+          "La tigaie"
+        ],
+        "technique": [
+          "Sotare",
+          "La tigaie"
+        ]
+      },
       "ratingSummary": null,
       "keywords": [
         "salata",
@@ -1873,7 +3156,29 @@ window.ARTA_DATA = {
         "rosii",
         "cherry",
         "dupa",
-        "gust"
+        "gust",
+        "cremos",
+        "sarat",
+        "satios",
+        "complexitate",
+        "medie",
+        "necesita",
+        "atentie",
+        "timp",
+        "asteptare",
+        "buna",
+        "pentru",
+        "pregatit",
+        "din",
+        "gustare",
+        "pranz",
+        "familie",
+        "fara",
+        "carne",
+        "vegetarian",
+        "la",
+        "tigaie",
+        "sotare"
       ]
     },
     {
@@ -1900,11 +3205,45 @@ window.ARTA_DATA = {
         "Rosiile cherry, ceapa verde si baconul se toaca marunt.",
         "Pulpa de avocado si ouale se piseaza intr-o pasta omogena peste care se adauga sare si piper. Peste pasta de ou si avocado se piseaza usturoiul si se amesteca bine. Peste compozitie, se adauga ingredientele tocate si se serveste pe paine prajita."
       ],
-      "beforeStart": [],
+      "beforeStart": [
+        "Pregătește oala pentru ouă și tigaia pentru bacon.",
+        "Spală roșiile și ceapa verde înainte să le toci.",
+        "Alege un avocado copt, ca pasta să iasă cremoasă.",
+        "Pregătește pâinea pentru prăjire înainte de asamblare."
+      ],
       "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/avocado-cu-bacon",
-      "tags": {},
+      "tags": {
+        "taste": [
+          "Sărat",
+          "Cremos",
+          "Crocant",
+          "Sățios"
+        ],
+        "complexity": [
+          "Ușor"
+        ],
+        "time": [
+          "Sub 30 minute"
+        ],
+        "context": [
+          "Mic dejun",
+          "Pentru weekend"
+        ],
+        "diet": [
+          "Cu carne"
+        ],
+        "equipment": [
+          "La oală",
+          "La tigaie"
+        ],
+        "technique": [
+          "Fierbere",
+          "Prăjire",
+          "La tigaie"
+        ]
+      },
       "ratingSummary": null,
       "keywords": [
         "avocado",
@@ -1929,7 +3268,23 @@ window.ARTA_DATA = {
         "sare",
         "piper",
         "dupa",
-        "gust"
+        "gust",
+        "sarat",
+        "cremos",
+        "crocant",
+        "satios",
+        "usor",
+        "sub",
+        "30",
+        "minute",
+        "pentru",
+        "weekend",
+        "carne",
+        "la",
+        "oala",
+        "tigaie",
+        "fierbere",
+        "prajire"
       ]
     },
     {
@@ -1950,11 +3305,42 @@ window.ARTA_DATA = {
         "Bagheta se taie in 2 jumatati dupa care se sectioneaza pe lungime.",
         "Se deschide bagheta taiata pe lungime si se unge cu unt, se adauga salata, sunca branza si iaurtul apoi se inchide painea."
       ],
-      "beforeStart": [],
+      "beforeStart": [
+        "Taie bagheta pe lungime fără să rupi complet bucățile.",
+        "Spală și usucă frunzele de salată.",
+        "Pregătește untul, brânza, șunca și iaurtul înainte de asamblare.",
+        "Asamblează bagheta aproape de servire ca să rămână proaspătă."
+      ],
       "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/bagheta-bistro",
-      "tags": {},
+      "tags": {
+        "taste": [
+          "Sărat",
+          "Fresh",
+          "Ușor"
+        ],
+        "complexity": [
+          "Începător",
+          "Ușor",
+          "Risc mic de greșeală"
+        ],
+        "time": [
+          "Sub 15 minute",
+          "Rețetă rapidă"
+        ],
+        "context": [
+          "Mic dejun",
+          "Gustare",
+          "Pentru zile aglomerate"
+        ],
+        "diet": [
+          "Cu carne"
+        ],
+        "technique": [
+          "Fără gătire"
+        ]
+      },
       "ratingSummary": null,
       "keywords": [
         "bagheta",
@@ -1978,7 +3364,26 @@ window.ARTA_DATA = {
         "unt",
         "branza",
         "dupa",
-        "gust"
+        "gust",
+        "sarat",
+        "fresh",
+        "usor",
+        "incepator",
+        "risc",
+        "greseala",
+        "sub",
+        "15",
+        "minute",
+        "reteta",
+        "rapida",
+        "gustare",
+        "pentru",
+        "zile",
+        "aglomerate",
+        "cu",
+        "carne",
+        "fara",
+        "gatire"
       ]
     },
     {
@@ -2007,11 +3412,42 @@ window.ARTA_DATA = {
         "Se coc ~3 minute pe fiecare parte.",
         "Se taie fructele si se servesc impreuna cu nutella si clatitele calde."
       ],
-      "beforeStart": [],
+      "beforeStart": [
+        "Măsoară ingredientele uscate și lichide înainte să faci aluatul.",
+        "Spală, curăță și rade mărul pe răzătoarea fină.",
+        "Pregătește tigaia de clătite și încălzește-o la foc potrivit.",
+        "Taie fructele pentru servire înainte să începi coacerea clătitelor."
+      ],
       "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/clatite-cu-mere",
-      "tags": {},
+      "tags": {
+        "taste": [
+          "Dulce",
+          "Aromat"
+        ],
+        "complexity": [
+          "Complexitate medie",
+          "Necesită atenție"
+        ],
+        "time": [
+          "Sub 30 minute"
+        ],
+        "context": [
+          "Mic dejun",
+          "Pentru weekend"
+        ],
+        "diet": [
+          "Fără carne",
+          "Vegetarian"
+        ],
+        "equipment": [
+          "La tigaie"
+        ],
+        "technique": [
+          "La tigaie"
+        ]
+      },
       "ratingSummary": null,
       "keywords": [
         "clatite",
@@ -2042,7 +3478,23 @@ window.ARTA_DATA = {
         "nutella",
         "fructe",
         "dupa",
-        "gust"
+        "gust",
+        "dulce",
+        "aromat",
+        "complexitate",
+        "medie",
+        "necesita",
+        "atentie",
+        "sub",
+        "30",
+        "minute",
+        "pentru",
+        "weekend",
+        "fara",
+        "carne",
+        "vegetarian",
+        "la",
+        "tigaie"
       ]
     },
     {
@@ -2063,11 +3515,46 @@ window.ARTA_DATA = {
         "Intr-o oala medie se incalzeste laptele la foc mic-mediu. Se adauga treptat grisul si zaharul si se amesteca in mod constant. Se fierbe pe foc mic-mediu timp de ~5 minute.",
         "Se serveste cald, impreuna cu sirop de artar, cocos si afine."
       ],
-      "beforeStart": [],
+      "beforeStart": [
+        "Măsoară laptele, grișul și zahărul înainte să pornești focul.",
+        "Pregătește o oală medie și o lingură pentru amestecat constant.",
+        "Ține toppingurile pregătite pentru servire.",
+        "Folosește foc mic-mediu ca să nu se prindă laptele."
+      ],
       "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/gris-cu-lapte-si-cocos",
-      "tags": {},
+      "tags": {
+        "taste": [
+          "Dulce",
+          "Cremos",
+          "Fin"
+        ],
+        "complexity": [
+          "Începător",
+          "Ușor",
+          "Risc mic de greșeală"
+        ],
+        "time": [
+          "Sub 15 minute",
+          "Rețetă rapidă"
+        ],
+        "context": [
+          "Mic dejun",
+          "Pentru zile aglomerate",
+          "Comfort food"
+        ],
+        "diet": [
+          "Fără carne",
+          "Vegetarian"
+        ],
+        "equipment": [
+          "La oală"
+        ],
+        "technique": [
+          "Fierbere"
+        ]
+      },
       "ratingSummary": null,
       "keywords": [
         "gris",
@@ -2087,7 +3574,30 @@ window.ARTA_DATA = {
         "de",
         "artar",
         "dupa",
-        "gust"
+        "gust",
+        "dulce",
+        "cremos",
+        "fin",
+        "incepator",
+        "usor",
+        "risc",
+        "greseala",
+        "sub",
+        "15",
+        "minute",
+        "reteta",
+        "rapida",
+        "pentru",
+        "zile",
+        "aglomerate",
+        "comfort",
+        "food",
+        "fara",
+        "carne",
+        "vegetarian",
+        "la",
+        "oala",
+        "fierbere"
       ]
     },
     {
@@ -2111,11 +3621,45 @@ window.ARTA_DATA = {
         "Intr-un bol mic se bat bine ouale impreuna cu sare si piper, dupa care se adauga in tigaia calda unde se adauga branza si spanacul. Se prajeste cate ~1 minut pe fiecare parte.",
         "Se serveste impreuna cu masline, rosii cheri si ardei taiati felii."
       ],
-      "beforeStart": [],
+      "beforeStart": [
+        "Bate ouăle cu sare și piper înainte să încălzești tigaia.",
+        "Spală spanacul și legumele pentru servire.",
+        "Pregătește brânza, măslinele și roșiile înainte de gătire.",
+        "Încălzește tigaia la foc mic-mediu pentru o omletă mai controlată."
+      ],
       "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/omleta-cu-spanac",
-      "tags": {},
+      "tags": {
+        "taste": [
+          "Sărat",
+          "Ușor",
+          "Fresh"
+        ],
+        "complexity": [
+          "Ușor",
+          "Risc mic de greșeală"
+        ],
+        "time": [
+          "Sub 15 minute",
+          "Rețetă rapidă"
+        ],
+        "context": [
+          "Mic dejun",
+          "Pentru zile aglomerate"
+        ],
+        "diet": [
+          "Fără carne",
+          "Vegetarian"
+        ],
+        "equipment": [
+          "La tigaie"
+        ],
+        "technique": [
+          "La tigaie",
+          "Prăjire"
+        ]
+      },
       "ratingSummary": null,
       "keywords": [
         "omleta",
@@ -2134,7 +3678,27 @@ window.ARTA_DATA = {
         "cheri",
         "ardei",
         "dupa",
-        "gust"
+        "gust",
+        "sarat",
+        "usor",
+        "fresh",
+        "risc",
+        "de",
+        "greseala",
+        "sub",
+        "15",
+        "minute",
+        "reteta",
+        "rapida",
+        "pentru",
+        "zile",
+        "aglomerate",
+        "fara",
+        "carne",
+        "vegetarian",
+        "la",
+        "tigaie",
+        "prajire"
       ]
     },
     {
@@ -2165,11 +3729,43 @@ window.ARTA_DATA = {
         "Feliile de paine se prajesc pana devin usor crocante si se ung cu unt tartinabil, apoi cu amestecul de avocado rezultat mai sus.",
         "Se serveste oul posat impreuna cu feliile de paine."
       ],
-      "beforeStart": [],
+      "beforeStart": [
+        "Pregătește cratița cu apă și cana cu folie alimentară înainte să începi.",
+        "Unge folia cu puțin ulei ca oul să se desprindă mai ușor.",
+        "Taie somonul, castravetele și ceapa înainte de asamblare.",
+        "Pisează avocado cu lămâie și sare aproape de servire.",
+        "Pregătește pâinea pentru prăjire înainte să scoți oul din apă."
+      ],
       "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/ou-posat-cu-avocado",
-      "tags": {},
+      "tags": {
+        "taste": [
+          "Fresh",
+          "Cremos",
+          "Sățios"
+        ],
+        "complexity": [
+          "Complexitate medie",
+          "Necesită atenție"
+        ],
+        "time": [
+          "Sub 30 minute"
+        ],
+        "context": [
+          "Mic dejun",
+          "Pentru weekend"
+        ],
+        "diet": [
+          "Cu carne"
+        ],
+        "equipment": [
+          "La oală"
+        ],
+        "technique": [
+          "Fierbere"
+        ]
+      },
       "ratingSummary": null,
       "keywords": [
         "ou",
@@ -2200,7 +3796,23 @@ window.ARTA_DATA = {
         "sare",
         "piper",
         "dupa",
-        "gust"
+        "gust",
+        "fresh",
+        "cremos",
+        "satios",
+        "complexitate",
+        "medie",
+        "necesita",
+        "atentie",
+        "sub",
+        "30",
+        "minute",
+        "pentru",
+        "weekend",
+        "carne",
+        "la",
+        "oala",
+        "fierbere"
       ]
     },
     {
@@ -2219,11 +3831,46 @@ window.ARTA_DATA = {
         "Cand laptele e cald se adauga zaharul si ovazul si se amesteca bine timp de 3-5 minute pana cand compozitia este omogena si ovazul fiert.",
         "Se serveste cald cu fructe sau gem/sirop de artar."
       ],
-      "beforeStart": [],
+      "beforeStart": [
+        "Măsoară laptele, ovăzul și zahărul înainte să pornești focul.",
+        "Pregătește o oală medie și o lingură pentru amestecat.",
+        "Ține fructele, gemul sau siropul pregătite pentru servire.",
+        "Amestecă des ca ovăzul să nu se lipească de fundul oalei."
+      ],
       "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/ovaz-cu-lapte",
-      "tags": {},
+      "tags": {
+        "taste": [
+          "Dulce",
+          "Cremos",
+          "Fin"
+        ],
+        "complexity": [
+          "Începător",
+          "Ușor",
+          "Risc mic de greșeală"
+        ],
+        "time": [
+          "Sub 15 minute",
+          "Rețetă rapidă"
+        ],
+        "context": [
+          "Mic dejun",
+          "Pentru zile aglomerate",
+          "Comfort food"
+        ],
+        "diet": [
+          "Fără carne",
+          "Vegetarian"
+        ],
+        "equipment": [
+          "La oală"
+        ],
+        "technique": [
+          "Fierbere"
+        ]
+      },
       "ratingSummary": null,
       "keywords": [
         "ovaz",
@@ -2239,7 +3886,30 @@ window.ARTA_DATA = {
         "linguri",
         "fructe-gem-sirop",
         "de",
-        "artar"
+        "artar",
+        "dulce",
+        "cremos",
+        "fin",
+        "incepator",
+        "usor",
+        "risc",
+        "greseala",
+        "sub",
+        "15",
+        "minute",
+        "reteta",
+        "rapida",
+        "pentru",
+        "zile",
+        "aglomerate",
+        "comfort",
+        "food",
+        "fara",
+        "carne",
+        "vegetarian",
+        "la",
+        "oala",
+        "fierbere"
       ]
     },
     {
@@ -2260,11 +3930,42 @@ window.ARTA_DATA = {
         "Se adauga ovazul si semintele de chia, se amesteca bine si la nevoie se completeaza cu lapte pentru a forma o compozitie omogena dar nu prea uscata.",
         "Compozitia rezultata se lasa in frigider peste noapte si se poate servi cu fructe sau gem."
       ],
-      "beforeStart": [],
+      "beforeStart": [
+        "Pregătește un borcan mediu curat, cu capac.",
+        "Măsoară laptele, iaurtul, mierea, ovăzul și semințele de chia.",
+        "Amestecă bine baza înainte să adaugi ovăzul.",
+        "Planifică rețeta cu o seară înainte, deoarece stă la frigider peste noapte."
+      ],
       "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/ovaz-peste-noapte",
-      "tags": {},
+      "tags": {
+        "taste": [
+          "Dulce",
+          "Cremos",
+          "Fresh"
+        ],
+        "complexity": [
+          "Începător",
+          "Ușor",
+          "Risc mic de greșeală"
+        ],
+        "time": [
+          "Necesită timp de așteptare",
+          "Bună pentru pregătit din timp"
+        ],
+        "context": [
+          "Mic dejun",
+          "Pentru zile aglomerate"
+        ],
+        "diet": [
+          "Fără carne",
+          "Vegetarian"
+        ],
+        "technique": [
+          "Fără gătire"
+        ]
+      },
       "ratingSummary": null,
       "keywords": [
         "ovaz",
@@ -2283,7 +3984,28 @@ window.ARTA_DATA = {
         "lingurite",
         "miere",
         "linguri",
-        "fructe-gem"
+        "fructe-gem",
+        "dulce",
+        "cremos",
+        "fresh",
+        "incepator",
+        "usor",
+        "risc",
+        "de",
+        "greseala",
+        "necesita",
+        "timp",
+        "asteptare",
+        "buna",
+        "pentru",
+        "pregatit",
+        "din",
+        "zile",
+        "aglomerate",
+        "fara",
+        "carne",
+        "vegetarian",
+        "gatire"
       ]
     },
     {
@@ -2308,11 +4030,39 @@ window.ARTA_DATA = {
         "Se taie rosia si mozzarella felii.",
         "2 felii se ung cu goacamole si 2 felii se ung cu crema de branza. Pe felia cu goacamole se adauga 2-3 felii de rosii peste care se adauga sare si piper. Apoi se adauga mozzarella, bucatile de sunca presata si spanacul. Peste acestea se adauga feliile cu crema de branza."
       ],
-      "beforeStart": [],
+      "beforeStart": [
+        "Prăjește feliile de pâine înainte de asamblare.",
+        "Taie roșia și mozzarella în felii egale.",
+        "Pregătește șunca, spanacul, crema de brânză și guacamole-ul.",
+        "Asamblează sandwich-ul aproape de servire ca pâinea să rămână crocantă."
+      ],
       "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/sandwitch-cu-mozzarella",
-      "tags": {},
+      "tags": {
+        "taste": [
+          "Sărat",
+          "Fresh",
+          "Cremos"
+        ],
+        "complexity": [
+          "Începător",
+          "Ușor",
+          "Risc mic de greșeală"
+        ],
+        "time": [
+          "Sub 15 minute",
+          "Rețetă rapidă"
+        ],
+        "context": [
+          "Mic dejun",
+          "Gustare",
+          "Pentru zile aglomerate"
+        ],
+        "diet": [
+          "Cu carne"
+        ]
+      },
       "ratingSummary": null,
       "keywords": [
         "sandwitch",
@@ -2339,7 +4089,24 @@ window.ARTA_DATA = {
         "branza",
         "goacamole",
         "dupa",
-        "gust"
+        "gust",
+        "sarat",
+        "fresh",
+        "cremos",
+        "incepator",
+        "usor",
+        "risc",
+        "greseala",
+        "sub",
+        "15",
+        "minute",
+        "reteta",
+        "rapida",
+        "gustare",
+        "pentru",
+        "zile",
+        "aglomerate",
+        "carne"
       ]
     },
     {
@@ -2367,11 +4134,40 @@ window.ARTA_DATA = {
         "Se taie castravetii murati, ardeiul kapia si ceapa cuburi mici si se amesteca cu zeama de lamaie, sare, piper, tabasco si maioneza.",
         "Peste painea prajita se adauga o frunza de salata si compozitia rezultata mai sus."
       ],
-      "beforeStart": [],
+      "beforeStart": [
+        "Prăjește feliile de pâine înainte să pregătești compoziția.",
+        "Scurge bine tonul de lichid.",
+        "Taie ceapa, ardeiul și castraveții murați în cuburi mici.",
+        "Pregătește maioneza, lămâia și Tabasco-ul pentru ajustarea gustului."
+      ],
       "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/sandwitch-cu-ton",
-      "tags": {},
+      "tags": {
+        "taste": [
+          "Sărat",
+          "Acrișor",
+          "Fresh",
+          "Sățios"
+        ],
+        "complexity": [
+          "Începător",
+          "Ușor",
+          "Risc mic de greșeală"
+        ],
+        "time": [
+          "Sub 15 minute",
+          "Rețetă rapidă"
+        ],
+        "context": [
+          "Mic dejun",
+          "Gustare",
+          "Pentru zile aglomerate"
+        ],
+        "diet": [
+          "Cu carne"
+        ]
+      },
       "ratingSummary": null,
       "keywords": [
         "sandwitch",
@@ -2402,7 +4198,26 @@ window.ARTA_DATA = {
         "castraveti",
         "murati",
         "dupa",
-        "gust"
+        "gust",
+        "sarat",
+        "acrisor",
+        "fresh",
+        "satios",
+        "incepator",
+        "usor",
+        "risc",
+        "de",
+        "greseala",
+        "sub",
+        "15",
+        "minute",
+        "reteta",
+        "rapida",
+        "gustare",
+        "pentru",
+        "zile",
+        "aglomerate",
+        "carne"
       ]
     },
     {
@@ -2431,11 +4246,43 @@ window.ARTA_DATA = {
         "Painea prajita se unge cu pasta de avocado, peste care se adauga oul si semintele.",
         "Se serveste impreuna cu masline, rosii cheri si ardei taiati felii."
       ],
-      "beforeStart": [],
+      "beforeStart": [
+        "Încălzește tigaia la foc mic-mediu înainte să adaugi ouăle.",
+        "Prăjește pâinea înainte de asamblare.",
+        "Bate ouăle cu sare și piper într-un bol mic.",
+        "Taie avocado și pregătește semințele și legumele pentru servire."
+      ],
       "closing": "Poftă bună!",
       "extras": [],
       "sourceUrl": "https://artagatitului.godaddysites.com/toast-cu-ou-si-avocado",
-      "tags": {},
+      "tags": {
+        "taste": [
+          "Cremos",
+          "Sățios",
+          "Fresh"
+        ],
+        "complexity": [
+          "Ușor"
+        ],
+        "time": [
+          "Sub 15 minute",
+          "Rețetă rapidă"
+        ],
+        "context": [
+          "Mic dejun",
+          "Pentru zile aglomerate"
+        ],
+        "diet": [
+          "Fără carne",
+          "Vegetarian"
+        ],
+        "equipment": [
+          "La tigaie"
+        ],
+        "technique": [
+          "La tigaie"
+        ]
+      },
       "ratingSummary": null,
       "keywords": [
         "toast",
@@ -2463,7 +4310,24 @@ window.ARTA_DATA = {
         "cheri",
         "ardei",
         "dupa",
-        "gust"
+        "gust",
+        "cremos",
+        "satios",
+        "fresh",
+        "usor",
+        "sub",
+        "15",
+        "minute",
+        "reteta",
+        "rapida",
+        "pentru",
+        "zile",
+        "aglomerate",
+        "fara",
+        "carne",
+        "vegetarian",
+        "la",
+        "tigaie"
       ]
     }
   ],
