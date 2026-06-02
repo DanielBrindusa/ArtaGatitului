@@ -1,6 +1,16 @@
 (function () {
   const root = window.ARTA_ROOT || "";
   const data = window.ARTA_DATA || { categories: [], recipes: [], aliases: {} };
+  const TAG_GROUPS = {
+    taste: { label: "Gust", options: ["Dulce", "Sărat", "Picant", "Acrișor", "Cremos", "Crocant", "Aromat", "Fresh", "Ușor", "Sățios", "Condimentat", "Fin", "Rustic"] },
+    complexity: { label: "Complexitate", options: ["Începător", "Ușor", "Complexitate medie", "Complexitate ridicată", "Necesită atenție", "Risc mic de greșeală", "Risc mediu de greșeală", "Risc ridicat de greșeală"] },
+    time: { label: "Timp", options: ["Sub 15 minute", "Sub 30 minute", "Sub 60 minute", "Rețetă rapidă", "Necesită timp de așteptare", "Bună pentru pregătit din timp"] },
+    context: { label: "Context", options: ["Mic dejun", "Prânz", "Cină", "Gustare", "Pentru familie", "Pentru musafiri", "Pentru weekend", "Pentru zile aglomerate", "Comfort food"] },
+    diet: { label: "Dietă", options: ["Cu carne", "Fără carne", "Vegetarian", "Fără lactate", "Fără ou", "Fără gluten", "Ușor de adaptat"] },
+    equipment: { label: "Echipament", options: ["Fără cuptor", "Necesită cuptor", "La tigaie", "La oală", "Necesită blender", "Necesită mixer", "Necesită tavă", "Necesită termometru"] },
+    technique: { label: "Tehnică", options: ["Fierbere", "Coacere", "Prăjire", "Sotare", "Marinare", "Frământare", "La tigaie", "La cuptor", "Fără gătire"] }
+  };
+  const TAG_CARD_PRIORITY = ["complexity", "time", "context", "equipment", "technique", "taste", "diet"];
 
   function normalize(value) {
     return String(value || "")
@@ -81,6 +91,61 @@
     return new Set(((recipe && recipe.ingredients) || []).flatMap(ingredientTokens));
   }
 
+  function normalizedTagGroups(tags) {
+    if (!tags) return {};
+    if (Array.isArray(tags)) return tags.length ? { context: tags } : {};
+    return Object.entries(tags).reduce((groups, [key, values]) => {
+      const clean = Array.isArray(values) ? values.map((value) => String(value || "").trim()).filter(Boolean) : [];
+      if (clean.length) groups[key] = Array.from(new Set(clean));
+      return groups;
+    }, {});
+  }
+
+  function flatTags(recipe) {
+    return Object.values(normalizedTagGroups(recipe && recipe.tags)).flat();
+  }
+
+  function tagTokens(recipe) {
+    return new Set(flatTags(recipe).flatMap(tokenizeText));
+  }
+
+  function cardTags(recipe, limit = 3) {
+    const groups = normalizedTagGroups(recipe && recipe.tags);
+    const picked = [];
+    TAG_CARD_PRIORITY.forEach((key) => {
+      (groups[key] || []).forEach((tag) => {
+        if (picked.length < limit && !picked.includes(tag)) picked.push(tag);
+      });
+    });
+    return picked;
+  }
+
+  function tagsMarkup(recipe, compact = false) {
+    const groups = normalizedTagGroups(recipe && recipe.tags);
+    const entries = Object.entries(TAG_GROUPS)
+      .map(([key, config]) => ({ key, label: config.label, tags: groups[key] || [] }))
+      .filter((group) => group.tags.length);
+    if (!entries.length) return "";
+
+    if (compact) {
+      return `<div class="card-tags">${cardTags(recipe).map((tag) => `<span class="tag-chip small">${escapeHtml(tag)}</span>`).join("")}</div>`;
+    }
+
+    return `
+      <section class="recipe-tags box" aria-labelledby="recipeTagsTitle">
+        <h2 id="recipeTagsTitle">Etichete rețetă</h2>
+        <div class="tag-groups">
+          ${entries.map((group) => `
+            <div class="tag-group">
+              <h3>${escapeHtml(group.label)}</h3>
+              <div class="tag-list">${group.tags.map((tag) => `<span class="tag-chip">${escapeHtml(tag)}</span>`).join("")}</div>
+            </div>
+          `).join("")}
+        </div>
+      </section>
+    `;
+  }
+
   function recipeSearchTokens(recipe) {
     return new Set(tokenizeText([
       recipe && recipe.name,
@@ -88,7 +153,9 @@
       recipe && recipe.description,
       ((recipe && recipe.ingredients) || []).join(" "),
       ((recipe && recipe.preparation) || []).join(" "),
-      ((recipe && recipe.keywords) || []).join(" ")
+      ((recipe && recipe.beforeStart) || []).join(" "),
+      ((recipe && recipe.keywords) || []).join(" "),
+      flatTags(recipe).join(" ")
     ].join(" ")));
   }
 
@@ -107,6 +174,7 @@
       <a class="card recipe-card" aria-labelledby="${titleId}" href="${recipeUrl(recipe.slug)}">
         <span class="category-pill">${escapeHtml(recipe.category)}</span>
         <h3 id="${titleId}">${escapeHtml(recipe.name)}</h3>
+        ${tagsMarkup(recipe, true)}
         <p>${escapeHtml(recipe.description || "")}</p>
         <div class="ingredients-preview"><strong>Ingrediente:</strong> ${escapeHtml(ingredients)}${recipe.ingredients && recipe.ingredients.length > 5 ? "..." : ""}</div>
       </a>
@@ -347,6 +415,115 @@
     return `<${tag} class="clean">${items}</${tag}>`;
   }
 
+  function beforeStartSection(recipe) {
+    const items = ((recipe && recipe.beforeStart) || []).map((item) => String(item || "").trim()).filter(Boolean);
+    if (!items.length) return "";
+    return `
+      <section class="before-start box" aria-labelledby="beforeStartTitle">
+        <h2 id="beforeStartTitle">Înainte să începi</h2>
+        <p>O verificare rapidă ca să gătești mai liniștit.</p>
+        <ul class="before-list">
+          ${items.map((item, index) => `
+            <li>
+              <label>
+                <input type="checkbox">
+                <span>${escapeHtml(item)}</span>
+              </label>
+            </li>
+          `).join("")}
+        </ul>
+      </section>
+    `;
+  }
+
+  function complexityLabel(value) {
+    const rating = Number(value);
+    if (!Number.isFinite(rating)) return "";
+    if (rating <= 2) return "Începător / Ușoară";
+    if (rating <= 3.5) return "Complexitate medie";
+    return "Complexitate ridicată";
+  }
+
+  function ratingValue(value) {
+    const number = Number(value);
+    return Number.isFinite(number) ? Math.round(number * 10) / 10 : null;
+  }
+
+  function publicRatingSummary(summary) {
+    if (!summary || !Number(summary.totalRatings)) {
+      return '<p class="rating-note">Nu există încă evaluări publice. Nu afișăm medii inventate.</p>';
+    }
+    const overall = ratingValue(summary.overallAverage);
+    const taste = ratingValue(summary.tasteAverage);
+    const clarity = ratingValue(summary.clarityAverage);
+    const complexity = ratingValue(summary.complexityAverage);
+    const cookAgain = ratingValue(summary.cookAgainPercent);
+    return `
+      <div class="public-rating">
+        <h3>Evaluări publice</h3>
+        <div class="rating-summary-grid">
+          ${overall ? `<div><span>General</span><strong>${overall}/5</strong></div>` : ""}
+          ${taste ? `<div><span>Gust</span><strong>${taste}/5</strong></div>` : ""}
+          ${clarity ? `<div><span>Instrucțiuni</span><strong>${clarity}/5</strong></div>` : ""}
+          ${complexity ? `<div><span>Complexitate</span><strong>${complexity}/5</strong></div>` : ""}
+          ${cookAgain !== null ? `<div><span>Aș găti din nou</span><strong>${cookAgain}%</strong></div>` : ""}
+          <div><span>Evaluări</span><strong>${Number(summary.totalRatings)}</strong></div>
+        </div>
+        ${complexity ? `<p class="rating-note">Complexitate după evaluări: ${escapeHtml(complexityLabel(complexity))}.</p>` : ""}
+      </div>
+    `;
+  }
+
+  function ratingScale(name, label, help) {
+    const labels = name === "complexity"
+      ? ["1 foarte ușoară", "2 ușoară", "3 medie", "4 complexă", "5 foarte complexă"]
+      : ["1 slab", "2 ok", "3 bun", "4 foarte bun", "5 excelent"];
+    return `
+      <fieldset class="rating-group" data-rating-group="${name}">
+        <legend>${escapeHtml(label)}</legend>
+        ${help ? `<p>${escapeHtml(help)}</p>` : ""}
+        <div class="rating-options">
+          ${[1, 2, 3, 4, 5].map((value) => `
+            <label>
+              <input type="radio" name="rating-${name}" value="${value}">
+              <span aria-hidden="true">${name === "complexity" ? value : "★"}</span>
+              <span class="sr-only">${labels[value - 1]}</span>
+            </label>
+          `).join("")}
+        </div>
+      </fieldset>
+    `;
+  }
+
+  function ratingSection(recipe) {
+    return `
+      <section class="recipe-rating box" data-rating-panel data-recipe-slug="${escapeHtml(recipe.slug)}" aria-labelledby="recipeRatingTitle">
+        <h2 id="recipeRatingTitle">Evaluează rețeta</h2>
+        <p class="rating-note">Evaluarea ta este salvată doar în acest browser. Pentru evaluări publice de la toți utilizatorii, site-ul ar avea nevoie de o bază de date.</p>
+        ${publicRatingSummary(recipe.ratingSummary)}
+        <form class="rating-form" data-rating-form>
+          ${ratingScale("taste", "Gust")}
+          ${ratingScale("clarity", "Instrucțiuni clare")}
+          ${ratingScale("complexity", "Complexitate", "1 înseamnă foarte ușoară, 5 foarte complexă.")}
+          ${ratingScale("overall", "Evaluare generală")}
+          <fieldset class="rating-group cook-again" data-rating-group="cookAgain">
+            <legend>Aș găti din nou</legend>
+            <div class="choice-row">
+              <label><input type="radio" name="rating-cookAgain" value="true"> <span>Da</span></label>
+              <label><input type="radio" name="rating-cookAgain" value="false"> <span>Nu</span></label>
+            </div>
+          </fieldset>
+          <p class="rating-personal" data-rating-personal-note></p>
+          <div class="rating-actions">
+            <button class="btn" type="submit">Salvează evaluarea</button>
+            <button class="btn secondary" type="button" data-rating-reset>Șterge evaluarea mea</button>
+          </div>
+          <p class="builder-status" data-rating-status aria-live="polite"></p>
+        </form>
+      </section>
+    `;
+  }
+
   function steakCalculator(extra) {
     if (!extra || extra.type !== "steak-calculator") return "";
     return `
@@ -463,7 +640,8 @@
         const keywordScore = sharedTokenCount(currentKeywords, keywordTokens(recipe)) * 2;
         const ingredientScore = sharedTokenCount(currentIngredients, recipeIngredientTokens(recipe));
         const titleScore = sharedTokenCount(currentTitle, importantTitleTokens(recipe));
-        return { recipe, score: sameCategory + keywordScore + ingredientScore + titleScore };
+        const tagScore = sharedTokenCount(tagTokens(currentRecipe), tagTokens(recipe)) * 2;
+        return { recipe, score: sameCategory + keywordScore + ingredientScore + titleScore + tagScore };
       })
       .filter((item) => item.score > 0)
       .sort((a, b) => {
@@ -501,6 +679,7 @@
             <a class="btn secondary" href="${categoryUrl(catSlug)}">Înapoi la categorie</a>
           </div>
         </div>
+        ${beforeStartSection(recipe)}
         <div class="recipe-layout">
           <section class="box">
             <h2>Ingrediente</h2>
@@ -512,7 +691,9 @@
             ${recipe.closing ? `<p class="closing">${escapeHtml(recipe.closing)}</p>` : ""}
           </section>
         </div>
+        ${tagsMarkup(recipe)}
         ${(recipe.extras || []).map(steakCalculator).join("")}
+        ${ratingSection(recipe)}
       </article>
       <section class="related" aria-labelledby="similarRecipesTitle">
         <h2 id="similarRecipesTitle">Rețete similare</h2>
@@ -830,14 +1011,24 @@
       notes: document.getElementById("builderNotes"),
       keywords: document.getElementById("builderKeywords"),
       ingredients: document.getElementById("builderIngredients"),
+      beforeStart: document.getElementById("builderBeforeStart"),
       steps: document.getElementById("builderSteps"),
+      tags: document.getElementById("builderTags"),
+      ratingSummary: {
+        overallAverage: document.getElementById("builderOverallAverage"),
+        tasteAverage: document.getElementById("builderTasteAverage"),
+        clarityAverage: document.getElementById("builderClarityAverage"),
+        complexityAverage: document.getElementById("builderComplexityAverage"),
+        cookAgainPercent: document.getElementById("builderCookAgainPercent"),
+        totalRatings: document.getElementById("builderTotalRatings")
+      },
       preview: document.getElementById("recipeBuilderPreview"),
       exportOutput: document.getElementById("recipeExportOutput"),
       validation: document.getElementById("builderValidation"),
       status: document.getElementById("builderStatus"),
       importInput: document.getElementById("importRecipeJson")
     };
-    if (!els.title || !els.slug || !els.category || !els.ingredients || !els.steps || !els.preview || !els.exportOutput) return;
+    if (!els.title || !els.slug || !els.category || !els.ingredients || !els.beforeStart || !els.steps || !els.tags || !els.preview || !els.exportOutput) return;
 
     const draftKey = "arta-gatitului-recipe-builder-draft";
     const existingSlugs = new Set((data.recipes || []).map((recipe) => recipe.slug));
@@ -869,15 +1060,51 @@
       return el;
     }
 
+    function selectedBuilderTags() {
+      const groups = {};
+      Object.keys(TAG_GROUPS).forEach((key) => {
+        const values = Array.from(els.tags.querySelectorAll('input[data-tag-group="' + key + '"]:checked')).map((input) => input.value);
+        if (values.length) groups[key] = values;
+      });
+      return groups;
+    }
+
+    function ratingSummaryState() {
+      const summary = {};
+      Object.entries(els.ratingSummary).forEach(([key, input]) => {
+        if (!input || input.value === "") return;
+        const value = Number(input.value);
+        if (Number.isFinite(value)) summary[key] = key === "totalRatings" ? Math.max(0, Math.round(value)) : value;
+      });
+      return Object.keys(summary).length ? summary : null;
+    }
+
+    function cleanObject(object) {
+      return Object.fromEntries(Object.entries(object).filter(([, value]) => {
+        if (Array.isArray(value)) return value.length > 0;
+        if (value && typeof value === "object") return Object.keys(value).length > 0;
+        return value !== "" && value !== null && value !== undefined;
+      }));
+    }
+
     function addRow(type, value = "") {
-      const container = type === "steps" ? els.steps : els.ingredients;
+      const containers = {
+        ingredients: els.ingredients,
+        beforeStart: els.beforeStart,
+        steps: els.steps
+      };
+      const container = containers[type] || els.ingredients;
       const row = document.createElement("div");
       row.className = "builder-row";
 
       const input = type === "steps" ? document.createElement("textarea") : document.createElement("input");
       input.dataset.builderRowInput = "true";
       input.value = value;
-      input.placeholder = type === "steps" ? "Descrie pasul de preparare" : "ex. 2 ouă";
+      input.placeholder = type === "steps"
+        ? "Descrie pasul de preparare"
+        : type === "beforeStart"
+          ? "ex. Preîncălzește cuptorul la 180°C"
+          : "ex. 2 ouă";
       if (type === "steps") input.rows = 2;
 
       const actions = document.createElement("div");
@@ -940,7 +1167,10 @@
         notes: els.notes.value.trim(),
         keywordsText: els.keywords.value.trim(),
         ingredients: rowValues(els.ingredients),
-        preparation: rowValues(els.steps)
+        beforeStart: rowValues(els.beforeStart),
+        preparation: rowValues(els.steps),
+        tags: selectedBuilderTags(),
+        ratingSummary: ratingSummaryState()
       };
     }
 
@@ -949,39 +1179,46 @@
         ...state.name.split(/\s+/),
         ...state.category.split(/\s+/),
         ...state.keywordsText.split(/[,\s]+/),
-        ...state.ingredients.flatMap((line) => line.split(/\s+/))
+        ...state.ingredients.flatMap((line) => line.split(/\s+/)),
+        ...Object.values(state.tags).flatMap((items) => items.flatMap((tag) => tag.split(/\s+/)))
       ].map(builderSlug).filter(Boolean)));
     }
 
     function publicRecipeObject() {
       const state = currentState();
-      return {
+      return cleanObject({
         name: state.name,
         slug: state.slug,
         category: state.category,
         description: state.description,
         ingredients: state.ingredients,
+        beforeStart: state.beforeStart,
         preparation: state.preparation,
         closing: "Poftă bună!",
         extras: [],
         sourceUrl: "",
+        tags: state.tags,
+        ratingSummary: state.ratingSummary,
         keywords: keywordList(state)
-      };
+      });
     }
 
     function fallbackRecipeObject() {
       const recipe = publicRecipeObject();
-      return {
+      return cleanObject({
         name: recipe.name,
         slug: recipe.slug,
         category: recipe.category,
         sourceUrl: recipe.sourceUrl,
         description: recipe.description,
+        beforeStart: recipe.beforeStart,
         preparation: recipe.preparation,
         ingredients: recipe.ingredients,
         closing: recipe.closing,
-        extras: recipe.extras
-      };
+        extras: recipe.extras,
+        tags: recipe.tags,
+        ratingSummary: recipe.ratingSummary
+      });
     }
 
     function exportPackage() {
@@ -1061,6 +1298,47 @@
         article.append(meta);
       }
 
+      if (state.beforeStart.length) {
+        const before = document.createElement("section");
+        before.className = "builder-preview-section box before-start";
+        before.append(createText("h2", "", "Înainte să începi"));
+        const list = document.createElement("ul");
+        list.className = "before-list";
+        state.beforeStart.forEach((line) => {
+          const item = document.createElement("li");
+          const label = document.createElement("label");
+          const input = document.createElement("input");
+          input.type = "checkbox";
+          label.append(input, createText("span", "", line));
+          item.append(label);
+          list.append(item);
+        });
+        before.append(list);
+        article.append(before);
+      }
+
+      if (Object.keys(state.tags).length) {
+        const tagsSection = document.createElement("section");
+        tagsSection.className = "builder-preview-section box recipe-tags";
+        tagsSection.append(createText("h2", "", "Etichete rețetă"));
+        const groups = document.createElement("div");
+        groups.className = "tag-groups";
+        Object.entries(TAG_GROUPS).forEach(([key, config]) => {
+          const values = state.tags[key] || [];
+          if (!values.length) return;
+          const group = document.createElement("div");
+          group.className = "tag-group";
+          group.append(createText("h3", "", config.label));
+          const list = document.createElement("div");
+          list.className = "tag-list";
+          values.forEach((tag) => list.append(createText("span", "tag-chip", tag)));
+          group.append(list);
+          groups.append(group);
+        });
+        tagsSection.append(groups);
+        article.append(tagsSection);
+      }
+
       const layout = document.createElement("div");
       layout.className = "recipe-layout";
 
@@ -1089,6 +1367,22 @@
         notes.append(createText("h2", "", "Note"));
         notes.append(createText("p", "", state.notes));
         article.append(notes);
+      }
+
+      if (state.ratingSummary) {
+        const rating = document.createElement("section");
+        rating.className = "builder-preview-section box";
+        rating.append(createText("h2", "", "Date evaluări publice"));
+        rating.append(createText("p", "rating-note", "Se afișează public doar dacă aceste valori sunt reale."));
+        const grid = document.createElement("div");
+        grid.className = "rating-summary-grid";
+        Object.entries(state.ratingSummary).forEach(([key, value]) => {
+          const item = document.createElement("div");
+          item.append(createText("span", "", key), createText("strong", "", String(value)));
+          grid.append(item);
+        });
+        rating.append(grid);
+        article.append(rating);
       }
 
       preview.append(article);
@@ -1130,8 +1424,17 @@
       els.notes.value = meta.notes || "";
       els.keywords.value = Array.isArray(recipe.keywords) ? recipe.keywords.join(", ") : "";
       els.ingredients.textContent = "";
+      els.beforeStart.textContent = "";
       els.steps.textContent = "";
+      const importedTags = normalizedTagGroups(recipe.tags);
+      els.tags.querySelectorAll('input[type="checkbox"]').forEach((input) => {
+        input.checked = Boolean(importedTags[input.dataset.tagGroup] && importedTags[input.dataset.tagGroup].includes(input.value));
+      });
+      Object.entries(els.ratingSummary).forEach(([key, input]) => {
+        if (input) input.value = recipe.ratingSummary && recipe.ratingSummary[key] !== undefined ? recipe.ratingSummary[key] : "";
+      });
       (Array.isArray(recipe.ingredients) && recipe.ingredients.length ? recipe.ingredients : [""]).forEach((line) => addRow("ingredients", line));
+      (Array.isArray(recipe.beforeStart) && recipe.beforeStart.length ? recipe.beforeStart : [""]).forEach((line) => addRow("beforeStart", line));
       (Array.isArray(recipe.preparation) && recipe.preparation.length ? recipe.preparation : [""]).forEach((line) => addRow("steps", line));
       slugTouched = true;
       syncBuilder();
@@ -1148,8 +1451,16 @@
       els.notes.value = "";
       els.keywords.value = "";
       els.ingredients.textContent = "";
+      els.beforeStart.textContent = "";
       els.steps.textContent = "";
+      els.tags.querySelectorAll('input[type="checkbox"]').forEach((input) => {
+        input.checked = false;
+      });
+      Object.values(els.ratingSummary).forEach((input) => {
+        if (input) input.value = "";
+      });
       addRow("ingredients");
+      addRow("beforeStart");
       addRow("steps");
       slugTouched = false;
       setStatus("Formular resetat.");
@@ -1214,10 +1525,36 @@
       });
     }
 
+    function populateTags() {
+      els.tags.textContent = "";
+      Object.entries(TAG_GROUPS).forEach(([key, config]) => {
+        const group = document.createElement("section");
+        group.className = "builder-tag-group";
+        group.append(createText("h4", "", config.label));
+        const options = document.createElement("div");
+        options.className = "builder-tag-options";
+        config.options.forEach((tag) => {
+          const label = document.createElement("label");
+          const input = document.createElement("input");
+          input.type = "checkbox";
+          input.value = tag;
+          input.dataset.tagGroup = key;
+          const text = createText("span", "", tag);
+          label.append(input, text);
+          options.append(label);
+        });
+        group.append(options);
+        els.tags.append(group);
+      });
+    }
+
     populateCategories();
+    populateTags();
     bindRowActions(els.ingredients);
+    bindRowActions(els.beforeStart);
     bindRowActions(els.steps);
     addRow("ingredients");
+    addRow("beforeStart");
     addRow("steps");
 
     form.addEventListener("input", syncBuilder);
@@ -1264,6 +1601,100 @@
     } else {
       syncBuilder();
     }
+  }
+
+  function setupRecipeRatings() {
+    document.querySelectorAll("[data-rating-panel]").forEach((panel) => {
+      const slug = panel.dataset.recipeSlug;
+      const form = panel.querySelector("[data-rating-form]");
+      const status = panel.querySelector("[data-rating-status]");
+      const personalNote = panel.querySelector("[data-rating-personal-note]");
+      const reset = panel.querySelector("[data-rating-reset]");
+      if (!slug || !form || !status || !personalNote || !reset) return;
+
+      const storageKey = "artaGatituluiRatings:" + slug;
+
+      function setStatus(message) {
+        status.textContent = message || "";
+      }
+
+      function setGroupValue(group, value) {
+        const input = form.querySelector('[data-rating-group="' + group + '"] input[value="' + value + '"]');
+        if (input) input.checked = true;
+      }
+
+      function clearValues() {
+        form.querySelectorAll('input[type="radio"]').forEach((input) => {
+          input.checked = false;
+        });
+        personalNote.textContent = "";
+      }
+
+      function getGroupValue(group) {
+        const checked = form.querySelector('[data-rating-group="' + group + '"] input:checked');
+        return checked ? checked.value : "";
+      }
+
+      function readRating() {
+        const taste = Number(getGroupValue("taste"));
+        const clarity = Number(getGroupValue("clarity"));
+        const complexity = Number(getGroupValue("complexity"));
+        const overall = Number(getGroupValue("overall"));
+        const cookAgainRaw = getGroupValue("cookAgain");
+        if (!taste || !clarity || !complexity || !overall || !cookAgainRaw) return null;
+        return {
+          taste,
+          clarity,
+          complexity,
+          cookAgain: cookAgainRaw === "true",
+          overall,
+          updatedAt: new Date().toISOString()
+        };
+      }
+
+      function renderPersonalNote(rating) {
+        if (!rating || !rating.complexity) {
+          personalNote.textContent = "";
+          return;
+        }
+        personalNote.textContent = "Complexitatea ta: " + complexityLabel(rating.complexity) + ".";
+      }
+
+      function loadRating() {
+        const raw = window.localStorage.getItem(storageKey);
+        if (!raw) return;
+        try {
+          const rating = JSON.parse(raw);
+          ["taste", "clarity", "complexity", "overall"].forEach((group) => {
+            if (rating[group]) setGroupValue(group, String(rating[group]));
+          });
+          if (typeof rating.cookAgain === "boolean") setGroupValue("cookAgain", String(rating.cookAgain));
+          renderPersonalNote(rating);
+        } catch {
+          window.localStorage.removeItem(storageKey);
+        }
+      }
+
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const rating = readRating();
+        if (!rating) {
+          setStatus("Alege toate valorile înainte să salvezi evaluarea.");
+          return;
+        }
+        window.localStorage.setItem(storageKey, JSON.stringify(rating));
+        renderPersonalNote(rating);
+        setStatus("Evaluarea ta a fost salvată pe acest dispozitiv.");
+      });
+
+      reset.addEventListener("click", () => {
+        window.localStorage.removeItem(storageKey);
+        clearValues();
+        setStatus("Evaluarea ta locală a fost ștearsă.");
+      });
+
+      loadRating();
+    });
   }
 
   function setupInstallPrompt() {
@@ -1392,6 +1823,7 @@
     setupPrefilledSearch();
     setupIngredientMatcher();
     renderRecipeDetail();
+    setupRecipeRatings();
     renderCategoryPage();
     setupRandomizer();
     setupSteakCalculators();
