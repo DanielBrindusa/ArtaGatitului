@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "aliases": [
+    {
+      "canonical": "ou",
+      "terms": ["ou", "ouă", "oua"]
+    },
+    {
+      "canonical": "făină",
+      "terms": ["făină", "faina"]
+    },
+    {
+      "canonical": "lapte",
+      "terms": ["lapte"]
+    },
+    {
+      "canonical": "cartof",
+      "terms": ["cartof", "cartofi"]
+    },
+    {
+      "canonical": "ceapă",
+      "terms": ["ceapă", "ceapa"]
+    },
+    {
+      "canonical": "usturoi",
+      "terms": ["usturoi"]
+    },
+    {
+      "canonical": "pui",
+      "terms": ["pui"]
+    },
+    {
+      "canonical": "carne",
+      "terms": ["carne"]
+    },
+    {
+      "canonical": "zahăr",
+      "terms": ["zahăr", "zahar"]
+    }
+  ]
+}

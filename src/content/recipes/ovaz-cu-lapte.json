@@ -1,0 +1,107 @@
+{
+  "id": "ovaz-cu-lapte",
+  "slug": "ovaz-cu-lapte",
+  "title": "Ovaz cu lapte",
+  "description": "Intr-o oala medie se adauga laptele si se incalzeste la foc mediu.",
+  "category": "Mic dejun",
+  "ingredients": [
+    "Ovaz (200 g)",
+    "Lapte (300ml)",
+    "Zahar (2 linguri)",
+    "Fructe/Gem/Sirop de artar"
+  ],
+  "steps": [
+    "Intr-o oala medie se adauga laptele si se incalzeste la foc mediu.",
+    "Cand laptele e cald se adauga zaharul si ovazul si se amesteca bine timp de 3-5 minute pana cand compozitia este omogena si ovazul fiert.",
+    "Se serveste cald cu fructe sau gem/sirop de artar."
+  ],
+  "beforeStart": [
+    "Măsoară laptele, ovăzul și zahărul înainte să pornești focul.",
+    "Pregătește o oală medie și o lingură pentru amestecat.",
+    "Ține fructele, gemul sau siropul pregătite pentru servire.",
+    "Amestecă des ca ovăzul să nu se lipească de fundul oalei."
+  ],
+  "tags": {
+    "taste": [
+      "Dulce",
+      "Cremos",
+      "Fin"
+    ],
+    "complexity": [
+      "Începător",
+      "Ușor",
+      "Risc mic de greșeală"
+    ],
+    "time": [
+      "Sub 15 minute",
+      "Rețetă rapidă"
+    ],
+    "context": [
+      "Mic dejun",
+      "Pentru zile aglomerate",
+      "Comfort food"
+    ],
+    "diet": [
+      "Fără carne",
+      "Vegetarian"
+    ],
+    "equipment": [
+      "La oală"
+    ],
+    "technique": [
+      "Fierbere"
+    ]
+  },
+  "equipment": [
+    "La oală"
+  ],
+  "prepTimeMinutes": null,
+  "cookTimeMinutes": null,
+  "totalTimeMinutes": null,
+  "servings": null,
+  "image": null,
+  "sourceUrl": "https://artagatitului.godaddysites.com/ovaz-cu-lapte",
+  "createdAt": null,
+  "updatedAt": null,
+  "status": "published",
+  "closing": "Poftă bună!",
+  "keywords": [
+    "ovaz",
+    "cu",
+    "lapte",
+    "mic",
+    "dejun",
+    "200",
+    "g",
+    "300ml",
+    "zahar",
+    "2",
+    "linguri",
+    "fructe-gem-sirop",
+    "de",
+    "artar",
+    "dulce",
+    "cremos",
+    "fin",
+    "incepator",
+    "usor",
+    "risc",
+    "greseala",
+    "sub",
+    "15",
+    "minute",
+    "reteta",
+    "rapida",
+    "pentru",
+    "zile",
+    "aglomerate",
+    "comfort",
+    "food",
+    "fara",
+    "carne",
+    "vegetarian",
+    "la",
+    "oala",
+    "fierbere"
+  ]
+}

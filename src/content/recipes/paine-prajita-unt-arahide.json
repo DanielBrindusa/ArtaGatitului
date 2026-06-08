@@ -1,0 +1,95 @@
+{
+  "id": "paine-prajita-unt-arahide",
+  "slug": "paine-prajita-unt-arahide",
+  "title": "paine prajita cu unt de arahide",
+  "description": "Se prajeste painea.",
+  "category": "Rontaieli",
+  "ingredients": [
+    "Paine (2 felii)",
+    "Unt arahide (2 linguri)",
+    "Banana/Capsune*",
+    "*dupa gust"
+  ],
+  "steps": [
+    "Se prajeste painea.",
+    "Se taie frictele rondele.",
+    "Se pune unt de arahide pe feliile de paine prajita si se adauga feliile de fructe."
+  ],
+  "beforeStart": [
+    "Pregătește pâinea și untul de arahide înainte să prăjești feliile.",
+    "Spală și taie fructele în rondele.",
+    "Prăjește pâinea doar cât să devină crocantă, nu arsă.",
+    "Asamblează feliile imediat după prăjire."
+  ],
+  "tags": {
+    "taste": [
+      "Dulce",
+      "Crocant",
+      "Ușor"
+    ],
+    "complexity": [
+      "Începător",
+      "Ușor",
+      "Risc mic de greșeală"
+    ],
+    "time": [
+      "Sub 15 minute",
+      "Rețetă rapidă"
+    ],
+    "context": [
+      "Mic dejun",
+      "Gustare",
+      "Pentru zile aglomerate"
+    ],
+    "diet": [
+      "Fără carne",
+      "Vegetarian"
+    ]
+  },
+  "equipment": [],
+  "prepTimeMinutes": null,
+  "cookTimeMinutes": null,
+  "totalTimeMinutes": null,
+  "servings": null,
+  "image": null,
+  "sourceUrl": "https://artagatitului.godaddysites.com/paine-prajita-unt-arahide",
+  "createdAt": null,
+  "updatedAt": null,
+  "status": "published",
+  "closing": "Poftă bună!",
+  "keywords": [
+    "paine",
+    "prajita",
+    "cu",
+    "unt",
+    "de",
+    "arahide",
+    "rontaieli",
+    "2",
+    "felii",
+    "linguri",
+    "banana-capsune",
+    "dupa",
+    "gust",
+    "dulce",
+    "crocant",
+    "usor",
+    "incepator",
+    "risc",
+    "mic",
+    "greseala",
+    "sub",
+    "15",
+    "minute",
+    "reteta",
+    "rapida",
+    "dejun",
+    "gustare",
+    "pentru",
+    "zile",
+    "aglomerate",
+    "fara",
+    "carne",
+    "vegetarian"
+  ]
+}

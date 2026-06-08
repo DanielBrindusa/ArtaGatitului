@@ -1,0 +1,120 @@
+{
+  "id": "toast-cu-ou-si-avocado",
+  "slug": "toast-cu-ou-si-avocado",
+  "title": "Toast cu oua amestecate si avocado",
+  "description": "Se incalzeste o tigaie mica pe foc mic-mediu.",
+  "category": "Mic dejun",
+  "ingredients": [
+    "Paine (2 felii)",
+    "Ou (4 buc.)",
+    "Avocado (½ buc.)",
+    "Seminte floarea soarelui*",
+    "Seminte in*",
+    "Sare*",
+    "Piper*",
+    "Masline",
+    "Rosii Cheri",
+    "Ardei",
+    "*dupa gust"
+  ],
+  "steps": [
+    "Se incalzeste o tigaie mica pe foc mic-mediu.",
+    "Painea se prajeste pana devine usor crocanta.",
+    "Intr-un bol mic se bat bine ouale impreuna cu sare si piper, dupa care se adauga in tigaia calda unde se amesteca pana ce se gatesc complet.",
+    "Avocado se taie si pulpa unei jumatati se piseaza pana ce devine o pasta.",
+    "Painea prajita se unge cu pasta de avocado, peste care se adauga oul si semintele.",
+    "Se serveste impreuna cu masline, rosii cheri si ardei taiati felii."
+  ],
+  "beforeStart": [
+    "Încălzește tigaia la foc mic-mediu înainte să adaugi ouăle.",
+    "Prăjește pâinea înainte de asamblare.",
+    "Bate ouăle cu sare și piper într-un bol mic.",
+    "Taie avocado și pregătește semințele și legumele pentru servire."
+  ],
+  "tags": {
+    "taste": [
+      "Cremos",
+      "Sățios",
+      "Fresh"
+    ],
+    "complexity": [
+      "Ușor"
+    ],
+    "time": [
+      "Sub 15 minute",
+      "Rețetă rapidă"
+    ],
+    "context": [
+      "Mic dejun",
+      "Pentru zile aglomerate"
+    ],
+    "diet": [
+      "Fără carne",
+      "Vegetarian"
+    ],
+    "equipment": [
+      "La tigaie"
+    ],
+    "technique": [
+      "La tigaie"
+    ]
+  },
+  "equipment": [
+    "La tigaie"
+  ],
+  "prepTimeMinutes": null,
+  "cookTimeMinutes": null,
+  "totalTimeMinutes": null,
+  "servings": null,
+  "image": null,
+  "sourceUrl": "https://artagatitului.godaddysites.com/toast-cu-ou-si-avocado",
+  "createdAt": null,
+  "updatedAt": null,
+  "status": "published",
+  "closing": "Poftă bună!",
+  "keywords": [
+    "toast",
+    "cu",
+    "oua",
+    "amestecate",
+    "si",
+    "avocado",
+    "mic",
+    "dejun",
+    "paine",
+    "2",
+    "felii",
+    "ou",
+    "4",
+    "buc",
+    "seminte",
+    "floarea",
+    "soarelui",
+    "in",
+    "sare",
+    "piper",
+    "masline",
+    "rosii",
+    "cheri",
+    "ardei",
+    "dupa",
+    "gust",
+    "cremos",
+    "satios",
+    "fresh",
+    "usor",
+    "sub",
+    "15",
+    "minute",
+    "reteta",
+    "rapida",
+    "pentru",
+    "zile",
+    "aglomerate",
+    "fara",
+    "carne",
+    "vegetarian",
+    "la",
+    "tigaie"
+  ]
+}

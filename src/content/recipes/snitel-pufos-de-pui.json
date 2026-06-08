@@ -1,0 +1,109 @@
+{
+  "id": "snitel-pufos-de-pui",
+  "slug": "snitel-pufos-de-pui",
+  "title": "Rata la cuptor umpluta",
+  "description": "Se injumatatesc pieptii de pui in grosime si se bat cu batatorul de carne.",
+  "category": "Fel secundar",
+  "ingredients": [
+    "Piept pui (2 buc.)",
+    "Faina (300g)",
+    "Oua (2 buc.)",
+    "Ulei",
+    "Sare*",
+    "Piper*",
+    "*dupa gust"
+  ],
+  "steps": [
+    "Se injumatatesc pieptii de pui in grosime si se bat cu batatorul de carne.",
+    "Intr-o farfurie adanca se bat cele doua oua pana se omogenizeaza impreuna cu sarea si piperul.",
+    "Intr-o farfurie intainsa se pune faina.",
+    "Intr-o tigaie medie/mare se incalzeste uleiul la foc mediu.",
+    "Se trece pieptul de pui batut prin faina, apoi prin ou si se prajeste pe ambele parti in uleiul incins pana devine auriu."
+  ],
+  "beforeStart": [
+    "Taie și bate pieptul de pui înainte să pregătești tigaia.",
+    "Pregătește farfuria cu făină și bolul cu ou bătut.",
+    "Încălzește uleiul la foc mediu ca șnițelul să se rumenească fără să se ardă.",
+    "Pregătește o farfurie pentru bucățile prăjite."
+  ],
+  "tags": {
+    "taste": [
+      "Crocant",
+      "Sărat",
+      "Sățios"
+    ],
+    "complexity": [
+      "Complexitate medie",
+      "Necesită atenție"
+    ],
+    "time": [
+      "Sub 30 minute"
+    ],
+    "context": [
+      "Prânz",
+      "Cină",
+      "Pentru familie"
+    ],
+    "diet": [
+      "Cu carne"
+    ],
+    "equipment": [
+      "La tigaie"
+    ],
+    "technique": [
+      "Prăjire",
+      "La tigaie"
+    ]
+  },
+  "equipment": [
+    "La tigaie"
+  ],
+  "prepTimeMinutes": null,
+  "cookTimeMinutes": null,
+  "totalTimeMinutes": null,
+  "servings": null,
+  "image": null,
+  "sourceUrl": "https://artagatitului.godaddysites.com/snitel-pufos-de-pui",
+  "createdAt": null,
+  "updatedAt": null,
+  "status": "published",
+  "closing": "Poftă bună!",
+  "keywords": [
+    "rata",
+    "la",
+    "cuptor",
+    "umpluta",
+    "fel",
+    "secundar",
+    "piept",
+    "pui",
+    "2",
+    "buc",
+    "faina",
+    "300g",
+    "oua",
+    "ulei",
+    "sare",
+    "piper",
+    "dupa",
+    "gust",
+    "crocant",
+    "sarat",
+    "satios",
+    "complexitate",
+    "medie",
+    "necesita",
+    "atentie",
+    "sub",
+    "30",
+    "minute",
+    "pranz",
+    "cina",
+    "pentru",
+    "familie",
+    "cu",
+    "carne",
+    "tigaie",
+    "prajire"
+  ]
+}

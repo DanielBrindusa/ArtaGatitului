@@ -1,0 +1,121 @@
+{
+  "id": "mancare-de-mazare-cu-pui",
+  "slug": "mancare-de-mazare-cu-pui",
+  "title": "Mancare de mazare cu pui",
+  "description": "Se taie pieptul de pui cuburi medii.",
+  "category": "Fel secundar",
+  "ingredients": [
+    "Mazare (500g)",
+    "Mixt legume (ceapa, morcov, patrunjel radacina, pastarnac radacina)",
+    "Piept pui (1/2 buc.)",
+    "Faina (2 linguri)",
+    "Smantana (2 linguri)",
+    "Ulei",
+    "Apa",
+    "Marar*",
+    "Sare*",
+    "Piper*",
+    "*dupa gust"
+  ],
+  "steps": [
+    "Se taie pieptul de pui cuburi medii.",
+    "Intr-o oala medie se pune ulei si se calesc legumele pentru ~5 minute. Dupa cele 5 minute se adauga puiul si se lasa la calit alte ~5 minute.",
+    "Se adauga mazarea, mararul, sarea si piperul, se acopera cu apa si se lasa la fiert pe foc mediu ~30 minute.",
+    "Intr-un bol mic se face o pasa densa de faina cu smantana pentru galuste. Acestea se adauga in oala spre final cu o lingurita treptat amestecand ocazional si se lasa la fiert alte ~3 minute."
+  ],
+  "beforeStart": [
+    "Taie pieptul de pui în cuburi medii.",
+    "Pregătește legumele, mărarul și condimentele înainte să încălzești oala.",
+    "Măsoară făina și smântâna pentru compoziția adăugată spre final.",
+    "Ține o linguriță la îndemână pentru adăugarea treptată a compoziției."
+  ],
+  "tags": {
+    "taste": [
+      "Cremos",
+      "Sățios",
+      "Aromat"
+    ],
+    "complexity": [
+      "Complexitate medie"
+    ],
+    "time": [
+      "Sub 60 minute"
+    ],
+    "context": [
+      "Prânz",
+      "Cină",
+      "Pentru familie"
+    ],
+    "diet": [
+      "Cu carne"
+    ],
+    "equipment": [
+      "La oală"
+    ],
+    "technique": [
+      "Sotare",
+      "Fierbere"
+    ]
+  },
+  "equipment": [
+    "La oală"
+  ],
+  "prepTimeMinutes": null,
+  "cookTimeMinutes": null,
+  "totalTimeMinutes": null,
+  "servings": null,
+  "image": null,
+  "sourceUrl": "https://artagatitului.godaddysites.com/mancare-de-mazare-cu-pui",
+  "createdAt": null,
+  "updatedAt": null,
+  "status": "published",
+  "closing": "Poftă bună!",
+  "keywords": [
+    "mancare",
+    "de",
+    "mazare",
+    "cu",
+    "pui",
+    "fel",
+    "secundar",
+    "500g",
+    "mixt",
+    "legume",
+    "ceapa",
+    "morcov",
+    "patrunjel",
+    "radacina",
+    "pastarnac",
+    "piept",
+    "1-2",
+    "buc",
+    "faina",
+    "2",
+    "linguri",
+    "smantana",
+    "ulei",
+    "apa",
+    "marar",
+    "sare",
+    "piper",
+    "dupa",
+    "gust",
+    "cremos",
+    "satios",
+    "aromat",
+    "complexitate",
+    "medie",
+    "sub",
+    "60",
+    "minute",
+    "pranz",
+    "cina",
+    "pentru",
+    "familie",
+    "carne",
+    "la",
+    "oala",
+    "sotare",
+    "fierbere"
+  ]
+}

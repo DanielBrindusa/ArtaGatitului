@@ -1,0 +1,114 @@
+{
+  "id": "chiftele-de-pui",
+  "slug": "chiftele-de-pui",
+  "title": "Chiftele de pui",
+  "description": "Se fierb pulpele pentru ~30 minute.",
+  "category": "Fel secundar",
+  "ingredients": [
+    "Pulpa pui intregi (2 buc.)",
+    "Oua (2 buc.)",
+    "Faina (3 linguri)",
+    "Apa",
+    "Ulei",
+    "Vegeta*",
+    "Piper*",
+    "*dupa gust"
+  ],
+  "steps": [
+    "Se fierb pulpele pentru ~30 minute.",
+    "Se ia carnea de pe oase si se toaca marunt.",
+    "Intr-un bol se adauga carnea, faina, ouale, vegeta, piperul si cele doua linguri de apa (supa rezultata din fierbere). Compozitia trebuie sa fie consistenta.",
+    "Intr-o tigaie mica, se incalzeste uleiul si se adauga chiftelele care se prajesc timp de ~5 minute la foc mediu spe mic."
+  ],
+  "beforeStart": [
+    "Fierbe pulpele de pui înainte să pregătești compoziția.",
+    "Pregătește un bol pentru carne, ouă, făină și condimente.",
+    "Păstrează puțină supă de la fierbere pentru compoziție.",
+    "Încălzește uleiul la foc mediu și pregătește o farfurie pentru chiftelele prăjite."
+  ],
+  "tags": {
+    "taste": [
+      "Sărat",
+      "Sățios"
+    ],
+    "complexity": [
+      "Complexitate medie",
+      "Necesită atenție"
+    ],
+    "time": [
+      "Sub 60 minute"
+    ],
+    "context": [
+      "Prânz",
+      "Cină",
+      "Pentru familie"
+    ],
+    "diet": [
+      "Cu carne"
+    ],
+    "equipment": [
+      "La oală",
+      "La tigaie"
+    ],
+    "technique": [
+      "Fierbere",
+      "Prăjire",
+      "La tigaie"
+    ]
+  },
+  "equipment": [
+    "La oală",
+    "La tigaie"
+  ],
+  "prepTimeMinutes": null,
+  "cookTimeMinutes": null,
+  "totalTimeMinutes": null,
+  "servings": null,
+  "image": null,
+  "sourceUrl": "https://artagatitului.godaddysites.com/chiftele-de-pui",
+  "createdAt": null,
+  "updatedAt": null,
+  "status": "published",
+  "closing": "Poftă bună!",
+  "keywords": [
+    "chiftele",
+    "de",
+    "pui",
+    "fel",
+    "secundar",
+    "pulpa",
+    "intregi",
+    "2",
+    "buc",
+    "oua",
+    "faina",
+    "3",
+    "linguri",
+    "apa",
+    "ulei",
+    "vegeta",
+    "piper",
+    "dupa",
+    "gust",
+    "sarat",
+    "satios",
+    "complexitate",
+    "medie",
+    "necesita",
+    "atentie",
+    "sub",
+    "60",
+    "minute",
+    "pranz",
+    "cina",
+    "pentru",
+    "familie",
+    "cu",
+    "carne",
+    "la",
+    "oala",
+    "tigaie",
+    "fierbere",
+    "prajire"
+  ]
+}

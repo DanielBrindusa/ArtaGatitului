@@ -1,0 +1,117 @@
+{
+  "id": "avocado-cu-bacon",
+  "slug": "avocado-cu-bacon",
+  "title": "Avocado cu bacon",
+  "description": "Intr-o oala mica se fierb ouale timp de ~10 minute. Se toarna apa gheata/rece peste ele si se decojesc.",
+  "category": "Mic dejun",
+  "ingredients": [
+    "Paine (2 felii)",
+    "Ou (3 buc.)",
+    "Avocado (1 buc.)",
+    "Usturoi (1 catel)",
+    "Bacon (4 buc.)",
+    "Ceapa verde*",
+    "Rosii Cherry*",
+    "Sare*",
+    "Piper*",
+    "*dupa gust"
+  ],
+  "steps": [
+    "Intr-o oala mica se fierb ouale timp de ~10 minute. Se toarna apa gheata/rece peste ele si se decojesc.",
+    "Intr-o tigaie mica, se prajeste baconul timp de ~5 minute la foc mediu pana devine usor crocant.",
+    "Se prajeste painea pana devine usor crocanta..",
+    "Rosiile cherry, ceapa verde si baconul se toaca marunt.",
+    "Pulpa de avocado si ouale se piseaza intr-o pasta omogena peste care se adauga sare si piper. Peste pasta de ou si avocado se piseaza usturoiul si se amesteca bine. Peste compozitie, se adauga ingredientele tocate si se serveste pe paine prajita."
+  ],
+  "beforeStart": [
+    "Pregătește oala pentru ouă și tigaia pentru bacon.",
+    "Spală roșiile și ceapa verde înainte să le toci.",
+    "Alege un avocado copt, ca pasta să iasă cremoasă.",
+    "Pregătește pâinea pentru prăjire înainte de asamblare."
+  ],
+  "tags": {
+    "taste": [
+      "Sărat",
+      "Cremos",
+      "Crocant",
+      "Sățios"
+    ],
+    "complexity": [
+      "Ușor"
+    ],
+    "time": [
+      "Sub 30 minute"
+    ],
+    "context": [
+      "Mic dejun",
+      "Pentru weekend"
+    ],
+    "diet": [
+      "Cu carne"
+    ],
+    "equipment": [
+      "La oală",
+      "La tigaie"
+    ],
+    "technique": [
+      "Fierbere",
+      "Prăjire",
+      "La tigaie"
+    ]
+  },
+  "equipment": [
+    "La oală",
+    "La tigaie"
+  ],
+  "prepTimeMinutes": null,
+  "cookTimeMinutes": null,
+  "totalTimeMinutes": null,
+  "servings": null,
+  "image": null,
+  "sourceUrl": "https://artagatitului.godaddysites.com/avocado-cu-bacon",
+  "createdAt": null,
+  "updatedAt": null,
+  "status": "published",
+  "closing": "Poftă bună!",
+  "keywords": [
+    "avocado",
+    "cu",
+    "bacon",
+    "mic",
+    "dejun",
+    "paine",
+    "2",
+    "felii",
+    "ou",
+    "3",
+    "buc",
+    "1",
+    "usturoi",
+    "catel",
+    "4",
+    "ceapa",
+    "verde",
+    "rosii",
+    "cherry",
+    "sare",
+    "piper",
+    "dupa",
+    "gust",
+    "sarat",
+    "cremos",
+    "crocant",
+    "satios",
+    "usor",
+    "sub",
+    "30",
+    "minute",
+    "pentru",
+    "weekend",
+    "carne",
+    "la",
+    "oala",
+    "tigaie",
+    "fierbere",
+    "prajire"
+  ]
+}

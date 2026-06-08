@@ -1,0 +1,147 @@
+{
+  "id": "fajitas-de-pui",
+  "slug": "fajitas-de-pui",
+  "title": "Fajitas de pui",
+  "description": "Se taie pieptul de pui in bucati mici (2-3 cm). Se condimenteaza, dupa gust, cu sare, piper, boia dulce, usturoi praf si turmeric.",
+  "category": "Fel secundar",
+  "ingredients": [
+    "Piept de pui - 2 buc.",
+    "Cascaval razuit*",
+    "Sare*",
+    "Piper*",
+    "Usturoi praf*",
+    "Turmeric*",
+    "Boia dulce*",
+    "Ulei de masline*",
+    "Ardei gras in trei culori - 4 buc.",
+    "Ceapa mare - 1 buc.",
+    "Usturoi - 1 catel",
+    "Zeama lamaie - 1/2 lamaie",
+    "Lipii mari (libaneze) - 4 buc.",
+    "Unt topit",
+    "*dupa gust"
+  ],
+  "steps": [
+    "Pregatire:",
+    "Se taie pieptul de pui in bucati mici (2-3 cm). Se condimenteaza, dupa gust, cu sare, piper, boia dulce, usturoi praf si turmeric.",
+    "Se taie legumele in bucati mici.",
+    "Se curata un catel de usturoi.",
+    "Gatire:",
+    "Intr-o tigaie se pune putin ulei de masline impreuna cu puiul condimentat si se prajeste pana devine auriu.",
+    "Se scoate puiul din tigaie si in aceeasi tigaie se calesc legumele.",
+    "Cand legumele sunt aproape de final, se zdrobeste usturoiul in tigaie (cu presa de usturoi). Se lasa la calit mestecand continu inca 2-3 minute.",
+    "Se scot legumele peste pui si peste intregul amestec se adauga zeama de lamaie.",
+    "Se ung lipiile pe o parte cu unt topit. In tigaia curata se pun doua lipii indoite pe jumatate sub forma de tacos, cu partea unsa cu unt. Se adauga cascaval iar apoi puiul cu legumele in ambele lipii si se incalzesc pana devin crocante.",
+    "Se intorc lipiile si se incalzesc din nou pana devine crocanta si cea de-a doua jumatate.",
+    "Se serveste cald cu muraturi reci."
+  ],
+  "beforeStart": [
+    "Taie puiul și legumele înainte să pornești focul.",
+    "Condimentează puiul într-un bol separat.",
+    "Pregătește tigaia și uleiul de măsline pentru sotare.",
+    "Ține zeama de lămâie și usturoiul la îndemână pentru final."
+  ],
+  "tags": {
+    "taste": [
+      "Condimentat",
+      "Sățios",
+      "Fresh"
+    ],
+    "complexity": [
+      "Complexitate medie",
+      "Risc mic de greșeală"
+    ],
+    "time": [
+      "Sub 60 minute"
+    ],
+    "context": [
+      "Prânz",
+      "Cină",
+      "Pentru familie"
+    ],
+    "diet": [
+      "Cu carne"
+    ],
+    "equipment": [
+      "La tigaie"
+    ],
+    "technique": [
+      "Sotare",
+      "La tigaie"
+    ]
+  },
+  "equipment": [
+    "La tigaie"
+  ],
+  "prepTimeMinutes": null,
+  "cookTimeMinutes": null,
+  "totalTimeMinutes": null,
+  "servings": null,
+  "image": null,
+  "sourceUrl": "https://artagatitului.godaddysites.com/fajitas-de-pui",
+  "createdAt": null,
+  "updatedAt": null,
+  "status": "published",
+  "closing": "Poftă bună!",
+  "keywords": [
+    "fajitas",
+    "de",
+    "pui",
+    "fel",
+    "secundar",
+    "piept",
+    "2",
+    "buc",
+    "cascaval",
+    "razuit",
+    "sare",
+    "piper",
+    "usturoi",
+    "praf",
+    "turmeric",
+    "boia",
+    "dulce",
+    "ulei",
+    "masline",
+    "ardei",
+    "gras",
+    "in",
+    "trei",
+    "culori",
+    "4",
+    "ceapa",
+    "mare",
+    "1",
+    "catel",
+    "zeama",
+    "lamaie",
+    "1-2",
+    "lipii",
+    "mari",
+    "libaneze",
+    "unt",
+    "topit",
+    "dupa",
+    "gust",
+    "condimentat",
+    "satios",
+    "fresh",
+    "complexitate",
+    "medie",
+    "risc",
+    "mic",
+    "greseala",
+    "sub",
+    "60",
+    "minute",
+    "pranz",
+    "cina",
+    "pentru",
+    "familie",
+    "cu",
+    "carne",
+    "la",
+    "tigaie",
+    "sotare"
+  ]
+}

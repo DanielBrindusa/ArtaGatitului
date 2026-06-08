@@ -1,0 +1,107 @@
+{
+  "id": "carne-cu-varza-murata",
+  "slug": "carne-cu-varza-murata",
+  "title": "Carne prajita cu varza murata",
+  "description": "Se taie carnea de porc cuburi (~4 cm).",
+  "category": "Fel secundar",
+  "ingredients": [
+    "Carne porc (1 kg)",
+    "Varza murata (1 buc)",
+    "Apa (200 ml)",
+    "Ulei",
+    "Sare",
+    "*dupa gust"
+  ],
+  "steps": [
+    "Se taie carnea de porc cuburi (~4 cm).",
+    "Intr-o tigaie medie se adauga putin ulei si se prajeste carnea timp de ~8 minute. Se adauga o cana de apa (200 ml) si se fierbe pana se evapora toata apa. Se adauga din nou ulei si se mai prajeste carnea inca ~5 minute.",
+    "Se serveste impreuna cu varza murata."
+  ],
+  "beforeStart": [
+    "Taie carnea de porc în cuburi aproximativ egale.",
+    "Pregătește tigaia și apa măsurată înainte să pornești focul.",
+    "Scurge varza murată dacă este foarte zemoasă.",
+    "Lasă loc în tigaie ca bucățile de carne să se rumenească uniform."
+  ],
+  "tags": {
+    "taste": [
+      "Sărat",
+      "Acrișor",
+      "Sățios",
+      "Rustic"
+    ],
+    "complexity": [
+      "Ușor",
+      "Risc mic de greșeală"
+    ],
+    "context": [
+      "Prânz",
+      "Cină",
+      "Comfort food"
+    ],
+    "diet": [
+      "Cu carne",
+      "Fără lactate",
+      "Fără ou"
+    ],
+    "equipment": [
+      "La tigaie"
+    ],
+    "technique": [
+      "Prăjire",
+      "La tigaie"
+    ]
+  },
+  "equipment": [
+    "La tigaie"
+  ],
+  "prepTimeMinutes": null,
+  "cookTimeMinutes": null,
+  "totalTimeMinutes": null,
+  "servings": null,
+  "image": null,
+  "sourceUrl": "https://artagatitului.godaddysites.com/carne-cu-varza-murata",
+  "createdAt": null,
+  "updatedAt": null,
+  "status": "published",
+  "closing": "Poftă bună!",
+  "keywords": [
+    "carne",
+    "prajita",
+    "cu",
+    "varza",
+    "murata",
+    "fel",
+    "secundar",
+    "porc",
+    "1",
+    "kg",
+    "buc",
+    "apa",
+    "200",
+    "ml",
+    "ulei",
+    "sare",
+    "dupa",
+    "gust",
+    "sarat",
+    "acrisor",
+    "satios",
+    "rustic",
+    "usor",
+    "risc",
+    "mic",
+    "de",
+    "greseala",
+    "pranz",
+    "cina",
+    "comfort",
+    "food",
+    "fara",
+    "lactate",
+    "ou",
+    "la",
+    "tigaie",
+    "prajire"
+  ]
+}

@@ -1,0 +1,112 @@
+{
+  "id": "tocanita-de-pui-cu-ardei",
+  "slug": "tocanita-de-pui-cu-ardei",
+  "title": "Tocăniță de pui cu ardei copți",
+  "description": "Gătește pulpele de pui până se rumenesc ușor.",
+  "category": "Fel secundar",
+  "ingredients": [
+    "pulpe de pui",
+    "ardei capia",
+    "ceapă",
+    "usturoi",
+    "bulion",
+    "ulei de măsline",
+    "pătrunjel",
+    "busuioc",
+    "curry",
+    "piper",
+    "sare",
+    "pâine ciabatta"
+  ],
+  "steps": [
+    "Gătește pulpele de pui până se rumenesc ușor.",
+    "Adaugă ceapa, usturoiul, ardeii copți și bulionul.",
+    "Lasă tocănița să fiarbă până când sosul se leagă.",
+    "Servește cu pătrunjel și pâine ciabatta."
+  ],
+  "beforeStart": [
+    "Pregătește pulpele de pui și taie legumele înainte să începi gătirea.",
+    "Ține ardeii copți, bulionul și condimentele la îndemână.",
+    "Pregătește oala sau tigaia adâncă pentru tocăniță.",
+    "Toacă pătrunjelul pentru servire înainte de final."
+  ],
+  "tags": {
+    "taste": [
+      "Sățios",
+      "Aromat",
+      "Condimentat"
+    ],
+    "complexity": [
+      "Ușor",
+      "Risc mic de greșeală"
+    ],
+    "context": [
+      "Prânz",
+      "Cină",
+      "Pentru familie"
+    ],
+    "diet": [
+      "Cu carne"
+    ],
+    "equipment": [
+      "La oală"
+    ],
+    "technique": [
+      "Sotare",
+      "Fierbere"
+    ]
+  },
+  "equipment": [
+    "La oală"
+  ],
+  "prepTimeMinutes": null,
+  "cookTimeMinutes": null,
+  "totalTimeMinutes": null,
+  "servings": null,
+  "image": null,
+  "sourceUrl": "https://artagatitului.godaddysites.com/tocanita-de-pui-cu-ardei",
+  "createdAt": null,
+  "updatedAt": null,
+  "status": "published",
+  "closing": "Poftă bună!",
+  "keywords": [
+    "tocanita",
+    "de",
+    "pui",
+    "cu",
+    "ardei",
+    "copti",
+    "fel",
+    "secundar",
+    "pulpe",
+    "capia",
+    "ceapa",
+    "usturoi",
+    "bulion",
+    "ulei",
+    "masline",
+    "patrunjel",
+    "busuioc",
+    "curry",
+    "piper",
+    "sare",
+    "paine",
+    "ciabatta",
+    "satios",
+    "aromat",
+    "condimentat",
+    "usor",
+    "risc",
+    "mic",
+    "greseala",
+    "pranz",
+    "cina",
+    "pentru",
+    "familie",
+    "carne",
+    "la",
+    "oala",
+    "sotare",
+    "fierbere"
+  ]
+}

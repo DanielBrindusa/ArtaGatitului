@@ -1,0 +1,104 @@
+{
+  "id": "ovaz-peste-noapte",
+  "slug": "ovaz-peste-noapte",
+  "title": "Ovaz peste noapte",
+  "description": "Intr-un borcan mediu (500g) se adauga laptele, iaurtul si mierea si se amesteca bine.",
+  "category": "Mic dejun",
+  "ingredients": [
+    "Ovaz (200 g)",
+    "Lapte (100g)",
+    "Iaurt (100g)",
+    "Seminte Chia (2 lingurite)",
+    "Miere (2 linguri)",
+    "Fructe/Gem"
+  ],
+  "steps": [
+    "Intr-un borcan mediu (500g) se adauga laptele, iaurtul si mierea si se amesteca bine.",
+    "Se adauga ovazul si semintele de chia, se amesteca bine si la nevoie se completeaza cu lapte pentru a forma o compozitie omogena dar nu prea uscata.",
+    "Compozitia rezultata se lasa in frigider peste noapte si se poate servi cu fructe sau gem."
+  ],
+  "beforeStart": [
+    "Pregătește un borcan mediu curat, cu capac.",
+    "Măsoară laptele, iaurtul, mierea, ovăzul și semințele de chia.",
+    "Amestecă bine baza înainte să adaugi ovăzul.",
+    "Planifică rețeta cu o seară înainte, deoarece stă la frigider peste noapte."
+  ],
+  "tags": {
+    "taste": [
+      "Dulce",
+      "Cremos",
+      "Fresh"
+    ],
+    "complexity": [
+      "Începător",
+      "Ușor",
+      "Risc mic de greșeală"
+    ],
+    "time": [
+      "Necesită timp de așteptare",
+      "Bună pentru pregătit din timp"
+    ],
+    "context": [
+      "Mic dejun",
+      "Pentru zile aglomerate"
+    ],
+    "diet": [
+      "Fără carne",
+      "Vegetarian"
+    ],
+    "technique": [
+      "Fără gătire"
+    ]
+  },
+  "equipment": [],
+  "prepTimeMinutes": null,
+  "cookTimeMinutes": null,
+  "totalTimeMinutes": null,
+  "servings": null,
+  "image": null,
+  "sourceUrl": "https://artagatitului.godaddysites.com/ovaz-peste-noapte",
+  "createdAt": null,
+  "updatedAt": null,
+  "status": "published",
+  "closing": "Poftă bună!",
+  "keywords": [
+    "ovaz",
+    "peste",
+    "noapte",
+    "mic",
+    "dejun",
+    "200",
+    "g",
+    "lapte",
+    "100g",
+    "iaurt",
+    "seminte",
+    "chia",
+    "2",
+    "lingurite",
+    "miere",
+    "linguri",
+    "fructe-gem",
+    "dulce",
+    "cremos",
+    "fresh",
+    "incepator",
+    "usor",
+    "risc",
+    "de",
+    "greseala",
+    "necesita",
+    "timp",
+    "asteptare",
+    "buna",
+    "pentru",
+    "pregatit",
+    "din",
+    "zile",
+    "aglomerate",
+    "fara",
+    "carne",
+    "vegetarian",
+    "gatire"
+  ]
+}

@@ -1,0 +1,133 @@
+{
+  "id": "salata-de-ciuperci",
+  "slug": "salata-de-ciuperci",
+  "title": "Salata de ciuperci",
+  "description": "Se curata, se spala ciupercile si se taie marunt.",
+  "category": "Salate",
+  "ingredients": [
+    "Ciuperci champignon (250g)",
+    "Usturoi (2 catei)",
+    "Cum maggi (1 buc.)",
+    "Faina (1 lingura)",
+    "Parmezan (100g)",
+    "Maioneza (2 linguri)",
+    "Iaurt (2 linguri)",
+    "Apa (100ml)",
+    "Ulei floarea soarelui",
+    "Paine",
+    "Rosii cherry",
+    "*dupa gust"
+  ],
+  "steps": [
+    "Pregatire:",
+    "Se curata, se spala ciupercile si se taie marunt.",
+    "Se rade parmezanul.",
+    "Intr-o tigaie medie se pun ciupercile la calit cu usturoiul zdrobit si putin ulei pe foc mediu timp de ~5 minute. Se adauga un cub maggi, apa si faina si se lasa la fiert pana se omogenizeaza, dupa care se adauga si parmezanul.",
+    "Compozitia se lasa la racit ~30 minute. Cand este rece se adauga maioneza si iaurtul si se amesteca bine.",
+    "Se serveste pe paine prajita si cu rosii cherry."
+  ],
+  "beforeStart": [
+    "Curăță, spală și taie ciupercile înainte să încălzești tigaia.",
+    "Rade parmezanul și pregătește usturoiul.",
+    "Lasă compoziția de ciuperci să se răcească înainte să adaugi maioneza și iaurtul.",
+    "Pregătește pâinea prăjită și roșiile cherry pentru servire."
+  ],
+  "tags": {
+    "taste": [
+      "Cremos",
+      "Sărat",
+      "Sățios"
+    ],
+    "complexity": [
+      "Complexitate medie",
+      "Necesită atenție"
+    ],
+    "time": [
+      "Necesită timp de așteptare",
+      "Bună pentru pregătit din timp"
+    ],
+    "context": [
+      "Gustare",
+      "Prânz",
+      "Pentru familie"
+    ],
+    "diet": [
+      "Fără carne",
+      "Vegetarian"
+    ],
+    "equipment": [
+      "La tigaie"
+    ],
+    "technique": [
+      "Sotare",
+      "La tigaie"
+    ]
+  },
+  "equipment": [
+    "La tigaie"
+  ],
+  "prepTimeMinutes": null,
+  "cookTimeMinutes": null,
+  "totalTimeMinutes": null,
+  "servings": null,
+  "image": null,
+  "sourceUrl": "https://artagatitului.godaddysites.com/salata-de-ciuperci",
+  "createdAt": null,
+  "updatedAt": null,
+  "status": "published",
+  "closing": "Poftă bună!",
+  "keywords": [
+    "salata",
+    "de",
+    "ciuperci",
+    "salate",
+    "champignon",
+    "250g",
+    "usturoi",
+    "2",
+    "catei",
+    "cum",
+    "maggi",
+    "1",
+    "buc",
+    "faina",
+    "lingura",
+    "parmezan",
+    "100g",
+    "maioneza",
+    "linguri",
+    "iaurt",
+    "apa",
+    "100ml",
+    "ulei",
+    "floarea",
+    "soarelui",
+    "paine",
+    "rosii",
+    "cherry",
+    "dupa",
+    "gust",
+    "cremos",
+    "sarat",
+    "satios",
+    "complexitate",
+    "medie",
+    "necesita",
+    "atentie",
+    "timp",
+    "asteptare",
+    "buna",
+    "pentru",
+    "pregatit",
+    "din",
+    "gustare",
+    "pranz",
+    "familie",
+    "fara",
+    "carne",
+    "vegetarian",
+    "la",
+    "tigaie",
+    "sotare"
+  ]
+}

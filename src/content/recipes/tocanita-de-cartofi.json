@@ -1,0 +1,131 @@
+{
+  "id": "tocanita-de-cartofi",
+  "slug": "tocanita-de-cartofi",
+  "title": "Tocanita De Cartofi",
+  "description": "Se curata ceapa, cartofii si usturoiul.",
+  "category": "Fel secundar",
+  "ingredients": [
+    "Piept pui (2 buc.)",
+    "Ceapa mare (2 buc.)",
+    "Usturoi (2 catei)",
+    "Cartofi (~1,5g)",
+    "Mix legume (ceap, morcov, ardei, patrunjel radacina, pastarnac radacina)",
+    "Apa",
+    "Sare*",
+    "Boia*",
+    "Piper negru proaspat rasnit*",
+    "Ulei floarea soarelui",
+    "Frunze patrunjel*",
+    "*dupa gust"
+  ],
+  "steps": [
+    "Se curata ceapa, cartofii si usturoiul.",
+    "Cartofii se taie colturi, se spala si se lasa in apa.",
+    "Se toaca ceapa marunt.",
+    "Se taie carnea bucati (cuburi).",
+    "Intr-o oala se pune ulei si se lasa la incalzit pe foc mediu. Dupa ce se incalzeste se adauga ceapa si legumele si se calesc timp de aproximativ 3-5 minute. Se adauga carnea si se rumeste impreuna cu mixul de legume si ceapa timp de alte 5-10 minute. La compozitie se adauga si usturioul zdrobit si se lasa la calit inca ~1 minut.",
+    "Se adauga apa cat sa acopere compozitia din oala, impreuna cu sare, boia si piper negru si se lasa la fiert pentru ~5 minute.",
+    "Se adauga cartofii si apa suficienta pentru a acoperi intregul continut al oalei.",
+    "Se lasa la fiert ~45 minute.",
+    "Se taie frunzele de patrunjel si se adauga peste mancarea fara a amesteca."
+  ],
+  "beforeStart": [
+    "Curăță ceapa, cartofii și usturoiul înainte să încălzești oala.",
+    "Taie carnea în cuburi și pregătește mixul de legume.",
+    "Spală cartofii tăiați și ține-i în apă până îi adaugi.",
+    "Pregătește condimentele și pătrunjelul pentru final."
+  ],
+  "tags": {
+    "taste": [
+      "Sățios",
+      "Rustic",
+      "Aromat"
+    ],
+    "complexity": [
+      "Complexitate medie"
+    ],
+    "context": [
+      "Prânz",
+      "Cină",
+      "Pentru familie",
+      "Comfort food"
+    ],
+    "diet": [
+      "Cu carne"
+    ],
+    "equipment": [
+      "La oală"
+    ],
+    "technique": [
+      "Sotare",
+      "Fierbere"
+    ]
+  },
+  "equipment": [
+    "La oală"
+  ],
+  "prepTimeMinutes": null,
+  "cookTimeMinutes": null,
+  "totalTimeMinutes": null,
+  "servings": null,
+  "image": null,
+  "sourceUrl": "https://artagatitului.godaddysites.com/tocanita-de-cartofi",
+  "createdAt": null,
+  "updatedAt": null,
+  "status": "published",
+  "closing": "Poftă bună!",
+  "keywords": [
+    "tocanita",
+    "de",
+    "cartofi",
+    "fel",
+    "secundar",
+    "piept",
+    "pui",
+    "2",
+    "buc",
+    "ceapa",
+    "mare",
+    "usturoi",
+    "catei",
+    "1-5g",
+    "mix",
+    "legume",
+    "ceap",
+    "morcov",
+    "ardei",
+    "patrunjel",
+    "radacina",
+    "pastarnac",
+    "apa",
+    "sare",
+    "boia",
+    "piper",
+    "negru",
+    "proaspat",
+    "rasnit",
+    "ulei",
+    "floarea",
+    "soarelui",
+    "frunze",
+    "dupa",
+    "gust",
+    "satios",
+    "rustic",
+    "aromat",
+    "complexitate",
+    "medie",
+    "pranz",
+    "cina",
+    "pentru",
+    "familie",
+    "comfort",
+    "food",
+    "cu",
+    "carne",
+    "la",
+    "oala",
+    "sotare",
+    "fierbere"
+  ]
+}

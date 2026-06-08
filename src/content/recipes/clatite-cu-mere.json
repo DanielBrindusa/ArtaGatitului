@@ -1,0 +1,121 @@
+{
+  "id": "clatite-cu-mere",
+  "slug": "clatite-cu-mere",
+  "title": "Clatite cu mere",
+  "description": "Marul se spala, se curata de coaja, se taie in sferturi, se indeparteaza cotorul, iar pulpa fructului se da pe razatoare fina.",
+  "category": "Mic dejun",
+  "ingredients": [
+    "Mar (1 buc.)",
+    "Faina (180g)",
+    "Praf de copt (1 ½ lingurite)",
+    "Bicarbonat de sodiu (½ lingurita)",
+    "Scortisoara (1 lingurita)",
+    "Lapte (240ml)",
+    "Sirop artar (4 linguri)",
+    "Sirop de mere (1 lingurita)",
+    "Sare*",
+    "Nutella",
+    "Fructe",
+    "*dupa gust"
+  ],
+  "steps": [
+    "Marul se spala, se curata de coaja, se taie in sferturi, se indeparteaza cotorul, iar pulpa fructului se da pe razatoare fina.",
+    "Faina se amesteca cu praful de copt, bicarbonat de sodiu, scortisoara si sare. Laptele se amesteca cu siropul de artar si otetul de mere. Ingredientele se amestega intr-un aluat omogen.",
+    "Se incalzeste tigaia de clatite si se toarna forme micute de aluat de clatite cu polonicul.",
+    "Se coc ~3 minute pe fiecare parte.",
+    "Se taie fructele si se servesc impreuna cu nutella si clatitele calde."
+  ],
+  "beforeStart": [
+    "Măsoară ingredientele uscate și lichide înainte să faci aluatul.",
+    "Spală, curăță și rade mărul pe răzătoarea fină.",
+    "Pregătește tigaia de clătite și încălzește-o la foc potrivit.",
+    "Taie fructele pentru servire înainte să începi coacerea clătitelor."
+  ],
+  "tags": {
+    "taste": [
+      "Dulce",
+      "Aromat"
+    ],
+    "complexity": [
+      "Complexitate medie",
+      "Necesită atenție"
+    ],
+    "time": [
+      "Sub 30 minute"
+    ],
+    "context": [
+      "Mic dejun",
+      "Pentru weekend"
+    ],
+    "diet": [
+      "Fără carne",
+      "Vegetarian"
+    ],
+    "equipment": [
+      "La tigaie"
+    ],
+    "technique": [
+      "La tigaie"
+    ]
+  },
+  "equipment": [
+    "La tigaie"
+  ],
+  "prepTimeMinutes": null,
+  "cookTimeMinutes": null,
+  "totalTimeMinutes": null,
+  "servings": null,
+  "image": null,
+  "sourceUrl": "https://artagatitului.godaddysites.com/clatite-cu-mere",
+  "createdAt": null,
+  "updatedAt": null,
+  "status": "published",
+  "closing": "Poftă bună!",
+  "keywords": [
+    "clatite",
+    "cu",
+    "mere",
+    "mic",
+    "dejun",
+    "mar",
+    "1",
+    "buc",
+    "faina",
+    "180g",
+    "praf",
+    "de",
+    "copt",
+    "lingurite",
+    "bicarbonat",
+    "sodiu",
+    "lingurita",
+    "scortisoara",
+    "lapte",
+    "240ml",
+    "sirop",
+    "artar",
+    "4",
+    "linguri",
+    "sare",
+    "nutella",
+    "fructe",
+    "dupa",
+    "gust",
+    "dulce",
+    "aromat",
+    "complexitate",
+    "medie",
+    "necesita",
+    "atentie",
+    "sub",
+    "30",
+    "minute",
+    "pentru",
+    "weekend",
+    "fara",
+    "carne",
+    "vegetarian",
+    "la",
+    "tigaie"
+  ]
+}

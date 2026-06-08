@@ -1,0 +1,90 @@
+{
+  "id": "fructe-cu-nutella",
+  "slug": "fructe-cu-nutella",
+  "title": "Fructe cu Nutella",
+  "description": "Se feliaza fructele si se adauga jumatate de lingurita de nutella peste ele.",
+  "category": "Rontaieli",
+  "ingredients": [
+    "Nutella",
+    "Banana/Capsuni/Mar/Afine/Kivi",
+    "*dupa gust"
+  ],
+  "steps": [
+    "Se feliaza fructele si se adauga jumatate de lingurita de nutella peste ele.",
+    "Se savureaza fructele reci."
+  ],
+  "beforeStart": [
+    "Spală și usucă fructele înainte să le feliezi.",
+    "Răcește fructele dacă vrei gustarea mai fresh.",
+    "Pregătește un cuțit mic și un bol sau o farfurie pentru servire.",
+    "Scoate Nutella la îndemână ca să porționezi ușor cantitatea dorită."
+  ],
+  "tags": {
+    "taste": [
+      "Dulce",
+      "Fresh",
+      "Ușor"
+    ],
+    "complexity": [
+      "Începător",
+      "Ușor",
+      "Risc mic de greșeală"
+    ],
+    "time": [
+      "Sub 15 minute",
+      "Rețetă rapidă"
+    ],
+    "context": [
+      "Gustare",
+      "Pentru zile aglomerate"
+    ],
+    "diet": [
+      "Fără carne",
+      "Vegetarian"
+    ],
+    "technique": [
+      "Fără gătire"
+    ]
+  },
+  "equipment": [],
+  "prepTimeMinutes": null,
+  "cookTimeMinutes": null,
+  "totalTimeMinutes": null,
+  "servings": null,
+  "image": null,
+  "sourceUrl": "https://artagatitului.godaddysites.com/fructe-cu-nutella",
+  "createdAt": null,
+  "updatedAt": null,
+  "status": "published",
+  "closing": "Poftă bună!",
+  "keywords": [
+    "fructe",
+    "cu",
+    "nutella",
+    "rontaieli",
+    "banana-capsuni-mar-afine-kivi",
+    "dupa",
+    "gust",
+    "dulce",
+    "fresh",
+    "usor",
+    "incepator",
+    "risc",
+    "mic",
+    "de",
+    "greseala",
+    "sub",
+    "15",
+    "minute",
+    "reteta",
+    "rapida",
+    "gustare",
+    "pentru",
+    "zile",
+    "aglomerate",
+    "fara",
+    "carne",
+    "vegetarian",
+    "gatire"
+  ]
+}

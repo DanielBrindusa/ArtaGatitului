@@ -1,0 +1,117 @@
+{
+  "id": "charcuterie-board",
+  "slug": "charcuterie-board",
+  "title": "Charcuterie board",
+  "description": "Se feliaza ardeiul, castravetele, salamul, branza si cascavalul.",
+  "category": "Rontaieli",
+  "ingredients": [
+    "Grisine*",
+    "Biscuiti graham*",
+    "Rosii chery*",
+    "Carnaciori sticks*",
+    "Castravete*",
+    "Ardei*",
+    "Branza feta/telemea*",
+    "Masline*",
+    "Cascaval*",
+    "Salata verde*",
+    "Salam*",
+    "Vin alb",
+    "*dupa gust"
+  ],
+  "steps": [
+    "Se feliaza ardeiul, castravetele, salamul, branza si cascavalul.",
+    "Se taie carnaciorii sticks in bucatele mici (~2 cm).",
+    "Se aseaza toate ingredientele pe un blat de lemn si se servesc impreuna cu un pahar de vin alb."
+  ],
+  "beforeStart": [
+    "Pregătește blatul sau platoul pe care vei așeza ingredientele.",
+    "Spală și usucă roșiile, castravetele, ardeiul și salata.",
+    "Feliază brânzeturile, salamul și legumele înainte de asamblare.",
+    "Ține grisinele și biscuiții separat până la servire, ca să rămână crocante."
+  ],
+  "tags": {
+    "taste": [
+      "Sărat",
+      "Fresh",
+      "Ușor"
+    ],
+    "complexity": [
+      "Începător",
+      "Ușor",
+      "Risc mic de greșeală"
+    ],
+    "time": [
+      "Sub 15 minute",
+      "Rețetă rapidă"
+    ],
+    "context": [
+      "Gustare",
+      "Pentru musafiri",
+      "Pentru weekend"
+    ],
+    "diet": [
+      "Cu carne"
+    ],
+    "technique": [
+      "Fără gătire"
+    ]
+  },
+  "equipment": [],
+  "prepTimeMinutes": null,
+  "cookTimeMinutes": null,
+  "totalTimeMinutes": null,
+  "servings": null,
+  "image": null,
+  "sourceUrl": "https://artagatitului.godaddysites.com/charcuterie-board",
+  "createdAt": null,
+  "updatedAt": null,
+  "status": "published",
+  "closing": "Poftă bună!",
+  "keywords": [
+    "charcuterie",
+    "board",
+    "rontaieli",
+    "grisine",
+    "biscuiti",
+    "graham",
+    "rosii",
+    "chery",
+    "carnaciori",
+    "sticks",
+    "castravete",
+    "ardei",
+    "branza",
+    "feta-telemea",
+    "masline",
+    "cascaval",
+    "salata",
+    "verde",
+    "salam",
+    "vin",
+    "alb",
+    "dupa",
+    "gust",
+    "sarat",
+    "fresh",
+    "usor",
+    "incepator",
+    "risc",
+    "mic",
+    "de",
+    "greseala",
+    "sub",
+    "15",
+    "minute",
+    "reteta",
+    "rapida",
+    "gustare",
+    "pentru",
+    "musafiri",
+    "weekend",
+    "cu",
+    "carne",
+    "fara",
+    "gatire"
+  ]
+}

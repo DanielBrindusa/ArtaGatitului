@@ -1,0 +1,119 @@
+{
+  "id": "sandwitch-cu-ton",
+  "slug": "sandwitch-cu-ton",
+  "title": "Sandwitch cu ton",
+  "description": "Feliile de paine se prajesc pana ce devin usor crocante.",
+  "category": "Mic dejun",
+  "ingredients": [
+    "Paine (2 felii)",
+    "Ton (200g)",
+    "Creapa (1 buc.)",
+    "Maioneza (2 linguri)",
+    "Tabasco (2 stropi)",
+    "Salata verde (2-3 frunze)",
+    "Sare*",
+    "Piper*",
+    "Lamaie*",
+    "Ardei kapia*",
+    "Castraveti murati*",
+    "*dupa gust"
+  ],
+  "steps": [
+    "Feliile de paine se prajesc pana ce devin usor crocante.",
+    "Tonul se stoarce bine de suc.",
+    "Se taie castravetii murati, ardeiul kapia si ceapa cuburi mici si se amesteca cu zeama de lamaie, sare, piper, tabasco si maioneza.",
+    "Peste painea prajita se adauga o frunza de salata si compozitia rezultata mai sus."
+  ],
+  "beforeStart": [
+    "Prăjește feliile de pâine înainte să pregătești compoziția.",
+    "Scurge bine tonul de lichid.",
+    "Taie ceapa, ardeiul și castraveții murați în cuburi mici.",
+    "Pregătește maioneza, lămâia și Tabasco-ul pentru ajustarea gustului."
+  ],
+  "tags": {
+    "taste": [
+      "Sărat",
+      "Acrișor",
+      "Fresh",
+      "Sățios"
+    ],
+    "complexity": [
+      "Începător",
+      "Ușor",
+      "Risc mic de greșeală"
+    ],
+    "time": [
+      "Sub 15 minute",
+      "Rețetă rapidă"
+    ],
+    "context": [
+      "Mic dejun",
+      "Gustare",
+      "Pentru zile aglomerate"
+    ],
+    "diet": [
+      "Cu carne"
+    ]
+  },
+  "equipment": [],
+  "prepTimeMinutes": null,
+  "cookTimeMinutes": null,
+  "totalTimeMinutes": null,
+  "servings": null,
+  "image": null,
+  "sourceUrl": "https://artagatitului.godaddysites.com/sandwitch-cu-ton",
+  "createdAt": null,
+  "updatedAt": null,
+  "status": "published",
+  "closing": "Poftă bună!",
+  "keywords": [
+    "sandwitch",
+    "cu",
+    "ton",
+    "mic",
+    "dejun",
+    "paine",
+    "2",
+    "felii",
+    "200g",
+    "creapa",
+    "1",
+    "buc",
+    "maioneza",
+    "linguri",
+    "tabasco",
+    "stropi",
+    "salata",
+    "verde",
+    "2-3",
+    "frunze",
+    "sare",
+    "piper",
+    "lamaie",
+    "ardei",
+    "kapia",
+    "castraveti",
+    "murati",
+    "dupa",
+    "gust",
+    "sarat",
+    "acrisor",
+    "fresh",
+    "satios",
+    "incepator",
+    "usor",
+    "risc",
+    "de",
+    "greseala",
+    "sub",
+    "15",
+    "minute",
+    "reteta",
+    "rapida",
+    "gustare",
+    "pentru",
+    "zile",
+    "aglomerate",
+    "carne"
+  ]
+}

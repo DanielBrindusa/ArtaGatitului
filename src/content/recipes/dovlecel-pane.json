@@ -1,0 +1,116 @@
+{
+  "id": "dovlecel-pane",
+  "slug": "dovlecel-pane",
+  "title": "Dovlecel pane",
+  "description": "Se feliaza rondele dovlecelul",
+  "category": "Fel secundar",
+  "ingredients": [
+    "Dovlecel (2 buc.)",
+    "Faina (300g)",
+    "Oua (2 buc.)",
+    "Ulei",
+    "Sare*",
+    "Piper*",
+    "Rosii*",
+    "Banza*",
+    "Paine pe vatra*",
+    "*dupa gust"
+  ],
+  "steps": [
+    "Se feliaza rondele dovlecelul",
+    "Intr-o farfurie adanca se bat cele doua oua pana se omogenizeaza impreuna cu sarea si piperul.",
+    "Intr-o farfurie intainsa se pune faina.",
+    "Intr-o tigaie medie/mare se incalzeste uleiul la foc mediu.",
+    "Se trec rondelele de dovlecel prin faina, apoi prin ou si se prajesc pe ambele parti in uleiul incins pana devin aurii.",
+    "Se servesc impreuna cu rosiile, brinza si painea"
+  ],
+  "beforeStart": [
+    "Feliază dovlecelul în rondele înainte să încălzești tigaia.",
+    "Pregătește separat farfuria cu făină și bolul cu ou bătut.",
+    "Încălzește uleiul la foc mediu și verifică să nu fie prea încins.",
+    "Pregătește o farfurie pentru rondelele prăjite."
+  ],
+  "tags": {
+    "taste": [
+      "Crocant",
+      "Sărat",
+      "Ușor"
+    ],
+    "complexity": [
+      "Ușor",
+      "Necesită atenție"
+    ],
+    "time": [
+      "Sub 30 minute"
+    ],
+    "context": [
+      "Gustare",
+      "Prânz",
+      "Pentru zile aglomerate"
+    ],
+    "diet": [
+      "Fără carne",
+      "Vegetarian"
+    ],
+    "equipment": [
+      "La tigaie"
+    ],
+    "technique": [
+      "Prăjire",
+      "La tigaie"
+    ]
+  },
+  "equipment": [
+    "La tigaie"
+  ],
+  "prepTimeMinutes": null,
+  "cookTimeMinutes": null,
+  "totalTimeMinutes": null,
+  "servings": null,
+  "image": null,
+  "sourceUrl": "https://artagatitului.godaddysites.com/dovlecel-pane",
+  "createdAt": null,
+  "updatedAt": null,
+  "status": "published",
+  "closing": "Poftă bună!",
+  "keywords": [
+    "dovlecel",
+    "pane",
+    "fel",
+    "secundar",
+    "2",
+    "buc",
+    "faina",
+    "300g",
+    "oua",
+    "ulei",
+    "sare",
+    "piper",
+    "rosii",
+    "banza",
+    "paine",
+    "pe",
+    "vatra",
+    "dupa",
+    "gust",
+    "crocant",
+    "sarat",
+    "usor",
+    "necesita",
+    "atentie",
+    "sub",
+    "30",
+    "minute",
+    "gustare",
+    "pranz",
+    "pentru",
+    "zile",
+    "aglomerate",
+    "fara",
+    "carne",
+    "vegetarian",
+    "la",
+    "tigaie",
+    "prajire"
+  ]
+}

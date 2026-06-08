@@ -1,0 +1,95 @@
+{
+  "id": "mar-cu-unt-de-arahide",
+  "slug": "mar-cu-unt-de-arahide",
+  "title": "Mar cu unt de arahide",
+  "description": "Se feliaza marul.",
+  "category": "Rontaieli",
+  "ingredients": [
+    "Mar (1 buc.)",
+    "Unt arahide (2 linguri)"
+  ],
+  "steps": [
+    "Se feliaza marul.",
+    "Se pune unt de arahide pe feliile de mar."
+  ],
+  "beforeStart": [
+    "Spală mărul înainte să îl feliezi.",
+    "Pregătește un cuțit și o farfurie pentru servire.",
+    "Amestecă untul de arahide dacă s-a separat în borcan.",
+    "Taie feliile chiar înainte de servire ca să rămână proaspete."
+  ],
+  "tags": {
+    "taste": [
+      "Dulce",
+      "Fresh",
+      "Ușor"
+    ],
+    "complexity": [
+      "Începător",
+      "Ușor",
+      "Risc mic de greșeală"
+    ],
+    "time": [
+      "Sub 15 minute",
+      "Rețetă rapidă"
+    ],
+    "context": [
+      "Gustare",
+      "Pentru zile aglomerate"
+    ],
+    "diet": [
+      "Fără carne",
+      "Vegetarian",
+      "Fără lactate",
+      "Fără ou"
+    ],
+    "technique": [
+      "Fără gătire"
+    ]
+  },
+  "equipment": [],
+  "prepTimeMinutes": null,
+  "cookTimeMinutes": null,
+  "totalTimeMinutes": null,
+  "servings": null,
+  "image": null,
+  "sourceUrl": "https://artagatitului.godaddysites.com/mar-cu-unt-de-arahide",
+  "createdAt": null,
+  "updatedAt": null,
+  "status": "published",
+  "closing": "Poftă bună!",
+  "keywords": [
+    "mar",
+    "cu",
+    "unt",
+    "de",
+    "arahide",
+    "rontaieli",
+    "1",
+    "buc",
+    "2",
+    "linguri",
+    "dulce",
+    "fresh",
+    "usor",
+    "incepator",
+    "risc",
+    "mic",
+    "greseala",
+    "sub",
+    "15",
+    "minute",
+    "reteta",
+    "rapida",
+    "gustare",
+    "pentru",
+    "zile",
+    "aglomerate",
+    "fara",
+    "carne",
+    "vegetarian",
+    "lactate",
+    "ou",
+    "gatire"
+  ]
+}

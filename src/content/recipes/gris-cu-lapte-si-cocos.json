@@ -1,0 +1,113 @@
+{
+  "id": "gris-cu-lapte-si-cocos",
+  "slug": "gris-cu-lapte-si-cocos",
+  "title": "Gris cu lapte, cocos si afine",
+  "description": "Intr-o oala medie se incalzeste laptele la foc mic-mediu. Se adauga treptat grisul si zaharul si se amesteca in mod constant. Se fierbe pe foc mic-mediu timp de ~5 minute.",
+  "category": "Mic dejun",
+  "ingredients": [
+    "Lapte (400ml)",
+    "Gris (3 linguri)",
+    "Zahar (2 linguri)",
+    "Sirop de artar*",
+    "Cocos*",
+    "Afine*",
+    "*dupa gust"
+  ],
+  "steps": [
+    "Intr-o oala medie se incalzeste laptele la foc mic-mediu. Se adauga treptat grisul si zaharul si se amesteca in mod constant. Se fierbe pe foc mic-mediu timp de ~5 minute.",
+    "Se serveste cald, impreuna cu sirop de artar, cocos si afine."
+  ],
+  "beforeStart": [
+    "Măsoară laptele, grișul și zahărul înainte să pornești focul.",
+    "Pregătește o oală medie și o lingură pentru amestecat constant.",
+    "Ține toppingurile pregătite pentru servire.",
+    "Folosește foc mic-mediu ca să nu se prindă laptele."
+  ],
+  "tags": {
+    "taste": [
+      "Dulce",
+      "Cremos",
+      "Fin"
+    ],
+    "complexity": [
+      "Începător",
+      "Ușor",
+      "Risc mic de greșeală"
+    ],
+    "time": [
+      "Sub 15 minute",
+      "Rețetă rapidă"
+    ],
+    "context": [
+      "Mic dejun",
+      "Pentru zile aglomerate",
+      "Comfort food"
+    ],
+    "diet": [
+      "Fără carne",
+      "Vegetarian"
+    ],
+    "equipment": [
+      "La oală"
+    ],
+    "technique": [
+      "Fierbere"
+    ]
+  },
+  "equipment": [
+    "La oală"
+  ],
+  "prepTimeMinutes": null,
+  "cookTimeMinutes": null,
+  "totalTimeMinutes": null,
+  "servings": null,
+  "image": null,
+  "sourceUrl": "https://artagatitului.godaddysites.com/gris-cu-lapte-si-cocos",
+  "createdAt": null,
+  "updatedAt": null,
+  "status": "published",
+  "closing": "Poftă bună!",
+  "keywords": [
+    "gris",
+    "cu",
+    "lapte",
+    "cocos",
+    "si",
+    "afine",
+    "mic",
+    "dejun",
+    "400ml",
+    "3",
+    "linguri",
+    "zahar",
+    "2",
+    "sirop",
+    "de",
+    "artar",
+    "dupa",
+    "gust",
+    "dulce",
+    "cremos",
+    "fin",
+    "incepator",
+    "usor",
+    "risc",
+    "greseala",
+    "sub",
+    "15",
+    "minute",
+    "reteta",
+    "rapida",
+    "pentru",
+    "zile",
+    "aglomerate",
+    "comfort",
+    "food",
+    "fara",
+    "carne",
+    "vegetarian",
+    "la",
+    "oala",
+    "fierbere"
+  ]
+}

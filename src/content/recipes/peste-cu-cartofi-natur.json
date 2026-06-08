@@ -1,0 +1,136 @@
+{
+  "id": "peste-cu-cartofi-natur",
+  "slug": "peste-cu-cartofi-natur",
+  "title": "Peste marinat cu cartofi natur",
+  "description": "Se usuca pestele bine cu prosoape de hartie, se unge pestele uniform cu zeama de lamaie, mustar, sare si piper si se lasa la marinat minim 3 ore.",
+  "category": "Fel secundar",
+  "ingredients": [
+    "Peste:",
+    "Pangasius file (4 buc.)",
+    "Lamaie (1 buc.)",
+    "Mustar (4 linguri)",
+    "Sare*",
+    "Piper*",
+    "Cartofi (1kg)",
+    "Unt (20g)",
+    "Apa",
+    "Patrunjel*",
+    "*dupa gust"
+  ],
+  "steps": [
+    "Marinat:",
+    "Se usuca pestele bine cu prosoape de hartie, se unge pestele uniform cu zeama de lamaie, mustar, sare si piper si se lasa la marinat minim 3 ore.",
+    "Pestele:",
+    "Se pune pestele intr-o tava si se baga la cuptor timp de ~30 minute la 180°C.",
+    "Garnitura:",
+    "Se curata cartofii, se taie cuburi si se pun la fiert intr-o oala cu apa si sare pentru aproximativ ~20 minute.",
+    "Se adauga unt intr-o tigaie si se pun cartofii fierti la prajit pentru ~3 minute.",
+    "Se toaca patrunjelul si se pune peste cartofi."
+  ],
+  "beforeStart": [
+    "Usucă peștele cu prosoape de hârtie înainte de marinare.",
+    "Pregătește marinada și lasă peștele la rece cel puțin 3 ore.",
+    "Preîncălzește cuptorul înainte să pui peștele în tavă.",
+    "Curăță și taie cartofii pentru fierbere cât timp se pregătește peștele."
+  ],
+  "tags": {
+    "taste": [
+      "Acrișor",
+      "Ușor",
+      "Aromat"
+    ],
+    "complexity": [
+      "Complexitate medie",
+      "Necesită atenție"
+    ],
+    "time": [
+      "Necesită timp de așteptare",
+      "Bună pentru pregătit din timp"
+    ],
+    "context": [
+      "Prânz",
+      "Cină",
+      "Pentru weekend"
+    ],
+    "diet": [
+      "Cu carne"
+    ],
+    "equipment": [
+      "Necesită cuptor",
+      "Necesită tavă",
+      "La oală"
+    ],
+    "technique": [
+      "Marinare",
+      "Coacere",
+      "Fierbere",
+      "La cuptor"
+    ]
+  },
+  "equipment": [
+    "Necesită cuptor",
+    "Necesită tavă",
+    "La oală"
+  ],
+  "prepTimeMinutes": null,
+  "cookTimeMinutes": null,
+  "totalTimeMinutes": null,
+  "servings": null,
+  "image": null,
+  "sourceUrl": "https://artagatitului.godaddysites.com/peste-cu-cartofi-natur",
+  "createdAt": null,
+  "updatedAt": null,
+  "status": "published",
+  "closing": "Poftă bună!",
+  "keywords": [
+    "peste",
+    "marinat",
+    "cu",
+    "cartofi",
+    "natur",
+    "fel",
+    "secundar",
+    "pangasius",
+    "file",
+    "4",
+    "buc",
+    "lamaie",
+    "1",
+    "mustar",
+    "linguri",
+    "sare",
+    "piper",
+    "1kg",
+    "unt",
+    "20g",
+    "apa",
+    "patrunjel",
+    "dupa",
+    "gust",
+    "acrisor",
+    "usor",
+    "aromat",
+    "complexitate",
+    "medie",
+    "necesita",
+    "atentie",
+    "timp",
+    "de",
+    "asteptare",
+    "buna",
+    "pentru",
+    "pregatit",
+    "din",
+    "pranz",
+    "cina",
+    "weekend",
+    "carne",
+    "cuptor",
+    "tava",
+    "la",
+    "oala",
+    "marinare",
+    "coacere",
+    "fierbere"
+  ]
+}

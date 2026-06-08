@@ -1,0 +1,107 @@
+{
+  "id": "bagheta-bistro",
+  "slug": "bagheta-bistro",
+  "title": "Bagheta bistro",
+  "description": "Bagheta se taie in 2 jumatati dupa care se sectioneaza pe lungime.",
+  "category": "Mic dejun",
+  "ingredients": [
+    "Bagheta de paine (1 buc)",
+    "Salata verde (~4 frunze)",
+    "Sunca presata (30g)",
+    "Iaurt (2 lingurite)",
+    "Unt*",
+    "Branza*",
+    "*dupa gust"
+  ],
+  "steps": [
+    "Bagheta se taie in 2 jumatati dupa care se sectioneaza pe lungime.",
+    "Se deschide bagheta taiata pe lungime si se unge cu unt, se adauga salata, sunca branza si iaurtul apoi se inchide painea."
+  ],
+  "beforeStart": [
+    "Taie bagheta pe lungime fără să rupi complet bucățile.",
+    "Spală și usucă frunzele de salată.",
+    "Pregătește untul, brânza, șunca și iaurtul înainte de asamblare.",
+    "Asamblează bagheta aproape de servire ca să rămână proaspătă."
+  ],
+  "tags": {
+    "taste": [
+      "Sărat",
+      "Fresh",
+      "Ușor"
+    ],
+    "complexity": [
+      "Începător",
+      "Ușor",
+      "Risc mic de greșeală"
+    ],
+    "time": [
+      "Sub 15 minute",
+      "Rețetă rapidă"
+    ],
+    "context": [
+      "Mic dejun",
+      "Gustare",
+      "Pentru zile aglomerate"
+    ],
+    "diet": [
+      "Cu carne"
+    ],
+    "technique": [
+      "Fără gătire"
+    ]
+  },
+  "equipment": [],
+  "prepTimeMinutes": null,
+  "cookTimeMinutes": null,
+  "totalTimeMinutes": null,
+  "servings": null,
+  "image": null,
+  "sourceUrl": "https://artagatitului.godaddysites.com/bagheta-bistro",
+  "createdAt": null,
+  "updatedAt": null,
+  "status": "published",
+  "closing": "Poftă bună!",
+  "keywords": [
+    "bagheta",
+    "bistro",
+    "mic",
+    "dejun",
+    "de",
+    "paine",
+    "1",
+    "buc",
+    "salata",
+    "verde",
+    "4",
+    "frunze",
+    "sunca",
+    "presata",
+    "30g",
+    "iaurt",
+    "2",
+    "lingurite",
+    "unt",
+    "branza",
+    "dupa",
+    "gust",
+    "sarat",
+    "fresh",
+    "usor",
+    "incepator",
+    "risc",
+    "greseala",
+    "sub",
+    "15",
+    "minute",
+    "reteta",
+    "rapida",
+    "gustare",
+    "pentru",
+    "zile",
+    "aglomerate",
+    "cu",
+    "carne",
+    "fara",
+    "gatire"
+  ]
+}

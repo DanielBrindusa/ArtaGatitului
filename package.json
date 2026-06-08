@@ -1,0 +1,8 @@
+{
+  "scripts": {
+    "validate:content": "node src/scripts/validate-content.mjs",
+    "build": "node build-static-site.mjs",
+    "import:godaddy": "node src/scripts/import/import-godaddy-audit.mjs",
+    "check": "npm run validate:content && npm run build"
+  }
+}

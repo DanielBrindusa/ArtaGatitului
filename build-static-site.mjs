@@ -1,678 +1,6 @@
-import fs from 'node:fs/promises';
-import path from 'node:path';
 import { deflateSync, inflateSync } from 'node:zlib';
-
-const ROOT = process.cwd();
-const INVENTORY_PATH = path.join(ROOT, 'site-audit', 'godaddy-page-text-inventory.json');
-const RECIPES_MD_PATH = path.join(ROOT, 'site-audit', 'godaddy-recipes-only.md');
-const SOURCE_ICON_PATH = path.join(ROOT, 'icon.png');
-const BUILD_VERSION = Date.now().toString(36);
-
-const SITE_NAME = 'Arta Gătitului';
-const HERO_IMAGE = 'https://img1.wsimg.com/isteam/stock/19687/:/rs=w:1800,m';
-const CATEGORY_PAGES = {
-  '/fel-principal': { name: 'Fel principal', slug: 'fel-principal', description: 'Supe, ciorbe și mâncăruri consistente pentru masa principală.' },
-  '/fel-secundar': { name: 'Fel secundar', slug: 'fel-secundar', description: 'Rețete calde, garnituri și feluri care completează masa.' },
-  '/desert': { name: 'Desert', slug: 'desert', description: 'Dulciuri simple pentru familie și musafiri.' },
-  '/rontaieli': { name: 'Rontaieli', slug: 'rontaieli', description: 'Gustări rapide, platouri și idei de ronțăit.' },
-  '/salate': { name: 'Salate', slug: 'salate', description: 'Salate și creme reci, bune lângă pâine prăjită.' },
-  '/bauturi': { name: 'Băuturi', slug: 'bauturi', description: 'Băuturi și idei care urmează să fie adăugate.' },
-  '/mic-dejun': { name: 'Mic dejun', slug: 'mic-dejun', description: 'Idei pentru dimineți gustoase, rapide sau mai tihnite.' },
-};
-
-const LOCAL_FALLBACK_RECIPES = [
-  {
-    name: 'Tocăniță de pui cu ardei copți',
-    slug: 'tocanita-de-pui-cu-ardei',
-    category: 'Fel secundar',
-    sourceUrl: 'https://artagatitului.godaddysites.com/tocanita-de-pui-cu-ardei',
-    preparation: [
-      'Gătește pulpele de pui până se rumenesc ușor.',
-      'Adaugă ceapa, usturoiul, ardeii copți și bulionul.',
-      'Lasă tocănița să fiarbă până când sosul se leagă.',
-      'Servește cu pătrunjel și pâine ciabatta.',
-    ],
-    ingredients: [
-      'pulpe de pui',
-      'ardei capia',
-      'ceapă',
-      'usturoi',
-      'bulion',
-      'ulei de măsline',
-      'pătrunjel',
-      'busuioc',
-      'curry',
-      'piper',
-      'sare',
-      'pâine ciabatta',
-    ],
-  },
-];
-
-const RECIPE_ALIASES = {
-  'cartofi-prajiti-cu-sos-de-iaurt-si-menta': 'cartofi-prajiti-cu-sos',
-  'ciorba-de-fasole-cu-afumatura': 'ciorba-de-fasole',
-  'conopida-cu-orez-si-sos-rosu': 'conopida-cu-orez-1',
-  'piept-de-pui-cu-lamaie-si-cartofi-aurii': 'pui-cu-lamaie-si-cartofi',
-  'tocanita-de-pui-cu-ardei-copti': 'tocanita-de-pui-cu-ardei',
-};
-
-const RECIPE_METADATA = {
-  'ciorba-de-fasole': {
-    beforeStart: [
-      'Pune fasolea la înmuiat cu o zi înainte și aruncă apa înainte de fierbere.',
-      'Pregătește o oală încăpătoare pentru schimbarea apei la primele clocote.',
-      'Curăță și taie ceapa, ardeiul și morcovul înainte să pornești focul.',
-      'Pregătește afumătura, pasta de tomate și leușteanul pentru momentul potrivit.',
-    ],
-    tags: {
-      taste: ['Sărat', 'Sățios', 'Aromat', 'Rustic'],
-      complexity: ['Complexitate medie', 'Necesită atenție'],
-      time: ['Necesită timp de așteptare', 'Bună pentru pregătit din timp'],
-      context: ['Prânz', 'Cină', 'Pentru familie', 'Comfort food'],
-      diet: ['Cu carne'],
-      equipment: ['La oală'],
-      technique: ['Fierbere', 'Sotare'],
-    },
-  },
-  'supa-de-pui-cu-galuste': {
-    beforeStart: [
-      'Curăță legumele și pregătește o oală mare înainte să pui puiul la fiert.',
-      'Ține la îndemână o spumieră ca să cureți supa în timpul fierberii.',
-      'Pregătește separat bolul pentru compoziția de găluște.',
-      'Citește pașii pentru momentul în care se adaugă găluștele și pătrunjelul.',
-    ],
-    tags: {
-      taste: ['Sărat', 'Aromat', 'Ușor'],
-      complexity: ['Complexitate medie', 'Necesită atenție'],
-      context: ['Prânz', 'Cină', 'Pentru familie', 'Comfort food'],
-      diet: ['Cu carne'],
-      equipment: ['La oală'],
-      technique: ['Fierbere'],
-    },
-  },
-  'carne-cu-varza-murata': {
-    beforeStart: [
-      'Taie carnea de porc în cuburi aproximativ egale.',
-      'Pregătește tigaia și apa măsurată înainte să pornești focul.',
-      'Scurge varza murată dacă este foarte zemoasă.',
-      'Lasă loc în tigaie ca bucățile de carne să se rumenească uniform.',
-    ],
-    tags: {
-      taste: ['Sărat', 'Acrișor', 'Sățios', 'Rustic'],
-      complexity: ['Ușor', 'Risc mic de greșeală'],
-      context: ['Prânz', 'Cină', 'Comfort food'],
-      diet: ['Cu carne', 'Fără lactate', 'Fără ou'],
-      equipment: ['La tigaie'],
-      technique: ['Prăjire', 'La tigaie'],
-    },
-  },
-  'cartofi-prajiti-cu-sos': {
-    beforeStart: [
-      'Curăță și taie cartofii înainte să încălzești apa sau uleiul.',
-      'Pregătește ingredientele pentru sos într-un bol separat.',
-      'Lasă cartofii să se răcească după opărire, ca să se prăjească mai bine.',
-      'Pregătește o farfurie cu șervețel pentru cartofii scoși din ulei.',
-      'Nu aglomera tigaia când prăjești cartofii.',
-    ],
-    tags: {
-      taste: ['Crocant', 'Cremos', 'Acrișor', 'Fresh', 'Sățios'],
-      complexity: ['Complexitate medie', 'Necesită atenție'],
-      context: ['Gustare', 'Prânz', 'Pentru weekend'],
-      diet: ['Fără carne', 'Vegetarian'],
-      equipment: ['La tigaie', 'La oală'],
-      technique: ['Fierbere', 'Prăjire', 'La tigaie'],
-    },
-  },
-  'chiftele-de-pui': {
-    beforeStart: [
-      'Fierbe pulpele de pui înainte să pregătești compoziția.',
-      'Pregătește un bol pentru carne, ouă, făină și condimente.',
-      'Păstrează puțină supă de la fierbere pentru compoziție.',
-      'Încălzește uleiul la foc mediu și pregătește o farfurie pentru chiftelele prăjite.',
-    ],
-    tags: {
-      taste: ['Sărat', 'Sățios'],
-      complexity: ['Complexitate medie', 'Necesită atenție'],
-      time: ['Sub 60 minute'],
-      context: ['Prânz', 'Cină', 'Pentru familie'],
-      diet: ['Cu carne'],
-      equipment: ['La oală', 'La tigaie'],
-      technique: ['Fierbere', 'Prăjire', 'La tigaie'],
-    },
-  },
-  'conopida-cu-orez-1': {
-    beforeStart: [
-      'Spală conopida și taie-o în bucăți medii înainte să încălzești uleiul.',
-      'Pregătește farfuria cu pesmet și bolul cu ou bătut.',
-      'Curăță și toacă ceapa și usturoiul pentru sos înainte de gătire.',
-      'Pregătește blenderul de mână pentru omogenizarea sosului.',
-      'Ține la îndemână o farfurie pentru bucățile de conopidă prăjite.',
-    ],
-    tags: {
-      taste: ['Crocant', 'Condimentat', 'Cremos', 'Sățios'],
-      complexity: ['Complexitate medie', 'Necesită atenție'],
-      context: ['Prânz', 'Cină', 'Pentru weekend'],
-      diet: ['Fără carne', 'Vegetarian'],
-      equipment: ['La tigaie', 'Necesită blender'],
-      technique: ['Prăjire', 'Sotare', 'La tigaie'],
-    },
-  },
-  'dovlecel-pane': {
-    beforeStart: [
-      'Feliază dovlecelul în rondele înainte să încălzești tigaia.',
-      'Pregătește separat farfuria cu făină și bolul cu ou bătut.',
-      'Încălzește uleiul la foc mediu și verifică să nu fie prea încins.',
-      'Pregătește o farfurie pentru rondelele prăjite.',
-    ],
-    tags: {
-      taste: ['Crocant', 'Sărat', 'Ușor'],
-      complexity: ['Ușor', 'Necesită atenție'],
-      time: ['Sub 30 minute'],
-      context: ['Gustare', 'Prânz', 'Pentru zile aglomerate'],
-      diet: ['Fără carne', 'Vegetarian'],
-      equipment: ['La tigaie'],
-      technique: ['Prăjire', 'La tigaie'],
-    },
-  },
-  'fajitas-de-pui': {
-    beforeStart: [
-      'Taie puiul și legumele înainte să pornești focul.',
-      'Condimentează puiul într-un bol separat.',
-      'Pregătește tigaia și uleiul de măsline pentru sotare.',
-      'Ține zeama de lămâie și usturoiul la îndemână pentru final.',
-    ],
-    tags: {
-      taste: ['Condimentat', 'Sățios', 'Fresh'],
-      complexity: ['Complexitate medie', 'Risc mic de greșeală'],
-      time: ['Sub 60 minute'],
-      context: ['Prânz', 'Cină', 'Pentru familie'],
-      diet: ['Cu carne'],
-      equipment: ['La tigaie'],
-      technique: ['Sotare', 'La tigaie'],
-    },
-  },
-  'gulas-cu-spaetzle': {
-    beforeStart: [
-      'Curăță ceapa, cartofii și usturoiul înainte să încălzești oala.',
-      'Taie carnea în cuburi și ține condimentele pregătite.',
-      'Spală cartofii tăiați și lasă-i în apă până îi adaugi.',
-      'Pregătește apa și pasta de gulaș pentru etapa de fierbere.',
-    ],
-    tags: {
-      taste: ['Sățios', 'Condimentat', 'Aromat', 'Rustic'],
-      complexity: ['Complexitate medie'],
-      context: ['Prânz', 'Cină', 'Comfort food'],
-      diet: ['Cu carne'],
-      equipment: ['La oală'],
-      technique: ['Sotare', 'Fierbere'],
-    },
-  },
-  'mancare-de-mazare-cu-pui': {
-    beforeStart: [
-      'Taie pieptul de pui în cuburi medii.',
-      'Pregătește legumele, mărarul și condimentele înainte să încălzești oala.',
-      'Măsoară făina și smântâna pentru compoziția adăugată spre final.',
-      'Ține o linguriță la îndemână pentru adăugarea treptată a compoziției.',
-    ],
-    tags: {
-      taste: ['Cremos', 'Sățios', 'Aromat'],
-      complexity: ['Complexitate medie'],
-      time: ['Sub 60 minute'],
-      context: ['Prânz', 'Cină', 'Pentru familie'],
-      diet: ['Cu carne'],
-      equipment: ['La oală'],
-      technique: ['Sotare', 'Fierbere'],
-    },
-  },
-  'peste-cu-cartofi-natur': {
-    beforeStart: [
-      'Usucă peștele cu prosoape de hârtie înainte de marinare.',
-      'Pregătește marinada și lasă peștele la rece cel puțin 3 ore.',
-      'Preîncălzește cuptorul înainte să pui peștele în tavă.',
-      'Curăță și taie cartofii pentru fierbere cât timp se pregătește peștele.',
-    ],
-    tags: {
-      taste: ['Acrișor', 'Ușor', 'Aromat'],
-      complexity: ['Complexitate medie', 'Necesită atenție'],
-      time: ['Necesită timp de așteptare', 'Bună pentru pregătit din timp'],
-      context: ['Prânz', 'Cină', 'Pentru weekend'],
-      diet: ['Cu carne'],
-      equipment: ['Necesită cuptor', 'Necesită tavă', 'La oală'],
-      technique: ['Marinare', 'Coacere', 'Fierbere', 'La cuptor'],
-    },
-  },
-  'pui-cu-lamaie-si-cartofi': {
-    beforeStart: [
-      'Taie puiul și pregătește farfuriile pentru făină și ou cu parmezan.',
-      'Spală cartofii și pregătește condimentele înainte să începi gătirea.',
-      'Rade parmezanul și toacă ceapa verde înainte să pornești focul.',
-      'Pregătește lămâia, untul și usturoiul pentru sos.',
-    ],
-    tags: {
-      taste: ['Acrișor', 'Crocant', 'Sățios', 'Aromat'],
-      complexity: ['Complexitate medie', 'Necesită atenție'],
-      context: ['Prânz', 'Cină', 'Pentru familie'],
-      diet: ['Cu carne'],
-      equipment: ['La tigaie'],
-      technique: ['Prăjire', 'La tigaie'],
-    },
-  },
-  'pui-dulce-acrisor-cu-orez': {
-    beforeStart: [
-      'Taie puiul și pregătește făina și oul pentru acoperire.',
-      'Amestecă sosul dulce-acrișor înainte să pornești gătirea.',
-      'Întinde foaia de copt în tavă.',
-      'Preîncălzește cuptorul la temperatura indicată în rețetă.',
-      'Pregătește orezul și apa pentru fierbere.',
-    ],
-    tags: {
-      taste: ['Dulce', 'Acrișor', 'Sățios'],
-      complexity: ['Complexitate medie', 'Necesită atenție'],
-      context: ['Prânz', 'Cină', 'Pentru familie'],
-      diet: ['Cu carne'],
-      equipment: ['Necesită cuptor', 'Necesită tavă', 'La oală'],
-      technique: ['Coacere', 'Fierbere', 'La cuptor'],
-    },
-  },
-  'pulpe-de-pui-cu-orzo': {
-    beforeStart: [
-      'Condimentează pulpele înainte să încălzești tigaia.',
-      'Taie ciupercile, toacă pătrunjelul și rade parmezanul dinainte.',
-      'Pregătește orzo-ul și lichidul necesar pentru gătire.',
-      'Ține untul, uleiul și usturoiul la îndemână pentru începutul gătirii.',
-    ],
-    tags: {
-      taste: ['Cremos', 'Sățios', 'Aromat'],
-      complexity: ['Complexitate medie'],
-      context: ['Prânz', 'Cină', 'Pentru familie'],
-      diet: ['Cu carne'],
-      equipment: ['La tigaie'],
-      technique: ['Sotare', 'La tigaie'],
-    },
-  },
-  'rata-la-cuptor-umpluta': {
-    beforeStart: [
-      'Spală și usucă bine rața înainte de marinare.',
-      'Planifică marinarea din timp, deoarece rața stă condimentată aproximativ 24 de ore.',
-      'Curăță ceapa, usturoiul, cartofii și fructele pentru umplutură și garnitură.',
-      'Pregătește tava și preîncălzește cuptorul înainte de coacere.',
-      'Spală orezul și pregătește ingredientele pentru umplutură înainte să umpli rața.',
-    ],
-    tags: {
-      taste: ['Sățios', 'Aromat', 'Rustic'],
-      complexity: ['Complexitate ridicată', 'Necesită atenție'],
-      time: ['Necesită timp de așteptare', 'Bună pentru pregătit din timp'],
-      context: ['Cină', 'Pentru musafiri', 'Pentru weekend'],
-      diet: ['Cu carne'],
-      equipment: ['Necesită cuptor', 'Necesită tavă'],
-      technique: ['Marinare', 'Coacere', 'La cuptor'],
-    },
-  },
-  'snitel-pufos-de-pui': {
-    beforeStart: [
-      'Taie și bate pieptul de pui înainte să pregătești tigaia.',
-      'Pregătește farfuria cu făină și bolul cu ou bătut.',
-      'Încălzește uleiul la foc mediu ca șnițelul să se rumenească fără să se ardă.',
-      'Pregătește o farfurie pentru bucățile prăjite.',
-    ],
-    tags: {
-      taste: ['Crocant', 'Sărat', 'Sățios'],
-      complexity: ['Complexitate medie', 'Necesită atenție'],
-      time: ['Sub 30 minute'],
-      context: ['Prânz', 'Cină', 'Pentru familie'],
-      diet: ['Cu carne'],
-      equipment: ['La tigaie'],
-      technique: ['Prăjire', 'La tigaie'],
-    },
-  },
-  shakshuka: {
-    beforeStart: [
-      'Taie ardeii și ceapa înainte să încălzești tigaia.',
-      'Pregătește usturoiul, conserva de roșii, bulionul și condimentele.',
-      'Toacă pătrunjelul și pregătește feta pentru final.',
-      'Citește pașii pentru momentul în care se adaugă ouăle, ca să nu le gătești prea mult.',
-    ],
-    tags: {
-      taste: ['Sățios', 'Condimentat', 'Aromat'],
-      complexity: ['Complexitate medie', 'Necesită atenție'],
-      time: ['Sub 60 minute'],
-      context: ['Mic dejun', 'Prânz', 'Cină', 'Comfort food'],
-      diet: ['Fără carne', 'Vegetarian'],
-      equipment: ['La tigaie'],
-      technique: ['Sotare', 'Fierbere', 'La tigaie'],
-    },
-  },
-  'steak-de-vita': {
-    beforeStart: [
-      'Scoate carnea din frigider cu 20-30 minute înainte.',
-      'Tamponează steak-ul cu șervețele, ca suprafața să fie uscată.',
-      'Pregătește tigaia aleasă, cleștele și un loc pentru odihnirea cărnii.',
-      'Citește pașii și setează calculatorul înainte să pui carnea în tigaie.',
-      'Pregătește un timer sau folosește timerul din pagină.',
-    ],
-    tags: {
-      taste: ['Sățios', 'Aromat'],
-      complexity: ['Necesită atenție'],
-      context: ['Cină', 'Pentru weekend'],
-      diet: ['Cu carne'],
-      equipment: ['La tigaie', 'Necesită termometru'],
-      technique: ['La tigaie', 'Marinare'],
-    },
-  },
-  'tocanita-de-cartofi': {
-    beforeStart: [
-      'Curăță ceapa, cartofii și usturoiul înainte să încălzești oala.',
-      'Taie carnea în cuburi și pregătește mixul de legume.',
-      'Spală cartofii tăiați și ține-i în apă până îi adaugi.',
-      'Pregătește condimentele și pătrunjelul pentru final.',
-    ],
-    tags: {
-      taste: ['Sățios', 'Rustic', 'Aromat'],
-      complexity: ['Complexitate medie'],
-      context: ['Prânz', 'Cină', 'Pentru familie', 'Comfort food'],
-      diet: ['Cu carne'],
-      equipment: ['La oală'],
-      technique: ['Sotare', 'Fierbere'],
-    },
-  },
-  'tocanita-de-pui-cu-ardei': {
-    beforeStart: [
-      'Pregătește pulpele de pui și taie legumele înainte să începi gătirea.',
-      'Ține ardeii copți, bulionul și condimentele la îndemână.',
-      'Pregătește oala sau tigaia adâncă pentru tocăniță.',
-      'Toacă pătrunjelul pentru servire înainte de final.',
-    ],
-    tags: {
-      taste: ['Sățios', 'Aromat', 'Condimentat'],
-      complexity: ['Ușor', 'Risc mic de greșeală'],
-      context: ['Prânz', 'Cină', 'Pentru familie'],
-      diet: ['Cu carne'],
-      equipment: ['La oală'],
-      technique: ['Sotare', 'Fierbere'],
-    },
-  },
-  'placinta-cu-dovleac': {
-    beforeStart: [
-      'Citește rețeta complet înainte să începi, fiindcă dovleacul se coace înainte de umplere.',
-      'Preîncălzește cuptorul pentru coacerea dovleacului.',
-      'Măsoară condimentele, zahărul și ingredientele pentru umplutură.',
-      'Pregătește aluatul rece, tava și hârtia de copt.',
-      'Bate oul pentru uns plăcintelele înainte să le bagi la cuptor.',
-    ],
-    tags: {
-      taste: ['Dulce', 'Aromat', 'Fin'],
-      complexity: ['Complexitate medie', 'Necesită atenție'],
-      context: ['Pentru weekend', 'Pentru musafiri'],
-      diet: ['Fără carne', 'Vegetarian'],
-      equipment: ['Necesită cuptor', 'Necesită tavă'],
-      technique: ['Coacere', 'La cuptor'],
-    },
-  },
-  'charcuterie-board': {
-    beforeStart: [
-      'Pregătește blatul sau platoul pe care vei așeza ingredientele.',
-      'Spală și usucă roșiile, castravetele, ardeiul și salata.',
-      'Feliază brânzeturile, salamul și legumele înainte de asamblare.',
-      'Ține grisinele și biscuiții separat până la servire, ca să rămână crocante.',
-    ],
-    tags: {
-      taste: ['Sărat', 'Fresh', 'Ușor'],
-      complexity: ['Începător', 'Ușor', 'Risc mic de greșeală'],
-      time: ['Sub 15 minute', 'Rețetă rapidă'],
-      context: ['Gustare', 'Pentru musafiri', 'Pentru weekend'],
-      diet: ['Cu carne'],
-      technique: ['Fără gătire'],
-    },
-  },
-  'fructe-cu-nutella': {
-    beforeStart: [
-      'Spală și usucă fructele înainte să le feliezi.',
-      'Răcește fructele dacă vrei gustarea mai fresh.',
-      'Pregătește un cuțit mic și un bol sau o farfurie pentru servire.',
-      'Scoate Nutella la îndemână ca să porționezi ușor cantitatea dorită.',
-    ],
-    tags: {
-      taste: ['Dulce', 'Fresh', 'Ușor'],
-      complexity: ['Începător', 'Ușor', 'Risc mic de greșeală'],
-      time: ['Sub 15 minute', 'Rețetă rapidă'],
-      context: ['Gustare', 'Pentru zile aglomerate'],
-      diet: ['Fără carne', 'Vegetarian'],
-      technique: ['Fără gătire'],
-    },
-  },
-  'mar-cu-unt-de-arahide': {
-    beforeStart: [
-      'Spală mărul înainte să îl feliezi.',
-      'Pregătește un cuțit și o farfurie pentru servire.',
-      'Amestecă untul de arahide dacă s-a separat în borcan.',
-      'Taie feliile chiar înainte de servire ca să rămână proaspete.',
-    ],
-    tags: {
-      taste: ['Dulce', 'Fresh', 'Ușor'],
-      complexity: ['Începător', 'Ușor', 'Risc mic de greșeală'],
-      time: ['Sub 15 minute', 'Rețetă rapidă'],
-      context: ['Gustare', 'Pentru zile aglomerate'],
-      diet: ['Fără carne', 'Vegetarian', 'Fără lactate', 'Fără ou'],
-      technique: ['Fără gătire'],
-    },
-  },
-  'paine-prajita-unt-arahide': {
-    beforeStart: [
-      'Pregătește pâinea și untul de arahide înainte să prăjești feliile.',
-      'Spală și taie fructele în rondele.',
-      'Prăjește pâinea doar cât să devină crocantă, nu arsă.',
-      'Asamblează feliile imediat după prăjire.',
-    ],
-    tags: {
-      taste: ['Dulce', 'Crocant', 'Ușor'],
-      complexity: ['Începător', 'Ușor', 'Risc mic de greșeală'],
-      time: ['Sub 15 minute', 'Rețetă rapidă'],
-      context: ['Mic dejun', 'Gustare', 'Pentru zile aglomerate'],
-      diet: ['Fără carne', 'Vegetarian'],
-    },
-  },
-  'salata-de-ciuperci': {
-    beforeStart: [
-      'Curăță, spală și taie ciupercile înainte să încălzești tigaia.',
-      'Rade parmezanul și pregătește usturoiul.',
-      'Lasă compoziția de ciuperci să se răcească înainte să adaugi maioneza și iaurtul.',
-      'Pregătește pâinea prăjită și roșiile cherry pentru servire.',
-    ],
-    tags: {
-      taste: ['Cremos', 'Sărat', 'Sățios'],
-      complexity: ['Complexitate medie', 'Necesită atenție'],
-      time: ['Necesită timp de așteptare', 'Bună pentru pregătit din timp'],
-      context: ['Gustare', 'Prânz', 'Pentru familie'],
-      diet: ['Fără carne', 'Vegetarian'],
-      equipment: ['La tigaie'],
-      technique: ['Sotare', 'La tigaie'],
-    },
-  },
-  'avocado-cu-bacon': {
-    beforeStart: [
-      'Pregătește oala pentru ouă și tigaia pentru bacon.',
-      'Spală roșiile și ceapa verde înainte să le toci.',
-      'Alege un avocado copt, ca pasta să iasă cremoasă.',
-      'Pregătește pâinea pentru prăjire înainte de asamblare.',
-    ],
-    tags: {
-      taste: ['Sărat', 'Cremos', 'Crocant', 'Sățios'],
-      complexity: ['Ușor'],
-      time: ['Sub 30 minute'],
-      context: ['Mic dejun', 'Pentru weekend'],
-      diet: ['Cu carne'],
-      equipment: ['La oală', 'La tigaie'],
-      technique: ['Fierbere', 'Prăjire', 'La tigaie'],
-    },
-  },
-  'bagheta-bistro': {
-    beforeStart: [
-      'Taie bagheta pe lungime fără să rupi complet bucățile.',
-      'Spală și usucă frunzele de salată.',
-      'Pregătește untul, brânza, șunca și iaurtul înainte de asamblare.',
-      'Asamblează bagheta aproape de servire ca să rămână proaspătă.',
-    ],
-    tags: {
-      taste: ['Sărat', 'Fresh', 'Ușor'],
-      complexity: ['Începător', 'Ușor', 'Risc mic de greșeală'],
-      time: ['Sub 15 minute', 'Rețetă rapidă'],
-      context: ['Mic dejun', 'Gustare', 'Pentru zile aglomerate'],
-      diet: ['Cu carne'],
-      technique: ['Fără gătire'],
-    },
-  },
-  'clatite-cu-mere': {
-    beforeStart: [
-      'Măsoară ingredientele uscate și lichide înainte să faci aluatul.',
-      'Spală, curăță și rade mărul pe răzătoarea fină.',
-      'Pregătește tigaia de clătite și încălzește-o la foc potrivit.',
-      'Taie fructele pentru servire înainte să începi coacerea clătitelor.',
-    ],
-    tags: {
-      taste: ['Dulce', 'Aromat'],
-      complexity: ['Complexitate medie', 'Necesită atenție'],
-      time: ['Sub 30 minute'],
-      context: ['Mic dejun', 'Pentru weekend'],
-      diet: ['Fără carne', 'Vegetarian'],
-      equipment: ['La tigaie'],
-      technique: ['La tigaie'],
-    },
-  },
-  'gris-cu-lapte-si-cocos': {
-    beforeStart: [
-      'Măsoară laptele, grișul și zahărul înainte să pornești focul.',
-      'Pregătește o oală medie și o lingură pentru amestecat constant.',
-      'Ține toppingurile pregătite pentru servire.',
-      'Folosește foc mic-mediu ca să nu se prindă laptele.',
-    ],
-    tags: {
-      taste: ['Dulce', 'Cremos', 'Fin'],
-      complexity: ['Începător', 'Ușor', 'Risc mic de greșeală'],
-      time: ['Sub 15 minute', 'Rețetă rapidă'],
-      context: ['Mic dejun', 'Pentru zile aglomerate', 'Comfort food'],
-      diet: ['Fără carne', 'Vegetarian'],
-      equipment: ['La oală'],
-      technique: ['Fierbere'],
-    },
-  },
-  'omleta-cu-spanac': {
-    beforeStart: [
-      'Bate ouăle cu sare și piper înainte să încălzești tigaia.',
-      'Spală spanacul și legumele pentru servire.',
-      'Pregătește brânza, măslinele și roșiile înainte de gătire.',
-      'Încălzește tigaia la foc mic-mediu pentru o omletă mai controlată.',
-    ],
-    tags: {
-      taste: ['Sărat', 'Ușor', 'Fresh'],
-      complexity: ['Ușor', 'Risc mic de greșeală'],
-      time: ['Sub 15 minute', 'Rețetă rapidă'],
-      context: ['Mic dejun', 'Pentru zile aglomerate'],
-      diet: ['Fără carne', 'Vegetarian'],
-      equipment: ['La tigaie'],
-      technique: ['La tigaie', 'Prăjire'],
-    },
-  },
-  'ou-posat-cu-avocado': {
-    beforeStart: [
-      'Pregătește cratița cu apă și cana cu folie alimentară înainte să începi.',
-      'Unge folia cu puțin ulei ca oul să se desprindă mai ușor.',
-      'Taie somonul, castravetele și ceapa înainte de asamblare.',
-      'Pisează avocado cu lămâie și sare aproape de servire.',
-      'Pregătește pâinea pentru prăjire înainte să scoți oul din apă.',
-    ],
-    tags: {
-      taste: ['Fresh', 'Cremos', 'Sățios'],
-      complexity: ['Complexitate medie', 'Necesită atenție'],
-      time: ['Sub 30 minute'],
-      context: ['Mic dejun', 'Pentru weekend'],
-      diet: ['Cu carne'],
-      equipment: ['La oală'],
-      technique: ['Fierbere'],
-    },
-  },
-  'ovaz-cu-lapte': {
-    beforeStart: [
-      'Măsoară laptele, ovăzul și zahărul înainte să pornești focul.',
-      'Pregătește o oală medie și o lingură pentru amestecat.',
-      'Ține fructele, gemul sau siropul pregătite pentru servire.',
-      'Amestecă des ca ovăzul să nu se lipească de fundul oalei.',
-    ],
-    tags: {
-      taste: ['Dulce', 'Cremos', 'Fin'],
-      complexity: ['Începător', 'Ușor', 'Risc mic de greșeală'],
-      time: ['Sub 15 minute', 'Rețetă rapidă'],
-      context: ['Mic dejun', 'Pentru zile aglomerate', 'Comfort food'],
-      diet: ['Fără carne', 'Vegetarian'],
-      equipment: ['La oală'],
-      technique: ['Fierbere'],
-    },
-  },
-  'ovaz-peste-noapte': {
-    beforeStart: [
-      'Pregătește un borcan mediu curat, cu capac.',
-      'Măsoară laptele, iaurtul, mierea, ovăzul și semințele de chia.',
-      'Amestecă bine baza înainte să adaugi ovăzul.',
-      'Planifică rețeta cu o seară înainte, deoarece stă la frigider peste noapte.',
-    ],
-    tags: {
-      taste: ['Dulce', 'Cremos', 'Fresh'],
-      complexity: ['Începător', 'Ușor', 'Risc mic de greșeală'],
-      time: ['Necesită timp de așteptare', 'Bună pentru pregătit din timp'],
-      context: ['Mic dejun', 'Pentru zile aglomerate'],
-      diet: ['Fără carne', 'Vegetarian'],
-      technique: ['Fără gătire'],
-    },
-  },
-  'sandwitch-cu-mozzarella': {
-    beforeStart: [
-      'Prăjește feliile de pâine înainte de asamblare.',
-      'Taie roșia și mozzarella în felii egale.',
-      'Pregătește șunca, spanacul, crema de brânză și guacamole-ul.',
-      'Asamblează sandwich-ul aproape de servire ca pâinea să rămână crocantă.',
-    ],
-    tags: {
-      taste: ['Sărat', 'Fresh', 'Cremos'],
-      complexity: ['Începător', 'Ușor', 'Risc mic de greșeală'],
-      time: ['Sub 15 minute', 'Rețetă rapidă'],
-      context: ['Mic dejun', 'Gustare', 'Pentru zile aglomerate'],
-      diet: ['Cu carne'],
-    },
-  },
-  'sandwitch-cu-ton': {
-    beforeStart: [
-      'Prăjește feliile de pâine înainte să pregătești compoziția.',
-      'Scurge bine tonul de lichid.',
-      'Taie ceapa, ardeiul și castraveții murați în cuburi mici.',
-      'Pregătește maioneza, lămâia și Tabasco-ul pentru ajustarea gustului.',
-    ],
-    tags: {
-      taste: ['Sărat', 'Acrișor', 'Fresh', 'Sățios'],
-      complexity: ['Începător', 'Ușor', 'Risc mic de greșeală'],
-      time: ['Sub 15 minute', 'Rețetă rapidă'],
-      context: ['Mic dejun', 'Gustare', 'Pentru zile aglomerate'],
-      diet: ['Cu carne'],
-    },
-  },
-  'toast-cu-ou-si-avocado': {
-    beforeStart: [
-      'Încălzește tigaia la foc mic-mediu înainte să adaugi ouăle.',
-      'Prăjește pâinea înainte de asamblare.',
-      'Bate ouăle cu sare și piper într-un bol mic.',
-      'Taie avocado și pregătește semințele și legumele pentru servire.',
-    ],
-    tags: {
-      taste: ['Cremos', 'Sățios', 'Fresh'],
-      complexity: ['Ușor'],
-      time: ['Sub 15 minute', 'Rețetă rapidă'],
-      context: ['Mic dejun', 'Pentru zile aglomerate'],
-      diet: ['Fără carne', 'Vegetarian'],
-      equipment: ['La tigaie'],
-      technique: ['La tigaie'],
-    },
-  },
-};
-
+import { BUILD_VERSION, HERO_IMAGE, SITE_CONFIG, SITE_NAME } from './src/scripts/build/config.mjs';
+import { runBuild } from './src/scripts/build/index.mjs';
 function slugify(value) {
   return String(value || '')
     .normalize('NFD')
@@ -687,184 +15,166 @@ function escapeHtml(value) {
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
 }
 
-function titleCase(value) {
-  return String(value || '')
-    .toLowerCase()
-    .replace(/(^|\s|-)([a-z])/g, (match) => match.toUpperCase());
+function safeDescription(value, fallback = SITE_CONFIG.defaultDescription, maxLength = 180) {
+  const text = String(value || fallback || '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (text.length <= maxLength) return text;
+  const trimmed = text.slice(0, maxLength - 1).replace(/\s+\S*$/, '').trim();
+  return `${trimmed || text.slice(0, maxLength - 1).trim()}…`;
 }
 
-function displayRecipeName(name) {
-  const text = String(name || '').trim();
-  if (!text) return text;
-  return text === text.toUpperCase() ? titleCase(text) : text;
+function absoluteUrl(target = '') {
+  const value = String(target || '').trim();
+  if (/^(https?:|data:)/i.test(value)) return value;
+  return new URL(value.replace(/^\/+/, ''), SITE_CONFIG.siteUrl).toString();
 }
 
-function readRecipeSections(markdown) {
-  return markdown
-    .split(/\n## /)
-    .slice(1)
-    .map((section) => {
-      const lines = section.split('\n');
-      const heading = lines.shift().trim();
-      const urlLine = lines.find((line) => line.startsWith('URL: '));
-      const bulletLines = lines
-        .filter((line) => line.startsWith('- '))
-        .map((line) => line.slice(2).trim())
-        .filter(Boolean);
-
-      return {
-        heading,
-        url: urlLine ? urlLine.slice(5).trim() : '',
-        lines: bulletLines,
-      };
-    });
+function jsonLdScript(data) {
+  if (!data) return '';
+  const json = JSON.stringify(data)
+    .replace(/</g, '\\u003C')
+    .replace(/>/g, '\\u003E')
+    .replace(/&/g, '\\u0026')
+    .replace(/\u2028/g, '\\u2028')
+    .replace(/\u2029/g, '\\u2029');
+  return `<script type="application/ld+json">${json}</script>`;
 }
 
-function splitRecipe(section) {
-  const slug = new URL(section.url).pathname.replace(/^\/+/, '');
-  const actualTitle = displayRecipeName(section.lines[0] || section.heading);
-  const prepIndex = section.lines.indexOf('Mod de preparare');
-  const ingredientsIndex = section.lines.indexOf('Ingrediente');
-  const poftaIndex = section.lines.indexOf('Pofta buna!');
-  const preparationEnd = ingredientsIndex >= 0 ? ingredientsIndex : section.lines.length;
+function isoDurationMinutes(value) {
+  if (value === null || value === undefined || value === '') return '';
+  const minutes = Number(value);
+  if (!Number.isFinite(minutes) || minutes <= 0) return '';
+  return `PT${Math.round(minutes)}M`;
+}
 
-  const preparation = prepIndex >= 0
-    ? section.lines.slice(prepIndex + 1, preparationEnd).filter((line) => line !== 'Pofta buna!')
-    : [];
+function flatRecipeKeywords(recipe) {
+  return Array.from(new Set([
+    ...cleanArray(recipe.keywords),
+    ...Object.values(recipe.tags || {}).flatMap(cleanArray),
+  ].map((value) => String(value || '').trim()).filter(Boolean)));
+}
 
-  let ingredients = ingredientsIndex >= 0
-    ? section.lines.slice(ingredientsIndex + 1)
-    : [];
+function ratingNumber(value) {
+  const number = Number(value);
+  return Number.isFinite(number) ? Math.round(number * 10) / 10 : null;
+}
 
-  const extras = [];
-  const steakCalculatorIndex = ingredients.findIndex((line) => line.toLowerCase().includes('calculator gatire steak'));
-  if (steakCalculatorIndex >= 0) {
-    extras.push({
-      type: 'steak-calculator',
-      title: ingredients[steakCalculatorIndex],
-    });
-    ingredients = ingredients.slice(0, steakCalculatorIndex);
-  }
-
+function breadcrumbJsonLd(items) {
   return {
-    name: actualTitle,
-    slug,
-    category: '',
-    sourceUrl: section.url,
-    description: makeDescription(actualTitle, preparation, ingredients),
-    preparation,
-    ingredients,
-    closing: poftaIndex >= 0 ? 'Poftă bună!' : '',
-    extras,
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: items.map((item, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: item.name,
+      item: absoluteUrl(item.path || ''),
+    })),
   };
 }
 
-function makeDescription(name, preparation, ingredients) {
-  const firstStep = preparation.find((line) => !isSubheading(line));
-  if (firstStep) return firstStep;
-  const preview = ingredients.filter((line) => !isSubheading(line)).slice(0, 3).join(', ');
-  return preview ? `${name} cu ${preview}.` : `${name}.`;
+function categoryBreadcrumbJsonLd(category) {
+  return breadcrumbJsonLd([
+    { name: 'Acasă', path: '' },
+    { name: category.name, path: `categorie/${category.slug}/` },
+  ]);
 }
 
-function isSubheading(line) {
-  return /:$/.test(line) || /^[A-ZĂÂÎȘȚ0-9\s/-]{3,}$/.test(line);
+function recipeBreadcrumbJsonLd(recipe) {
+  const categorySlug = slugify(recipe.category);
+  return breadcrumbJsonLd([
+    { name: 'Acasă', path: '' },
+    { name: recipe.category, path: `categorie/${categorySlug}/` },
+    { name: recipe.name, path: `retete/${recipe.slug}/` },
+  ]);
 }
 
-function buildCategoryMap(inventory) {
-  const map = new Map();
-  for (const [pagePath, category] of Object.entries(CATEGORY_PAGES)) {
-    const page = inventory.pages.find((entry) => new URL(entry.url).pathname === pagePath);
-    if (!page) continue;
+function recipeJsonLd(recipe) {
+  const instructions = cleanArray(recipe.preparation || recipe.steps).map((step, index) => ({
+    '@type': 'HowToStep',
+    position: index + 1,
+    text: step,
+  }));
+  const keywords = flatRecipeKeywords(recipe);
+  const image = recipe.image ? absoluteUrl(recipe.image) : '';
+  const summary = recipe.ratingSummary || {};
+  const aggregateRating = Number(summary.totalRatings) > 0 && ratingNumber(summary.overallAverage)
+    ? {
+        '@type': 'AggregateRating',
+        ratingValue: ratingNumber(summary.overallAverage),
+        ratingCount: Number(summary.totalRatings),
+      }
+    : null;
 
-    for (const link of page.links) {
-      const slug = new URL(link).pathname.replace(/^\/+/, '');
-      if (!slug || slug === 'soon-to-come' || CATEGORY_PAGES[`/${slug}`] || slug === 'portofoliu' || slug === 'randomizer') continue;
-      map.set(slug, category.name);
-    }
-  }
-  return map;
-}
-
-function mergeRecipes(parsedRecipes, categoryMap) {
-  const recipesBySlug = new Map();
-
-  for (const recipe of parsedRecipes) {
-    if (recipe.slug === 'soon-to-come') continue;
-    recipe.category = categoryMap.get(recipe.slug) || 'Fel secundar';
-    recipesBySlug.set(recipe.slug, recipe);
-  }
-
-  for (const fallback of LOCAL_FALLBACK_RECIPES) {
-    if (!recipesBySlug.has(fallback.slug)) {
-      recipesBySlug.set(fallback.slug, {
-        ...fallback,
-        description: fallback.description || makeDescription(fallback.name, fallback.preparation, fallback.ingredients),
-        closing: fallback.closing || 'Poftă bună!',
-        extras: fallback.extras || [],
-      });
-    }
-  }
-
-  const categoryOrder = Object.values(CATEGORY_PAGES).map((category) => category.name);
-  return [...recipesBySlug.values()].sort((a, b) => {
-    const categoryDiff = categoryOrder.indexOf(a.category) - categoryOrder.indexOf(b.category);
-    return categoryDiff || a.name.localeCompare(b.name, 'ro');
-  }).map(enrichRecipeMetadata);
-}
-
-function mergeTagGroups(...groups) {
-  return groups.reduce((merged, group) => {
-    if (!group || typeof group !== 'object') return merged;
-    for (const [key, values] of Object.entries(group)) {
-      const clean = Array.isArray(values) ? values.map((value) => String(value || '').trim()).filter(Boolean) : [];
-      if (!clean.length) continue;
-      merged[key] = Array.from(new Set([...(merged[key] || []), ...clean]));
-    }
-    return merged;
-  }, {});
-}
-
-function enrichRecipeMetadata(recipe) {
-  const metadata = RECIPE_METADATA[recipe.slug] || {};
-  const beforeStart = Array.isArray(recipe.beforeStart) && recipe.beforeStart.length
-    ? recipe.beforeStart
-    : metadata.beforeStart || [];
-  const tags = mergeTagGroups(metadata.tags, recipe.tags);
-  return {
-    ...recipe,
-    beforeStart,
-    tags,
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'Recipe',
+    name: recipe.name,
+    description: safeDescription(recipe.description),
+    author: {
+      '@type': 'Organization',
+      name: SITE_CONFIG.authorName,
+    },
+    recipeCategory: recipe.category,
+    recipeIngredient: cleanArray(recipe.ingredients),
+    recipeInstructions: instructions,
   };
+
+  if (image) schema.image = [image];
+  if (recipe.createdAt) schema.datePublished = recipe.createdAt;
+  if (recipe.updatedAt) schema.dateModified = recipe.updatedAt;
+  const prepTime = isoDurationMinutes(recipe.prepTimeMinutes);
+  const cookTime = isoDurationMinutes(recipe.cookTimeMinutes);
+  const totalTime = isoDurationMinutes(recipe.totalTimeMinutes);
+  if (prepTime) schema.prepTime = prepTime;
+  if (cookTime) schema.cookTime = cookTime;
+  if (totalTime) schema.totalTime = totalTime;
+  if (recipe.servings) schema.recipeYield = String(recipe.servings);
+  if (keywords.length) schema.keywords = keywords.join(', ');
+  if (aggregateRating) schema.aggregateRating = aggregateRating;
+
+  return schema;
 }
 
-function dataFile(categories, recipes) {
+function dataFile({ categories, recipes, aliases, tagGroups, ingredientAliases, heroImage = HERO_IMAGE }) {
   const data = {
     categories,
-    heroImage: HERO_IMAGE,
+    heroImage,
     recipes: recipes.map((recipe) => ({
       name: recipe.name,
+      title: recipe.title || recipe.name,
       slug: recipe.slug,
       category: recipe.category,
       description: recipe.description,
       ingredients: recipe.ingredients,
       preparation: recipe.preparation,
+      steps: recipe.steps || recipe.preparation,
       beforeStart: recipe.beforeStart || [],
       closing: recipe.closing,
       extras: recipe.extras,
       sourceUrl: recipe.sourceUrl,
       tags: recipe.tags || {},
+      equipment: recipe.equipment || recipe.tags?.equipment || [],
+      prepTimeMinutes: recipe.prepTimeMinutes ?? null,
+      cookTimeMinutes: recipe.cookTimeMinutes ?? null,
+      totalTimeMinutes: recipe.totalTimeMinutes ?? null,
+      servings: recipe.servings ?? null,
+      image: recipe.image ?? null,
       ratingSummary: recipe.ratingSummary || null,
-      keywords: Array.from(new Set([
+      keywords: Array.isArray(recipe.keywords) && recipe.keywords.length ? recipe.keywords : Array.from(new Set([
         ...recipe.name.split(/\s+/),
         ...recipe.category.split(/\s+/),
         ...recipe.ingredients.flatMap((line) => line.split(/\s+/)),
         ...Object.values(recipe.tags || {}).flatMap((items) => Array.isArray(items) ? items.flatMap((item) => String(item).split(/\s+/)) : []),
       ].map(slugify).filter(Boolean))),
     })),
-    aliases: RECIPE_ALIASES,
+    aliases: aliases || {},
+    tagGroups: tagGroups || {},
+    ingredientAliases: ingredientAliases || { aliases: [] },
   };
 
   return `window.ARTA_DATA = ${JSON.stringify(data, null, 2)};\n`;
@@ -927,22 +237,51 @@ function footer(root) {
     </footer>`;
 }
 
-function page({ title, description, root = '', bodyAttrs = '', main }) {
+function page({
+  title,
+  description,
+  root = '',
+  bodyAttrs = '',
+  main,
+  canonicalPath = '',
+  robots = 'index, follow',
+  pageType = 'website',
+  image = SITE_CONFIG.defaultImage,
+  structuredData = [],
+}) {
   const documentTitle = title === SITE_NAME ? SITE_NAME : `${title} | ${SITE_NAME}`;
+  const metaDescription = safeDescription(description);
+  const canonicalUrl = absoluteUrl(canonicalPath);
+  const imageUrl = image ? absoluteUrl(image) : '';
+  const ldScripts = structuredData.filter(Boolean).map(jsonLdScript).join('\n  ');
   return `<!doctype html>
-<html lang="ro">
+<html lang="${escapeHtml(SITE_CONFIG.defaultLanguage)}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${escapeHtml(documentTitle)}</title>
-  <meta name="description" content="${escapeHtml(description)}">
+  <meta name="description" content="${escapeHtml(metaDescription)}">
+  <meta name="robots" content="${escapeHtml(robots)}">
   <meta name="theme-color" content="#0f1117">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="${SITE_NAME}">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="canonical" href="${escapeHtml(canonicalUrl)}">
   <link rel="manifest" href="${root}manifest.json">
   <link rel="icon" type="image/png" href="${root}assets/icons/icon.png">
   <link rel="apple-touch-icon" href="${root}assets/icons/icon.png">
+  <meta property="og:site_name" content="${escapeHtml(SITE_CONFIG.siteName)}">
+  <meta property="og:title" content="${escapeHtml(documentTitle)}">
+  <meta property="og:description" content="${escapeHtml(metaDescription)}">
+  <meta property="og:type" content="${escapeHtml(pageType)}">
+  <meta property="og:url" content="${escapeHtml(canonicalUrl)}">
+  <meta property="og:locale" content="${escapeHtml(SITE_CONFIG.defaultLocale)}">
+  ${imageUrl ? `<meta property="og:image" content="${escapeHtml(imageUrl)}">` : ''}
+  <meta name="twitter:card" content="${imageUrl ? 'summary_large_image' : 'summary'}">
+  <meta name="twitter:title" content="${escapeHtml(documentTitle)}">
+  <meta name="twitter:description" content="${escapeHtml(metaDescription)}">
+  ${imageUrl ? `<meta name="twitter:image" content="${escapeHtml(imageUrl)}">` : ''}
+  ${ldScripts}
   <script>
     try {
       const savedTheme = localStorage.getItem('arta-gatitului-theme');
@@ -992,8 +331,7 @@ ${main}
 ${footer(root)}
 <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 <script>window.ARTA_ROOT = "${root}";</script>
-<script src="${root}assets/js/recipes.js?v=${BUILD_VERSION}"></script>
-<script src="${root}assets/js/site.js?v=${BUILD_VERSION}"></script>
+<script src="${root}assets/js/site.js?v=${BUILD_VERSION}" defer></script>
 </body>
 </html>
 `;
@@ -1003,6 +341,7 @@ function homePage() {
   return page({
     title: SITE_NAME,
     description: 'Viață ocupată, mâncare sănătoasă. Rețete organizate pe categorii și căutare după ingrediente.',
+    canonicalPath: SITE_CONFIG.routes.home,
     main: `
       <main id="main-content">
         <section class="hero hero-home">
@@ -1056,6 +395,7 @@ function categoriesIndexPage() {
   return page({
     title: 'Categorii',
     description: 'Toate categoriile și rețetele din Arta Gătitului.',
+    canonicalPath: SITE_CONFIG.routes.categoryIndex,
     main: `
       <main class="section" id="main-content">
         <div class="page-title">
@@ -1082,6 +422,7 @@ function searchPage() {
   return page({
     title: 'Caută rețete',
     description: 'Caută rețete după nume, categorie sau ingrediente.',
+    canonicalPath: SITE_CONFIG.routes.search,
     main: `
       <main class="section" id="main-content">
         <div class="page-title">
@@ -1117,6 +458,7 @@ function ingredientMatcherPage() {
   return page({
     title: 'Ce pot găti?',
     description: 'Recomandări de rețete în funcție de ingredientele pe care le ai deja acasă.',
+    canonicalPath: SITE_CONFIG.routes.ingredientMatcher,
     main: `
       <main class="section ingredient-page" id="main-content">
         <div class="page-title">
@@ -1155,6 +497,8 @@ function categoryPage(category, root = '../../') {
     title: category.name,
     description: category.description,
     root,
+    canonicalPath: `${SITE_CONFIG.routes.categories}${category.slug}/`,
+    structuredData: [categoryBreadcrumbJsonLd(category)],
     bodyAttrs: `data-category-slug="${category.slug}"`,
     main: `
       <main class="section" id="main-content">
@@ -1168,15 +512,375 @@ function categoryPage(category, root = '../../') {
   });
 }
 
-function recipePage(recipe, root = '../../', slugOverride = recipe.slug) {
+const TAG_CARD_PRIORITY = ['complexity', 'time', 'context', 'equipment', 'technique', 'taste', 'diet'];
+
+const DEFAULT_TAG_GROUP_LABELS = {
+  taste: 'Gust',
+  complexity: 'Complexitate',
+  time: 'Timp',
+  context: 'Context',
+  diet: 'Dietă',
+  equipment: 'Echipament',
+  technique: 'Tehnică',
+};
+
+function cleanArray(value) {
+  return Array.isArray(value)
+    ? value.map((item) => String(item || '').trim()).filter(Boolean)
+    : [];
+}
+
+function isStaticSubheading(line) {
+  return /:$/.test(line) || /^[A-ZĂÂÎȘȚ0-9\s/-]{3,}$/.test(line);
+}
+
+function staticList(lines, ordered) {
+  const tag = ordered ? 'ol' : 'ul';
+  const items = cleanArray(lines).map((line) => {
+    const cls = isStaticSubheading(line) ? ' class="subhead"' : '';
+    return `<li${cls}>${escapeHtml(line)}</li>`;
+  }).join('');
+  return `<${tag} class="clean">${items}</${tag}>`;
+}
+
+function formatMinutes(value) {
+  if (value === null || value === undefined || value === '') return '';
+  const minutes = Number(value);
+  if (!Number.isFinite(minutes) || minutes < 0) return '';
+  const rounded = Math.round(minutes);
+  return rounded === 1 ? '1 minut' : `${rounded} minute`;
+}
+
+function recipeTimeItems(recipe) {
+  const items = [];
+  const prep = formatMinutes(recipe.prepTimeMinutes);
+  const cook = formatMinutes(recipe.cookTimeMinutes);
+  const total = formatMinutes(recipe.totalTimeMinutes);
+  if (prep) items.push(['Pregătire', prep]);
+  if (cook) items.push(['Gătire', cook]);
+  if (total) items.push(['Total', total]);
+  if (recipe.servings) items.push(['Porții', String(recipe.servings)]);
+  return items;
+}
+
+function staticRecipeMeta(recipe, root) {
+  const categoryHref = `${root}${slugify(recipe.category)}/`;
+  const equipment = cleanArray(recipe.equipment || recipe.tags?.equipment);
+  const items = [
+    ['Categorie', `<a href="${escapeHtml(categoryHref)}">${escapeHtml(recipe.category)}</a>`],
+    ...recipeTimeItems(recipe).map(([label, value]) => [label, escapeHtml(value)]),
+  ];
+  if (equipment.length) items.push(['Echipament', escapeHtml(equipment.join(', '))]);
+
+  return `
+        <section class="recipe-timeline box" aria-labelledby="recipe-meta-heading">
+          <h2 id="recipe-meta-heading" class="sr-only">Detalii rețetă</h2>
+          ${items.map(([label, value]) => `<div><span>${escapeHtml(label)}</span><strong>${value}</strong></div>`).join('\n          ')}
+        </section>`;
+}
+
+function staticBeforeStartSection(recipe) {
+  const items = cleanArray(recipe.beforeStart);
+  if (!items.length) return '';
+  return `
+        <section class="before-start box" aria-labelledby="before-start-heading">
+          <h2 id="before-start-heading">Înainte să începi</h2>
+          <p>O verificare rapidă ca să gătești mai liniștit.</p>
+          <ul class="before-list">
+            ${items.map((item, index) => {
+              const inputId = `${recipe.slug}-before-start-${index + 1}`;
+              return `<li>
+              <label for="${escapeHtml(inputId)}">
+                <input id="${escapeHtml(inputId)}" type="checkbox" data-check-id="${index + 1}">
+                <span>${escapeHtml(item)}</span>
+              </label>
+            </li>`;
+            }).join('\n            ')}
+          </ul>
+        </section>`;
+}
+
+function normalizedStaticTagGroups(recipe) {
+  return Object.entries(recipe.tags || {}).reduce((groups, [key, values]) => {
+    const clean = cleanArray(values);
+    if (clean.length) groups[key] = Array.from(new Set(clean));
+    return groups;
+  }, {});
+}
+
+function cardTagsStatic(recipe, limit = 3) {
+  const groups = normalizedStaticTagGroups(recipe);
+  const picked = [];
+  TAG_CARD_PRIORITY.forEach((key) => {
+    (groups[key] || []).forEach((tag) => {
+      if (picked.length < limit && !picked.includes(tag)) picked.push(tag);
+    });
+  });
+  return picked;
+}
+
+function staticTagsSection(recipe, root, tagGroups = {}) {
+  const groups = normalizedStaticTagGroups(recipe);
+  const order = Object.keys(tagGroups).length ? Object.keys(tagGroups) : Object.keys(DEFAULT_TAG_GROUP_LABELS);
+  const entries = order
+    .map((key) => ({
+      key,
+      label: tagGroups[key]?.label || DEFAULT_TAG_GROUP_LABELS[key] || key,
+      tags: groups[key] || [],
+    }))
+    .filter((group) => group.tags.length);
+  if (!entries.length) return '';
+
+  return `
+        <section class="recipe-tags box" aria-labelledby="tags-heading">
+          <h2 id="tags-heading">Etichete rețetă</h2>
+          <div class="tag-groups">
+            ${entries.map((group) => `
+            <div class="tag-group">
+              <h3>${escapeHtml(group.label)}</h3>
+              <div class="tag-list">${group.tags.map((tag) => `<a class="tag-chip tag-link" href="${escapeHtml(`${root}cauta.html?q=${encodeURIComponent(tag)}`)}">${escapeHtml(tag)}</a>`).join('')}</div>
+            </div>`).join('\n            ')}
+          </div>
+        </section>`;
+}
+
+function staticCardTags(recipe) {
+  const tags = cardTagsStatic(recipe);
+  return tags.length
+    ? `<div class="card-tags">${tags.map((tag) => `<span class="tag-chip small">${escapeHtml(tag)}</span>`).join('')}</div>`
+    : '';
+}
+
+function staticRecipeCard(recipe, root) {
+  const ingredients = cleanArray(recipe.ingredients).filter((line) => !isStaticSubheading(line)).slice(0, 5).join(', ');
+  const titleId = `recipe-card-${recipe.slug}`;
+  return `
+          <a class="card recipe-card" aria-labelledby="${escapeHtml(titleId)}" href="${escapeHtml(`${root}retete/${recipe.slug}/`)}">
+            <span class="category-pill">${escapeHtml(recipe.category)}</span>
+            <h3 id="${escapeHtml(titleId)}">${escapeHtml(recipe.name)}</h3>
+            ${staticCardTags(recipe)}
+            <p>${escapeHtml(recipe.description || '')}</p>
+            <div class="ingredients-preview"><strong>Ingrediente:</strong> ${escapeHtml(ingredients)}${recipe.ingredients && recipe.ingredients.length > 5 ? '...' : ''}</div>
+          </a>`;
+}
+
+function staticTokens(value) {
+  return String(value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .match(/[a-z0-9]+/g) || [];
+}
+
+function staticRecipeTokens(recipe) {
+  return new Set([
+    ...staticTokens(recipe.name),
+    ...staticTokens(recipe.category),
+    ...cleanArray(recipe.ingredients).flatMap(staticTokens),
+    ...cleanArray(recipe.keywords).flatMap(staticTokens),
+    ...Object.values(recipe.tags || {}).flatMap((items) => cleanArray(items).flatMap(staticTokens)),
+  ]);
+}
+
+function sharedStaticTokenCount(a, b) {
+  let count = 0;
+  a.forEach((token) => {
+    if (b.has(token)) count += 1;
+  });
+  return count;
+}
+
+function staticSimilarRecipes(currentRecipe, allRecipes = []) {
+  const currentTokens = staticRecipeTokens(currentRecipe);
+  const currentCategory = slugify(currentRecipe.category);
+  return allRecipes
+    .filter((recipe) => recipe.slug !== currentRecipe.slug)
+    .map((recipe) => {
+      const sameCategory = slugify(recipe.category) === currentCategory ? 4 : 0;
+      const score = sameCategory + sharedStaticTokenCount(currentTokens, staticRecipeTokens(recipe));
+      return { recipe, score };
+    })
+    .filter((item) => item.score > 0)
+    .sort((a, b) => b.score - a.score || a.recipe.name.localeCompare(b.recipe.name, 'ro'))
+    .slice(0, 6)
+    .map((item) => item.recipe);
+}
+
+function staticComplexityLabel(value) {
+  const rating = Number(value);
+  if (!Number.isFinite(rating)) return '';
+  if (rating <= 2) return 'Începător / Ușoară';
+  if (rating <= 3.5) return 'Complexitate medie';
+  return 'Complexitate ridicată';
+}
+
+function staticRatingValue(value) {
+  const number = Number(value);
+  return Number.isFinite(number) ? Math.round(number * 10) / 10 : null;
+}
+
+function staticPublicRatingSummary(summary) {
+  if (!summary || !Number(summary.totalRatings)) {
+    return '<p class="rating-note">Nu există încă evaluări publice. Nu afișăm medii inventate.</p>';
+  }
+  const overall = staticRatingValue(summary.overallAverage);
+  const taste = staticRatingValue(summary.tasteAverage);
+  const clarity = staticRatingValue(summary.clarityAverage);
+  const complexity = staticRatingValue(summary.complexityAverage);
+  const cookAgain = staticRatingValue(summary.cookAgainPercent);
+  return `
+          <div class="public-rating">
+            <h3>Evaluări publice</h3>
+            <div class="rating-summary-grid">
+              ${overall ? `<div><span>General</span><strong>${overall}/5</strong></div>` : ''}
+              ${taste ? `<div><span>Gust</span><strong>${taste}/5</strong></div>` : ''}
+              ${clarity ? `<div><span>Instrucțiuni</span><strong>${clarity}/5</strong></div>` : ''}
+              ${complexity ? `<div><span>Complexitate</span><strong>${complexity}/5</strong></div>` : ''}
+              ${cookAgain !== null ? `<div><span>Aș găti din nou</span><strong>${cookAgain}%</strong></div>` : ''}
+              <div><span>Evaluări</span><strong>${Number(summary.totalRatings)}</strong></div>
+            </div>
+            ${complexity ? `<p class="rating-note">Complexitate după evaluări: ${escapeHtml(staticComplexityLabel(complexity))}.</p>` : ''}
+          </div>`;
+}
+
+function staticRatingScale(recipe, name, label, help = '') {
+  const labels = name === 'complexity'
+    ? ['1 foarte ușoară', '2 ușoară', '3 medie', '4 complexă', '5 foarte complexă']
+    : ['1 slab', '2 ok', '3 bun', '4 foarte bun', '5 excelent'];
+  return `
+            <fieldset class="rating-group" data-rating-group="${escapeHtml(name)}">
+              <legend>${escapeHtml(label)}</legend>
+              ${help ? `<p>${escapeHtml(help)}</p>` : ''}
+              <div class="rating-options">
+                ${[1, 2, 3, 4, 5].map((value) => `
+                <label>
+                  <input type="radio" name="${escapeHtml(`rating-${recipe.slug}-${name}`)}" value="${value}">
+                  <span aria-hidden="true">${name === 'complexity' ? value : '★'}</span>
+                  <span class="sr-only">${escapeHtml(labels[value - 1])}</span>
+                </label>`).join('')}
+              </div>
+            </fieldset>`;
+}
+
+function staticRatingSection(recipe) {
+  return `
+        <section class="recipe-rating box" data-rating-panel data-recipe-slug="${escapeHtml(recipe.slug)}" aria-labelledby="recipe-rating-heading">
+          <h2 id="recipe-rating-heading">Evaluează rețeta</h2>
+          <p class="rating-note">Evaluarea ta este salvată doar în acest browser. Pentru evaluări publice de la toți utilizatorii, site-ul ar avea nevoie de o bază de date.</p>
+          ${staticPublicRatingSummary(recipe.ratingSummary)}
+          <form class="rating-form" data-rating-form>
+            ${staticRatingScale(recipe, 'taste', 'Gust')}
+            ${staticRatingScale(recipe, 'clarity', 'Instrucțiuni clare')}
+            ${staticRatingScale(recipe, 'complexity', 'Complexitate', '1 înseamnă foarte ușoară, 5 foarte complexă.')}
+            ${staticRatingScale(recipe, 'overall', 'Evaluare generală')}
+            <fieldset class="rating-group cook-again" data-rating-group="cookAgain">
+              <legend>Aș găti din nou</legend>
+              <div class="choice-row">
+                <label><input type="radio" name="${escapeHtml(`rating-${recipe.slug}-cookAgain`)}" value="true"> <span>Da</span></label>
+                <label><input type="radio" name="${escapeHtml(`rating-${recipe.slug}-cookAgain`)}" value="false"> <span>Nu</span></label>
+              </div>
+            </fieldset>
+            <p class="rating-personal" data-rating-personal-note></p>
+            <div class="rating-actions">
+              <button class="btn" type="submit">Salvează evaluarea</button>
+              <button class="btn secondary" type="button" data-rating-reset>Șterge evaluarea mea</button>
+            </div>
+            <p class="builder-status" data-rating-status aria-live="polite"></p>
+          </form>
+        </section>`;
+}
+
+function staticSteakCalculator(extra, index = 0) {
+  if (!extra || extra.type !== 'steak-calculator') return '';
+  const headingId = `steak-calculator-heading-${index + 1}`;
+  return `
+        <section class="steak-calculator" data-steak-calculator aria-labelledby="${escapeHtml(headingId)}">
+          <h2 id="${escapeHtml(headingId)}">${escapeHtml(extra.title)}</h2>
+          <p>Completează detaliile bucății de carne, tipul de tigaie și nivelul de foc pentru o estimare practică de gătire.</p>
+          <div class="steak-form">
+            <label class="field"><span>Greutate</span><input data-steak-weight type="number" min="120" max="1200" step="10" value="300" inputmode="numeric"></label>
+            <label class="field"><span>Grosime</span><input data-steak-thickness type="number" min="1" max="7" step="0.1" value="3" inputmode="decimal"></label>
+            <label class="field"><span>Gătire dorită</span><select data-steak-doneness><option value="rare">Rare</option><option value="medium-rare" selected>Medium rare</option><option value="medium">Medium</option><option value="medium-well">Medium well</option><option value="well-done">Well done</option></select></label>
+            <label class="field"><span>Temperatura cărnii</span><select data-steak-start><option value="fridge">Direct din frigider</option><option value="room" selected>La temperatura camerei</option></select></label>
+            <label class="field"><span>Tip steak</span><select data-steak-cut><option value="ribeye" selected>Ribeye / Antricot</option><option value="sirloin">Sirloin</option><option value="filet">Mușchi / File</option><option value="tbone">T-bone</option><option value="other">Alt tip</option></select></label>
+            <label class="field"><span>Tigaie</span><select data-steak-pan><option value="steel">Tigaie de oțel</option><option value="cast-iron" selected>Tigaie de fontă</option><option value="aluminum">Tigaie de aluminiu</option><option value="stainless">Tigaie de inox</option><option value="nonstick">Tigaie antiaderentă</option></select></label>
+            <label class="field"><span>Nivel foc</span><select data-steak-heat><option value="low">Mic</option><option value="low-medium">Mic-mediu</option><option value="medium">Mediu</option><option value="medium-high" selected>Mediu-mare</option><option value="high">Mare</option></select></label>
+          </div>
+          <div class="steak-result" data-steak-result></div>
+          <div class="steak-actions">
+            <button class="btn" type="button" data-steak-start-timer>Pornește timer</button>
+            <button class="btn secondary" type="button" data-steak-pause-timer>Pauză</button>
+            <button class="btn secondary" type="button" data-steak-reset-timer>Reset</button>
+          </div>
+          <div class="steak-timer" aria-live="polite">
+            <div class="timer-display" data-steak-time>00:00</div>
+            <div>
+              <div class="timer-phase" data-steak-phase>Pregătit</div>
+              <div class="timer-status" data-steak-status>Timerul va suna când trebuie întors steak-ul, când se termină gătirea și după odihnire.</div>
+            </div>
+          </div>
+          <div class="steak-grid">
+            <div class="steak-chip"><strong>Rare</strong><span>50-52°C</span></div>
+            <div class="steak-chip"><strong>Medium rare</strong><span>55-57°C</span></div>
+            <div class="steak-chip"><strong>Medium</strong><span>60-63°C</span></div>
+            <div class="steak-chip"><strong>Well done</strong><span>70°C+</span></div>
+          </div>
+        </section>`;
+}
+
+function staticRecipeDetail(recipe, root, slugOverride, buildContext = {}) {
+  const allRecipes = buildContext.recipes || [];
+  const related = staticSimilarRecipes(recipe, allRecipes);
+  const catSlug = slugify(recipe.category);
+  return `
+        <article class="recipe-detail-card" data-static-recipe data-recipe-slug="${escapeHtml(recipe.slug)}">
+          <header class="recipe-hero">
+            <div>
+              <p class="eyebrow">Rețetă</p>
+              <span class="pill">${escapeHtml(recipe.category)}</span>
+              <h1>${escapeHtml(recipe.name)}</h1>
+              <p class="lead recipe-description">${escapeHtml(recipe.description || '')}</p>
+            </div>
+            <div class="detail-meta">
+              <a class="btn secondary" href="${escapeHtml(`${root}${catSlug}/`)}">Înapoi la categorie</a>
+            </div>
+          </header>
+          ${staticRecipeMeta(recipe, root)}
+          ${staticBeforeStartSection(recipe)}
+          <div class="recipe-layout">
+            <section class="box" aria-labelledby="ingredients-heading">
+              <h2 id="ingredients-heading">Ingrediente</h2>
+              ${staticList(recipe.ingredients || [], false)}
+            </section>
+            <section class="box" aria-labelledby="steps-heading">
+              <h2 id="steps-heading">Mod de preparare</h2>
+              ${staticList(recipe.preparation || recipe.steps || [], true)}
+              ${recipe.closing ? `<p class="closing">${escapeHtml(recipe.closing)}</p>` : ''}
+            </section>
+          </div>
+          ${staticTagsSection(recipe, root, buildContext.tagGroups)}
+          ${(recipe.extras || []).map(staticSteakCalculator).join('')}
+          ${staticRatingSection(recipe)}
+          <section class="related" aria-labelledby="similar-recipes-heading">
+            <h2 id="similar-recipes-heading">Rețete similare</h2>
+            ${related.length ? `<div class="grid cards">${related.map((item) => staticRecipeCard(item, root)).join('')}</div>` : '<div class="empty">Nu există încă rețete similare.</div>'}
+          </section>
+        </article>`;
+}
+
+function recipePage(recipe, root = '../../', slugOverride = recipe.slug, buildContext = {}) {
   return page({
     title: recipe.name,
     description: recipe.description,
     root,
-    bodyAttrs: `data-recipe-slug="${slugOverride}"`,
+    canonicalPath: `${SITE_CONFIG.routes.recipes}${recipe.slug}/`,
+    pageType: 'article',
+    image: recipe.image || SITE_CONFIG.defaultImage,
+    structuredData: [recipeJsonLd(recipe), recipeBreadcrumbJsonLd(recipe)],
+    bodyAttrs: `data-recipe-slug="${escapeHtml(slugOverride)}"`,
     main: `
       <main class="section" id="main-content">
-        <div id="recipeDetail"></div>
+        ${staticRecipeDetail(recipe, root, slugOverride, buildContext)}
       </main>`,
   });
 }
@@ -1186,6 +890,7 @@ function portfolioPage() {
     title: 'Portofoliu',
     description: 'Portofoliul de rețete Arta Gătitului.',
     root: '../',
+    canonicalPath: SITE_CONFIG.routes.portfolio,
     main: `
       <main class="section" id="main-content">
         <div class="page-title">
@@ -1203,6 +908,7 @@ function randomizerPage() {
     title: 'Randomizer',
     description: 'Generator aleatoriu de meniu complet.',
     root: '../',
+    canonicalPath: SITE_CONFIG.routes.randomizer,
     main: `
       <main class="section randomizer-page" id="main-content">
         <div class="page-title">
@@ -1222,6 +928,8 @@ function recipeBuilderPage() {
   return page({
     title: 'Adaugă rețetă',
     description: 'Creator vizual pentru rețete noi, cu previzualizare și export pentru proiect.',
+    canonicalPath: SITE_CONFIG.routes.recipeBuilder,
+    robots: 'noindex, follow',
     bodyAttrs: 'data-builder-page="true"',
     main: `
       <main class="section builder-page" id="main-content">
@@ -1258,15 +966,15 @@ function recipeBuilderPage() {
 
             <article class="builder-guide-card">
               <h3>3. Ce copiezi în proiect</h3>
-              <p>Copiază obiectul exportat și lipește-l în <code>LOCAL_FALLBACK_RECIPES</code> din <code>build-static-site.mjs</code>, la finalul listei.</p>
-              <p>Păstrează virgula dintre obiecte. Nu edita direct <code>assets/js/recipes.js</code> ca sursă principală, fiindcă generatorul îl rescrie.</p>
+              <p>Copiază JSON-ul exportat într-un fișier nou din <code>src/content/recipes/&lt;slug&gt;.json</code>.</p>
+              <p>Nu edita direct <code>assets/js/recipes.js</code> ca sursă principală, fiindcă generatorul îl rescrie din <code>src/content</code>.</p>
             </article>
 
             <article class="builder-guide-card">
               <h3>4. Publicare pe GitHub Pages</h3>
               <ol class="clean">
-                <li>Salvează modificarea în <code>build-static-site.mjs</code>.</li>
-                <li>Rulează <code>node build-static-site.mjs</code> pe calculatorul tău.</li>
+                <li>Salvează fișierul JSON în <code>src/content/recipes/</code>.</li>
+                <li>Rulează <code>npm run validate:content</code> și apoi <code>npm run build</code> pe calculatorul tău.</li>
                 <li>Urcă pe GitHub fișierele schimbate, inclusiv <code>assets/js/recipes.js</code>, <code>retete/&lt;slug&gt;/index.html</code> și <code>&lt;slug&gt;/index.html</code>.</li>
                 <li>Așteaptă redeploy-ul GitHub Pages, apoi testează rețeta pe site.</li>
               </ol>
@@ -1275,7 +983,7 @@ function recipeBuilderPage() {
             <article class="builder-guide-card">
               <h3>5. Greșeli frecvente</h3>
               <ul class="clean">
-                <li>Lipsește virgula dintre rețete în <code>LOCAL_FALLBACK_RECIPES</code>.</li>
+                <li>Fișierul JSON nu este valid.</li>
                 <li>Slug-ul este duplicat.</li>
                 <li>Categoria nu este una dintre categoriile existente.</li>
                 <li>Au rămas rânduri goale la ingrediente sau pași.</li>
@@ -1450,7 +1158,7 @@ function recipeBuilderPage() {
             <section class="builder-card">
               <p class="eyebrow">Export</p>
               <h2>Date pentru proiect</h2>
-              <p class="builder-note">Copiază blocul de mai jos și adaugă-l în <strong>LOCAL_FALLBACK_RECIPES</strong> din <strong>build-static-site.mjs</strong>. Apoi rulează <strong>node build-static-site.mjs</strong> ca să generezi pagina rețetei.</p>
+              <p class="builder-note">Copiază blocul de mai jos într-un fișier <strong>src/content/recipes/&lt;slug&gt;.json</strong>. Apoi rulează <strong>npm run validate:content</strong> și <strong>npm run build</strong> ca să generezi pagina rețetei.</p>
               <textarea id="recipeExportOutput" class="export-area" rows="14" readonly></textarea>
               <label class="field import-field">
                 <span>Importă JSON exportat</span>
@@ -1470,6 +1178,7 @@ function soonPage(section) {
     title: 'SOON TO COME...',
     description: 'Noi rețete apar periodic pe site.',
     root: '../',
+    canonicalPath: SITE_CONFIG.routes.soon,
     main: `
       <main class="section" id="main-content">
         <div class="soon-card">
@@ -1484,6 +1193,8 @@ function offlinePage() {
   return page({
     title: 'Offline',
     description: 'Mesaj offline pentru Arta Gătitului.',
+    canonicalPath: SITE_CONFIG.routes.offline,
+    robots: 'noindex, nofollow',
     main: `
       <main class="section" id="main-content">
         <div class="soon-card">
@@ -4328,8 +4039,16 @@ body.command-open {
 function jsFile() {
   return `(function () {
   const root = window.ARTA_ROOT || "";
-  const data = window.ARTA_DATA || { categories: [], recipes: [], aliases: {} };
-  const TAG_GROUPS = {
+  const fallbackData = window.ARTA_DATA || {};
+  const data = {
+    categories: Array.isArray(fallbackData.categories) ? fallbackData.categories : [],
+    recipes: Array.isArray(fallbackData.recipes) ? fallbackData.recipes : [],
+    aliases: fallbackData.aliases || {},
+    tagGroups: fallbackData.tagGroups || {},
+    ingredientAliases: fallbackData.ingredientAliases || { aliases: [] },
+    heroImage: fallbackData.heroImage || ""
+  };
+  const DEFAULT_TAG_GROUPS = {
     taste: { label: "Gust", options: ["Dulce", "Sărat", "Picant", "Acrișor", "Cremos", "Crocant", "Aromat", "Fresh", "Ușor", "Sățios", "Condimentat", "Fin", "Rustic"] },
     complexity: { label: "Complexitate", options: ["Începător", "Ușor", "Complexitate medie", "Complexitate ridicată", "Necesită atenție", "Risc mic de greșeală", "Risc mediu de greșeală", "Risc ridicat de greșeală"] },
     time: { label: "Timp", options: ["Sub 15 minute", "Sub 30 minute", "Sub 60 minute", "Rețetă rapidă", "Necesită timp de așteptare", "Bună pentru pregătit din timp"] },
@@ -4338,10 +4057,157 @@ function jsFile() {
     equipment: { label: "Echipament", options: ["Fără cuptor", "Necesită cuptor", "La tigaie", "La oală", "Necesită blender", "Necesită mixer", "Necesită tavă", "Necesită termometru"] },
     technique: { label: "Tehnică", options: ["Fierbere", "Coacere", "Prăjire", "Sotare", "Marinare", "Frământare", "La tigaie", "La cuptor", "Fără gătire"] }
   };
+  let TAG_GROUPS = data.tagGroups && Object.keys(data.tagGroups).length ? data.tagGroups : DEFAULT_TAG_GROUPS;
   const TAG_CARD_PRIORITY = ["complexity", "time", "context", "equipment", "technique", "taste", "diet"];
   const THEME_KEY = "arta-gatitului-theme";
   const prefersReducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   let revealObserver = null;
+  const DATA_VERSION = "${BUILD_VERSION}";
+  const dataCache = new Map();
+  let recipeIndexPromise = null;
+  let searchDataPromise = null;
+  let ingredientDataPromise = null;
+
+  function dataAssetUrl(fileName) {
+    return root + "assets/data/" + fileName + "?v=" + encodeURIComponent(DATA_VERSION);
+  }
+
+  async function fetchJsonData(fileName, fallback) {
+    if (dataCache.has(fileName)) return dataCache.get(fileName);
+    const promise = fetch(dataAssetUrl(fileName), { credentials: "same-origin" })
+      .then((response) => {
+        if (!response.ok) throw new Error(fileName + " returned " + response.status);
+        return response.json();
+      })
+      .catch(() => fallback);
+    dataCache.set(fileName, promise);
+    return promise;
+  }
+
+  function asArray(value) {
+    return Array.isArray(value) ? value : [];
+  }
+
+  function normalizeRecipeRecord(recipe) {
+    const title = recipe && (recipe.name || recipe.title) ? String(recipe.name || recipe.title) : "";
+    const ingredients = asArray(recipe && recipe.ingredients);
+    const preparation = asArray(recipe && (recipe.preparation || recipe.steps));
+    return {
+      ...(recipe || {}),
+      title: recipe && recipe.title ? recipe.title : title,
+      name: title,
+      slug: recipe && recipe.slug ? recipe.slug : "",
+      category: recipe && recipe.category ? recipe.category : "",
+      description: recipe && recipe.description ? recipe.description : "",
+      ingredients,
+      preparation,
+      steps: asArray(recipe && recipe.steps).length ? asArray(recipe.steps) : preparation,
+      beforeStart: asArray(recipe && recipe.beforeStart),
+      tags: recipe && recipe.tags && typeof recipe.tags === "object" && !Array.isArray(recipe.tags) ? recipe.tags : {},
+      keywords: asArray(recipe && recipe.keywords)
+    };
+  }
+
+  function replaceRecipes(recipes) {
+    data.recipes = asArray(recipes).map(normalizeRecipeRecord).filter((recipe) => recipe.slug && recipe.name);
+  }
+
+  function replaceCategories(categories) {
+    data.categories = asArray(categories).map((category) => ({
+      ...(category || {}),
+      name: category && (category.name || category.title) ? String(category.name || category.title) : "",
+      title: category && (category.title || category.name) ? String(category.title || category.name) : "",
+      slug: category && category.slug ? String(category.slug) : "",
+      description: category && category.description ? String(category.description) : ""
+    })).filter((category) => category.name && category.slug);
+  }
+
+  function replaceTagGroups(tagGroups) {
+    data.tagGroups = tagGroups && typeof tagGroups === "object" && !Array.isArray(tagGroups) ? tagGroups : {};
+    TAG_GROUPS = data.tagGroups && Object.keys(data.tagGroups).length ? data.tagGroups : DEFAULT_TAG_GROUPS;
+  }
+
+  function replaceIngredientAliases(aliases) {
+    data.ingredientAliases = aliases && typeof aliases === "object" && !Array.isArray(aliases) ? aliases : { aliases: [] };
+    INGREDIENT_ALIASES = ingredientAliasMap(data.ingredientAliases);
+  }
+
+  function hasPageNeed(ids) {
+    return ids.some((id) => document.getElementById(id));
+  }
+
+  async function ensureRecipeIndexData() {
+    if (!recipeIndexPromise) {
+      recipeIndexPromise = Promise.all([
+        fetchJsonData("recipe-index.json", fallbackData.recipes || []),
+        fetchJsonData("categories.json", fallbackData.categories || []),
+        fetchJsonData("tag-groups.json", fallbackData.tagGroups || {})
+      ]).then(([recipes, categories, tagGroups]) => {
+        replaceRecipes(recipes);
+        replaceCategories(categories);
+        replaceTagGroups(tagGroups);
+        return data;
+      });
+    }
+    return recipeIndexPromise;
+  }
+
+  async function ensureSearchData() {
+    if (!searchDataPromise) {
+      searchDataPromise = Promise.all([
+        fetchJsonData("search-index.json", fallbackData.recipes || []),
+        fetchJsonData("categories.json", fallbackData.categories || []),
+        fetchJsonData("tag-groups.json", fallbackData.tagGroups || {})
+      ]).then(([recipes, categories, tagGroups]) => {
+        replaceRecipes(recipes);
+        replaceCategories(categories);
+        replaceTagGroups(tagGroups);
+        return data;
+      });
+    }
+    return searchDataPromise;
+  }
+
+  async function ensureIngredientData() {
+    if (!ingredientDataPromise) {
+      ingredientDataPromise = Promise.all([
+        fetchJsonData("ingredient-index.json", fallbackData.recipes || []),
+        fetchJsonData("categories.json", fallbackData.categories || []),
+        fetchJsonData("tag-groups.json", fallbackData.tagGroups || {}),
+        fetchJsonData("ingredient-aliases.json", fallbackData.ingredientAliases || { aliases: [] })
+      ]).then(([recipes, categories, tagGroups, ingredientAliases]) => {
+        replaceRecipes(recipes);
+        replaceCategories(categories);
+        replaceTagGroups(tagGroups);
+        replaceIngredientAliases(ingredientAliases);
+        return data;
+      });
+    }
+    return ingredientDataPromise;
+  }
+
+  async function loadDataForCurrentPage() {
+    if (hasPageNeed(["ingredientMatcherForm"])) {
+      await ensureIngredientData();
+      return;
+    }
+    if (hasPageNeed(["recipeSearchInput"])) {
+      await ensureSearchData();
+      return;
+    }
+    if (hasPageNeed([
+      "featuredRecipes",
+      "allRecipes",
+      "categoryGrid",
+      "categoryRecipes",
+      "randomRecipeButton",
+      "surpriseRecipeButton",
+      "recipeDetail",
+      "recipeBuilderForm"
+    ])) {
+      await ensureRecipeIndexData();
+    }
+  }
 
   function normalize(value) {
     return String(value || "")
@@ -4411,7 +4277,7 @@ function jsFile() {
     "de", "din", "cu", "si", "sau", "la", "pentru", "cat", "cate", "putin", "putina"
   ]);
 
-  const INGREDIENT_ALIASES = {
+  const DEFAULT_INGREDIENT_ALIASES = {
     ou: ["oua"],
     oua: ["ou"],
     cartof: ["cartofi"],
@@ -4426,6 +4292,28 @@ function jsFile() {
     lamai: ["lamaie"]
   };
 
+  function ingredientAliasMap(source) {
+    const map = Object.entries(DEFAULT_INGREDIENT_ALIASES).reduce((result, [key, values]) => {
+      result[key] = values.slice();
+      return result;
+    }, {});
+    const entries = source && Array.isArray(source.aliases) ? source.aliases : [];
+    entries.forEach((entry) => {
+      const terms = Array.isArray(entry.terms) ? entry.terms : [];
+      const normalizedTerms = Array.from(new Set([
+        entry.canonical,
+        ...terms
+      ].map(normalize).filter(Boolean)));
+      normalizedTerms.forEach((term) => {
+        const related = normalizedTerms.filter((item) => item !== term);
+        map[term] = Array.from(new Set([...(map[term] || []), ...related]));
+      });
+    });
+    return map;
+  }
+
+  let INGREDIENT_ALIASES = ingredientAliasMap(data.ingredientAliases);
+
   function expandIngredientToken(token) {
     return [token, ...(INGREDIENT_ALIASES[token] || [])];
   }
@@ -4437,6 +4325,16 @@ function jsFile() {
   }
 
   function recipeIngredientTokens(recipe) {
+    if (recipe && Array.isArray(recipe.ingredientTokens) && recipe.ingredientTokens.length) {
+      return new Set(recipe.ingredientTokens.map(normalize).filter(Boolean));
+    }
+    const indexedRows = [
+      ...((recipe && recipe.requiredIngredientTokens) || []),
+      ...((recipe && recipe.optionalIngredientTokens) || [])
+    ];
+    if (indexedRows.length) {
+      return new Set(indexedRows.flatMap((row) => asArray(row.tokens)).map(normalize).filter(Boolean));
+    }
     return new Set(((recipe && recipe.ingredients) || []).flatMap(ingredientTokens));
   }
 
@@ -4496,11 +4394,18 @@ function jsFile() {
   }
 
   function recipeSearchTokens(recipe) {
+    if (recipe && Array.isArray(recipe.tokens) && recipe.tokens.length) {
+      return new Set(recipe.tokens.map(normalize).filter(Boolean));
+    }
+    if (recipe && recipe.searchText) {
+      return new Set(tokenizeText(recipe.searchText));
+    }
     return new Set(tokenizeText([
       recipe && recipe.name,
       recipe && recipe.category,
       recipe && recipe.description,
       ((recipe && recipe.ingredients) || []).join(" "),
+      recipe && recipe.ingredientsText,
       ((recipe && recipe.preparation) || []).join(" "),
       ((recipe && recipe.beforeStart) || []).join(" "),
       ((recipe && recipe.keywords) || []).join(" "),
@@ -4608,6 +4513,11 @@ function jsFile() {
 
     category.innerHTML = '<option value="all">Toate categoriile</option>' + data.categories.map((item) => \`<option value="\${escapeHtml(item.name)}">\${escapeHtml(item.name)}</option>\`).join("");
     if (!category.value) category.value = "all";
+    if (!data.recipes.length) {
+      if (count) count.textContent = "0 rețete găsite";
+      results.innerHTML = emptyState("Datele de căutare nu s-au putut încărca. Reîncarcă pagina sau încearcă din nou mai târziu.", false);
+      return;
+    }
 
     function run() {
       const terms = tokenizeText(input.value);
@@ -4652,35 +4562,58 @@ function jsFile() {
   }
 
   function analyzeIngredientMatch(recipe, availableTokens) {
-    const rows = ((recipe && recipe.ingredients) || [])
+    const indexedRequired = asArray(recipe && recipe.requiredIngredientTokens)
+      .map((row) => ({ label: row.label, tokens: asArray(row.tokens) }))
+      .filter((row) => row.label && row.tokens.length);
+    const indexedOptional = asArray(recipe && recipe.optionalIngredientTokens)
+      .map((row) => ({ label: row.label, tokens: asArray(row.tokens) }))
+      .filter((row) => row.label && row.tokens.length);
+    const fallbackRows = ((recipe && recipe.ingredients) || [])
       .filter((line) => !isSubheading(line))
       .map((line) => ({ label: line, tokens: ingredientTokens(line) }))
       .filter((row) => row.tokens.length);
+    const rows = indexedRequired.length ? indexedRequired : fallbackRows;
+    const optionalRows = indexedRequired.length ? indexedOptional : [];
 
-    const matched = [];
+    const matchedRequired = [];
+    const matchedOptional = [];
     const missing = [];
     rows.forEach((row) => {
       const hasMatch = row.tokens.some((token) => availableTokens.has(token));
-      if (hasMatch) matched.push(row.label);
+      if (hasMatch) matchedRequired.push(row.label);
       else missing.push(row.label);
+    });
+    optionalRows.forEach((row) => {
+      if (row.tokens.some((token) => availableTokens.has(token))) matchedOptional.push(row.label);
     });
 
     const total = rows.length;
-    let matchedCount = matched.length;
+    let matchedCount = matchedRequired.length;
     let score = total ? matchedCount / total : 0;
+    if (matchedOptional.length) score = Math.min(1, score + Math.min(.12, matchedOptional.length * .03));
     const keywordMatches = Array.from(keywordTokens(recipe)).filter((token) => availableTokens.has(token));
     if (!matchedCount && keywordMatches.length) {
-      matched.push("cuvânt-cheie: " + keywordMatches.slice(0, 3).join(", "));
+      matchedRequired.push("cuvânt-cheie: " + keywordMatches.slice(0, 3).join(", "));
       matchedCount = 1;
       score = total ? Math.min(.28, 1 / total) : .2;
     }
-    return { recipe, matched, missing, total, matchedCount, missingCount: missing.length, score };
+    return {
+      recipe,
+      matched: [...matchedRequired, ...matchedOptional],
+      matchedRequired,
+      matchedOptional,
+      missing,
+      total,
+      matchedCount,
+      missingCount: missing.length,
+      score
+    };
   }
 
   function matchBadge(match) {
-    if (match.missingCount === 0) return "Complet";
-    if (match.score >= .88 || match.missingCount <= 1) return "Aproape complet";
-    return match.missingCount === 1 ? "Lipsește 1 ingredient" : "Lipsesc " + match.missingCount + " ingrediente";
+    if (match.missingCount === 0) return "Poți găti acum";
+    if (match.missingCount === 1) return "Îți lipsește 1 ingredient";
+    return "Îți lipsesc " + match.missingCount + " ingrediente";
   }
 
   function renderMatchChips(items, className) {
@@ -4752,6 +4685,12 @@ function jsFile() {
       const tokenSet = new Set(tokens);
       renderChips(tokens);
 
+      if (!data.recipes.length) {
+        summary.textContent = "Datele pentru potrivirea ingredientelor nu s-au putut încărca.";
+        results.innerHTML = emptyState("Reîncarcă pagina sau încearcă din nou mai târziu.", false);
+        return;
+      }
+
       if (!tokens.length) {
         summary.textContent = "Introdu ingredientele ca să primești recomandări.";
         results.innerHTML = '<div class="empty">Exemplu: pui, cartofi, ou, lapte, usturoi.</div>';
@@ -4771,9 +4710,10 @@ function jsFile() {
           return a.recipe.name.localeCompare(b.recipe.name, "ro");
         });
 
-      const ready = matches.filter((match) => match.score >= .88 || match.missingCount <= 1);
-      const almost = matches.filter((match) => !ready.includes(match) && match.score >= .34);
-      const weak = matches.filter((match) => !ready.includes(match) && !almost.includes(match) && match.score > 0).slice(0, 6);
+      const ready = matches.filter((match) => match.missingCount === 0);
+      const oneMissing = matches.filter((match) => match.missingCount === 1);
+      const almost = matches.filter((match) => match.missingCount > 1 && match.score >= .34);
+      const weak = matches.filter((match) => !ready.includes(match) && !oneMissing.includes(match) && !almost.includes(match) && match.score > 0).slice(0, 6);
 
       summary.textContent = matches.length === 1
         ? "1 rețetă se potrivește cu ingredientele introduse."
@@ -4782,7 +4722,8 @@ function jsFile() {
       results.innerHTML = matches.length
         ? [
             renderMatchSection("Poți găti acum", ready),
-            renderMatchSection("Îți lipsesc câteva ingrediente", almost.slice(0, 12)),
+            renderMatchSection("Îți lipsește 1 ingredient", oneMissing.slice(0, 12)),
+            renderMatchSection("Îți lipsesc mai multe ingrediente", almost.slice(0, 12)),
             renderMatchSection("Potrivire slabă", weak)
           ].join("")
         : '<div class="empty">Nu am găsit potriviri încă. Încearcă ingrediente mai simple, de exemplu „pui”, „cartofi”, „ouă” sau „lapte”.</div>';
@@ -5060,9 +5001,23 @@ function jsFile() {
 
   function recipeTimeline(recipe) {
     const markers = [];
-    if (recipe && recipe.prepTime) markers.push(["Pregătire", recipe.prepTime]);
-    if (recipe && recipe.cookTime) markers.push(["Gătire", recipe.cookTime]);
+    function minutes(value) {
+      if (value === null || value === undefined || value === "") return "";
+      const number = Number(value);
+      if (!Number.isFinite(number) || number < 0) return "";
+      const rounded = Math.round(number);
+      return rounded === 1 ? "1 minut" : rounded + " minute";
+    }
+    const prep = recipe && (recipe.prepTime || minutes(recipe.prepTimeMinutes));
+    const cook = recipe && (recipe.cookTime || minutes(recipe.cookTimeMinutes));
+    const total = recipe && minutes(recipe.totalTimeMinutes);
+    if (prep) markers.push(["Pregătire", prep]);
+    if (cook) markers.push(["Gătire", cook]);
+    if (total) markers.push(["Total", total]);
+    if (recipe && recipe.servings) markers.push(["Porții", recipe.servings]);
     if (recipe && recipe.restTime) markers.push(["Odihnire", recipe.restTime]);
+    const equipment = recipe && Array.isArray(recipe.equipment) ? recipe.equipment.filter(Boolean).join(", ") : "";
+    if (equipment) markers.push(["Echipament", equipment]);
     if (!markers.length) return "";
     return '<section class="recipe-timeline box" aria-label="Timeline rețetă">' +
       markers.map((item) => '<div><span>' + escapeHtml(item[0]) + '</span><strong>' + escapeHtml(item[1]) + '</strong></div>').join("") +
@@ -5070,6 +5025,13 @@ function jsFile() {
   }
 
   function renderRecipeDetail() {
+    const staticArticle = document.querySelector("[data-static-recipe]");
+    if (staticArticle) {
+      markRevealTargets(staticArticle);
+      staticArticle.querySelectorAll(".grid").forEach(applyStagger);
+      return;
+    }
+
     const el = document.getElementById("recipeDetail");
     if (!el) return;
     const slug = document.body.dataset.recipeSlug;
@@ -5084,7 +5046,7 @@ function jsFile() {
     const related = similarRecipes(recipe);
 
     el.innerHTML = \`
-      <article class="recipe-detail-card">
+      <article class="recipe-detail-card" data-recipe-slug="\${escapeHtml(recipe.slug)}">
         <div class="recipe-hero">
           <div>
             <span class="pill">\${escapeHtml(recipe.category)}</span>
@@ -5612,6 +5574,11 @@ function jsFile() {
       ].map(builderSlug).filter(Boolean)));
     }
 
+    function integerOrNull(value) {
+      const number = Number(String(value || "").trim());
+      return Number.isInteger(number) && number >= 0 ? number : null;
+    }
+
     function publicRecipeObject() {
       const state = currentState();
       return cleanObject({
@@ -5649,10 +5616,45 @@ function jsFile() {
       });
     }
 
+    function contentRecipeObject() {
+      const state = currentState();
+      const prepTimeMinutes = integerOrNull(state.prepTime);
+      const cookTimeMinutes = integerOrNull(state.cookTime);
+      const totalTimeMinutes = prepTimeMinutes !== null || cookTimeMinutes !== null
+        ? (prepTimeMinutes || 0) + (cookTimeMinutes || 0)
+        : null;
+      return {
+        id: state.slug,
+        slug: state.slug,
+        title: state.name,
+        description: state.description || null,
+        category: state.category,
+        ingredients: state.ingredients,
+        steps: state.preparation,
+        beforeStart: state.beforeStart,
+        tags: state.tags,
+        equipment: state.tags.equipment || [],
+        prepTimeMinutes,
+        cookTimeMinutes,
+        totalTimeMinutes,
+        servings: state.servings || null,
+        image: state.image || null,
+        sourceUrl: null,
+        createdAt: null,
+        updatedAt: null,
+        status: "published",
+        closing: "Poftă bună!",
+        extras: [],
+        ratingSummary: state.ratingSummary,
+        keywords: keywordList(state)
+      };
+    }
+
     function exportPackage() {
       const state = currentState();
       return {
-        recipe: publicRecipeObject(),
+        recipe: contentRecipeObject(),
+        legacyRecipe: publicRecipeObject(),
         fallbackRecipe: fallbackRecipeObject(),
         builderMeta: {
           prepTime: state.prepTime,
@@ -5817,7 +5819,7 @@ function jsFile() {
     }
 
     function updateExport() {
-      els.exportOutput.value = JSON.stringify(fallbackRecipeObject(), null, 2) + ",";
+      els.exportOutput.value = JSON.stringify(contentRecipeObject(), null, 2);
     }
 
     function saveDraft(silent = false) {
@@ -5841,14 +5843,16 @@ function jsFile() {
     function loadFromPackage(payload) {
       const recipe = payload.fallbackRecipe || payload.recipe || payload;
       const meta = payload.builderMeta || {};
-      els.title.value = recipe.name || "";
-      els.slug.value = recipe.slug || builderSlug(recipe.name || "");
+      const recipeTitle = recipe.title || recipe.name || "";
+      const recipeSteps = Array.isArray(recipe.steps) ? recipe.steps : recipe.preparation;
+      els.title.value = recipeTitle;
+      els.slug.value = recipe.slug || builderSlug(recipeTitle);
       els.category.value = recipe.category || els.category.value;
       els.description.value = recipe.description || "";
-      els.prepTime.value = meta.prepTime || "";
-      els.cookTime.value = meta.cookTime || "";
-      els.servings.value = meta.servings || "";
-      els.image.value = meta.image || "";
+      els.prepTime.value = meta.prepTime || recipe.prepTimeMinutes || "";
+      els.cookTime.value = meta.cookTime || recipe.cookTimeMinutes || "";
+      els.servings.value = meta.servings || recipe.servings || "";
+      els.image.value = meta.image || recipe.image || "";
       els.notes.value = meta.notes || "";
       els.keywords.value = Array.isArray(recipe.keywords) ? recipe.keywords.join(", ") : "";
       els.ingredients.textContent = "";
@@ -5863,7 +5867,7 @@ function jsFile() {
       });
       (Array.isArray(recipe.ingredients) && recipe.ingredients.length ? recipe.ingredients : [""]).forEach((line) => addRow("ingredients", line));
       (Array.isArray(recipe.beforeStart) && recipe.beforeStart.length ? recipe.beforeStart : [""]).forEach((line) => addRow("beforeStart", line));
-      (Array.isArray(recipe.preparation) && recipe.preparation.length ? recipe.preparation : [""]).forEach((line) => addRow("steps", line));
+      (Array.isArray(recipeSteps) && recipeSteps.length ? recipeSteps : [""]).forEach((line) => addRow("steps", line));
       slugTouched = true;
       syncBuilder();
     }
@@ -6285,7 +6289,8 @@ function jsFile() {
   function setupHeroSurprise() {
     const button = document.getElementById("surpriseRecipeButton");
     if (!button) return;
-    button.addEventListener("click", () => {
+    button.addEventListener("click", async () => {
+      await ensureRecipeIndexData();
       const recipe = pickRandom(data.recipes);
       if (recipe) window.location.href = recipeUrl(recipe.slug);
     });
@@ -6338,11 +6343,22 @@ function jsFile() {
     const openers = document.querySelectorAll("[data-open-command]");
     if (!palette || !input || !results) return;
 
-    const records = commandRecords();
+    let records = [];
+    let recordsLoading = null;
     let activeIndex = 0;
     let visible = [];
     let previousFocus = null;
     let openedAt = 0;
+
+    function ensureRecords() {
+      if (!recordsLoading) {
+        recordsLoading = ensureRecipeIndexData().then(() => {
+          records = commandRecords();
+          return records;
+        });
+      }
+      return recordsLoading;
+    }
 
     function isTypingTarget(target) {
       return target && (target.matches("input, textarea, select") || target.isContentEditable);
@@ -6379,13 +6395,15 @@ function jsFile() {
       applyStagger(results);
     }
 
-    function openCommand(trigger) {
+    async function openCommand(trigger) {
       previousFocus = trigger || document.activeElement;
       openedAt = Date.now();
       palette.hidden = false;
       palette.setAttribute("aria-hidden", "false");
       document.body.classList.add("command-open");
       input.value = "";
+      results.innerHTML = '<div class="empty">Se încarcă...</div>';
+      await ensureRecords();
       render();
       window.setTimeout(() => input.focus(), 0);
     }
@@ -6536,6 +6554,7 @@ function jsFile() {
       if (button.matches("[data-quick-top]")) {
         window.scrollTo({ top: 0, behavior: prefersReducedMotion ? "auto" : "smooth" });
       } else if (button.matches("[data-quick-random]")) {
+        await ensureRecipeIndexData();
         const recipe = pickRandom(data.recipes);
         if (recipe) window.location.href = recipeUrl(recipe.slug);
       } else if (button.matches("[data-quick-rate]")) {
@@ -6587,13 +6606,42 @@ function jsFile() {
   }
 
   function setupBeforeStartChecklist() {
-    document.addEventListener("change", (event) => {
-      const input = event.target.closest(".before-list input[type='checkbox']");
-      if (!input) return;
-      const label = input.closest("label");
-      if (!label) return;
-      label.classList.toggle("is-checked", input.checked);
-      if (input.checked) pulseElement(label);
+    document.querySelectorAll(".before-list").forEach((list, listIndex) => {
+      const recipeRoot = list.closest("[data-recipe-slug]") || document.querySelector("[data-rating-panel]");
+      const recipeSlug = (recipeRoot && recipeRoot.dataset.recipeSlug) || document.body.dataset.recipeSlug || "pagina";
+      const storageKey = "arta-gatitului-before-start:" + recipeSlug + ":" + listIndex;
+      let saved = [];
+      try {
+        saved = JSON.parse(window.localStorage.getItem(storageKey) || "[]");
+      } catch {
+        saved = [];
+      }
+
+      function save() {
+        const checked = Array.from(list.querySelectorAll("input[type='checkbox']:checked"))
+          .map((input) => input.dataset.checkId)
+          .filter(Boolean);
+        try {
+          window.localStorage.setItem(storageKey, JSON.stringify(checked));
+        } catch {}
+      }
+
+      list.querySelectorAll("input[type='checkbox']").forEach((input, index) => {
+        if (!input.dataset.checkId) input.dataset.checkId = String(index + 1);
+        input.checked = saved.includes(input.dataset.checkId);
+        const label = input.closest("label");
+        if (label) label.classList.toggle("is-checked", input.checked);
+      });
+
+      list.addEventListener("change", (event) => {
+        const input = event.target.closest("input[type='checkbox']");
+        if (!input || !list.contains(input)) return;
+        const label = input.closest("label");
+        if (!label) return;
+        label.classList.toggle("is-checked", input.checked);
+        save();
+        if (input.checked) pulseElement(label);
+      });
     });
   }
 
@@ -6635,11 +6683,12 @@ function jsFile() {
     });
   }
 
-  document.addEventListener("DOMContentLoaded", function () {
+  document.addEventListener("DOMContentLoaded", async function () {
     setupPageTransitions();
     setupMobileMenu();
     markActiveNav();
     setupThemeSwitcher();
+    await loadDataForCurrentPage();
     renderFeatured();
     renderAllRecipes();
     renderCategories();
@@ -6688,8 +6737,8 @@ function manifestFile() {
   }, null, 2) + '\n';
 }
 
-function serviceWorkerFile(recipes, categories) {
-  const cacheName = `arta-gatitului-${Date.now()}`;
+function serviceWorkerFile() {
+  const cacheName = `arta-gatitului-${BUILD_VERSION}`;
   const coreAssets = Array.from(new Set([
     './',
     'index.html',
@@ -6702,20 +6751,35 @@ function serviceWorkerFile(recipes, categories) {
     'manifest.webmanifest',
     'assets/css/style.css',
     `assets/css/style.css?v=${BUILD_VERSION}`,
-    'assets/js/recipes.js',
-    `assets/js/recipes.js?v=${BUILD_VERSION}`,
     'assets/js/site.js',
     `assets/js/site.js?v=${BUILD_VERSION}`,
+    'assets/data/recipe-index.json',
+    `assets/data/recipe-index.json?v=${BUILD_VERSION}`,
+    'assets/data/search-index.json',
+    `assets/data/search-index.json?v=${BUILD_VERSION}`,
+    'assets/data/ingredient-index.json',
+    `assets/data/ingredient-index.json?v=${BUILD_VERSION}`,
+    'assets/data/categories.json',
+    `assets/data/categories.json?v=${BUILD_VERSION}`,
+    'assets/data/tag-groups.json',
+    `assets/data/tag-groups.json?v=${BUILD_VERSION}`,
+    'assets/data/ingredient-aliases.json',
+    `assets/data/ingredient-aliases.json?v=${BUILD_VERSION}`,
     'assets/icons/icon.png',
     'assets/icons/icon-192.png',
     'assets/icons/icon-512.png',
     'portofoliu/',
     'randomizer/',
-    ...categories.flatMap((category) => [`${category.slug}/`, `categorie/${category.slug}/`]),
-    ...recipes.map((recipe) => `retete/${recipe.slug}/`),
+    'soon-to-come/',
   ]));
 
   return `const CACHE_NAME = ${JSON.stringify(cacheName)};
+const CACHE_PREFIX = "arta-gatitului-";
+const SHELL_CACHE = CACHE_NAME + "-shell";
+const HTML_CACHE = CACHE_NAME + "-html";
+const ASSET_CACHE = CACHE_NAME + "-assets";
+const IMAGE_CACHE = CACHE_NAME + "-images";
+const MAX_IMAGE_CACHE_ITEMS = 60;
 const CORE_ASSETS = ${JSON.stringify(coreAssets, null, 2)};
 const OFFLINE_URL = "offline.html";
 
@@ -6723,10 +6787,58 @@ function cacheUrl(path) {
   return new URL(path, self.registration.scope).toString();
 }
 
+function isCacheable(response) {
+  return response && response.status === 200 && (response.type === "basic" || response.type === "default");
+}
+
+async function putIfCacheable(cacheName, request, response) {
+  if (!isCacheable(response)) return;
+  const cache = await caches.open(cacheName);
+  await cache.put(request, response.clone());
+}
+
+async function trimCache(cacheName, maxItems) {
+  const cache = await caches.open(cacheName);
+  const keys = await cache.keys();
+  if (keys.length <= maxItems) return;
+  await Promise.all(keys.slice(0, keys.length - maxItems).map((request) => cache.delete(request)));
+}
+
+async function networkFirstHtml(request) {
+  try {
+    const response = await fetch(request);
+    await putIfCacheable(HTML_CACHE, request, response);
+    return response;
+  } catch {
+    const cached = await caches.match(request);
+    return cached || caches.match(cacheUrl(OFFLINE_URL));
+  }
+}
+
+async function staleWhileRevalidate(request, cacheName) {
+  const cached = await caches.match(request);
+  const network = fetch(request)
+    .then(async (response) => {
+      await putIfCacheable(cacheName, request, response);
+      return response;
+    })
+    .catch(() => cached);
+  return cached || network;
+}
+
+async function cacheFirstImage(request) {
+  const cached = await caches.match(request);
+  if (cached) return cached;
+  const response = await fetch(request);
+  await putIfCacheable(IMAGE_CACHE, request, response);
+  await trimCache(IMAGE_CACHE, MAX_IMAGE_CACHE_ITEMS);
+  return response;
+}
+
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => cache.addAll(CORE_ASSETS.map(cacheUrl)))
+    caches.open(SHELL_CACHE)
+      .then((cache) => Promise.all(CORE_ASSETS.map((path) => cache.add(cacheUrl(path)).catch(() => null))))
       .then(() => self.skipWaiting())
   );
 });
@@ -6735,7 +6847,7 @@ self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys()
       .then((keys) => Promise.all(keys
-        .filter((key) => key.startsWith("arta-gatitului-") && key !== CACHE_NAME)
+        .filter((key) => key.startsWith(CACHE_PREFIX) && !key.startsWith(CACHE_NAME))
         .map((key) => caches.delete(key))))
       .then(() => self.clients.claim())
   );
@@ -6749,32 +6861,21 @@ self.addEventListener("fetch", (event) => {
   if (url.origin !== self.location.origin) return;
 
   if (request.mode === "navigate") {
-    event.respondWith(
-      fetch(request)
-        .then((response) => {
-          const copy = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
-          return response;
-        })
-        .catch(async () => {
-          const cached = await caches.match(request);
-          return cached || caches.match(cacheUrl(OFFLINE_URL));
-        })
-    );
+    event.respondWith(networkFirstHtml(request));
     return;
   }
 
-  event.respondWith(
-    caches.match(request)
-      .then((cached) => cached || fetch(request)
-        .then((response) => {
-          if (!response || response.status !== 200) return response;
-          const copy = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
-          return response;
-        })
-        .catch(() => cached))
-  );
+  if (/\\.(?:png|jpe?g|webp|gif|svg|ico)$/i.test(url.pathname)) {
+    event.respondWith(cacheFirstImage(request).catch(() => caches.match(request)));
+    return;
+  }
+
+  if (/\\.(?:css|js|json|webmanifest)$/i.test(url.pathname) || url.pathname.includes("/assets/data/")) {
+    event.respondWith(staleWhileRevalidate(request, ASSET_CACHE));
+    return;
+  }
+
+  event.respondWith(staleWhileRevalidate(request, ASSET_CACHE));
 });
 `;
 }
@@ -6910,68 +7011,26 @@ function resizePng(buffer, size) {
   return encodePng({ width: size, height: size, pixels });
 }
 
-async function writeFile(filePath, contents) {
-  await fs.mkdir(path.dirname(filePath), { recursive: true });
-  await fs.writeFile(filePath, contents, 'utf8');
-}
-
-async function writeBinary(filePath, contents) {
-  await fs.mkdir(path.dirname(filePath), { recursive: true });
-  await fs.writeFile(filePath, contents);
-}
-
 async function main() {
-  const inventory = JSON.parse(await fs.readFile(INVENTORY_PATH, 'utf8'));
-  const markdown = await fs.readFile(RECIPES_MD_PATH, 'utf8');
-  const sections = readRecipeSections(markdown);
-  const soonSection = sections.find((section) => section.url.endsWith('/soon-to-come'));
-  const categoryMap = buildCategoryMap(inventory);
-  const recipes = mergeRecipes(sections.map(splitRecipe), categoryMap);
-  const categories = Object.values(CATEGORY_PAGES);
-  const sourceIcon = await fs.readFile(SOURCE_ICON_PATH);
-
-  await writeFile(path.join(ROOT, 'assets', 'js', 'recipes.js'), dataFile(categories, recipes));
-  await writeFile(path.join(ROOT, 'assets', 'js', 'site.js'), jsFile());
-  await writeFile(path.join(ROOT, 'assets', 'css', 'style.css'), cssFile());
-  await writeFile(path.join(ROOT, 'manifest.json'), manifestFile());
-  await writeFile(path.join(ROOT, 'manifest.webmanifest'), manifestFile());
-  await writeFile(path.join(ROOT, 'service-worker.js'), serviceWorkerFile(recipes, categories));
-  await writeBinary(path.join(ROOT, 'assets', 'icons', 'icon.png'), sourceIcon);
-  await writeBinary(path.join(ROOT, 'assets', 'icons', 'icon-192.png'), resizePng(sourceIcon, 192));
-  await writeBinary(path.join(ROOT, 'assets', 'icons', 'icon-512.png'), resizePng(sourceIcon, 512));
-
-  await writeFile(path.join(ROOT, 'index.html'), homePage());
-  await writeFile(path.join(ROOT, 'adauga-reteta.html'), recipeBuilderPage());
-  await writeFile(path.join(ROOT, 'categorii.html'), categoriesIndexPage());
-  await writeFile(path.join(ROOT, 'cauta.html'), searchPage());
-  await writeFile(path.join(ROOT, 'ce-pot-gati.html'), ingredientMatcherPage());
-  await writeFile(path.join(ROOT, 'offline.html'), offlinePage());
-  await writeFile(path.join(ROOT, 'portofoliu', 'index.html'), portfolioPage());
-  await writeFile(path.join(ROOT, 'randomizer', 'index.html'), randomizerPage());
-  if (soonSection) {
-    await writeFile(path.join(ROOT, 'soon-to-come', 'index.html'), soonPage(soonSection));
-  }
-
-  for (const category of categories) {
-    await writeFile(path.join(ROOT, 'categorie', category.slug, 'index.html'), categoryPage(category));
-    await writeFile(path.join(ROOT, category.slug, 'index.html'), categoryPage(category, '../'));
-  }
-
-  const recipeBySlug = new Map(recipes.map((recipe) => [recipe.slug, recipe]));
-  for (const recipe of recipes) {
-    await writeFile(path.join(ROOT, 'retete', recipe.slug, 'index.html'), recipePage(recipe));
-    await writeFile(path.join(ROOT, recipe.slug, 'index.html'), recipePage(recipe, '../'));
-  }
-
-  for (const [alias, target] of Object.entries(RECIPE_ALIASES)) {
-    const recipe = recipeBySlug.get(target);
-    if (recipe) {
-      await writeFile(path.join(ROOT, 'retete', alias, 'index.html'), recipePage(recipe, '../../', alias));
-      await writeFile(path.join(ROOT, alias, 'index.html'), recipePage(recipe, '../', alias));
-    }
-  }
-
-  console.log(`Generated ${recipes.length} recipes, ${categories.length} categories, and ${Object.keys(RECIPE_ALIASES).length} aliases.`);
+  await runBuild({
+    dataFile,
+    jsFile,
+    cssFile,
+    manifestFile,
+    serviceWorkerFile,
+    resizePng,
+    homePage,
+    recipeBuilderPage,
+    categoriesIndexPage,
+    searchPage,
+    ingredientMatcherPage,
+    offlinePage,
+    portfolioPage,
+    randomizerPage,
+    soonPage,
+    categoryPage,
+    recipePage,
+  });
 }
 
 main().catch((error) => {

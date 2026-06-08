@@ -1,0 +1,111 @@
+{
+  "id": "omleta-cu-spanac",
+  "slug": "omleta-cu-spanac",
+  "title": "Omleta cu spanac",
+  "description": "Se incalzeste o tigaie mica pe foc mic-mediu.",
+  "category": "Mic dejun",
+  "ingredients": [
+    "Ou (4 buc.)",
+    "Sare*",
+    "Piper*",
+    "Spanac*",
+    "Branza*",
+    "Masline",
+    "Rosii Cheri",
+    "Ardei",
+    "*dupa gust"
+  ],
+  "steps": [
+    "Se incalzeste o tigaie mica pe foc mic-mediu.",
+    "Intr-un bol mic se bat bine ouale impreuna cu sare si piper, dupa care se adauga in tigaia calda unde se adauga branza si spanacul. Se prajeste cate ~1 minut pe fiecare parte.",
+    "Se serveste impreuna cu masline, rosii cheri si ardei taiati felii."
+  ],
+  "beforeStart": [
+    "Bate ouăle cu sare și piper înainte să încălzești tigaia.",
+    "Spală spanacul și legumele pentru servire.",
+    "Pregătește brânza, măslinele și roșiile înainte de gătire.",
+    "Încălzește tigaia la foc mic-mediu pentru o omletă mai controlată."
+  ],
+  "tags": {
+    "taste": [
+      "Sărat",
+      "Ușor",
+      "Fresh"
+    ],
+    "complexity": [
+      "Ușor",
+      "Risc mic de greșeală"
+    ],
+    "time": [
+      "Sub 15 minute",
+      "Rețetă rapidă"
+    ],
+    "context": [
+      "Mic dejun",
+      "Pentru zile aglomerate"
+    ],
+    "diet": [
+      "Fără carne",
+      "Vegetarian"
+    ],
+    "equipment": [
+      "La tigaie"
+    ],
+    "technique": [
+      "La tigaie",
+      "Prăjire"
+    ]
+  },
+  "equipment": [
+    "La tigaie"
+  ],
+  "prepTimeMinutes": null,
+  "cookTimeMinutes": null,
+  "totalTimeMinutes": null,
+  "servings": null,
+  "image": null,
+  "sourceUrl": "https://artagatitului.godaddysites.com/omleta-cu-spanac",
+  "createdAt": null,
+  "updatedAt": null,
+  "status": "published",
+  "closing": "Poftă bună!",
+  "keywords": [
+    "omleta",
+    "cu",
+    "spanac",
+    "mic",
+    "dejun",
+    "ou",
+    "4",
+    "buc",
+    "sare",
+    "piper",
+    "branza",
+    "masline",
+    "rosii",
+    "cheri",
+    "ardei",
+    "dupa",
+    "gust",
+    "sarat",
+    "usor",
+    "fresh",
+    "risc",
+    "de",
+    "greseala",
+    "sub",
+    "15",
+    "minute",
+    "reteta",
+    "rapida",
+    "pentru",
+    "zile",
+    "aglomerate",
+    "fara",
+    "carne",
+    "vegetarian",
+    "la",
+    "tigaie",
+    "prajire"
+  ]
+}

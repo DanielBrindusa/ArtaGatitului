@@ -1,0 +1,118 @@
+{
+  "id": "supa-de-pui-cu-galuste",
+  "slug": "supa-de-pui-cu-galuste",
+  "title": "Supa de pui cu galuste",
+  "description": "Se curata morcovii, patrunjelul, pastarnacul, telina si ceapa.",
+  "category": "Fel principal",
+  "ingredients": [
+    "Carne de pui",
+    "Morcovi - 3 buc.",
+    "Patrunjel - 1 buc.",
+    "Pastarnac - 1 buc.",
+    "Telina - 1/4 buc.",
+    "Ceapa - 1 buc.",
+    "Vegeta/Sare",
+    "Piper",
+    "Cub Magi (optional)",
+    "Patrunjel frunze - 1/2 legatura",
+    "Oua - 1 buc.",
+    "Gris"
+  ],
+  "steps": [
+    "Se curata morcovii, patrunjelul, pastarnacul, telina si ceapa.",
+    "Se pune apa intr-o oala mare si se adauga puiul si legumele curatate. Se pune la fiert si se aduna spuma periodic.",
+    "Se adauga vegeta/sare si piper dupa gust.",
+    "Separat, intr-un bol, se bate oul, se condimenteaza cu sare si piper, se adauga 3 linguri de apa din supa si gris pana ajunge la textura dorita (textura unui smoothie).",
+    "La final, in ultimele 5 minute, se adauga in oaal clocotinda galustele apoi cubul Magi si patrunjelul frunze."
+  ],
+  "beforeStart": [
+    "Curăță legumele și pregătește o oală mare înainte să pui puiul la fiert.",
+    "Ține la îndemână o spumieră ca să cureți supa în timpul fierberii.",
+    "Pregătește separat bolul pentru compoziția de găluște.",
+    "Citește pașii pentru momentul în care se adaugă găluștele și pătrunjelul."
+  ],
+  "tags": {
+    "taste": [
+      "Sărat",
+      "Aromat",
+      "Ușor"
+    ],
+    "complexity": [
+      "Complexitate medie",
+      "Necesită atenție"
+    ],
+    "context": [
+      "Prânz",
+      "Cină",
+      "Pentru familie",
+      "Comfort food"
+    ],
+    "diet": [
+      "Cu carne"
+    ],
+    "equipment": [
+      "La oală"
+    ],
+    "technique": [
+      "Fierbere"
+    ]
+  },
+  "equipment": [
+    "La oală"
+  ],
+  "prepTimeMinutes": null,
+  "cookTimeMinutes": null,
+  "totalTimeMinutes": null,
+  "servings": null,
+  "image": null,
+  "sourceUrl": "https://artagatitului.godaddysites.com/supa-de-pui-cu-galuste",
+  "createdAt": null,
+  "updatedAt": null,
+  "status": "published",
+  "closing": "Poftă bună!",
+  "keywords": [
+    "supa",
+    "de",
+    "pui",
+    "cu",
+    "galuste",
+    "fel",
+    "principal",
+    "carne",
+    "morcovi",
+    "3",
+    "buc",
+    "patrunjel",
+    "1",
+    "pastarnac",
+    "telina",
+    "1-4",
+    "ceapa",
+    "vegeta-sare",
+    "piper",
+    "cub",
+    "magi",
+    "optional",
+    "frunze",
+    "1-2",
+    "legatura",
+    "oua",
+    "gris",
+    "sarat",
+    "aromat",
+    "usor",
+    "complexitate",
+    "medie",
+    "necesita",
+    "atentie",
+    "pranz",
+    "cina",
+    "pentru",
+    "familie",
+    "comfort",
+    "food",
+    "la",
+    "oala",
+    "fierbere"
+  ]
+}

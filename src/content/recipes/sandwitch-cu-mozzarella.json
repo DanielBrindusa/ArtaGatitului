@@ -1,0 +1,109 @@
+{
+  "id": "sandwitch-cu-mozzarella",
+  "slug": "sandwitch-cu-mozzarella",
+  "title": "Sandwitch cu mozzarella",
+  "description": "Feliile de paine se prajesc pana devin usor crocante.",
+  "category": "Mic dejun",
+  "ingredients": [
+    "Paine (4 felii)",
+    "Rosii (1 rosie mare)",
+    "Mozzarella (1 buc. mare)",
+    "Sunca presata (200g)",
+    "Spanac*",
+    "Sare*",
+    "Piper*",
+    "Crema de branza*",
+    "Goacamole*",
+    "*dupa gust"
+  ],
+  "steps": [
+    "Feliile de paine se prajesc pana devin usor crocante.",
+    "Se taie rosia si mozzarella felii.",
+    "2 felii se ung cu goacamole si 2 felii se ung cu crema de branza. Pe felia cu goacamole se adauga 2-3 felii de rosii peste care se adauga sare si piper. Apoi se adauga mozzarella, bucatile de sunca presata si spanacul. Peste acestea se adauga feliile cu crema de branza."
+  ],
+  "beforeStart": [
+    "Prăjește feliile de pâine înainte de asamblare.",
+    "Taie roșia și mozzarella în felii egale.",
+    "Pregătește șunca, spanacul, crema de brânză și guacamole-ul.",
+    "Asamblează sandwich-ul aproape de servire ca pâinea să rămână crocantă."
+  ],
+  "tags": {
+    "taste": [
+      "Sărat",
+      "Fresh",
+      "Cremos"
+    ],
+    "complexity": [
+      "Începător",
+      "Ușor",
+      "Risc mic de greșeală"
+    ],
+    "time": [
+      "Sub 15 minute",
+      "Rețetă rapidă"
+    ],
+    "context": [
+      "Mic dejun",
+      "Gustare",
+      "Pentru zile aglomerate"
+    ],
+    "diet": [
+      "Cu carne"
+    ]
+  },
+  "equipment": [],
+  "prepTimeMinutes": null,
+  "cookTimeMinutes": null,
+  "totalTimeMinutes": null,
+  "servings": null,
+  "image": null,
+  "sourceUrl": "https://artagatitului.godaddysites.com/sandwitch-cu-mozzarella",
+  "createdAt": null,
+  "updatedAt": null,
+  "status": "published",
+  "closing": "Poftă bună!",
+  "keywords": [
+    "sandwitch",
+    "cu",
+    "mozzarella",
+    "mic",
+    "dejun",
+    "paine",
+    "4",
+    "felii",
+    "rosii",
+    "1",
+    "rosie",
+    "mare",
+    "buc",
+    "sunca",
+    "presata",
+    "200g",
+    "spanac",
+    "sare",
+    "piper",
+    "crema",
+    "de",
+    "branza",
+    "goacamole",
+    "dupa",
+    "gust",
+    "sarat",
+    "fresh",
+    "cremos",
+    "incepator",
+    "usor",
+    "risc",
+    "greseala",
+    "sub",
+    "15",
+    "minute",
+    "reteta",
+    "rapida",
+    "gustare",
+    "pentru",
+    "zile",
+    "aglomerate",
+    "carne"
+  ]
+}

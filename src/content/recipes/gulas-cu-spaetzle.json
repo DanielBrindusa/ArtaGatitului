@@ -1,0 +1,135 @@
+{
+  "id": "gulas-cu-spaetzle",
+  "slug": "gulas-cu-spaetzle",
+  "title": "Gulas cu Spaetzle",
+  "description": "Se curata ceapa, cartofii si usturoiul.",
+  "category": "Fel secundar",
+  "ingredients": [
+    "Porc (500g)",
+    "Ceapa mare (2 buc.)",
+    "Usturoi (2 catei)",
+    "Spaetzle (~250g)",
+    "Cartofi (~500g)",
+    "Mix legume (ceap, morcov, ardei, patrunjel radacina, pastarnac radacina)",
+    "Apa",
+    "Sare*",
+    "Boia*",
+    "Piper negru proaspat rasnit*",
+    "Ulei floarea soarelui",
+    "Pasta gulas*",
+    "Pasta tomate*",
+    "Frunze patrunjel*",
+    "*dupa gust"
+  ],
+  "steps": [
+    "Se curata ceapa, cartofii si usturoiul.",
+    "Cartofii se taie colturi, se spala si se lasa in apa.",
+    "Se toaca ceapa marunt.",
+    "Se taie carnea bucati (cuburi).",
+    "Intr-o oala se pune ulei si se lasa la incalzit pe foc mediu. Dupa ce se incalzeste se adauga ceapa si legumele si se calesc timp de aproximativ 3-5 minute. Se adauga carnea si se rumeste impreuna cu mixul de legume si ceapa timp de alte 5-10 minute. La compozitie se adauga si usturioul zdrobit si se lasa la calit inca ~1 minut.",
+    "Se adauga apa cat sa acopere compozitia din oala, impreuna cu sare, boia, piper negru, pasta gulas si pasta tomate si se lasa la fiert pentru ~5 minute.",
+    "Se adauga cartofii si apa suficienta pentru a acoperi intregul continut al oalei.",
+    "Se lasa la fiert ~30 minute timp in care, in alta oala se fierb spaetzle (in ultimele ~10 minute). Se adauga spetzle in oala si se fierbe amestecand continu pana scade apa",
+    "Se taie frunzele de patrunjel si se adauga peste mancarea fara a amesteca."
+  ],
+  "beforeStart": [
+    "Curăță ceapa, cartofii și usturoiul înainte să încălzești oala.",
+    "Taie carnea în cuburi și ține condimentele pregătite.",
+    "Spală cartofii tăiați și lasă-i în apă până îi adaugi.",
+    "Pregătește apa și pasta de gulaș pentru etapa de fierbere."
+  ],
+  "tags": {
+    "taste": [
+      "Sățios",
+      "Condimentat",
+      "Aromat",
+      "Rustic"
+    ],
+    "complexity": [
+      "Complexitate medie"
+    ],
+    "context": [
+      "Prânz",
+      "Cină",
+      "Comfort food"
+    ],
+    "diet": [
+      "Cu carne"
+    ],
+    "equipment": [
+      "La oală"
+    ],
+    "technique": [
+      "Sotare",
+      "Fierbere"
+    ]
+  },
+  "equipment": [
+    "La oală"
+  ],
+  "prepTimeMinutes": null,
+  "cookTimeMinutes": null,
+  "totalTimeMinutes": null,
+  "servings": null,
+  "image": null,
+  "sourceUrl": "https://artagatitului.godaddysites.com/gulas-cu-spaetzle",
+  "createdAt": null,
+  "updatedAt": null,
+  "status": "published",
+  "closing": "Poftă bună!",
+  "keywords": [
+    "gulas",
+    "cu",
+    "spaetzle",
+    "fel",
+    "secundar",
+    "porc",
+    "500g",
+    "ceapa",
+    "mare",
+    "2",
+    "buc",
+    "usturoi",
+    "catei",
+    "250g",
+    "cartofi",
+    "mix",
+    "legume",
+    "ceap",
+    "morcov",
+    "ardei",
+    "patrunjel",
+    "radacina",
+    "pastarnac",
+    "apa",
+    "sare",
+    "boia",
+    "piper",
+    "negru",
+    "proaspat",
+    "rasnit",
+    "ulei",
+    "floarea",
+    "soarelui",
+    "pasta",
+    "tomate",
+    "frunze",
+    "dupa",
+    "gust",
+    "satios",
+    "condimentat",
+    "aromat",
+    "rustic",
+    "complexitate",
+    "medie",
+    "pranz",
+    "cina",
+    "comfort",
+    "food",
+    "carne",
+    "la",
+    "oala",
+    "sotare",
+    "fierbere"
+  ]
+}

@@ -1,0 +1,124 @@
+{
+  "id": "placinta-cu-dovleac",
+  "slug": "placinta-cu-dovleac",
+  "title": "Placinta cu dovleac",
+  "description": "Se taie un dovleac galben sau dovleac \"placintar\" in bucati medi si se baga la cuptor pentru aproximativ 40 min la o temperatura de 190 °C.",
+  "category": "Desert",
+  "ingredients": [
+    "Scortisoara - 125 g",
+    "Ghimbir pudra - 8 g",
+    "Nucsoara - 3 g",
+    "Cuisoare - 4 g",
+    "Oua - 2 buc.",
+    "Frisca lichida - 2/3 buc. * 200 ml",
+    "Dovleac copt zdrobit - 1 buc.",
+    "Vanilie pastaie/esenta",
+    "Aluat pentru foietaje",
+    "Zahar"
+  ],
+  "steps": [
+    "Se taie un dovleac galben sau dovleac \"placintar\" in bucati medi si se baga la cuptor pentru aproximativ 40 min la o temperatura de 190 °C.",
+    "Dupa coacerea dovleacului acesta se curata de pe coaja si se piseaza cu o furculita intr-un bol mediu/mare. Se adauga restul ingredientelor si se amesteca pana amestecul este omogen.",
+    "Se intinde aluatul rece si se taie in patratele mari.",
+    "Bucatile de aluat se umplu cu amestecul de dovleac pana ce jumatate din patrat este acoperit. Jumatatea neacoperita de amestec este se impatureste peste cealalta jumatate iar marginile se apasa cu furculita.",
+    "Se bat ouale intr-un castron. Apoi cu o pensula se intinde oul pe placintelele pregatite de copt.",
+    "Se baga la cuptor pentru 10-15 Min. la o temperatura de 200 °C."
+  ],
+  "beforeStart": [
+    "Citește rețeta complet înainte să începi, fiindcă dovleacul se coace înainte de umplere.",
+    "Preîncălzește cuptorul pentru coacerea dovleacului.",
+    "Măsoară condimentele, zahărul și ingredientele pentru umplutură.",
+    "Pregătește aluatul rece, tava și hârtia de copt.",
+    "Bate oul pentru uns plăcintelele înainte să le bagi la cuptor."
+  ],
+  "tags": {
+    "taste": [
+      "Dulce",
+      "Aromat",
+      "Fin"
+    ],
+    "complexity": [
+      "Complexitate medie",
+      "Necesită atenție"
+    ],
+    "context": [
+      "Pentru weekend",
+      "Pentru musafiri"
+    ],
+    "diet": [
+      "Fără carne",
+      "Vegetarian"
+    ],
+    "equipment": [
+      "Necesită cuptor",
+      "Necesită tavă"
+    ],
+    "technique": [
+      "Coacere",
+      "La cuptor"
+    ]
+  },
+  "equipment": [
+    "Necesită cuptor",
+    "Necesită tavă"
+  ],
+  "prepTimeMinutes": null,
+  "cookTimeMinutes": null,
+  "totalTimeMinutes": null,
+  "servings": null,
+  "image": null,
+  "sourceUrl": "https://artagatitului.godaddysites.com/placinta-cu-dovleac",
+  "createdAt": null,
+  "updatedAt": null,
+  "status": "published",
+  "closing": "Poftă bună!",
+  "keywords": [
+    "placinta",
+    "cu",
+    "dovleac",
+    "desert",
+    "scortisoara",
+    "125",
+    "g",
+    "ghimbir",
+    "pudra",
+    "8",
+    "nucsoara",
+    "3",
+    "cuisoare",
+    "4",
+    "oua",
+    "2",
+    "buc",
+    "frisca",
+    "lichida",
+    "2-3",
+    "200",
+    "ml",
+    "copt",
+    "zdrobit",
+    "1",
+    "vanilie",
+    "pastaie-esenta",
+    "aluat",
+    "pentru",
+    "foietaje",
+    "zahar",
+    "dulce",
+    "aromat",
+    "fin",
+    "complexitate",
+    "medie",
+    "necesita",
+    "atentie",
+    "weekend",
+    "musafiri",
+    "fara",
+    "carne",
+    "vegetarian",
+    "cuptor",
+    "tava",
+    "coacere",
+    "la"
+  ]
+}
