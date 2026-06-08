@@ -1809,6 +1809,24 @@ p {
   animation: steamDrift 12s ease-in-out infinite alternate;
 }
 
+.hero-home::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  z-index: 0;
+  height: clamp(150px, 24vw, 340px);
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    rgba(15, 17, 23, 0) 0%,
+    rgba(15, 17, 23, .2) 34%,
+    rgba(15, 17, 23, .68) 72%,
+    var(--color-bg) 100%
+  );
+}
+
 @keyframes steamDrift {
   from {
     opacity: .36;
@@ -1823,6 +1841,7 @@ p {
 
 .hero-inner {
   position: relative;
+  z-index: 1;
   width: min(var(--container), 100%);
   margin: 0 auto;
   padding: var(--space-8) var(--space-4);
@@ -3813,6 +3832,10 @@ body.command-open {
 
   .hero {
     min-height: 420px;
+  }
+
+  .hero-home::after {
+    height: clamp(110px, 34vw, 220px);
   }
 
   .hero-inner {
