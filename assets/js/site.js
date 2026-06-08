@@ -1,7 +1,15 @@
 (function () {
   const root = window.ARTA_ROOT || "";
-  const data = window.ARTA_DATA || { categories: [], recipes: [], aliases: {} };
-  const TAG_GROUPS = {
+  const fallbackData = window.ARTA_DATA || {};
+  const data = {
+    categories: Array.isArray(fallbackData.categories) ? fallbackData.categories : [],
+    recipes: Array.isArray(fallbackData.recipes) ? fallbackData.recipes : [],
+    aliases: fallbackData.aliases || {},
+    tagGroups: fallbackData.tagGroups || {},
+    ingredientAliases: fallbackData.ingredientAliases || { aliases: [] },
+    heroImage: fallbackData.heroImage || ""
+  };
+  const DEFAULT_TAG_GROUPS = {
     taste: { label: "Gust", options: ["Dulce", "Sărat", "Picant", "Acrișor", "Cremos", "Crocant", "Aromat", "Fresh", "Ușor", "Sățios", "Condimentat", "Fin", "Rustic"] },
     complexity: { label: "Complexitate", options: ["Începător", "Ușor", "Complexitate medie", "Complexitate ridicată", "Necesită atenție", "Risc mic de greșeală", "Risc mediu de greșeală", "Risc ridicat de greșeală"] },
     time: { label: "Timp", options: ["Sub 15 minute", "Sub 30 minute", "Sub 60 minute", "Rețetă rapidă", "Necesită timp de așteptare", "Bună pentru pregătit din timp"] },
@@ -10,10 +18,157 @@
     equipment: { label: "Echipament", options: ["Fără cuptor", "Necesită cuptor", "La tigaie", "La oală", "Necesită blender", "Necesită mixer", "Necesită tavă", "Necesită termometru"] },
     technique: { label: "Tehnică", options: ["Fierbere", "Coacere", "Prăjire", "Sotare", "Marinare", "Frământare", "La tigaie", "La cuptor", "Fără gătire"] }
   };
+  let TAG_GROUPS = data.tagGroups && Object.keys(data.tagGroups).length ? data.tagGroups : DEFAULT_TAG_GROUPS;
   const TAG_CARD_PRIORITY = ["complexity", "time", "context", "equipment", "technique", "taste", "diet"];
   const THEME_KEY = "arta-gatitului-theme";
   const prefersReducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   let revealObserver = null;
+  const DATA_VERSION = "mq5bte26";
+  const dataCache = new Map();
+  let recipeIndexPromise = null;
+  let searchDataPromise = null;
+  let ingredientDataPromise = null;
+
+  function dataAssetUrl(fileName) {
+    return root + "assets/data/" + fileName + "?v=" + encodeURIComponent(DATA_VERSION);
+  }
+
+  async function fetchJsonData(fileName, fallback) {
+    if (dataCache.has(fileName)) return dataCache.get(fileName);
+    const promise = fetch(dataAssetUrl(fileName), { credentials: "same-origin" })
+      .then((response) => {
+        if (!response.ok) throw new Error(fileName + " returned " + response.status);
+        return response.json();
+      })
+      .catch(() => fallback);
+    dataCache.set(fileName, promise);
+    return promise;
+  }
+
+  function asArray(value) {
+    return Array.isArray(value) ? value : [];
+  }
+
+  function normalizeRecipeRecord(recipe) {
+    const title = recipe && (recipe.name || recipe.title) ? String(recipe.name || recipe.title) : "";
+    const ingredients = asArray(recipe && recipe.ingredients);
+    const preparation = asArray(recipe && (recipe.preparation || recipe.steps));
+    return {
+      ...(recipe || {}),
+      title: recipe && recipe.title ? recipe.title : title,
+      name: title,
+      slug: recipe && recipe.slug ? recipe.slug : "",
+      category: recipe && recipe.category ? recipe.category : "",
+      description: recipe && recipe.description ? recipe.description : "",
+      ingredients,
+      preparation,
+      steps: asArray(recipe && recipe.steps).length ? asArray(recipe.steps) : preparation,
+      beforeStart: asArray(recipe && recipe.beforeStart),
+      tags: recipe && recipe.tags && typeof recipe.tags === "object" && !Array.isArray(recipe.tags) ? recipe.tags : {},
+      keywords: asArray(recipe && recipe.keywords)
+    };
+  }
+
+  function replaceRecipes(recipes) {
+    data.recipes = asArray(recipes).map(normalizeRecipeRecord).filter((recipe) => recipe.slug && recipe.name);
+  }
+
+  function replaceCategories(categories) {
+    data.categories = asArray(categories).map((category) => ({
+      ...(category || {}),
+      name: category && (category.name || category.title) ? String(category.name || category.title) : "",
+      title: category && (category.title || category.name) ? String(category.title || category.name) : "",
+      slug: category && category.slug ? String(category.slug) : "",
+      description: category && category.description ? String(category.description) : ""
+    })).filter((category) => category.name && category.slug);
+  }
+
+  function replaceTagGroups(tagGroups) {
+    data.tagGroups = tagGroups && typeof tagGroups === "object" && !Array.isArray(tagGroups) ? tagGroups : {};
+    TAG_GROUPS = data.tagGroups && Object.keys(data.tagGroups).length ? data.tagGroups : DEFAULT_TAG_GROUPS;
+  }
+
+  function replaceIngredientAliases(aliases) {
+    data.ingredientAliases = aliases && typeof aliases === "object" && !Array.isArray(aliases) ? aliases : { aliases: [] };
+    INGREDIENT_ALIASES = ingredientAliasMap(data.ingredientAliases);
+  }
+
+  function hasPageNeed(ids) {
+    return ids.some((id) => document.getElementById(id));
+  }
+
+  async function ensureRecipeIndexData() {
+    if (!recipeIndexPromise) {
+      recipeIndexPromise = Promise.all([
+        fetchJsonData("recipe-index.json", fallbackData.recipes || []),
+        fetchJsonData("categories.json", fallbackData.categories || []),
+        fetchJsonData("tag-groups.json", fallbackData.tagGroups || {})
+      ]).then(([recipes, categories, tagGroups]) => {
+        replaceRecipes(recipes);
+        replaceCategories(categories);
+        replaceTagGroups(tagGroups);
+        return data;
+      });
+    }
+    return recipeIndexPromise;
+  }
+
+  async function ensureSearchData() {
+    if (!searchDataPromise) {
+      searchDataPromise = Promise.all([
+        fetchJsonData("search-index.json", fallbackData.recipes || []),
+        fetchJsonData("categories.json", fallbackData.categories || []),
+        fetchJsonData("tag-groups.json", fallbackData.tagGroups || {})
+      ]).then(([recipes, categories, tagGroups]) => {
+        replaceRecipes(recipes);
+        replaceCategories(categories);
+        replaceTagGroups(tagGroups);
+        return data;
+      });
+    }
+    return searchDataPromise;
+  }
+
+  async function ensureIngredientData() {
+    if (!ingredientDataPromise) {
+      ingredientDataPromise = Promise.all([
+        fetchJsonData("ingredient-index.json", fallbackData.recipes || []),
+        fetchJsonData("categories.json", fallbackData.categories || []),
+        fetchJsonData("tag-groups.json", fallbackData.tagGroups || {}),
+        fetchJsonData("ingredient-aliases.json", fallbackData.ingredientAliases || { aliases: [] })
+      ]).then(([recipes, categories, tagGroups, ingredientAliases]) => {
+        replaceRecipes(recipes);
+        replaceCategories(categories);
+        replaceTagGroups(tagGroups);
+        replaceIngredientAliases(ingredientAliases);
+        return data;
+      });
+    }
+    return ingredientDataPromise;
+  }
+
+  async function loadDataForCurrentPage() {
+    if (hasPageNeed(["ingredientMatcherForm"])) {
+      await ensureIngredientData();
+      return;
+    }
+    if (hasPageNeed(["recipeSearchInput"])) {
+      await ensureSearchData();
+      return;
+    }
+    if (hasPageNeed([
+      "featuredRecipes",
+      "allRecipes",
+      "categoryGrid",
+      "categoryRecipes",
+      "randomRecipeButton",
+      "surpriseRecipeButton",
+      "recipeDetail",
+      "recipeBuilderForm"
+    ])) {
+      await ensureRecipeIndexData();
+    }
+  }
 
   function normalize(value) {
     return String(value || "")
@@ -83,7 +238,7 @@
     "de", "din", "cu", "si", "sau", "la", "pentru", "cat", "cate", "putin", "putina"
   ]);
 
-  const INGREDIENT_ALIASES = {
+  const DEFAULT_INGREDIENT_ALIASES = {
     ou: ["oua"],
     oua: ["ou"],
     cartof: ["cartofi"],
@@ -98,6 +253,28 @@
     lamai: ["lamaie"]
   };
 
+  function ingredientAliasMap(source) {
+    const map = Object.entries(DEFAULT_INGREDIENT_ALIASES).reduce((result, [key, values]) => {
+      result[key] = values.slice();
+      return result;
+    }, {});
+    const entries = source && Array.isArray(source.aliases) ? source.aliases : [];
+    entries.forEach((entry) => {
+      const terms = Array.isArray(entry.terms) ? entry.terms : [];
+      const normalizedTerms = Array.from(new Set([
+        entry.canonical,
+        ...terms
+      ].map(normalize).filter(Boolean)));
+      normalizedTerms.forEach((term) => {
+        const related = normalizedTerms.filter((item) => item !== term);
+        map[term] = Array.from(new Set([...(map[term] || []), ...related]));
+      });
+    });
+    return map;
+  }
+
+  let INGREDIENT_ALIASES = ingredientAliasMap(data.ingredientAliases);
+
   function expandIngredientToken(token) {
     return [token, ...(INGREDIENT_ALIASES[token] || [])];
   }
@@ -109,6 +286,16 @@
   }
 
   function recipeIngredientTokens(recipe) {
+    if (recipe && Array.isArray(recipe.ingredientTokens) && recipe.ingredientTokens.length) {
+      return new Set(recipe.ingredientTokens.map(normalize).filter(Boolean));
+    }
+    const indexedRows = [
+      ...((recipe && recipe.requiredIngredientTokens) || []),
+      ...((recipe && recipe.optionalIngredientTokens) || [])
+    ];
+    if (indexedRows.length) {
+      return new Set(indexedRows.flatMap((row) => asArray(row.tokens)).map(normalize).filter(Boolean));
+    }
     return new Set(((recipe && recipe.ingredients) || []).flatMap(ingredientTokens));
   }
 
@@ -168,11 +355,18 @@
   }
 
   function recipeSearchTokens(recipe) {
+    if (recipe && Array.isArray(recipe.tokens) && recipe.tokens.length) {
+      return new Set(recipe.tokens.map(normalize).filter(Boolean));
+    }
+    if (recipe && recipe.searchText) {
+      return new Set(tokenizeText(recipe.searchText));
+    }
     return new Set(tokenizeText([
       recipe && recipe.name,
       recipe && recipe.category,
       recipe && recipe.description,
       ((recipe && recipe.ingredients) || []).join(" "),
+      recipe && recipe.ingredientsText,
       ((recipe && recipe.preparation) || []).join(" "),
       ((recipe && recipe.beforeStart) || []).join(" "),
       ((recipe && recipe.keywords) || []).join(" "),
@@ -280,6 +474,11 @@
 
     category.innerHTML = '<option value="all">Toate categoriile</option>' + data.categories.map((item) => `<option value="${escapeHtml(item.name)}">${escapeHtml(item.name)}</option>`).join("");
     if (!category.value) category.value = "all";
+    if (!data.recipes.length) {
+      if (count) count.textContent = "0 rețete găsite";
+      results.innerHTML = emptyState("Datele de căutare nu s-au putut încărca. Reîncarcă pagina sau încearcă din nou mai târziu.", false);
+      return;
+    }
 
     function run() {
       const terms = tokenizeText(input.value);
@@ -324,35 +523,58 @@
   }
 
   function analyzeIngredientMatch(recipe, availableTokens) {
-    const rows = ((recipe && recipe.ingredients) || [])
+    const indexedRequired = asArray(recipe && recipe.requiredIngredientTokens)
+      .map((row) => ({ label: row.label, tokens: asArray(row.tokens) }))
+      .filter((row) => row.label && row.tokens.length);
+    const indexedOptional = asArray(recipe && recipe.optionalIngredientTokens)
+      .map((row) => ({ label: row.label, tokens: asArray(row.tokens) }))
+      .filter((row) => row.label && row.tokens.length);
+    const fallbackRows = ((recipe && recipe.ingredients) || [])
       .filter((line) => !isSubheading(line))
       .map((line) => ({ label: line, tokens: ingredientTokens(line) }))
       .filter((row) => row.tokens.length);
+    const rows = indexedRequired.length ? indexedRequired : fallbackRows;
+    const optionalRows = indexedRequired.length ? indexedOptional : [];
 
-    const matched = [];
+    const matchedRequired = [];
+    const matchedOptional = [];
     const missing = [];
     rows.forEach((row) => {
       const hasMatch = row.tokens.some((token) => availableTokens.has(token));
-      if (hasMatch) matched.push(row.label);
+      if (hasMatch) matchedRequired.push(row.label);
       else missing.push(row.label);
+    });
+    optionalRows.forEach((row) => {
+      if (row.tokens.some((token) => availableTokens.has(token))) matchedOptional.push(row.label);
     });
 
     const total = rows.length;
-    let matchedCount = matched.length;
+    let matchedCount = matchedRequired.length;
     let score = total ? matchedCount / total : 0;
+    if (matchedOptional.length) score = Math.min(1, score + Math.min(.12, matchedOptional.length * .03));
     const keywordMatches = Array.from(keywordTokens(recipe)).filter((token) => availableTokens.has(token));
     if (!matchedCount && keywordMatches.length) {
-      matched.push("cuvânt-cheie: " + keywordMatches.slice(0, 3).join(", "));
+      matchedRequired.push("cuvânt-cheie: " + keywordMatches.slice(0, 3).join(", "));
       matchedCount = 1;
       score = total ? Math.min(.28, 1 / total) : .2;
     }
-    return { recipe, matched, missing, total, matchedCount, missingCount: missing.length, score };
+    return {
+      recipe,
+      matched: [...matchedRequired, ...matchedOptional],
+      matchedRequired,
+      matchedOptional,
+      missing,
+      total,
+      matchedCount,
+      missingCount: missing.length,
+      score
+    };
   }
 
   function matchBadge(match) {
-    if (match.missingCount === 0) return "Complet";
-    if (match.score >= .88 || match.missingCount <= 1) return "Aproape complet";
-    return match.missingCount === 1 ? "Lipsește 1 ingredient" : "Lipsesc " + match.missingCount + " ingrediente";
+    if (match.missingCount === 0) return "Poți găti acum";
+    if (match.missingCount === 1) return "Îți lipsește 1 ingredient";
+    return "Îți lipsesc " + match.missingCount + " ingrediente";
   }
 
   function renderMatchChips(items, className) {
@@ -424,6 +646,12 @@
       const tokenSet = new Set(tokens);
       renderChips(tokens);
 
+      if (!data.recipes.length) {
+        summary.textContent = "Datele pentru potrivirea ingredientelor nu s-au putut încărca.";
+        results.innerHTML = emptyState("Reîncarcă pagina sau încearcă din nou mai târziu.", false);
+        return;
+      }
+
       if (!tokens.length) {
         summary.textContent = "Introdu ingredientele ca să primești recomandări.";
         results.innerHTML = '<div class="empty">Exemplu: pui, cartofi, ou, lapte, usturoi.</div>';
@@ -443,9 +671,10 @@
           return a.recipe.name.localeCompare(b.recipe.name, "ro");
         });
 
-      const ready = matches.filter((match) => match.score >= .88 || match.missingCount <= 1);
-      const almost = matches.filter((match) => !ready.includes(match) && match.score >= .34);
-      const weak = matches.filter((match) => !ready.includes(match) && !almost.includes(match) && match.score > 0).slice(0, 6);
+      const ready = matches.filter((match) => match.missingCount === 0);
+      const oneMissing = matches.filter((match) => match.missingCount === 1);
+      const almost = matches.filter((match) => match.missingCount > 1 && match.score >= .34);
+      const weak = matches.filter((match) => !ready.includes(match) && !oneMissing.includes(match) && !almost.includes(match) && match.score > 0).slice(0, 6);
 
       summary.textContent = matches.length === 1
         ? "1 rețetă se potrivește cu ingredientele introduse."
@@ -454,7 +683,8 @@
       results.innerHTML = matches.length
         ? [
             renderMatchSection("Poți găti acum", ready),
-            renderMatchSection("Îți lipsesc câteva ingrediente", almost.slice(0, 12)),
+            renderMatchSection("Îți lipsește 1 ingredient", oneMissing.slice(0, 12)),
+            renderMatchSection("Îți lipsesc mai multe ingrediente", almost.slice(0, 12)),
             renderMatchSection("Potrivire slabă", weak)
           ].join("")
         : '<div class="empty">Nu am găsit potriviri încă. Încearcă ingrediente mai simple, de exemplu „pui”, „cartofi”, „ouă” sau „lapte”.</div>';
@@ -732,9 +962,23 @@
 
   function recipeTimeline(recipe) {
     const markers = [];
-    if (recipe && recipe.prepTime) markers.push(["Pregătire", recipe.prepTime]);
-    if (recipe && recipe.cookTime) markers.push(["Gătire", recipe.cookTime]);
+    function minutes(value) {
+      if (value === null || value === undefined || value === "") return "";
+      const number = Number(value);
+      if (!Number.isFinite(number) || number < 0) return "";
+      const rounded = Math.round(number);
+      return rounded === 1 ? "1 minut" : rounded + " minute";
+    }
+    const prep = recipe && (recipe.prepTime || minutes(recipe.prepTimeMinutes));
+    const cook = recipe && (recipe.cookTime || minutes(recipe.cookTimeMinutes));
+    const total = recipe && minutes(recipe.totalTimeMinutes);
+    if (prep) markers.push(["Pregătire", prep]);
+    if (cook) markers.push(["Gătire", cook]);
+    if (total) markers.push(["Total", total]);
+    if (recipe && recipe.servings) markers.push(["Porții", recipe.servings]);
     if (recipe && recipe.restTime) markers.push(["Odihnire", recipe.restTime]);
+    const equipment = recipe && Array.isArray(recipe.equipment) ? recipe.equipment.filter(Boolean).join(", ") : "";
+    if (equipment) markers.push(["Echipament", equipment]);
     if (!markers.length) return "";
     return '<section class="recipe-timeline box" aria-label="Timeline rețetă">' +
       markers.map((item) => '<div><span>' + escapeHtml(item[0]) + '</span><strong>' + escapeHtml(item[1]) + '</strong></div>').join("") +
@@ -742,6 +986,13 @@
   }
 
   function renderRecipeDetail() {
+    const staticArticle = document.querySelector("[data-static-recipe]");
+    if (staticArticle) {
+      markRevealTargets(staticArticle);
+      staticArticle.querySelectorAll(".grid").forEach(applyStagger);
+      return;
+    }
+
     const el = document.getElementById("recipeDetail");
     if (!el) return;
     const slug = document.body.dataset.recipeSlug;
@@ -756,7 +1007,7 @@
     const related = similarRecipes(recipe);
 
     el.innerHTML = `
-      <article class="recipe-detail-card">
+      <article class="recipe-detail-card" data-recipe-slug="${escapeHtml(recipe.slug)}">
         <div class="recipe-hero">
           <div>
             <span class="pill">${escapeHtml(recipe.category)}</span>
@@ -1284,6 +1535,11 @@
       ].map(builderSlug).filter(Boolean)));
     }
 
+    function integerOrNull(value) {
+      const number = Number(String(value || "").trim());
+      return Number.isInteger(number) && number >= 0 ? number : null;
+    }
+
     function publicRecipeObject() {
       const state = currentState();
       return cleanObject({
@@ -1321,10 +1577,45 @@
       });
     }
 
+    function contentRecipeObject() {
+      const state = currentState();
+      const prepTimeMinutes = integerOrNull(state.prepTime);
+      const cookTimeMinutes = integerOrNull(state.cookTime);
+      const totalTimeMinutes = prepTimeMinutes !== null || cookTimeMinutes !== null
+        ? (prepTimeMinutes || 0) + (cookTimeMinutes || 0)
+        : null;
+      return {
+        id: state.slug,
+        slug: state.slug,
+        title: state.name,
+        description: state.description || null,
+        category: state.category,
+        ingredients: state.ingredients,
+        steps: state.preparation,
+        beforeStart: state.beforeStart,
+        tags: state.tags,
+        equipment: state.tags.equipment || [],
+        prepTimeMinutes,
+        cookTimeMinutes,
+        totalTimeMinutes,
+        servings: state.servings || null,
+        image: state.image || null,
+        sourceUrl: null,
+        createdAt: null,
+        updatedAt: null,
+        status: "published",
+        closing: "Poftă bună!",
+        extras: [],
+        ratingSummary: state.ratingSummary,
+        keywords: keywordList(state)
+      };
+    }
+
     function exportPackage() {
       const state = currentState();
       return {
-        recipe: publicRecipeObject(),
+        recipe: contentRecipeObject(),
+        legacyRecipe: publicRecipeObject(),
         fallbackRecipe: fallbackRecipeObject(),
         builderMeta: {
           prepTime: state.prepTime,
@@ -1489,7 +1780,7 @@
     }
 
     function updateExport() {
-      els.exportOutput.value = JSON.stringify(fallbackRecipeObject(), null, 2) + ",";
+      els.exportOutput.value = JSON.stringify(contentRecipeObject(), null, 2);
     }
 
     function saveDraft(silent = false) {
@@ -1513,14 +1804,16 @@
     function loadFromPackage(payload) {
       const recipe = payload.fallbackRecipe || payload.recipe || payload;
       const meta = payload.builderMeta || {};
-      els.title.value = recipe.name || "";
-      els.slug.value = recipe.slug || builderSlug(recipe.name || "");
+      const recipeTitle = recipe.title || recipe.name || "";
+      const recipeSteps = Array.isArray(recipe.steps) ? recipe.steps : recipe.preparation;
+      els.title.value = recipeTitle;
+      els.slug.value = recipe.slug || builderSlug(recipeTitle);
       els.category.value = recipe.category || els.category.value;
       els.description.value = recipe.description || "";
-      els.prepTime.value = meta.prepTime || "";
-      els.cookTime.value = meta.cookTime || "";
-      els.servings.value = meta.servings || "";
-      els.image.value = meta.image || "";
+      els.prepTime.value = meta.prepTime || recipe.prepTimeMinutes || "";
+      els.cookTime.value = meta.cookTime || recipe.cookTimeMinutes || "";
+      els.servings.value = meta.servings || recipe.servings || "";
+      els.image.value = meta.image || recipe.image || "";
       els.notes.value = meta.notes || "";
       els.keywords.value = Array.isArray(recipe.keywords) ? recipe.keywords.join(", ") : "";
       els.ingredients.textContent = "";
@@ -1535,7 +1828,7 @@
       });
       (Array.isArray(recipe.ingredients) && recipe.ingredients.length ? recipe.ingredients : [""]).forEach((line) => addRow("ingredients", line));
       (Array.isArray(recipe.beforeStart) && recipe.beforeStart.length ? recipe.beforeStart : [""]).forEach((line) => addRow("beforeStart", line));
-      (Array.isArray(recipe.preparation) && recipe.preparation.length ? recipe.preparation : [""]).forEach((line) => addRow("steps", line));
+      (Array.isArray(recipeSteps) && recipeSteps.length ? recipeSteps : [""]).forEach((line) => addRow("steps", line));
       slugTouched = true;
       syncBuilder();
     }
@@ -1957,7 +2250,8 @@
   function setupHeroSurprise() {
     const button = document.getElementById("surpriseRecipeButton");
     if (!button) return;
-    button.addEventListener("click", () => {
+    button.addEventListener("click", async () => {
+      await ensureRecipeIndexData();
       const recipe = pickRandom(data.recipes);
       if (recipe) window.location.href = recipeUrl(recipe.slug);
     });
@@ -2010,11 +2304,22 @@
     const openers = document.querySelectorAll("[data-open-command]");
     if (!palette || !input || !results) return;
 
-    const records = commandRecords();
+    let records = [];
+    let recordsLoading = null;
     let activeIndex = 0;
     let visible = [];
     let previousFocus = null;
     let openedAt = 0;
+
+    function ensureRecords() {
+      if (!recordsLoading) {
+        recordsLoading = ensureRecipeIndexData().then(() => {
+          records = commandRecords();
+          return records;
+        });
+      }
+      return recordsLoading;
+    }
 
     function isTypingTarget(target) {
       return target && (target.matches("input, textarea, select") || target.isContentEditable);
@@ -2051,13 +2356,15 @@
       applyStagger(results);
     }
 
-    function openCommand(trigger) {
+    async function openCommand(trigger) {
       previousFocus = trigger || document.activeElement;
       openedAt = Date.now();
       palette.hidden = false;
       palette.setAttribute("aria-hidden", "false");
       document.body.classList.add("command-open");
       input.value = "";
+      results.innerHTML = '<div class="empty">Se încarcă...</div>';
+      await ensureRecords();
       render();
       window.setTimeout(() => input.focus(), 0);
     }
@@ -2208,6 +2515,7 @@
       if (button.matches("[data-quick-top]")) {
         window.scrollTo({ top: 0, behavior: prefersReducedMotion ? "auto" : "smooth" });
       } else if (button.matches("[data-quick-random]")) {
+        await ensureRecipeIndexData();
         const recipe = pickRandom(data.recipes);
         if (recipe) window.location.href = recipeUrl(recipe.slug);
       } else if (button.matches("[data-quick-rate]")) {
@@ -2259,13 +2567,42 @@
   }
 
   function setupBeforeStartChecklist() {
-    document.addEventListener("change", (event) => {
-      const input = event.target.closest(".before-list input[type='checkbox']");
-      if (!input) return;
-      const label = input.closest("label");
-      if (!label) return;
-      label.classList.toggle("is-checked", input.checked);
-      if (input.checked) pulseElement(label);
+    document.querySelectorAll(".before-list").forEach((list, listIndex) => {
+      const recipeRoot = list.closest("[data-recipe-slug]") || document.querySelector("[data-rating-panel]");
+      const recipeSlug = (recipeRoot && recipeRoot.dataset.recipeSlug) || document.body.dataset.recipeSlug || "pagina";
+      const storageKey = "arta-gatitului-before-start:" + recipeSlug + ":" + listIndex;
+      let saved = [];
+      try {
+        saved = JSON.parse(window.localStorage.getItem(storageKey) || "[]");
+      } catch {
+        saved = [];
+      }
+
+      function save() {
+        const checked = Array.from(list.querySelectorAll("input[type='checkbox']:checked"))
+          .map((input) => input.dataset.checkId)
+          .filter(Boolean);
+        try {
+          window.localStorage.setItem(storageKey, JSON.stringify(checked));
+        } catch {}
+      }
+
+      list.querySelectorAll("input[type='checkbox']").forEach((input, index) => {
+        if (!input.dataset.checkId) input.dataset.checkId = String(index + 1);
+        input.checked = saved.includes(input.dataset.checkId);
+        const label = input.closest("label");
+        if (label) label.classList.toggle("is-checked", input.checked);
+      });
+
+      list.addEventListener("change", (event) => {
+        const input = event.target.closest("input[type='checkbox']");
+        if (!input || !list.contains(input)) return;
+        const label = input.closest("label");
+        if (!label) return;
+        label.classList.toggle("is-checked", input.checked);
+        save();
+        if (input.checked) pulseElement(label);
+      });
     });
   }
 
@@ -2307,11 +2644,12 @@
     });
   }
 
-  document.addEventListener("DOMContentLoaded", function () {
+  document.addEventListener("DOMContentLoaded", async function () {
     setupPageTransitions();
     setupMobileMenu();
     markActiveNav();
     setupThemeSwitcher();
+    await loadDataForCurrentPage();
     renderFeatured();
     renderAllRecipes();
     renderCategories();

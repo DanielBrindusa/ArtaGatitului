@@ -1,0 +1,3707 @@
+[
+  {
+    "slug": "ciorba-de-fasole",
+    "title": "Ciorba De Fasole Cu Afumatura",
+    "name": "Ciorba De Fasole Cu Afumatura",
+    "category": "Fel principal",
+    "description": "Se pune fasolea la umflat cu o zi inainte dupa care se arunca apa.",
+    "ingredients": [
+      "Fasole - 300g",
+      "Apa",
+      "Ceapa - 3 buc.",
+      "Morcovi - 1 buc.",
+      "Ulei"
+    ],
+    "ingredientsCount": 11,
+    "tags": {
+      "taste": [
+        "Sărat",
+        "Sățios",
+        "Aromat",
+        "Rustic"
+      ],
+      "complexity": [
+        "Complexitate medie",
+        "Necesită atenție"
+      ],
+      "time": [
+        "Necesită timp de așteptare",
+        "Bună pentru pregătit din timp"
+      ],
+      "context": [
+        "Prânz",
+        "Cină",
+        "Pentru familie",
+        "Comfort food"
+      ],
+      "diet": [
+        "Cu carne"
+      ],
+      "equipment": [
+        "La oală"
+      ],
+      "technique": [
+        "Fierbere",
+        "Sotare"
+      ]
+    },
+    "equipment": [
+      "La oală"
+    ],
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "totalTimeMinutes": null,
+    "servings": null,
+    "image": null,
+    "keywords": [
+      "ciorba",
+      "de",
+      "fasole",
+      "cu",
+      "afumatura",
+      "fel",
+      "principal",
+      "300g",
+      "apa",
+      "ceapa",
+      "3",
+      "buc",
+      "morcovi",
+      "1",
+      "ulei",
+      "ardei",
+      "rosu",
+      "gras",
+      "1-4",
+      "aredi",
+      "galben",
+      "sare",
+      "leustean",
+      "pasta",
+      "tomate",
+      "2",
+      "linguri",
+      "sarat",
+      "satios",
+      "aromat",
+      "rustic",
+      "complexitate",
+      "medie",
+      "necesita",
+      "atentie",
+      "timp",
+      "asteptare",
+      "buna",
+      "pentru",
+      "pregatit",
+      "din",
+      "pranz",
+      "cina",
+      "familie",
+      "comfort",
+      "food",
+      "carne",
+      "la",
+      "oala",
+      "fierbere",
+      "sotare"
+    ]
+  },
+  {
+    "slug": "supa-de-pui-cu-galuste",
+    "title": "Supa de pui cu galuste",
+    "name": "Supa de pui cu galuste",
+    "category": "Fel principal",
+    "description": "Se curata morcovii, patrunjelul, pastarnacul, telina si ceapa.",
+    "ingredients": [
+      "Carne de pui",
+      "Morcovi - 3 buc.",
+      "Patrunjel - 1 buc.",
+      "Pastarnac - 1 buc.",
+      "Telina - 1/4 buc."
+    ],
+    "ingredientsCount": 12,
+    "tags": {
+      "taste": [
+        "Sărat",
+        "Aromat",
+        "Ușor"
+      ],
+      "complexity": [
+        "Complexitate medie",
+        "Necesită atenție"
+      ],
+      "context": [
+        "Prânz",
+        "Cină",
+        "Pentru familie",
+        "Comfort food"
+      ],
+      "diet": [
+        "Cu carne"
+      ],
+      "equipment": [
+        "La oală"
+      ],
+      "technique": [
+        "Fierbere"
+      ]
+    },
+    "equipment": [
+      "La oală"
+    ],
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "totalTimeMinutes": null,
+    "servings": null,
+    "image": null,
+    "keywords": [
+      "supa",
+      "de",
+      "pui",
+      "cu",
+      "galuste",
+      "fel",
+      "principal",
+      "carne",
+      "morcovi",
+      "3",
+      "buc",
+      "patrunjel",
+      "1",
+      "pastarnac",
+      "telina",
+      "1-4",
+      "ceapa",
+      "vegeta-sare",
+      "piper",
+      "cub",
+      "magi",
+      "optional",
+      "frunze",
+      "1-2",
+      "legatura",
+      "oua",
+      "gris",
+      "sarat",
+      "aromat",
+      "usor",
+      "complexitate",
+      "medie",
+      "necesita",
+      "atentie",
+      "pranz",
+      "cina",
+      "pentru",
+      "familie",
+      "comfort",
+      "food",
+      "la",
+      "oala",
+      "fierbere"
+    ]
+  },
+  {
+    "slug": "carne-cu-varza-murata",
+    "title": "Carne prajita cu varza murata",
+    "name": "Carne prajita cu varza murata",
+    "category": "Fel secundar",
+    "description": "Se taie carnea de porc cuburi (~4 cm).",
+    "ingredients": [
+      "Carne porc (1 kg)",
+      "Varza murata (1 buc)",
+      "Apa (200 ml)",
+      "Ulei",
+      "Sare"
+    ],
+    "ingredientsCount": 6,
+    "tags": {
+      "taste": [
+        "Sărat",
+        "Acrișor",
+        "Sățios",
+        "Rustic"
+      ],
+      "complexity": [
+        "Ușor",
+        "Risc mic de greșeală"
+      ],
+      "context": [
+        "Prânz",
+        "Cină",
+        "Comfort food"
+      ],
+      "diet": [
+        "Cu carne",
+        "Fără lactate",
+        "Fără ou"
+      ],
+      "equipment": [
+        "La tigaie"
+      ],
+      "technique": [
+        "Prăjire",
+        "La tigaie"
+      ]
+    },
+    "equipment": [
+      "La tigaie"
+    ],
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "totalTimeMinutes": null,
+    "servings": null,
+    "image": null,
+    "keywords": [
+      "carne",
+      "prajita",
+      "cu",
+      "varza",
+      "murata",
+      "fel",
+      "secundar",
+      "porc",
+      "1",
+      "kg",
+      "buc",
+      "apa",
+      "200",
+      "ml",
+      "ulei",
+      "sare",
+      "dupa",
+      "gust",
+      "sarat",
+      "acrisor",
+      "satios",
+      "rustic",
+      "usor",
+      "risc",
+      "mic",
+      "de",
+      "greseala",
+      "pranz",
+      "cina",
+      "comfort",
+      "food",
+      "fara",
+      "lactate",
+      "ou",
+      "la",
+      "tigaie",
+      "prajire"
+    ]
+  },
+  {
+    "slug": "cartofi-prajiti-cu-sos",
+    "title": "Cartofi prajiti cu sos de iaurt si menta",
+    "name": "Cartofi prajiti cu sos de iaurt si menta",
+    "category": "Fel secundar",
+    "description": "Se pune pe foc o oala cu apa si sare. Cartofii se curata si se taie sub forma de pai gros iar cand apa fierbe, se pun la fiert 2-3 minute.",
+    "ingredients": [
+      "Cartofi - 6/7 buc.",
+      "Oua - 2 buc.",
+      "Ulei",
+      "Iaurt - 400 g",
+      "Smantana - 2/3 lingurite"
+    ],
+    "ingredientsCount": 13,
+    "tags": {
+      "taste": [
+        "Crocant",
+        "Cremos",
+        "Acrișor",
+        "Fresh",
+        "Sățios"
+      ],
+      "complexity": [
+        "Complexitate medie",
+        "Necesită atenție"
+      ],
+      "context": [
+        "Gustare",
+        "Prânz",
+        "Pentru weekend"
+      ],
+      "diet": [
+        "Fără carne",
+        "Vegetarian"
+      ],
+      "equipment": [
+        "La tigaie",
+        "La oală"
+      ],
+      "technique": [
+        "Fierbere",
+        "Prăjire",
+        "La tigaie"
+      ]
+    },
+    "equipment": [
+      "La tigaie",
+      "La oală"
+    ],
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "totalTimeMinutes": null,
+    "servings": null,
+    "image": null,
+    "keywords": [
+      "cartofi",
+      "prajiti",
+      "cu",
+      "sos",
+      "de",
+      "iaurt",
+      "si",
+      "menta",
+      "fel",
+      "secundar",
+      "6-7",
+      "buc",
+      "sare-condimente",
+      "optional",
+      "oua",
+      "2",
+      "ulei",
+      "400",
+      "g",
+      "smantana",
+      "2-3",
+      "lingurite",
+      "usturoi",
+      "catei",
+      "10-15",
+      "frunze",
+      "lamaie",
+      "1",
+      "masline",
+      "marar",
+      "lingurita",
+      "sare",
+      "piper",
+      "crocant",
+      "cremos",
+      "acrisor",
+      "fresh",
+      "satios",
+      "complexitate",
+      "medie",
+      "necesita",
+      "atentie",
+      "gustare",
+      "pranz",
+      "pentru",
+      "weekend",
+      "fara",
+      "carne",
+      "vegetarian",
+      "la",
+      "tigaie",
+      "oala",
+      "fierbere",
+      "prajire"
+    ]
+  },
+  {
+    "slug": "chiftele-de-pui",
+    "title": "Chiftele de pui",
+    "name": "Chiftele de pui",
+    "category": "Fel secundar",
+    "description": "Se fierb pulpele pentru ~30 minute.",
+    "ingredients": [
+      "Pulpa pui intregi (2 buc.)",
+      "Oua (2 buc.)",
+      "Faina (3 linguri)",
+      "Apa",
+      "Ulei"
+    ],
+    "ingredientsCount": 8,
+    "tags": {
+      "taste": [
+        "Sărat",
+        "Sățios"
+      ],
+      "complexity": [
+        "Complexitate medie",
+        "Necesită atenție"
+      ],
+      "time": [
+        "Sub 60 minute"
+      ],
+      "context": [
+        "Prânz",
+        "Cină",
+        "Pentru familie"
+      ],
+      "diet": [
+        "Cu carne"
+      ],
+      "equipment": [
+        "La oală",
+        "La tigaie"
+      ],
+      "technique": [
+        "Fierbere",
+        "Prăjire",
+        "La tigaie"
+      ]
+    },
+    "equipment": [
+      "La oală",
+      "La tigaie"
+    ],
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "totalTimeMinutes": null,
+    "servings": null,
+    "image": null,
+    "keywords": [
+      "chiftele",
+      "de",
+      "pui",
+      "fel",
+      "secundar",
+      "pulpa",
+      "intregi",
+      "2",
+      "buc",
+      "oua",
+      "faina",
+      "3",
+      "linguri",
+      "apa",
+      "ulei",
+      "vegeta",
+      "piper",
+      "dupa",
+      "gust",
+      "sarat",
+      "satios",
+      "complexitate",
+      "medie",
+      "necesita",
+      "atentie",
+      "sub",
+      "60",
+      "minute",
+      "pranz",
+      "cina",
+      "pentru",
+      "familie",
+      "cu",
+      "carne",
+      "la",
+      "oala",
+      "tigaie",
+      "fierbere",
+      "prajire"
+    ]
+  },
+  {
+    "slug": "conopida-cu-orez-1",
+    "title": "Conopida cu orez si sos rosu",
+    "name": "Conopida cu orez si sos rosu",
+    "category": "Fel secundar",
+    "description": "Se spala si se taie bucati medii. Se condimenteaza cu sare, piper, boia si curry. Intr-o tigaie adanca se pune uleiul la incalzit.",
+    "ingredients": [
+      "Conopida - 1 buc.",
+      "Boia - 1 lingura",
+      "Curry - 1 lingura",
+      "Oua - 3 buc.",
+      "Pesmet - 300 g"
+    ],
+    "ingredientsCount": 20,
+    "tags": {
+      "taste": [
+        "Crocant",
+        "Condimentat",
+        "Cremos",
+        "Sățios"
+      ],
+      "complexity": [
+        "Complexitate medie",
+        "Necesită atenție"
+      ],
+      "context": [
+        "Prânz",
+        "Cină",
+        "Pentru weekend"
+      ],
+      "diet": [
+        "Fără carne",
+        "Vegetarian"
+      ],
+      "equipment": [
+        "La tigaie",
+        "Necesită blender"
+      ],
+      "technique": [
+        "Prăjire",
+        "Sotare",
+        "La tigaie"
+      ]
+    },
+    "equipment": [
+      "La tigaie",
+      "Necesită blender"
+    ],
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "totalTimeMinutes": null,
+    "servings": null,
+    "image": null,
+    "keywords": [
+      "conopida",
+      "cu",
+      "orez",
+      "si",
+      "sos",
+      "rosu",
+      "fel",
+      "secundar",
+      "1",
+      "buc",
+      "boia",
+      "lingura",
+      "curry",
+      "oua",
+      "3",
+      "pesmet",
+      "300",
+      "g",
+      "sare",
+      "piper",
+      "ulei",
+      "ceapa",
+      "mare",
+      "conserva",
+      "rosii",
+      "intregi",
+      "unt",
+      "usturoi",
+      "2",
+      "catei",
+      "curcuma",
+      "lingurita",
+      "picant",
+      "ghimbir",
+      "coriandru",
+      "zahar",
+      "iaurt",
+      "patrunjel",
+      "crocant",
+      "condimentat",
+      "cremos",
+      "satios",
+      "complexitate",
+      "medie",
+      "necesita",
+      "atentie",
+      "pranz",
+      "cina",
+      "pentru",
+      "weekend",
+      "fara",
+      "carne",
+      "vegetarian",
+      "la",
+      "tigaie",
+      "blender",
+      "prajire",
+      "sotare"
+    ]
+  },
+  {
+    "slug": "dovlecel-pane",
+    "title": "Dovlecel pane",
+    "name": "Dovlecel pane",
+    "category": "Fel secundar",
+    "description": "Se feliaza rondele dovlecelul",
+    "ingredients": [
+      "Dovlecel (2 buc.)",
+      "Faina (300g)",
+      "Oua (2 buc.)",
+      "Ulei",
+      "Sare*"
+    ],
+    "ingredientsCount": 10,
+    "tags": {
+      "taste": [
+        "Crocant",
+        "Sărat",
+        "Ușor"
+      ],
+      "complexity": [
+        "Ușor",
+        "Necesită atenție"
+      ],
+      "time": [
+        "Sub 30 minute"
+      ],
+      "context": [
+        "Gustare",
+        "Prânz",
+        "Pentru zile aglomerate"
+      ],
+      "diet": [
+        "Fără carne",
+        "Vegetarian"
+      ],
+      "equipment": [
+        "La tigaie"
+      ],
+      "technique": [
+        "Prăjire",
+        "La tigaie"
+      ]
+    },
+    "equipment": [
+      "La tigaie"
+    ],
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "totalTimeMinutes": null,
+    "servings": null,
+    "image": null,
+    "keywords": [
+      "dovlecel",
+      "pane",
+      "fel",
+      "secundar",
+      "2",
+      "buc",
+      "faina",
+      "300g",
+      "oua",
+      "ulei",
+      "sare",
+      "piper",
+      "rosii",
+      "banza",
+      "paine",
+      "pe",
+      "vatra",
+      "dupa",
+      "gust",
+      "crocant",
+      "sarat",
+      "usor",
+      "necesita",
+      "atentie",
+      "sub",
+      "30",
+      "minute",
+      "gustare",
+      "pranz",
+      "pentru",
+      "zile",
+      "aglomerate",
+      "fara",
+      "carne",
+      "vegetarian",
+      "la",
+      "tigaie",
+      "prajire"
+    ]
+  },
+  {
+    "slug": "fajitas-de-pui",
+    "title": "Fajitas de pui",
+    "name": "Fajitas de pui",
+    "category": "Fel secundar",
+    "description": "Se taie pieptul de pui in bucati mici (2-3 cm). Se condimenteaza, dupa gust, cu sare, piper, boia dulce, usturoi praf si turmeric.",
+    "ingredients": [
+      "Piept de pui - 2 buc.",
+      "Cascaval razuit*",
+      "Sare*",
+      "Piper*",
+      "Usturoi praf*"
+    ],
+    "ingredientsCount": 15,
+    "tags": {
+      "taste": [
+        "Condimentat",
+        "Sățios",
+        "Fresh"
+      ],
+      "complexity": [
+        "Complexitate medie",
+        "Risc mic de greșeală"
+      ],
+      "time": [
+        "Sub 60 minute"
+      ],
+      "context": [
+        "Prânz",
+        "Cină",
+        "Pentru familie"
+      ],
+      "diet": [
+        "Cu carne"
+      ],
+      "equipment": [
+        "La tigaie"
+      ],
+      "technique": [
+        "Sotare",
+        "La tigaie"
+      ]
+    },
+    "equipment": [
+      "La tigaie"
+    ],
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "totalTimeMinutes": null,
+    "servings": null,
+    "image": null,
+    "keywords": [
+      "fajitas",
+      "de",
+      "pui",
+      "fel",
+      "secundar",
+      "piept",
+      "2",
+      "buc",
+      "cascaval",
+      "razuit",
+      "sare",
+      "piper",
+      "usturoi",
+      "praf",
+      "turmeric",
+      "boia",
+      "dulce",
+      "ulei",
+      "masline",
+      "ardei",
+      "gras",
+      "in",
+      "trei",
+      "culori",
+      "4",
+      "ceapa",
+      "mare",
+      "1",
+      "catel",
+      "zeama",
+      "lamaie",
+      "1-2",
+      "lipii",
+      "mari",
+      "libaneze",
+      "unt",
+      "topit",
+      "dupa",
+      "gust",
+      "condimentat",
+      "satios",
+      "fresh",
+      "complexitate",
+      "medie",
+      "risc",
+      "mic",
+      "greseala",
+      "sub",
+      "60",
+      "minute",
+      "pranz",
+      "cina",
+      "pentru",
+      "familie",
+      "cu",
+      "carne",
+      "la",
+      "tigaie",
+      "sotare"
+    ]
+  },
+  {
+    "slug": "gulas-cu-spaetzle",
+    "title": "Gulas cu Spaetzle",
+    "name": "Gulas cu Spaetzle",
+    "category": "Fel secundar",
+    "description": "Se curata ceapa, cartofii si usturoiul.",
+    "ingredients": [
+      "Porc (500g)",
+      "Ceapa mare (2 buc.)",
+      "Usturoi (2 catei)",
+      "Spaetzle (~250g)",
+      "Cartofi (~500g)"
+    ],
+    "ingredientsCount": 15,
+    "tags": {
+      "taste": [
+        "Sățios",
+        "Condimentat",
+        "Aromat",
+        "Rustic"
+      ],
+      "complexity": [
+        "Complexitate medie"
+      ],
+      "context": [
+        "Prânz",
+        "Cină",
+        "Comfort food"
+      ],
+      "diet": [
+        "Cu carne"
+      ],
+      "equipment": [
+        "La oală"
+      ],
+      "technique": [
+        "Sotare",
+        "Fierbere"
+      ]
+    },
+    "equipment": [
+      "La oală"
+    ],
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "totalTimeMinutes": null,
+    "servings": null,
+    "image": null,
+    "keywords": [
+      "gulas",
+      "cu",
+      "spaetzle",
+      "fel",
+      "secundar",
+      "porc",
+      "500g",
+      "ceapa",
+      "mare",
+      "2",
+      "buc",
+      "usturoi",
+      "catei",
+      "250g",
+      "cartofi",
+      "mix",
+      "legume",
+      "ceap",
+      "morcov",
+      "ardei",
+      "patrunjel",
+      "radacina",
+      "pastarnac",
+      "apa",
+      "sare",
+      "boia",
+      "piper",
+      "negru",
+      "proaspat",
+      "rasnit",
+      "ulei",
+      "floarea",
+      "soarelui",
+      "pasta",
+      "tomate",
+      "frunze",
+      "dupa",
+      "gust",
+      "satios",
+      "condimentat",
+      "aromat",
+      "rustic",
+      "complexitate",
+      "medie",
+      "pranz",
+      "cina",
+      "comfort",
+      "food",
+      "carne",
+      "la",
+      "oala",
+      "sotare",
+      "fierbere"
+    ]
+  },
+  {
+    "slug": "mancare-de-mazare-cu-pui",
+    "title": "Mancare de mazare cu pui",
+    "name": "Mancare de mazare cu pui",
+    "category": "Fel secundar",
+    "description": "Se taie pieptul de pui cuburi medii.",
+    "ingredients": [
+      "Mazare (500g)",
+      "Mixt legume (ceapa, morcov, patrunjel radacina, pastarnac radacina)",
+      "Piept pui (1/2 buc.)",
+      "Faina (2 linguri)",
+      "Smantana (2 linguri)"
+    ],
+    "ingredientsCount": 11,
+    "tags": {
+      "taste": [
+        "Cremos",
+        "Sățios",
+        "Aromat"
+      ],
+      "complexity": [
+        "Complexitate medie"
+      ],
+      "time": [
+        "Sub 60 minute"
+      ],
+      "context": [
+        "Prânz",
+        "Cină",
+        "Pentru familie"
+      ],
+      "diet": [
+        "Cu carne"
+      ],
+      "equipment": [
+        "La oală"
+      ],
+      "technique": [
+        "Sotare",
+        "Fierbere"
+      ]
+    },
+    "equipment": [
+      "La oală"
+    ],
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "totalTimeMinutes": null,
+    "servings": null,
+    "image": null,
+    "keywords": [
+      "mancare",
+      "de",
+      "mazare",
+      "cu",
+      "pui",
+      "fel",
+      "secundar",
+      "500g",
+      "mixt",
+      "legume",
+      "ceapa",
+      "morcov",
+      "patrunjel",
+      "radacina",
+      "pastarnac",
+      "piept",
+      "1-2",
+      "buc",
+      "faina",
+      "2",
+      "linguri",
+      "smantana",
+      "ulei",
+      "apa",
+      "marar",
+      "sare",
+      "piper",
+      "dupa",
+      "gust",
+      "cremos",
+      "satios",
+      "aromat",
+      "complexitate",
+      "medie",
+      "sub",
+      "60",
+      "minute",
+      "pranz",
+      "cina",
+      "pentru",
+      "familie",
+      "carne",
+      "la",
+      "oala",
+      "sotare",
+      "fierbere"
+    ]
+  },
+  {
+    "slug": "peste-cu-cartofi-natur",
+    "title": "Peste marinat cu cartofi natur",
+    "name": "Peste marinat cu cartofi natur",
+    "category": "Fel secundar",
+    "description": "Se usuca pestele bine cu prosoape de hartie, se unge pestele uniform cu zeama de lamaie, mustar, sare si piper si se lasa la marinat minim 3 ore.",
+    "ingredients": [
+      "Pangasius file (4 buc.)",
+      "Lamaie (1 buc.)",
+      "Mustar (4 linguri)",
+      "Sare*",
+      "Piper*"
+    ],
+    "ingredientsCount": 10,
+    "tags": {
+      "taste": [
+        "Acrișor",
+        "Ușor",
+        "Aromat"
+      ],
+      "complexity": [
+        "Complexitate medie",
+        "Necesită atenție"
+      ],
+      "time": [
+        "Necesită timp de așteptare",
+        "Bună pentru pregătit din timp"
+      ],
+      "context": [
+        "Prânz",
+        "Cină",
+        "Pentru weekend"
+      ],
+      "diet": [
+        "Cu carne"
+      ],
+      "equipment": [
+        "Necesită cuptor",
+        "Necesită tavă",
+        "La oală"
+      ],
+      "technique": [
+        "Marinare",
+        "Coacere",
+        "Fierbere",
+        "La cuptor"
+      ]
+    },
+    "equipment": [
+      "Necesită cuptor",
+      "Necesită tavă",
+      "La oală"
+    ],
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "totalTimeMinutes": null,
+    "servings": null,
+    "image": null,
+    "keywords": [
+      "peste",
+      "marinat",
+      "cu",
+      "cartofi",
+      "natur",
+      "fel",
+      "secundar",
+      "pangasius",
+      "file",
+      "4",
+      "buc",
+      "lamaie",
+      "1",
+      "mustar",
+      "linguri",
+      "sare",
+      "piper",
+      "1kg",
+      "unt",
+      "20g",
+      "apa",
+      "patrunjel",
+      "dupa",
+      "gust",
+      "acrisor",
+      "usor",
+      "aromat",
+      "complexitate",
+      "medie",
+      "necesita",
+      "atentie",
+      "timp",
+      "de",
+      "asteptare",
+      "buna",
+      "pentru",
+      "pregatit",
+      "din",
+      "pranz",
+      "cina",
+      "weekend",
+      "carne",
+      "cuptor",
+      "tava",
+      "la",
+      "oala",
+      "marinare",
+      "coacere",
+      "fierbere"
+    ]
+  },
+  {
+    "slug": "pui-cu-lamaie-si-cartofi",
+    "title": "Piept de pui cu lamaie si cartofi aurii",
+    "name": "Piept de pui cu lamaie si cartofi aurii",
+    "category": "Fel secundar",
+    "description": "Se taie puiul pe jumatate (in 4 bucati).",
+    "ingredients": [
+      "Piept de pui - 2 buc.",
+      "Faina - 35g",
+      "Parmezan - 20g",
+      "Oua - 2 buc.",
+      "Ulei de masline"
+    ],
+    "ingredientsCount": 17,
+    "tags": {
+      "taste": [
+        "Acrișor",
+        "Crocant",
+        "Sățios",
+        "Aromat"
+      ],
+      "complexity": [
+        "Complexitate medie",
+        "Necesită atenție"
+      ],
+      "context": [
+        "Prânz",
+        "Cină",
+        "Pentru familie"
+      ],
+      "diet": [
+        "Cu carne"
+      ],
+      "equipment": [
+        "La tigaie"
+      ],
+      "technique": [
+        "Prăjire",
+        "La tigaie"
+      ]
+    },
+    "equipment": [
+      "La tigaie"
+    ],
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "totalTimeMinutes": null,
+    "servings": null,
+    "image": null,
+    "keywords": [
+      "piept",
+      "de",
+      "pui",
+      "cu",
+      "lamaie",
+      "si",
+      "cartofi",
+      "aurii",
+      "fel",
+      "secundar",
+      "2",
+      "buc",
+      "faina",
+      "35g",
+      "parmezan",
+      "20g",
+      "oua",
+      "ulei",
+      "masline",
+      "unt",
+      "usturoi",
+      "praf",
+      "piper",
+      "sare",
+      "zeama",
+      "1",
+      "cuburi",
+      "maggi",
+      "ceapa",
+      "verde",
+      "vin",
+      "alb",
+      "60ml",
+      "apa",
+      "180ml",
+      "carofi",
+      "noi",
+      "1kg",
+      "folie",
+      "copt",
+      "dupa",
+      "gust",
+      "acrisor",
+      "crocant",
+      "satios",
+      "aromat",
+      "complexitate",
+      "medie",
+      "necesita",
+      "atentie",
+      "pranz",
+      "cina",
+      "pentru",
+      "familie",
+      "carne",
+      "la",
+      "tigaie",
+      "prajire"
+    ]
+  },
+  {
+    "slug": "pui-dulce-acrisor-cu-orez",
+    "title": "Pui dulce-acrisor cu orez",
+    "name": "Pui dulce-acrisor cu orez",
+    "category": "Fel secundar",
+    "description": "Se taie pieptul de pui in bucati medii (4-5 cm). Se condimenteaza, dupa gust, cu sare, piper si usturoi praf. Puiul condimentat se da prin faina asi apoi prin ou.",
+    "ingredients": [
+      "Piept de pui - 2 buc.",
+      "Faina - aprox. 100g",
+      "Oua - 2 buc.",
+      "Ulei",
+      "Sare*"
+    ],
+    "ingredientsCount": 15,
+    "tags": {
+      "taste": [
+        "Dulce",
+        "Acrișor",
+        "Sățios"
+      ],
+      "complexity": [
+        "Complexitate medie",
+        "Necesită atenție"
+      ],
+      "context": [
+        "Prânz",
+        "Cină",
+        "Pentru familie"
+      ],
+      "diet": [
+        "Cu carne"
+      ],
+      "equipment": [
+        "Necesită cuptor",
+        "Necesită tavă",
+        "La oală"
+      ],
+      "technique": [
+        "Coacere",
+        "Fierbere",
+        "La cuptor"
+      ]
+    },
+    "equipment": [
+      "Necesită cuptor",
+      "Necesită tavă",
+      "La oală"
+    ],
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "totalTimeMinutes": null,
+    "servings": null,
+    "image": null,
+    "keywords": [
+      "pui",
+      "dulce-acrisor",
+      "cu",
+      "orez",
+      "fel",
+      "secundar",
+      "piept",
+      "de",
+      "2",
+      "buc",
+      "faina",
+      "aprox",
+      "100g",
+      "oua",
+      "ulei",
+      "sare",
+      "piper",
+      "usturoi",
+      "praf",
+      "4",
+      "maini",
+      "apa",
+      "ketchup",
+      "dulce",
+      "minim",
+      "zahar",
+      "linguri",
+      "otet",
+      "mere",
+      "orice",
+      "sos",
+      "soia",
+      "foaie",
+      "copt",
+      "1",
+      "dupa",
+      "gust",
+      "acrisor",
+      "satios",
+      "complexitate",
+      "medie",
+      "necesita",
+      "atentie",
+      "pranz",
+      "cina",
+      "pentru",
+      "familie",
+      "carne",
+      "cuptor",
+      "tava",
+      "la",
+      "oala",
+      "coacere",
+      "fierbere"
+    ]
+  },
+  {
+    "slug": "pulpe-de-pui-cu-orzo",
+    "title": "Pulpe de pui dezosate cu orzo",
+    "name": "Pulpe de pui dezosate cu orzo",
+    "category": "Fel secundar",
+    "description": "Se bat pulpele de pui putin. Se condimenteaza cu boia dulce, sare, piper, usturoi praf, curry si cimbru.",
+    "ingredients": [
+      "Pulpe de pui dezosate - 4 buc.",
+      "Boia dulce*",
+      "Sare*",
+      "Piper*",
+      "Usturoi praf*"
+    ],
+    "ingredientsCount": 20,
+    "tags": {
+      "taste": [
+        "Cremos",
+        "Sățios",
+        "Aromat"
+      ],
+      "complexity": [
+        "Complexitate medie"
+      ],
+      "context": [
+        "Prânz",
+        "Cină",
+        "Pentru familie"
+      ],
+      "diet": [
+        "Cu carne"
+      ],
+      "equipment": [
+        "La tigaie"
+      ],
+      "technique": [
+        "Sotare",
+        "La tigaie"
+      ]
+    },
+    "equipment": [
+      "La tigaie"
+    ],
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "totalTimeMinutes": null,
+    "servings": null,
+    "image": null,
+    "keywords": [
+      "pulpe",
+      "de",
+      "pui",
+      "dezosate",
+      "cu",
+      "orzo",
+      "fel",
+      "secundar",
+      "4",
+      "buc",
+      "boia",
+      "dulce",
+      "sare",
+      "piper",
+      "usturoi",
+      "praf",
+      "curry",
+      "cimbru",
+      "unt",
+      "ulei",
+      "dasline",
+      "400g",
+      "ciuperci",
+      "250g",
+      "catei",
+      "6",
+      "cuburi",
+      "maggi",
+      "2",
+      "apa",
+      "1-2",
+      "litri",
+      "patrunjel",
+      "1",
+      "legatura",
+      "parmezan",
+      "50g",
+      "topit",
+      "ceapa",
+      "verde",
+      "zeama",
+      "lamaie",
+      "lamai",
+      "dupa",
+      "gust",
+      "cremos",
+      "satios",
+      "aromat",
+      "complexitate",
+      "medie",
+      "pranz",
+      "cina",
+      "pentru",
+      "familie",
+      "carne",
+      "la",
+      "tigaie",
+      "sotare"
+    ]
+  },
+  {
+    "slug": "rata-la-cuptor-umpluta",
+    "title": "Rata la cuptor umpluta",
+    "name": "Rata la cuptor umpluta",
+    "category": "Fel secundar",
+    "description": "Se spala bine rata si se usuca cu prosoape de hartie. Se condimenteaza uniform cu sare, piper si boia si se lasa la marinat ~24h.",
+    "ingredients": [
+      "Rata (~2kg)",
+      "Unt (250g)",
+      "Apa (250ml)",
+      "Sare*",
+      "Piper*"
+    ],
+    "ingredientsCount": 22,
+    "tags": {
+      "taste": [
+        "Sățios",
+        "Aromat",
+        "Rustic"
+      ],
+      "complexity": [
+        "Complexitate ridicată",
+        "Necesită atenție"
+      ],
+      "time": [
+        "Necesită timp de așteptare",
+        "Bună pentru pregătit din timp"
+      ],
+      "context": [
+        "Cină",
+        "Pentru musafiri",
+        "Pentru weekend"
+      ],
+      "diet": [
+        "Cu carne"
+      ],
+      "equipment": [
+        "Necesită cuptor",
+        "Necesită tavă"
+      ],
+      "technique": [
+        "Marinare",
+        "Coacere",
+        "La cuptor"
+      ]
+    },
+    "equipment": [
+      "Necesită cuptor",
+      "Necesită tavă"
+    ],
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "totalTimeMinutes": null,
+    "servings": null,
+    "image": null,
+    "keywords": [
+      "rata",
+      "la",
+      "cuptor",
+      "umpluta",
+      "fel",
+      "secundar",
+      "2kg",
+      "unt",
+      "250g",
+      "apa",
+      "250ml",
+      "sare",
+      "piper",
+      "boia",
+      "umplutura",
+      "ceapa",
+      "marime",
+      "medie",
+      "1",
+      "buc",
+      "usturoi",
+      "2",
+      "catei",
+      "merisoare",
+      "200g",
+      "portocala-mar-para-gutuie",
+      "orez",
+      "ulei",
+      "garnitura",
+      "cartofi",
+      "1-5kg",
+      "sos",
+      "zeama",
+      "lamaie",
+      "1-2",
+      "portocale",
+      "zahar",
+      "40g",
+      "coniac-esenta",
+      "rom",
+      "50ml",
+      "scortisoara",
+      "cuisoare",
+      "dupa",
+      "gust",
+      "satios",
+      "aromat",
+      "rustic",
+      "complexitate",
+      "ridicata",
+      "necesita",
+      "atentie",
+      "timp",
+      "de",
+      "asteptare",
+      "buna",
+      "pentru",
+      "pregatit",
+      "din",
+      "cina",
+      "musafiri",
+      "weekend",
+      "cu",
+      "carne",
+      "tava",
+      "marinare",
+      "coacere"
+    ]
+  },
+  {
+    "slug": "snitel-pufos-de-pui",
+    "title": "Rata la cuptor umpluta",
+    "name": "Rata la cuptor umpluta",
+    "category": "Fel secundar",
+    "description": "Se injumatatesc pieptii de pui in grosime si se bat cu batatorul de carne.",
+    "ingredients": [
+      "Piept pui (2 buc.)",
+      "Faina (300g)",
+      "Oua (2 buc.)",
+      "Ulei",
+      "Sare*"
+    ],
+    "ingredientsCount": 7,
+    "tags": {
+      "taste": [
+        "Crocant",
+        "Sărat",
+        "Sățios"
+      ],
+      "complexity": [
+        "Complexitate medie",
+        "Necesită atenție"
+      ],
+      "time": [
+        "Sub 30 minute"
+      ],
+      "context": [
+        "Prânz",
+        "Cină",
+        "Pentru familie"
+      ],
+      "diet": [
+        "Cu carne"
+      ],
+      "equipment": [
+        "La tigaie"
+      ],
+      "technique": [
+        "Prăjire",
+        "La tigaie"
+      ]
+    },
+    "equipment": [
+      "La tigaie"
+    ],
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "totalTimeMinutes": null,
+    "servings": null,
+    "image": null,
+    "keywords": [
+      "rata",
+      "la",
+      "cuptor",
+      "umpluta",
+      "fel",
+      "secundar",
+      "piept",
+      "pui",
+      "2",
+      "buc",
+      "faina",
+      "300g",
+      "oua",
+      "ulei",
+      "sare",
+      "piper",
+      "dupa",
+      "gust",
+      "crocant",
+      "sarat",
+      "satios",
+      "complexitate",
+      "medie",
+      "necesita",
+      "atentie",
+      "sub",
+      "30",
+      "minute",
+      "pranz",
+      "cina",
+      "pentru",
+      "familie",
+      "cu",
+      "carne",
+      "tigaie",
+      "prajire"
+    ]
+  },
+  {
+    "slug": "shakshuka",
+    "title": "Shakshuka",
+    "name": "Shakshuka",
+    "category": "Fel secundar",
+    "description": "Se feliaza cubulete ardeii capia si ceapa.",
+    "ingredients": [
+      "Mix legume tocate",
+      "Morcov",
+      "Patrunjel",
+      "Pastarnac",
+      "Ceapa"
+    ],
+    "ingredientsCount": 24,
+    "tags": {
+      "taste": [
+        "Sățios",
+        "Condimentat",
+        "Aromat"
+      ],
+      "complexity": [
+        "Complexitate medie",
+        "Necesită atenție"
+      ],
+      "time": [
+        "Sub 60 minute"
+      ],
+      "context": [
+        "Mic dejun",
+        "Prânz",
+        "Cină",
+        "Comfort food"
+      ],
+      "diet": [
+        "Fără carne",
+        "Vegetarian"
+      ],
+      "equipment": [
+        "La tigaie"
+      ],
+      "technique": [
+        "Sotare",
+        "Fierbere",
+        "La tigaie"
+      ]
+    },
+    "equipment": [
+      "La tigaie"
+    ],
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "totalTimeMinutes": null,
+    "servings": null,
+    "image": null,
+    "keywords": [
+      "shakshuka",
+      "fel",
+      "secundar",
+      "mix",
+      "legume",
+      "tocate",
+      "morcov",
+      "patrunjel",
+      "pastarnac",
+      "ceapa",
+      "telina",
+      "ardei",
+      "capia",
+      "4-5",
+      "buc",
+      "2",
+      "extra",
+      "pe",
+      "langa",
+      "conserva",
+      "rosii",
+      "intregi",
+      "1",
+      "catei",
+      "de",
+      "usturoi",
+      "4",
+      "legatura",
+      "bulion",
+      "100ml",
+      "apa",
+      "20-30ml",
+      "feta",
+      "200g",
+      "oua",
+      "ulei",
+      "masline",
+      "sare",
+      "piper",
+      "curry",
+      "boia",
+      "dulce",
+      "coriandru",
+      "chilly",
+      "busuioc",
+      "dupa",
+      "gust",
+      "satios",
+      "condimentat",
+      "aromat",
+      "complexitate",
+      "medie",
+      "necesita",
+      "atentie",
+      "sub",
+      "60",
+      "minute",
+      "mic",
+      "dejun",
+      "pranz",
+      "cina",
+      "comfort",
+      "food",
+      "fara",
+      "carne",
+      "vegetarian",
+      "la",
+      "tigaie",
+      "sotare",
+      "fierbere"
+    ]
+  },
+  {
+    "slug": "steak-de-vita",
+    "title": "Steak de vita",
+    "name": "Steak de vita",
+    "category": "Fel secundar",
+    "description": "Scoate-ti carnea de la frigider si lasati-o la temperatura camerei 30 min.",
+    "ingredients": [
+      "Tigaie tip grill non-stick",
+      "Cleste (nu furculita, ca sa nu perforezi carnea)",
+      "Farfurie/platou/tocator de lemn pentru odihnirea carnii dupa prajire",
+      "Folie de aluminiu",
+      "Vrabioara manzat - 2 buc. (aprox 350 g)"
+    ],
+    "ingredientsCount": 25,
+    "tags": {
+      "taste": [
+        "Sățios",
+        "Aromat"
+      ],
+      "complexity": [
+        "Necesită atenție"
+      ],
+      "context": [
+        "Cină",
+        "Pentru weekend"
+      ],
+      "diet": [
+        "Cu carne"
+      ],
+      "equipment": [
+        "La tigaie",
+        "Necesită termometru"
+      ],
+      "technique": [
+        "La tigaie",
+        "Marinare"
+      ]
+    },
+    "equipment": [
+      "La tigaie",
+      "Necesită termometru"
+    ],
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "totalTimeMinutes": null,
+    "servings": null,
+    "image": null,
+    "keywords": [
+      "steak",
+      "de",
+      "vita",
+      "fel",
+      "secundar",
+      "ustensile",
+      "tigaie",
+      "tip",
+      "grill",
+      "non-stick",
+      "cleste",
+      "nu",
+      "furculita",
+      "ca",
+      "sa",
+      "perforezi",
+      "carnea",
+      "termometru",
+      "carne",
+      "optional",
+      "farfurie-platou-tocator",
+      "lemn",
+      "pentru",
+      "odihnirea",
+      "carnii",
+      "dupa",
+      "prajire",
+      "folie",
+      "aluminiu",
+      "vrabioara",
+      "manzat",
+      "2",
+      "buc",
+      "aprox",
+      "350",
+      "g",
+      "sare",
+      "grunjoasa",
+      "piper",
+      "negru",
+      "proaspat",
+      "rasnit",
+      "ulei",
+      "floarea",
+      "soarelui",
+      "mustar",
+      "dijon",
+      "3",
+      "lingurite",
+      "masline",
+      "extravirgin",
+      "usturoi",
+      "pudra",
+      "1",
+      "lingurita",
+      "boia",
+      "dulce",
+      "cimbru",
+      "uscat",
+      "1-2",
+      "unt",
+      "lingura",
+      "catel",
+      "rozmarin",
+      "crenguta",
+      "side",
+      "piure",
+      "cartofi",
+      "fulgi",
+      "cartofi-cartofi",
+      "lapte",
+      "salata",
+      "verde",
+      "iceberg",
+      "rosii",
+      "chery",
+      "10",
+      "ceapa",
+      "rosie",
+      "1-4",
+      "castrevete",
+      "5",
+      "cornison",
+      "satios",
+      "aromat",
+      "necesita",
+      "atentie",
+      "cina",
+      "weekend",
+      "cu",
+      "la",
+      "marinare"
+    ]
+  },
+  {
+    "slug": "tocanita-de-cartofi",
+    "title": "Tocanita De Cartofi",
+    "name": "Tocanita De Cartofi",
+    "category": "Fel secundar",
+    "description": "Se curata ceapa, cartofii si usturoiul.",
+    "ingredients": [
+      "Piept pui (2 buc.)",
+      "Ceapa mare (2 buc.)",
+      "Usturoi (2 catei)",
+      "Cartofi (~1,5g)",
+      "Mix legume (ceap, morcov, ardei, patrunjel radacina, pastarnac radacina)"
+    ],
+    "ingredientsCount": 12,
+    "tags": {
+      "taste": [
+        "Sățios",
+        "Rustic",
+        "Aromat"
+      ],
+      "complexity": [
+        "Complexitate medie"
+      ],
+      "context": [
+        "Prânz",
+        "Cină",
+        "Pentru familie",
+        "Comfort food"
+      ],
+      "diet": [
+        "Cu carne"
+      ],
+      "equipment": [
+        "La oală"
+      ],
+      "technique": [
+        "Sotare",
+        "Fierbere"
+      ]
+    },
+    "equipment": [
+      "La oală"
+    ],
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "totalTimeMinutes": null,
+    "servings": null,
+    "image": null,
+    "keywords": [
+      "tocanita",
+      "de",
+      "cartofi",
+      "fel",
+      "secundar",
+      "piept",
+      "pui",
+      "2",
+      "buc",
+      "ceapa",
+      "mare",
+      "usturoi",
+      "catei",
+      "1-5g",
+      "mix",
+      "legume",
+      "ceap",
+      "morcov",
+      "ardei",
+      "patrunjel",
+      "radacina",
+      "pastarnac",
+      "apa",
+      "sare",
+      "boia",
+      "piper",
+      "negru",
+      "proaspat",
+      "rasnit",
+      "ulei",
+      "floarea",
+      "soarelui",
+      "frunze",
+      "dupa",
+      "gust",
+      "satios",
+      "rustic",
+      "aromat",
+      "complexitate",
+      "medie",
+      "pranz",
+      "cina",
+      "pentru",
+      "familie",
+      "comfort",
+      "food",
+      "cu",
+      "carne",
+      "la",
+      "oala",
+      "sotare",
+      "fierbere"
+    ]
+  },
+  {
+    "slug": "tocanita-de-pui-cu-ardei",
+    "title": "Tocăniță de pui cu ardei copți",
+    "name": "Tocăniță de pui cu ardei copți",
+    "category": "Fel secundar",
+    "description": "Gătește pulpele de pui până se rumenesc ușor.",
+    "ingredients": [
+      "pulpe de pui",
+      "ardei capia",
+      "ceapă",
+      "usturoi",
+      "bulion"
+    ],
+    "ingredientsCount": 12,
+    "tags": {
+      "taste": [
+        "Sățios",
+        "Aromat",
+        "Condimentat"
+      ],
+      "complexity": [
+        "Ușor",
+        "Risc mic de greșeală"
+      ],
+      "context": [
+        "Prânz",
+        "Cină",
+        "Pentru familie"
+      ],
+      "diet": [
+        "Cu carne"
+      ],
+      "equipment": [
+        "La oală"
+      ],
+      "technique": [
+        "Sotare",
+        "Fierbere"
+      ]
+    },
+    "equipment": [
+      "La oală"
+    ],
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "totalTimeMinutes": null,
+    "servings": null,
+    "image": null,
+    "keywords": [
+      "tocanita",
+      "de",
+      "pui",
+      "cu",
+      "ardei",
+      "copti",
+      "fel",
+      "secundar",
+      "pulpe",
+      "capia",
+      "ceapa",
+      "usturoi",
+      "bulion",
+      "ulei",
+      "masline",
+      "patrunjel",
+      "busuioc",
+      "curry",
+      "piper",
+      "sare",
+      "paine",
+      "ciabatta",
+      "satios",
+      "aromat",
+      "condimentat",
+      "usor",
+      "risc",
+      "mic",
+      "greseala",
+      "pranz",
+      "cina",
+      "pentru",
+      "familie",
+      "carne",
+      "la",
+      "oala",
+      "sotare",
+      "fierbere"
+    ]
+  },
+  {
+    "slug": "placinta-cu-dovleac",
+    "title": "Placinta cu dovleac",
+    "name": "Placinta cu dovleac",
+    "category": "Desert",
+    "description": "Se taie un dovleac galben sau dovleac \"placintar\" in bucati medi si se baga la cuptor pentru aproximativ 40 min la o temperatura de 190 °C.",
+    "ingredients": [
+      "Scortisoara - 125 g",
+      "Ghimbir pudra - 8 g",
+      "Nucsoara - 3 g",
+      "Cuisoare - 4 g",
+      "Oua - 2 buc."
+    ],
+    "ingredientsCount": 10,
+    "tags": {
+      "taste": [
+        "Dulce",
+        "Aromat",
+        "Fin"
+      ],
+      "complexity": [
+        "Complexitate medie",
+        "Necesită atenție"
+      ],
+      "context": [
+        "Pentru weekend",
+        "Pentru musafiri"
+      ],
+      "diet": [
+        "Fără carne",
+        "Vegetarian"
+      ],
+      "equipment": [
+        "Necesită cuptor",
+        "Necesită tavă"
+      ],
+      "technique": [
+        "Coacere",
+        "La cuptor"
+      ]
+    },
+    "equipment": [
+      "Necesită cuptor",
+      "Necesită tavă"
+    ],
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "totalTimeMinutes": null,
+    "servings": null,
+    "image": null,
+    "keywords": [
+      "placinta",
+      "cu",
+      "dovleac",
+      "desert",
+      "scortisoara",
+      "125",
+      "g",
+      "ghimbir",
+      "pudra",
+      "8",
+      "nucsoara",
+      "3",
+      "cuisoare",
+      "4",
+      "oua",
+      "2",
+      "buc",
+      "frisca",
+      "lichida",
+      "2-3",
+      "200",
+      "ml",
+      "copt",
+      "zdrobit",
+      "1",
+      "vanilie",
+      "pastaie-esenta",
+      "aluat",
+      "pentru",
+      "foietaje",
+      "zahar",
+      "dulce",
+      "aromat",
+      "fin",
+      "complexitate",
+      "medie",
+      "necesita",
+      "atentie",
+      "weekend",
+      "musafiri",
+      "fara",
+      "carne",
+      "vegetarian",
+      "cuptor",
+      "tava",
+      "coacere",
+      "la"
+    ]
+  },
+  {
+    "slug": "charcuterie-board",
+    "title": "Charcuterie board",
+    "name": "Charcuterie board",
+    "category": "Rontaieli",
+    "description": "Se feliaza ardeiul, castravetele, salamul, branza si cascavalul.",
+    "ingredients": [
+      "Grisine*",
+      "Biscuiti graham*",
+      "Rosii chery*",
+      "Carnaciori sticks*",
+      "Castravete*"
+    ],
+    "ingredientsCount": 13,
+    "tags": {
+      "taste": [
+        "Sărat",
+        "Fresh",
+        "Ușor"
+      ],
+      "complexity": [
+        "Începător",
+        "Ușor",
+        "Risc mic de greșeală"
+      ],
+      "time": [
+        "Sub 15 minute",
+        "Rețetă rapidă"
+      ],
+      "context": [
+        "Gustare",
+        "Pentru musafiri",
+        "Pentru weekend"
+      ],
+      "diet": [
+        "Cu carne"
+      ],
+      "technique": [
+        "Fără gătire"
+      ]
+    },
+    "equipment": [],
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "totalTimeMinutes": null,
+    "servings": null,
+    "image": null,
+    "keywords": [
+      "charcuterie",
+      "board",
+      "rontaieli",
+      "grisine",
+      "biscuiti",
+      "graham",
+      "rosii",
+      "chery",
+      "carnaciori",
+      "sticks",
+      "castravete",
+      "ardei",
+      "branza",
+      "feta-telemea",
+      "masline",
+      "cascaval",
+      "salata",
+      "verde",
+      "salam",
+      "vin",
+      "alb",
+      "dupa",
+      "gust",
+      "sarat",
+      "fresh",
+      "usor",
+      "incepator",
+      "risc",
+      "mic",
+      "de",
+      "greseala",
+      "sub",
+      "15",
+      "minute",
+      "reteta",
+      "rapida",
+      "gustare",
+      "pentru",
+      "musafiri",
+      "weekend",
+      "cu",
+      "carne",
+      "fara",
+      "gatire"
+    ]
+  },
+  {
+    "slug": "fructe-cu-nutella",
+    "title": "Fructe cu Nutella",
+    "name": "Fructe cu Nutella",
+    "category": "Rontaieli",
+    "description": "Se feliaza fructele si se adauga jumatate de lingurita de nutella peste ele.",
+    "ingredients": [
+      "Nutella",
+      "Banana/Capsuni/Mar/Afine/Kivi",
+      "*dupa gust"
+    ],
+    "ingredientsCount": 3,
+    "tags": {
+      "taste": [
+        "Dulce",
+        "Fresh",
+        "Ușor"
+      ],
+      "complexity": [
+        "Începător",
+        "Ușor",
+        "Risc mic de greșeală"
+      ],
+      "time": [
+        "Sub 15 minute",
+        "Rețetă rapidă"
+      ],
+      "context": [
+        "Gustare",
+        "Pentru zile aglomerate"
+      ],
+      "diet": [
+        "Fără carne",
+        "Vegetarian"
+      ],
+      "technique": [
+        "Fără gătire"
+      ]
+    },
+    "equipment": [],
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "totalTimeMinutes": null,
+    "servings": null,
+    "image": null,
+    "keywords": [
+      "fructe",
+      "cu",
+      "nutella",
+      "rontaieli",
+      "banana-capsuni-mar-afine-kivi",
+      "dupa",
+      "gust",
+      "dulce",
+      "fresh",
+      "usor",
+      "incepator",
+      "risc",
+      "mic",
+      "de",
+      "greseala",
+      "sub",
+      "15",
+      "minute",
+      "reteta",
+      "rapida",
+      "gustare",
+      "pentru",
+      "zile",
+      "aglomerate",
+      "fara",
+      "carne",
+      "vegetarian",
+      "gatire"
+    ]
+  },
+  {
+    "slug": "mar-cu-unt-de-arahide",
+    "title": "Mar cu unt de arahide",
+    "name": "Mar cu unt de arahide",
+    "category": "Rontaieli",
+    "description": "Se feliaza marul.",
+    "ingredients": [
+      "Mar (1 buc.)",
+      "Unt arahide (2 linguri)"
+    ],
+    "ingredientsCount": 2,
+    "tags": {
+      "taste": [
+        "Dulce",
+        "Fresh",
+        "Ușor"
+      ],
+      "complexity": [
+        "Începător",
+        "Ușor",
+        "Risc mic de greșeală"
+      ],
+      "time": [
+        "Sub 15 minute",
+        "Rețetă rapidă"
+      ],
+      "context": [
+        "Gustare",
+        "Pentru zile aglomerate"
+      ],
+      "diet": [
+        "Fără carne",
+        "Vegetarian",
+        "Fără lactate",
+        "Fără ou"
+      ],
+      "technique": [
+        "Fără gătire"
+      ]
+    },
+    "equipment": [],
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "totalTimeMinutes": null,
+    "servings": null,
+    "image": null,
+    "keywords": [
+      "mar",
+      "cu",
+      "unt",
+      "de",
+      "arahide",
+      "rontaieli",
+      "1",
+      "buc",
+      "2",
+      "linguri",
+      "dulce",
+      "fresh",
+      "usor",
+      "incepator",
+      "risc",
+      "mic",
+      "greseala",
+      "sub",
+      "15",
+      "minute",
+      "reteta",
+      "rapida",
+      "gustare",
+      "pentru",
+      "zile",
+      "aglomerate",
+      "fara",
+      "carne",
+      "vegetarian",
+      "lactate",
+      "ou",
+      "gatire"
+    ]
+  },
+  {
+    "slug": "paine-prajita-unt-arahide",
+    "title": "paine prajita cu unt de arahide",
+    "name": "paine prajita cu unt de arahide",
+    "category": "Rontaieli",
+    "description": "Se prajeste painea.",
+    "ingredients": [
+      "Paine (2 felii)",
+      "Unt arahide (2 linguri)",
+      "Banana/Capsune*",
+      "*dupa gust"
+    ],
+    "ingredientsCount": 4,
+    "tags": {
+      "taste": [
+        "Dulce",
+        "Crocant",
+        "Ușor"
+      ],
+      "complexity": [
+        "Începător",
+        "Ușor",
+        "Risc mic de greșeală"
+      ],
+      "time": [
+        "Sub 15 minute",
+        "Rețetă rapidă"
+      ],
+      "context": [
+        "Mic dejun",
+        "Gustare",
+        "Pentru zile aglomerate"
+      ],
+      "diet": [
+        "Fără carne",
+        "Vegetarian"
+      ]
+    },
+    "equipment": [],
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "totalTimeMinutes": null,
+    "servings": null,
+    "image": null,
+    "keywords": [
+      "paine",
+      "prajita",
+      "cu",
+      "unt",
+      "de",
+      "arahide",
+      "rontaieli",
+      "2",
+      "felii",
+      "linguri",
+      "banana-capsune",
+      "dupa",
+      "gust",
+      "dulce",
+      "crocant",
+      "usor",
+      "incepator",
+      "risc",
+      "mic",
+      "greseala",
+      "sub",
+      "15",
+      "minute",
+      "reteta",
+      "rapida",
+      "dejun",
+      "gustare",
+      "pentru",
+      "zile",
+      "aglomerate",
+      "fara",
+      "carne",
+      "vegetarian"
+    ]
+  },
+  {
+    "slug": "salata-de-ciuperci",
+    "title": "Salata de ciuperci",
+    "name": "Salata de ciuperci",
+    "category": "Salate",
+    "description": "Se curata, se spala ciupercile si se taie marunt.",
+    "ingredients": [
+      "Ciuperci champignon (250g)",
+      "Usturoi (2 catei)",
+      "Cum maggi (1 buc.)",
+      "Faina (1 lingura)",
+      "Parmezan (100g)"
+    ],
+    "ingredientsCount": 12,
+    "tags": {
+      "taste": [
+        "Cremos",
+        "Sărat",
+        "Sățios"
+      ],
+      "complexity": [
+        "Complexitate medie",
+        "Necesită atenție"
+      ],
+      "time": [
+        "Necesită timp de așteptare",
+        "Bună pentru pregătit din timp"
+      ],
+      "context": [
+        "Gustare",
+        "Prânz",
+        "Pentru familie"
+      ],
+      "diet": [
+        "Fără carne",
+        "Vegetarian"
+      ],
+      "equipment": [
+        "La tigaie"
+      ],
+      "technique": [
+        "Sotare",
+        "La tigaie"
+      ]
+    },
+    "equipment": [
+      "La tigaie"
+    ],
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "totalTimeMinutes": null,
+    "servings": null,
+    "image": null,
+    "keywords": [
+      "salata",
+      "de",
+      "ciuperci",
+      "salate",
+      "champignon",
+      "250g",
+      "usturoi",
+      "2",
+      "catei",
+      "cum",
+      "maggi",
+      "1",
+      "buc",
+      "faina",
+      "lingura",
+      "parmezan",
+      "100g",
+      "maioneza",
+      "linguri",
+      "iaurt",
+      "apa",
+      "100ml",
+      "ulei",
+      "floarea",
+      "soarelui",
+      "paine",
+      "rosii",
+      "cherry",
+      "dupa",
+      "gust",
+      "cremos",
+      "sarat",
+      "satios",
+      "complexitate",
+      "medie",
+      "necesita",
+      "atentie",
+      "timp",
+      "asteptare",
+      "buna",
+      "pentru",
+      "pregatit",
+      "din",
+      "gustare",
+      "pranz",
+      "familie",
+      "fara",
+      "carne",
+      "vegetarian",
+      "la",
+      "tigaie",
+      "sotare"
+    ]
+  },
+  {
+    "slug": "avocado-cu-bacon",
+    "title": "Avocado cu bacon",
+    "name": "Avocado cu bacon",
+    "category": "Mic dejun",
+    "description": "Intr-o oala mica se fierb ouale timp de ~10 minute. Se toarna apa gheata/rece peste ele si se decojesc.",
+    "ingredients": [
+      "Paine (2 felii)",
+      "Ou (3 buc.)",
+      "Avocado (1 buc.)",
+      "Usturoi (1 catel)",
+      "Bacon (4 buc.)"
+    ],
+    "ingredientsCount": 10,
+    "tags": {
+      "taste": [
+        "Sărat",
+        "Cremos",
+        "Crocant",
+        "Sățios"
+      ],
+      "complexity": [
+        "Ușor"
+      ],
+      "time": [
+        "Sub 30 minute"
+      ],
+      "context": [
+        "Mic dejun",
+        "Pentru weekend"
+      ],
+      "diet": [
+        "Cu carne"
+      ],
+      "equipment": [
+        "La oală",
+        "La tigaie"
+      ],
+      "technique": [
+        "Fierbere",
+        "Prăjire",
+        "La tigaie"
+      ]
+    },
+    "equipment": [
+      "La oală",
+      "La tigaie"
+    ],
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "totalTimeMinutes": null,
+    "servings": null,
+    "image": null,
+    "keywords": [
+      "avocado",
+      "cu",
+      "bacon",
+      "mic",
+      "dejun",
+      "paine",
+      "2",
+      "felii",
+      "ou",
+      "3",
+      "buc",
+      "1",
+      "usturoi",
+      "catel",
+      "4",
+      "ceapa",
+      "verde",
+      "rosii",
+      "cherry",
+      "sare",
+      "piper",
+      "dupa",
+      "gust",
+      "sarat",
+      "cremos",
+      "crocant",
+      "satios",
+      "usor",
+      "sub",
+      "30",
+      "minute",
+      "pentru",
+      "weekend",
+      "carne",
+      "la",
+      "oala",
+      "tigaie",
+      "fierbere",
+      "prajire"
+    ]
+  },
+  {
+    "slug": "bagheta-bistro",
+    "title": "Bagheta bistro",
+    "name": "Bagheta bistro",
+    "category": "Mic dejun",
+    "description": "Bagheta se taie in 2 jumatati dupa care se sectioneaza pe lungime.",
+    "ingredients": [
+      "Bagheta de paine (1 buc)",
+      "Salata verde (~4 frunze)",
+      "Sunca presata (30g)",
+      "Iaurt (2 lingurite)",
+      "Unt*"
+    ],
+    "ingredientsCount": 7,
+    "tags": {
+      "taste": [
+        "Sărat",
+        "Fresh",
+        "Ușor"
+      ],
+      "complexity": [
+        "Începător",
+        "Ușor",
+        "Risc mic de greșeală"
+      ],
+      "time": [
+        "Sub 15 minute",
+        "Rețetă rapidă"
+      ],
+      "context": [
+        "Mic dejun",
+        "Gustare",
+        "Pentru zile aglomerate"
+      ],
+      "diet": [
+        "Cu carne"
+      ],
+      "technique": [
+        "Fără gătire"
+      ]
+    },
+    "equipment": [],
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "totalTimeMinutes": null,
+    "servings": null,
+    "image": null,
+    "keywords": [
+      "bagheta",
+      "bistro",
+      "mic",
+      "dejun",
+      "de",
+      "paine",
+      "1",
+      "buc",
+      "salata",
+      "verde",
+      "4",
+      "frunze",
+      "sunca",
+      "presata",
+      "30g",
+      "iaurt",
+      "2",
+      "lingurite",
+      "unt",
+      "branza",
+      "dupa",
+      "gust",
+      "sarat",
+      "fresh",
+      "usor",
+      "incepator",
+      "risc",
+      "greseala",
+      "sub",
+      "15",
+      "minute",
+      "reteta",
+      "rapida",
+      "gustare",
+      "pentru",
+      "zile",
+      "aglomerate",
+      "cu",
+      "carne",
+      "fara",
+      "gatire"
+    ]
+  },
+  {
+    "slug": "clatite-cu-mere",
+    "title": "Clatite cu mere",
+    "name": "Clatite cu mere",
+    "category": "Mic dejun",
+    "description": "Marul se spala, se curata de coaja, se taie in sferturi, se indeparteaza cotorul, iar pulpa fructului se da pe razatoare fina.",
+    "ingredients": [
+      "Mar (1 buc.)",
+      "Faina (180g)",
+      "Praf de copt (1 ½ lingurite)",
+      "Bicarbonat de sodiu (½ lingurita)",
+      "Scortisoara (1 lingurita)"
+    ],
+    "ingredientsCount": 12,
+    "tags": {
+      "taste": [
+        "Dulce",
+        "Aromat"
+      ],
+      "complexity": [
+        "Complexitate medie",
+        "Necesită atenție"
+      ],
+      "time": [
+        "Sub 30 minute"
+      ],
+      "context": [
+        "Mic dejun",
+        "Pentru weekend"
+      ],
+      "diet": [
+        "Fără carne",
+        "Vegetarian"
+      ],
+      "equipment": [
+        "La tigaie"
+      ],
+      "technique": [
+        "La tigaie"
+      ]
+    },
+    "equipment": [
+      "La tigaie"
+    ],
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "totalTimeMinutes": null,
+    "servings": null,
+    "image": null,
+    "keywords": [
+      "clatite",
+      "cu",
+      "mere",
+      "mic",
+      "dejun",
+      "mar",
+      "1",
+      "buc",
+      "faina",
+      "180g",
+      "praf",
+      "de",
+      "copt",
+      "lingurite",
+      "bicarbonat",
+      "sodiu",
+      "lingurita",
+      "scortisoara",
+      "lapte",
+      "240ml",
+      "sirop",
+      "artar",
+      "4",
+      "linguri",
+      "sare",
+      "nutella",
+      "fructe",
+      "dupa",
+      "gust",
+      "dulce",
+      "aromat",
+      "complexitate",
+      "medie",
+      "necesita",
+      "atentie",
+      "sub",
+      "30",
+      "minute",
+      "pentru",
+      "weekend",
+      "fara",
+      "carne",
+      "vegetarian",
+      "la",
+      "tigaie"
+    ]
+  },
+  {
+    "slug": "gris-cu-lapte-si-cocos",
+    "title": "Gris cu lapte, cocos si afine",
+    "name": "Gris cu lapte, cocos si afine",
+    "category": "Mic dejun",
+    "description": "Intr-o oala medie se incalzeste laptele la foc mic-mediu. Se adauga treptat grisul si zaharul si se amesteca in mod constant. Se fierbe pe foc mic-mediu timp de ~5 minute.",
+    "ingredients": [
+      "Lapte (400ml)",
+      "Gris (3 linguri)",
+      "Zahar (2 linguri)",
+      "Sirop de artar*",
+      "Cocos*"
+    ],
+    "ingredientsCount": 7,
+    "tags": {
+      "taste": [
+        "Dulce",
+        "Cremos",
+        "Fin"
+      ],
+      "complexity": [
+        "Începător",
+        "Ușor",
+        "Risc mic de greșeală"
+      ],
+      "time": [
+        "Sub 15 minute",
+        "Rețetă rapidă"
+      ],
+      "context": [
+        "Mic dejun",
+        "Pentru zile aglomerate",
+        "Comfort food"
+      ],
+      "diet": [
+        "Fără carne",
+        "Vegetarian"
+      ],
+      "equipment": [
+        "La oală"
+      ],
+      "technique": [
+        "Fierbere"
+      ]
+    },
+    "equipment": [
+      "La oală"
+    ],
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "totalTimeMinutes": null,
+    "servings": null,
+    "image": null,
+    "keywords": [
+      "gris",
+      "cu",
+      "lapte",
+      "cocos",
+      "si",
+      "afine",
+      "mic",
+      "dejun",
+      "400ml",
+      "3",
+      "linguri",
+      "zahar",
+      "2",
+      "sirop",
+      "de",
+      "artar",
+      "dupa",
+      "gust",
+      "dulce",
+      "cremos",
+      "fin",
+      "incepator",
+      "usor",
+      "risc",
+      "greseala",
+      "sub",
+      "15",
+      "minute",
+      "reteta",
+      "rapida",
+      "pentru",
+      "zile",
+      "aglomerate",
+      "comfort",
+      "food",
+      "fara",
+      "carne",
+      "vegetarian",
+      "la",
+      "oala",
+      "fierbere"
+    ]
+  },
+  {
+    "slug": "omleta-cu-spanac",
+    "title": "Omleta cu spanac",
+    "name": "Omleta cu spanac",
+    "category": "Mic dejun",
+    "description": "Se incalzeste o tigaie mica pe foc mic-mediu.",
+    "ingredients": [
+      "Ou (4 buc.)",
+      "Sare*",
+      "Piper*",
+      "Spanac*",
+      "Branza*"
+    ],
+    "ingredientsCount": 9,
+    "tags": {
+      "taste": [
+        "Sărat",
+        "Ușor",
+        "Fresh"
+      ],
+      "complexity": [
+        "Ușor",
+        "Risc mic de greșeală"
+      ],
+      "time": [
+        "Sub 15 minute",
+        "Rețetă rapidă"
+      ],
+      "context": [
+        "Mic dejun",
+        "Pentru zile aglomerate"
+      ],
+      "diet": [
+        "Fără carne",
+        "Vegetarian"
+      ],
+      "equipment": [
+        "La tigaie"
+      ],
+      "technique": [
+        "La tigaie",
+        "Prăjire"
+      ]
+    },
+    "equipment": [
+      "La tigaie"
+    ],
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "totalTimeMinutes": null,
+    "servings": null,
+    "image": null,
+    "keywords": [
+      "omleta",
+      "cu",
+      "spanac",
+      "mic",
+      "dejun",
+      "ou",
+      "4",
+      "buc",
+      "sare",
+      "piper",
+      "branza",
+      "masline",
+      "rosii",
+      "cheri",
+      "ardei",
+      "dupa",
+      "gust",
+      "sarat",
+      "usor",
+      "fresh",
+      "risc",
+      "de",
+      "greseala",
+      "sub",
+      "15",
+      "minute",
+      "reteta",
+      "rapida",
+      "pentru",
+      "zile",
+      "aglomerate",
+      "fara",
+      "carne",
+      "vegetarian",
+      "la",
+      "tigaie",
+      "prajire"
+    ]
+  },
+  {
+    "slug": "ou-posat-cu-avocado",
+    "title": "Ou posat cu avocado si somon",
+    "name": "Ou posat cu avocado si somon",
+    "category": "Mic dejun",
+    "description": "Intr-o cratita mica se pune apa la fiert. Cand apa incepe sa fiarba se scade focul la nivel mic.",
+    "ingredients": [
+      "Paine (2 felii)",
+      "Ou (2 buc)",
+      "Avocado (1 buc.)",
+      "Ceapa verde (1 buc.)",
+      "Castravete Fabio (½ buc.)"
+    ],
+    "ingredientsCount": 13,
+    "tags": {
+      "taste": [
+        "Fresh",
+        "Cremos",
+        "Sățios"
+      ],
+      "complexity": [
+        "Complexitate medie",
+        "Necesită atenție"
+      ],
+      "time": [
+        "Sub 30 minute"
+      ],
+      "context": [
+        "Mic dejun",
+        "Pentru weekend"
+      ],
+      "diet": [
+        "Cu carne"
+      ],
+      "equipment": [
+        "La oală"
+      ],
+      "technique": [
+        "Fierbere"
+      ]
+    },
+    "equipment": [
+      "La oală"
+    ],
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "totalTimeMinutes": null,
+    "servings": null,
+    "image": null,
+    "keywords": [
+      "ou",
+      "posat",
+      "cu",
+      "avocado",
+      "si",
+      "somon",
+      "mic",
+      "dejun",
+      "paine",
+      "2",
+      "felii",
+      "buc",
+      "1",
+      "ceapa",
+      "verde",
+      "castravete",
+      "fabio",
+      "marar",
+      "lingurite",
+      "ulei",
+      "frunze",
+      "patrunjel",
+      "unt",
+      "tartinabil",
+      "lamaie",
+      "sare",
+      "piper",
+      "dupa",
+      "gust",
+      "fresh",
+      "cremos",
+      "satios",
+      "complexitate",
+      "medie",
+      "necesita",
+      "atentie",
+      "sub",
+      "30",
+      "minute",
+      "pentru",
+      "weekend",
+      "carne",
+      "la",
+      "oala",
+      "fierbere"
+    ]
+  },
+  {
+    "slug": "ovaz-cu-lapte",
+    "title": "Ovaz cu lapte",
+    "name": "Ovaz cu lapte",
+    "category": "Mic dejun",
+    "description": "Intr-o oala medie se adauga laptele si se incalzeste la foc mediu.",
+    "ingredients": [
+      "Ovaz (200 g)",
+      "Lapte (300ml)",
+      "Zahar (2 linguri)",
+      "Fructe/Gem/Sirop de artar"
+    ],
+    "ingredientsCount": 4,
+    "tags": {
+      "taste": [
+        "Dulce",
+        "Cremos",
+        "Fin"
+      ],
+      "complexity": [
+        "Începător",
+        "Ușor",
+        "Risc mic de greșeală"
+      ],
+      "time": [
+        "Sub 15 minute",
+        "Rețetă rapidă"
+      ],
+      "context": [
+        "Mic dejun",
+        "Pentru zile aglomerate",
+        "Comfort food"
+      ],
+      "diet": [
+        "Fără carne",
+        "Vegetarian"
+      ],
+      "equipment": [
+        "La oală"
+      ],
+      "technique": [
+        "Fierbere"
+      ]
+    },
+    "equipment": [
+      "La oală"
+    ],
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "totalTimeMinutes": null,
+    "servings": null,
+    "image": null,
+    "keywords": [
+      "ovaz",
+      "cu",
+      "lapte",
+      "mic",
+      "dejun",
+      "200",
+      "g",
+      "300ml",
+      "zahar",
+      "2",
+      "linguri",
+      "fructe-gem-sirop",
+      "de",
+      "artar",
+      "dulce",
+      "cremos",
+      "fin",
+      "incepator",
+      "usor",
+      "risc",
+      "greseala",
+      "sub",
+      "15",
+      "minute",
+      "reteta",
+      "rapida",
+      "pentru",
+      "zile",
+      "aglomerate",
+      "comfort",
+      "food",
+      "fara",
+      "carne",
+      "vegetarian",
+      "la",
+      "oala",
+      "fierbere"
+    ]
+  },
+  {
+    "slug": "ovaz-peste-noapte",
+    "title": "Ovaz peste noapte",
+    "name": "Ovaz peste noapte",
+    "category": "Mic dejun",
+    "description": "Intr-un borcan mediu (500g) se adauga laptele, iaurtul si mierea si se amesteca bine.",
+    "ingredients": [
+      "Ovaz (200 g)",
+      "Lapte (100g)",
+      "Iaurt (100g)",
+      "Seminte Chia (2 lingurite)",
+      "Miere (2 linguri)"
+    ],
+    "ingredientsCount": 6,
+    "tags": {
+      "taste": [
+        "Dulce",
+        "Cremos",
+        "Fresh"
+      ],
+      "complexity": [
+        "Începător",
+        "Ușor",
+        "Risc mic de greșeală"
+      ],
+      "time": [
+        "Necesită timp de așteptare",
+        "Bună pentru pregătit din timp"
+      ],
+      "context": [
+        "Mic dejun",
+        "Pentru zile aglomerate"
+      ],
+      "diet": [
+        "Fără carne",
+        "Vegetarian"
+      ],
+      "technique": [
+        "Fără gătire"
+      ]
+    },
+    "equipment": [],
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "totalTimeMinutes": null,
+    "servings": null,
+    "image": null,
+    "keywords": [
+      "ovaz",
+      "peste",
+      "noapte",
+      "mic",
+      "dejun",
+      "200",
+      "g",
+      "lapte",
+      "100g",
+      "iaurt",
+      "seminte",
+      "chia",
+      "2",
+      "lingurite",
+      "miere",
+      "linguri",
+      "fructe-gem",
+      "dulce",
+      "cremos",
+      "fresh",
+      "incepator",
+      "usor",
+      "risc",
+      "de",
+      "greseala",
+      "necesita",
+      "timp",
+      "asteptare",
+      "buna",
+      "pentru",
+      "pregatit",
+      "din",
+      "zile",
+      "aglomerate",
+      "fara",
+      "carne",
+      "vegetarian",
+      "gatire"
+    ]
+  },
+  {
+    "slug": "sandwitch-cu-mozzarella",
+    "title": "Sandwitch cu mozzarella",
+    "name": "Sandwitch cu mozzarella",
+    "category": "Mic dejun",
+    "description": "Feliile de paine se prajesc pana devin usor crocante.",
+    "ingredients": [
+      "Paine (4 felii)",
+      "Rosii (1 rosie mare)",
+      "Mozzarella (1 buc. mare)",
+      "Sunca presata (200g)",
+      "Spanac*"
+    ],
+    "ingredientsCount": 10,
+    "tags": {
+      "taste": [
+        "Sărat",
+        "Fresh",
+        "Cremos"
+      ],
+      "complexity": [
+        "Începător",
+        "Ușor",
+        "Risc mic de greșeală"
+      ],
+      "time": [
+        "Sub 15 minute",
+        "Rețetă rapidă"
+      ],
+      "context": [
+        "Mic dejun",
+        "Gustare",
+        "Pentru zile aglomerate"
+      ],
+      "diet": [
+        "Cu carne"
+      ]
+    },
+    "equipment": [],
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "totalTimeMinutes": null,
+    "servings": null,
+    "image": null,
+    "keywords": [
+      "sandwitch",
+      "cu",
+      "mozzarella",
+      "mic",
+      "dejun",
+      "paine",
+      "4",
+      "felii",
+      "rosii",
+      "1",
+      "rosie",
+      "mare",
+      "buc",
+      "sunca",
+      "presata",
+      "200g",
+      "spanac",
+      "sare",
+      "piper",
+      "crema",
+      "de",
+      "branza",
+      "goacamole",
+      "dupa",
+      "gust",
+      "sarat",
+      "fresh",
+      "cremos",
+      "incepator",
+      "usor",
+      "risc",
+      "greseala",
+      "sub",
+      "15",
+      "minute",
+      "reteta",
+      "rapida",
+      "gustare",
+      "pentru",
+      "zile",
+      "aglomerate",
+      "carne"
+    ]
+  },
+  {
+    "slug": "sandwitch-cu-ton",
+    "title": "Sandwitch cu ton",
+    "name": "Sandwitch cu ton",
+    "category": "Mic dejun",
+    "description": "Feliile de paine se prajesc pana ce devin usor crocante.",
+    "ingredients": [
+      "Paine (2 felii)",
+      "Ton (200g)",
+      "Creapa (1 buc.)",
+      "Maioneza (2 linguri)",
+      "Tabasco (2 stropi)"
+    ],
+    "ingredientsCount": 12,
+    "tags": {
+      "taste": [
+        "Sărat",
+        "Acrișor",
+        "Fresh",
+        "Sățios"
+      ],
+      "complexity": [
+        "Începător",
+        "Ușor",
+        "Risc mic de greșeală"
+      ],
+      "time": [
+        "Sub 15 minute",
+        "Rețetă rapidă"
+      ],
+      "context": [
+        "Mic dejun",
+        "Gustare",
+        "Pentru zile aglomerate"
+      ],
+      "diet": [
+        "Cu carne"
+      ]
+    },
+    "equipment": [],
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "totalTimeMinutes": null,
+    "servings": null,
+    "image": null,
+    "keywords": [
+      "sandwitch",
+      "cu",
+      "ton",
+      "mic",
+      "dejun",
+      "paine",
+      "2",
+      "felii",
+      "200g",
+      "creapa",
+      "1",
+      "buc",
+      "maioneza",
+      "linguri",
+      "tabasco",
+      "stropi",
+      "salata",
+      "verde",
+      "2-3",
+      "frunze",
+      "sare",
+      "piper",
+      "lamaie",
+      "ardei",
+      "kapia",
+      "castraveti",
+      "murati",
+      "dupa",
+      "gust",
+      "sarat",
+      "acrisor",
+      "fresh",
+      "satios",
+      "incepator",
+      "usor",
+      "risc",
+      "de",
+      "greseala",
+      "sub",
+      "15",
+      "minute",
+      "reteta",
+      "rapida",
+      "gustare",
+      "pentru",
+      "zile",
+      "aglomerate",
+      "carne"
+    ]
+  },
+  {
+    "slug": "toast-cu-ou-si-avocado",
+    "title": "Toast cu oua amestecate si avocado",
+    "name": "Toast cu oua amestecate si avocado",
+    "category": "Mic dejun",
+    "description": "Se incalzeste o tigaie mica pe foc mic-mediu.",
+    "ingredients": [
+      "Paine (2 felii)",
+      "Ou (4 buc.)",
+      "Avocado (½ buc.)",
+      "Seminte floarea soarelui*",
+      "Seminte in*"
+    ],
+    "ingredientsCount": 11,
+    "tags": {
+      "taste": [
+        "Cremos",
+        "Sățios",
+        "Fresh"
+      ],
+      "complexity": [
+        "Ușor"
+      ],
+      "time": [
+        "Sub 15 minute",
+        "Rețetă rapidă"
+      ],
+      "context": [
+        "Mic dejun",
+        "Pentru zile aglomerate"
+      ],
+      "diet": [
+        "Fără carne",
+        "Vegetarian"
+      ],
+      "equipment": [
+        "La tigaie"
+      ],
+      "technique": [
+        "La tigaie"
+      ]
+    },
+    "equipment": [
+      "La tigaie"
+    ],
+    "prepTimeMinutes": null,
+    "cookTimeMinutes": null,
+    "totalTimeMinutes": null,
+    "servings": null,
+    "image": null,
+    "keywords": [
+      "toast",
+      "cu",
+      "oua",
+      "amestecate",
+      "si",
+      "avocado",
+      "mic",
+      "dejun",
+      "paine",
+      "2",
+      "felii",
+      "ou",
+      "4",
+      "buc",
+      "seminte",
+      "floarea",
+      "soarelui",
+      "in",
+      "sare",
+      "piper",
+      "masline",
+      "rosii",
+      "cheri",
+      "ardei",
+      "dupa",
+      "gust",
+      "cremos",
+      "satios",
+      "fresh",
+      "usor",
+      "sub",
+      "15",
+      "minute",
+      "reteta",
+      "rapida",
+      "pentru",
+      "zile",
+      "aglomerate",
+      "fara",
+      "carne",
+      "vegetarian",
+      "la",
+      "tigaie"
+    ]
+  }
+]

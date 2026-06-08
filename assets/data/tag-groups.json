@@ -1,0 +1,97 @@
+{
+  "taste": {
+    "label": "Gust",
+    "options": [
+      "Dulce",
+      "Sărat",
+      "Picant",
+      "Acrișor",
+      "Cremos",
+      "Crocant",
+      "Aromat",
+      "Fresh",
+      "Ușor",
+      "Sățios",
+      "Condimentat",
+      "Fin",
+      "Rustic"
+    ]
+  },
+  "complexity": {
+    "label": "Complexitate",
+    "options": [
+      "Începător",
+      "Ușor",
+      "Complexitate medie",
+      "Complexitate ridicată",
+      "Necesită atenție",
+      "Risc mic de greșeală",
+      "Risc mediu de greșeală",
+      "Risc ridicat de greșeală"
+    ]
+  },
+  "time": {
+    "label": "Timp",
+    "options": [
+      "Sub 15 minute",
+      "Sub 30 minute",
+      "Sub 60 minute",
+      "Rețetă rapidă",
+      "Necesită timp de așteptare",
+      "Bună pentru pregătit din timp"
+    ]
+  },
+  "context": {
+    "label": "Context",
+    "options": [
+      "Mic dejun",
+      "Prânz",
+      "Cină",
+      "Gustare",
+      "Pentru familie",
+      "Pentru musafiri",
+      "Pentru weekend",
+      "Pentru zile aglomerate",
+      "Comfort food"
+    ]
+  },
+  "diet": {
+    "label": "Dietă",
+    "options": [
+      "Cu carne",
+      "Fără carne",
+      "Vegetarian",
+      "Fără lactate",
+      "Fără ou",
+      "Fără gluten",
+      "Ușor de adaptat"
+    ]
+  },
+  "equipment": {
+    "label": "Echipament",
+    "options": [
+      "Fără cuptor",
+      "Necesită cuptor",
+      "La tigaie",
+      "La oală",
+      "Necesită blender",
+      "Necesită mixer",
+      "Necesită tavă",
+      "Necesită termometru"
+    ]
+  },
+  "technique": {
+    "label": "Tehnică",
+    "options": [
+      "Fierbere",
+      "Coacere",
+      "Prăjire",
+      "Sotare",
+      "Marinare",
+      "Frământare",
+      "La tigaie",
+      "La cuptor",
+      "Fără gătire"
+    ]
+  }
+}

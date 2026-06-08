@@ -1,0 +1,9093 @@
+[
+  {
+    "slug": "ciorba-de-fasole",
+    "title": "Ciorba De Fasole Cu Afumatura",
+    "name": "Ciorba De Fasole Cu Afumatura",
+    "category": "Fel principal",
+    "description": "Se pune fasolea la umflat cu o zi inainte dupa care se arunca apa.",
+    "ingredients": [
+      "Fasole - 300g",
+      "Apa",
+      "Ceapa - 3 buc.",
+      "Morcovi - 1 buc.",
+      "Ulei",
+      "Ardei rosu gras - 1/4 buc.",
+      "Aredi galben gras - 1/4 buc.",
+      "Sare",
+      "Leustean",
+      "Pasta de tomate - 2 linguri",
+      "Afumatura"
+    ],
+    "requiredIngredients": [
+      "Fasole - 300g",
+      "Apa",
+      "Ceapa - 3 buc.",
+      "Morcovi - 1 buc.",
+      "Ulei",
+      "Ardei rosu gras - 1/4 buc.",
+      "Aredi galben gras - 1/4 buc.",
+      "Sare",
+      "Leustean",
+      "Pasta de tomate - 2 linguri",
+      "Afumatura"
+    ],
+    "optionalIngredients": [],
+    "requiredIngredientTokens": [
+      {
+        "label": "Fasole - 300g",
+        "tokens": [
+          "fasole",
+          "300g"
+        ]
+      },
+      {
+        "label": "Apa",
+        "tokens": [
+          "apa"
+        ]
+      },
+      {
+        "label": "Ceapa - 3 buc.",
+        "tokens": [
+          "ceapa",
+          "cepe"
+        ]
+      },
+      {
+        "label": "Morcovi - 1 buc.",
+        "tokens": [
+          "morcovi"
+        ]
+      },
+      {
+        "label": "Ulei",
+        "tokens": [
+          "ulei"
+        ]
+      },
+      {
+        "label": "Ardei rosu gras - 1/4 buc.",
+        "tokens": [
+          "ardei",
+          "rosu",
+          "gras"
+        ]
+      },
+      {
+        "label": "Aredi galben gras - 1/4 buc.",
+        "tokens": [
+          "aredi",
+          "galben",
+          "gras"
+        ]
+      },
+      {
+        "label": "Sare",
+        "tokens": [
+          "sare"
+        ]
+      },
+      {
+        "label": "Leustean",
+        "tokens": [
+          "leustean"
+        ]
+      },
+      {
+        "label": "Pasta de tomate - 2 linguri",
+        "tokens": [
+          "pasta",
+          "tomate"
+        ]
+      },
+      {
+        "label": "Afumatura",
+        "tokens": [
+          "afumatura"
+        ]
+      }
+    ],
+    "optionalIngredientTokens": [],
+    "ingredientTokens": [
+      "fasole",
+      "300g",
+      "apa",
+      "ceapa",
+      "cepe",
+      "morcovi",
+      "ulei",
+      "ardei",
+      "rosu",
+      "gras",
+      "aredi",
+      "galben",
+      "sare",
+      "leustean",
+      "pasta",
+      "tomate",
+      "afumatura",
+      "ciorba",
+      "de",
+      "cu",
+      "fel",
+      "principal",
+      "3",
+      "buc",
+      "1",
+      "1-4",
+      "2",
+      "linguri",
+      "sarat",
+      "satios",
+      "aromat",
+      "rustic",
+      "complexitate",
+      "medie",
+      "necesita",
+      "atentie",
+      "timp",
+      "asteptare",
+      "buna",
+      "pentru",
+      "pregatit",
+      "din",
+      "pranz",
+      "cina",
+      "familie",
+      "comfort",
+      "food",
+      "carne",
+      "la",
+      "oala",
+      "fierbere",
+      "sotare"
+    ],
+    "tags": {
+      "taste": [
+        "Sărat",
+        "Sățios",
+        "Aromat",
+        "Rustic"
+      ],
+      "complexity": [
+        "Complexitate medie",
+        "Necesită atenție"
+      ],
+      "time": [
+        "Necesită timp de așteptare",
+        "Bună pentru pregătit din timp"
+      ],
+      "context": [
+        "Prânz",
+        "Cină",
+        "Pentru familie",
+        "Comfort food"
+      ],
+      "diet": [
+        "Cu carne"
+      ],
+      "equipment": [
+        "La oală"
+      ],
+      "technique": [
+        "Fierbere",
+        "Sotare"
+      ]
+    },
+    "equipment": [
+      "La oală"
+    ],
+    "totalTimeMinutes": null,
+    "keywords": [
+      "ciorba",
+      "de",
+      "fasole",
+      "cu",
+      "afumatura",
+      "fel",
+      "principal",
+      "300g",
+      "apa",
+      "ceapa",
+      "3",
+      "buc",
+      "morcovi",
+      "1",
+      "ulei",
+      "ardei",
+      "rosu",
+      "gras",
+      "1-4",
+      "aredi",
+      "galben",
+      "sare",
+      "leustean",
+      "pasta",
+      "tomate",
+      "2",
+      "linguri",
+      "sarat",
+      "satios",
+      "aromat",
+      "rustic",
+      "complexitate",
+      "medie",
+      "necesita",
+      "atentie",
+      "timp",
+      "asteptare",
+      "buna",
+      "pentru",
+      "pregatit",
+      "din",
+      "pranz",
+      "cina",
+      "familie",
+      "comfort",
+      "food",
+      "carne",
+      "la",
+      "oala",
+      "fierbere",
+      "sotare"
+    ]
+  },
+  {
+    "slug": "supa-de-pui-cu-galuste",
+    "title": "Supa de pui cu galuste",
+    "name": "Supa de pui cu galuste",
+    "category": "Fel principal",
+    "description": "Se curata morcovii, patrunjelul, pastarnacul, telina si ceapa.",
+    "ingredients": [
+      "Carne de pui",
+      "Morcovi - 3 buc.",
+      "Patrunjel - 1 buc.",
+      "Pastarnac - 1 buc.",
+      "Telina - 1/4 buc.",
+      "Ceapa - 1 buc.",
+      "Vegeta/Sare",
+      "Piper",
+      "Patrunjel frunze - 1/2 legatura",
+      "Oua - 1 buc.",
+      "Gris",
+      "Cub Magi (optional)"
+    ],
+    "requiredIngredients": [
+      "Carne de pui",
+      "Morcovi - 3 buc.",
+      "Patrunjel - 1 buc.",
+      "Pastarnac - 1 buc.",
+      "Telina - 1/4 buc.",
+      "Ceapa - 1 buc.",
+      "Vegeta/Sare",
+      "Piper",
+      "Patrunjel frunze - 1/2 legatura",
+      "Oua - 1 buc.",
+      "Gris"
+    ],
+    "optionalIngredients": [
+      "Cub Magi (optional)"
+    ],
+    "requiredIngredientTokens": [
+      {
+        "label": "Carne de pui",
+        "tokens": [
+          "carne",
+          "pui"
+        ]
+      },
+      {
+        "label": "Morcovi - 3 buc.",
+        "tokens": [
+          "morcovi"
+        ]
+      },
+      {
+        "label": "Patrunjel - 1 buc.",
+        "tokens": [
+          "patrunjel"
+        ]
+      },
+      {
+        "label": "Pastarnac - 1 buc.",
+        "tokens": [
+          "pastarnac"
+        ]
+      },
+      {
+        "label": "Telina - 1/4 buc.",
+        "tokens": [
+          "telina"
+        ]
+      },
+      {
+        "label": "Ceapa - 1 buc.",
+        "tokens": [
+          "ceapa",
+          "cepe"
+        ]
+      },
+      {
+        "label": "Vegeta/Sare",
+        "tokens": [
+          "vegeta",
+          "sare"
+        ]
+      },
+      {
+        "label": "Piper",
+        "tokens": [
+          "piper"
+        ]
+      },
+      {
+        "label": "Patrunjel frunze - 1/2 legatura",
+        "tokens": [
+          "patrunjel",
+          "frunze",
+          "legatura"
+        ]
+      },
+      {
+        "label": "Oua - 1 buc.",
+        "tokens": [
+          "oua",
+          "ou"
+        ]
+      },
+      {
+        "label": "Gris",
+        "tokens": [
+          "gris"
+        ]
+      }
+    ],
+    "optionalIngredientTokens": [
+      {
+        "label": "Cub Magi (optional)",
+        "tokens": [
+          "cub",
+          "magi"
+        ]
+      }
+    ],
+    "ingredientTokens": [
+      "carne",
+      "pui",
+      "morcovi",
+      "patrunjel",
+      "pastarnac",
+      "telina",
+      "ceapa",
+      "cepe",
+      "vegeta",
+      "sare",
+      "piper",
+      "frunze",
+      "legatura",
+      "oua",
+      "ou",
+      "gris",
+      "cub",
+      "magi",
+      "supa",
+      "de",
+      "cu",
+      "galuste",
+      "fel",
+      "principal",
+      "3",
+      "buc",
+      "1",
+      "1-4",
+      "vegeta-sare",
+      "optional",
+      "1-2",
+      "sarat",
+      "aromat",
+      "usor",
+      "complexitate",
+      "medie",
+      "necesita",
+      "atentie",
+      "pranz",
+      "cina",
+      "pentru",
+      "familie",
+      "comfort",
+      "food",
+      "la",
+      "oala",
+      "fierbere"
+    ],
+    "tags": {
+      "taste": [
+        "Sărat",
+        "Aromat",
+        "Ușor"
+      ],
+      "complexity": [
+        "Complexitate medie",
+        "Necesită atenție"
+      ],
+      "context": [
+        "Prânz",
+        "Cină",
+        "Pentru familie",
+        "Comfort food"
+      ],
+      "diet": [
+        "Cu carne"
+      ],
+      "equipment": [
+        "La oală"
+      ],
+      "technique": [
+        "Fierbere"
+      ]
+    },
+    "equipment": [
+      "La oală"
+    ],
+    "totalTimeMinutes": null,
+    "keywords": [
+      "supa",
+      "de",
+      "pui",
+      "cu",
+      "galuste",
+      "fel",
+      "principal",
+      "carne",
+      "morcovi",
+      "3",
+      "buc",
+      "patrunjel",
+      "1",
+      "pastarnac",
+      "telina",
+      "1-4",
+      "ceapa",
+      "vegeta-sare",
+      "piper",
+      "cub",
+      "magi",
+      "optional",
+      "frunze",
+      "1-2",
+      "legatura",
+      "oua",
+      "gris",
+      "sarat",
+      "aromat",
+      "usor",
+      "complexitate",
+      "medie",
+      "necesita",
+      "atentie",
+      "pranz",
+      "cina",
+      "pentru",
+      "familie",
+      "comfort",
+      "food",
+      "la",
+      "oala",
+      "fierbere"
+    ]
+  },
+  {
+    "slug": "carne-cu-varza-murata",
+    "title": "Carne prajita cu varza murata",
+    "name": "Carne prajita cu varza murata",
+    "category": "Fel secundar",
+    "description": "Se taie carnea de porc cuburi (~4 cm).",
+    "ingredients": [
+      "Carne porc (1 kg)",
+      "Varza murata (1 buc)",
+      "Apa (200 ml)",
+      "Ulei",
+      "Sare",
+      "*dupa gust"
+    ],
+    "requiredIngredients": [
+      "Carne porc (1 kg)",
+      "Varza murata (1 buc)",
+      "Apa (200 ml)",
+      "Ulei",
+      "Sare",
+      "*dupa gust"
+    ],
+    "optionalIngredients": [],
+    "requiredIngredientTokens": [
+      {
+        "label": "Carne porc (1 kg)",
+        "tokens": [
+          "carne",
+          "porc"
+        ]
+      },
+      {
+        "label": "Varza murata (1 buc)",
+        "tokens": [
+          "varza",
+          "murata"
+        ]
+      },
+      {
+        "label": "Apa (200 ml)",
+        "tokens": [
+          "apa"
+        ]
+      },
+      {
+        "label": "Ulei",
+        "tokens": [
+          "ulei"
+        ]
+      },
+      {
+        "label": "Sare",
+        "tokens": [
+          "sare"
+        ]
+      }
+    ],
+    "optionalIngredientTokens": [],
+    "ingredientTokens": [
+      "carne",
+      "porc",
+      "varza",
+      "murata",
+      "apa",
+      "ulei",
+      "sare",
+      "prajita",
+      "cu",
+      "fel",
+      "secundar",
+      "1",
+      "kg",
+      "buc",
+      "200",
+      "ml",
+      "dupa",
+      "gust",
+      "sarat",
+      "acrisor",
+      "satios",
+      "rustic",
+      "usor",
+      "risc",
+      "mic",
+      "de",
+      "greseala",
+      "pranz",
+      "cina",
+      "comfort",
+      "food",
+      "fara",
+      "lactate",
+      "ou",
+      "la",
+      "tigaie",
+      "prajire"
+    ],
+    "tags": {
+      "taste": [
+        "Sărat",
+        "Acrișor",
+        "Sățios",
+        "Rustic"
+      ],
+      "complexity": [
+        "Ușor",
+        "Risc mic de greșeală"
+      ],
+      "context": [
+        "Prânz",
+        "Cină",
+        "Comfort food"
+      ],
+      "diet": [
+        "Cu carne",
+        "Fără lactate",
+        "Fără ou"
+      ],
+      "equipment": [
+        "La tigaie"
+      ],
+      "technique": [
+        "Prăjire",
+        "La tigaie"
+      ]
+    },
+    "equipment": [
+      "La tigaie"
+    ],
+    "totalTimeMinutes": null,
+    "keywords": [
+      "carne",
+      "prajita",
+      "cu",
+      "varza",
+      "murata",
+      "fel",
+      "secundar",
+      "porc",
+      "1",
+      "kg",
+      "buc",
+      "apa",
+      "200",
+      "ml",
+      "ulei",
+      "sare",
+      "dupa",
+      "gust",
+      "sarat",
+      "acrisor",
+      "satios",
+      "rustic",
+      "usor",
+      "risc",
+      "mic",
+      "de",
+      "greseala",
+      "pranz",
+      "cina",
+      "comfort",
+      "food",
+      "fara",
+      "lactate",
+      "ou",
+      "la",
+      "tigaie",
+      "prajire"
+    ]
+  },
+  {
+    "slug": "cartofi-prajiti-cu-sos",
+    "title": "Cartofi prajiti cu sos de iaurt si menta",
+    "name": "Cartofi prajiti cu sos de iaurt si menta",
+    "category": "Fel secundar",
+    "description": "Se pune pe foc o oala cu apa si sare. Cartofii se curata si se taie sub forma de pai gros iar cand apa fierbe, se pun la fiert 2-3 minute.",
+    "ingredients": [
+      "Cartofi - 6/7 buc.",
+      "Oua - 2 buc.",
+      "Ulei",
+      "Iaurt - 400 g",
+      "Smantana - 2/3 lingurite",
+      "Usturoi - 2 catei",
+      "Menta - 10/15 frunze",
+      "Lamaie - 1 buc.",
+      "Ulei masline - 2 lingurite",
+      "Marar - 1 lingurita",
+      "Sare",
+      "Piper",
+      "Sare/Condimente de cartofi (optional)"
+    ],
+    "requiredIngredients": [
+      "Cartofi - 6/7 buc.",
+      "Oua - 2 buc.",
+      "Ulei",
+      "Iaurt - 400 g",
+      "Smantana - 2/3 lingurite",
+      "Usturoi - 2 catei",
+      "Menta - 10/15 frunze",
+      "Lamaie - 1 buc.",
+      "Ulei masline - 2 lingurite",
+      "Marar - 1 lingurita",
+      "Sare",
+      "Piper"
+    ],
+    "optionalIngredients": [
+      "Sare/Condimente de cartofi (optional)"
+    ],
+    "requiredIngredientTokens": [
+      {
+        "label": "Cartofi - 6/7 buc.",
+        "tokens": [
+          "cartofi",
+          "cartof"
+        ]
+      },
+      {
+        "label": "Oua - 2 buc.",
+        "tokens": [
+          "oua",
+          "ou"
+        ]
+      },
+      {
+        "label": "Ulei",
+        "tokens": [
+          "ulei"
+        ]
+      },
+      {
+        "label": "Iaurt - 400 g",
+        "tokens": [
+          "iaurt"
+        ]
+      },
+      {
+        "label": "Smantana - 2/3 lingurite",
+        "tokens": [
+          "smantana"
+        ]
+      },
+      {
+        "label": "Usturoi - 2 catei",
+        "tokens": [
+          "usturoi",
+          "catei"
+        ]
+      },
+      {
+        "label": "Menta - 10/15 frunze",
+        "tokens": [
+          "menta",
+          "frunze"
+        ]
+      },
+      {
+        "label": "Lamaie - 1 buc.",
+        "tokens": [
+          "lamaie",
+          "lamai"
+        ]
+      },
+      {
+        "label": "Ulei masline - 2 lingurite",
+        "tokens": [
+          "ulei",
+          "masline"
+        ]
+      },
+      {
+        "label": "Marar - 1 lingurita",
+        "tokens": [
+          "marar"
+        ]
+      },
+      {
+        "label": "Sare",
+        "tokens": [
+          "sare"
+        ]
+      },
+      {
+        "label": "Piper",
+        "tokens": [
+          "piper"
+        ]
+      }
+    ],
+    "optionalIngredientTokens": [
+      {
+        "label": "Sare/Condimente de cartofi (optional)",
+        "tokens": [
+          "sare",
+          "condimente",
+          "cartofi",
+          "cartof"
+        ]
+      }
+    ],
+    "ingredientTokens": [
+      "cartofi",
+      "cartof",
+      "oua",
+      "ou",
+      "ulei",
+      "iaurt",
+      "smantana",
+      "usturoi",
+      "catei",
+      "menta",
+      "frunze",
+      "lamaie",
+      "lamai",
+      "masline",
+      "marar",
+      "sare",
+      "piper",
+      "condimente",
+      "prajiti",
+      "cu",
+      "sos",
+      "de",
+      "si",
+      "fel",
+      "secundar",
+      "6-7",
+      "buc",
+      "sare-condimente",
+      "optional",
+      "2",
+      "400",
+      "g",
+      "2-3",
+      "lingurite",
+      "10-15",
+      "1",
+      "lingurita",
+      "crocant",
+      "cremos",
+      "acrisor",
+      "fresh",
+      "satios",
+      "complexitate",
+      "medie",
+      "necesita",
+      "atentie",
+      "gustare",
+      "pranz",
+      "pentru",
+      "weekend",
+      "fara",
+      "carne",
+      "vegetarian",
+      "la",
+      "tigaie",
+      "oala",
+      "fierbere",
+      "prajire"
+    ],
+    "tags": {
+      "taste": [
+        "Crocant",
+        "Cremos",
+        "Acrișor",
+        "Fresh",
+        "Sățios"
+      ],
+      "complexity": [
+        "Complexitate medie",
+        "Necesită atenție"
+      ],
+      "context": [
+        "Gustare",
+        "Prânz",
+        "Pentru weekend"
+      ],
+      "diet": [
+        "Fără carne",
+        "Vegetarian"
+      ],
+      "equipment": [
+        "La tigaie",
+        "La oală"
+      ],
+      "technique": [
+        "Fierbere",
+        "Prăjire",
+        "La tigaie"
+      ]
+    },
+    "equipment": [
+      "La tigaie",
+      "La oală"
+    ],
+    "totalTimeMinutes": null,
+    "keywords": [
+      "cartofi",
+      "prajiti",
+      "cu",
+      "sos",
+      "de",
+      "iaurt",
+      "si",
+      "menta",
+      "fel",
+      "secundar",
+      "6-7",
+      "buc",
+      "sare-condimente",
+      "optional",
+      "oua",
+      "2",
+      "ulei",
+      "400",
+      "g",
+      "smantana",
+      "2-3",
+      "lingurite",
+      "usturoi",
+      "catei",
+      "10-15",
+      "frunze",
+      "lamaie",
+      "1",
+      "masline",
+      "marar",
+      "lingurita",
+      "sare",
+      "piper",
+      "crocant",
+      "cremos",
+      "acrisor",
+      "fresh",
+      "satios",
+      "complexitate",
+      "medie",
+      "necesita",
+      "atentie",
+      "gustare",
+      "pranz",
+      "pentru",
+      "weekend",
+      "fara",
+      "carne",
+      "vegetarian",
+      "la",
+      "tigaie",
+      "oala",
+      "fierbere",
+      "prajire"
+    ]
+  },
+  {
+    "slug": "chiftele-de-pui",
+    "title": "Chiftele de pui",
+    "name": "Chiftele de pui",
+    "category": "Fel secundar",
+    "description": "Se fierb pulpele pentru ~30 minute.",
+    "ingredients": [
+      "Pulpa pui intregi (2 buc.)",
+      "Oua (2 buc.)",
+      "Faina (3 linguri)",
+      "Apa",
+      "Ulei",
+      "Vegeta*",
+      "Piper*",
+      "*dupa gust"
+    ],
+    "requiredIngredients": [
+      "Pulpa pui intregi (2 buc.)",
+      "Oua (2 buc.)",
+      "Faina (3 linguri)",
+      "Apa",
+      "Ulei",
+      "Vegeta*",
+      "Piper*",
+      "*dupa gust"
+    ],
+    "optionalIngredients": [],
+    "requiredIngredientTokens": [
+      {
+        "label": "Pulpa pui intregi (2 buc.)",
+        "tokens": [
+          "pulpa",
+          "pui",
+          "intregi"
+        ]
+      },
+      {
+        "label": "Oua (2 buc.)",
+        "tokens": [
+          "oua",
+          "ou"
+        ]
+      },
+      {
+        "label": "Faina (3 linguri)",
+        "tokens": [
+          "faina"
+        ]
+      },
+      {
+        "label": "Apa",
+        "tokens": [
+          "apa"
+        ]
+      },
+      {
+        "label": "Ulei",
+        "tokens": [
+          "ulei"
+        ]
+      },
+      {
+        "label": "Vegeta*",
+        "tokens": [
+          "vegeta"
+        ]
+      },
+      {
+        "label": "Piper*",
+        "tokens": [
+          "piper"
+        ]
+      }
+    ],
+    "optionalIngredientTokens": [],
+    "ingredientTokens": [
+      "pulpa",
+      "pui",
+      "intregi",
+      "oua",
+      "ou",
+      "faina",
+      "apa",
+      "ulei",
+      "vegeta",
+      "piper",
+      "chiftele",
+      "de",
+      "fel",
+      "secundar",
+      "2",
+      "buc",
+      "3",
+      "linguri",
+      "dupa",
+      "gust",
+      "sarat",
+      "satios",
+      "complexitate",
+      "medie",
+      "necesita",
+      "atentie",
+      "sub",
+      "60",
+      "minute",
+      "pranz",
+      "cina",
+      "pentru",
+      "familie",
+      "cu",
+      "carne",
+      "la",
+      "oala",
+      "tigaie",
+      "fierbere",
+      "prajire"
+    ],
+    "tags": {
+      "taste": [
+        "Sărat",
+        "Sățios"
+      ],
+      "complexity": [
+        "Complexitate medie",
+        "Necesită atenție"
+      ],
+      "time": [
+        "Sub 60 minute"
+      ],
+      "context": [
+        "Prânz",
+        "Cină",
+        "Pentru familie"
+      ],
+      "diet": [
+        "Cu carne"
+      ],
+      "equipment": [
+        "La oală",
+        "La tigaie"
+      ],
+      "technique": [
+        "Fierbere",
+        "Prăjire",
+        "La tigaie"
+      ]
+    },
+    "equipment": [
+      "La oală",
+      "La tigaie"
+    ],
+    "totalTimeMinutes": null,
+    "keywords": [
+      "chiftele",
+      "de",
+      "pui",
+      "fel",
+      "secundar",
+      "pulpa",
+      "intregi",
+      "2",
+      "buc",
+      "oua",
+      "faina",
+      "3",
+      "linguri",
+      "apa",
+      "ulei",
+      "vegeta",
+      "piper",
+      "dupa",
+      "gust",
+      "sarat",
+      "satios",
+      "complexitate",
+      "medie",
+      "necesita",
+      "atentie",
+      "sub",
+      "60",
+      "minute",
+      "pranz",
+      "cina",
+      "pentru",
+      "familie",
+      "cu",
+      "carne",
+      "la",
+      "oala",
+      "tigaie",
+      "fierbere",
+      "prajire"
+    ]
+  },
+  {
+    "slug": "conopida-cu-orez-1",
+    "title": "Conopida cu orez si sos rosu",
+    "name": "Conopida cu orez si sos rosu",
+    "category": "Fel secundar",
+    "description": "Se spala si se taie bucati medii. Se condimenteaza cu sare, piper, boia si curry. Intr-o tigaie adanca se pune uleiul la incalzit.",
+    "ingredients": [
+      "Conopida - 1 buc.",
+      "Boia - 1 lingura",
+      "Curry - 1 lingura",
+      "Oua - 3 buc.",
+      "Pesmet - 300 g",
+      "Sare",
+      "Piper",
+      "Ulei",
+      "Ceapa - 1 buc. mare",
+      "Conserva rosii intregi - 1 buc.",
+      "Unt - 1 lingura",
+      "Usturoi - 2 catei",
+      "Curcuma - 1 lingurita",
+      "Sos picant - 1 lingurita",
+      "Ghimbir - 1 lingurita",
+      "Coriandru - 1 lingurita",
+      "Boia - 1 lingurita",
+      "Zahar - 1 lingurita",
+      "Iaurt - 1 lingurita",
+      "Patrunjel"
+    ],
+    "requiredIngredients": [
+      "Conopida - 1 buc.",
+      "Boia - 1 lingura",
+      "Curry - 1 lingura",
+      "Oua - 3 buc.",
+      "Pesmet - 300 g",
+      "Sare",
+      "Piper",
+      "Ulei",
+      "Ceapa - 1 buc. mare",
+      "Conserva rosii intregi - 1 buc.",
+      "Unt - 1 lingura",
+      "Usturoi - 2 catei",
+      "Curcuma - 1 lingurita",
+      "Sos picant - 1 lingurita",
+      "Ghimbir - 1 lingurita",
+      "Coriandru - 1 lingurita",
+      "Boia - 1 lingurita",
+      "Zahar - 1 lingurita",
+      "Iaurt - 1 lingurita",
+      "Patrunjel"
+    ],
+    "optionalIngredients": [],
+    "requiredIngredientTokens": [
+      {
+        "label": "Conopida - 1 buc.",
+        "tokens": [
+          "conopida"
+        ]
+      },
+      {
+        "label": "Boia - 1 lingura",
+        "tokens": [
+          "boia"
+        ]
+      },
+      {
+        "label": "Curry - 1 lingura",
+        "tokens": [
+          "curry"
+        ]
+      },
+      {
+        "label": "Oua - 3 buc.",
+        "tokens": [
+          "oua",
+          "ou"
+        ]
+      },
+      {
+        "label": "Pesmet - 300 g",
+        "tokens": [
+          "pesmet"
+        ]
+      },
+      {
+        "label": "Sare",
+        "tokens": [
+          "sare"
+        ]
+      },
+      {
+        "label": "Piper",
+        "tokens": [
+          "piper"
+        ]
+      },
+      {
+        "label": "Ulei",
+        "tokens": [
+          "ulei"
+        ]
+      },
+      {
+        "label": "Ceapa - 1 buc. mare",
+        "tokens": [
+          "ceapa",
+          "cepe",
+          "mare"
+        ]
+      },
+      {
+        "label": "Conserva rosii intregi - 1 buc.",
+        "tokens": [
+          "conserva",
+          "rosii",
+          "rosie",
+          "intregi"
+        ]
+      },
+      {
+        "label": "Unt - 1 lingura",
+        "tokens": [
+          "unt"
+        ]
+      },
+      {
+        "label": "Usturoi - 2 catei",
+        "tokens": [
+          "usturoi",
+          "catei"
+        ]
+      },
+      {
+        "label": "Curcuma - 1 lingurita",
+        "tokens": [
+          "curcuma"
+        ]
+      },
+      {
+        "label": "Sos picant - 1 lingurita",
+        "tokens": [
+          "sos",
+          "picant"
+        ]
+      },
+      {
+        "label": "Ghimbir - 1 lingurita",
+        "tokens": [
+          "ghimbir"
+        ]
+      },
+      {
+        "label": "Coriandru - 1 lingurita",
+        "tokens": [
+          "coriandru"
+        ]
+      },
+      {
+        "label": "Boia - 1 lingurita",
+        "tokens": [
+          "boia"
+        ]
+      },
+      {
+        "label": "Zahar - 1 lingurita",
+        "tokens": [
+          "zahar"
+        ]
+      },
+      {
+        "label": "Iaurt - 1 lingurita",
+        "tokens": [
+          "iaurt"
+        ]
+      },
+      {
+        "label": "Patrunjel",
+        "tokens": [
+          "patrunjel"
+        ]
+      }
+    ],
+    "optionalIngredientTokens": [],
+    "ingredientTokens": [
+      "conopida",
+      "boia",
+      "curry",
+      "oua",
+      "ou",
+      "pesmet",
+      "sare",
+      "piper",
+      "ulei",
+      "ceapa",
+      "cepe",
+      "mare",
+      "conserva",
+      "rosii",
+      "rosie",
+      "intregi",
+      "unt",
+      "usturoi",
+      "catei",
+      "curcuma",
+      "sos",
+      "picant",
+      "ghimbir",
+      "coriandru",
+      "zahar",
+      "iaurt",
+      "patrunjel",
+      "cu",
+      "orez",
+      "si",
+      "rosu",
+      "fel",
+      "secundar",
+      "1",
+      "buc",
+      "lingura",
+      "3",
+      "300",
+      "g",
+      "2",
+      "lingurita",
+      "crocant",
+      "condimentat",
+      "cremos",
+      "satios",
+      "complexitate",
+      "medie",
+      "necesita",
+      "atentie",
+      "pranz",
+      "cina",
+      "pentru",
+      "weekend",
+      "fara",
+      "carne",
+      "vegetarian",
+      "la",
+      "tigaie",
+      "blender",
+      "prajire",
+      "sotare"
+    ],
+    "tags": {
+      "taste": [
+        "Crocant",
+        "Condimentat",
+        "Cremos",
+        "Sățios"
+      ],
+      "complexity": [
+        "Complexitate medie",
+        "Necesită atenție"
+      ],
+      "context": [
+        "Prânz",
+        "Cină",
+        "Pentru weekend"
+      ],
+      "diet": [
+        "Fără carne",
+        "Vegetarian"
+      ],
+      "equipment": [
+        "La tigaie",
+        "Necesită blender"
+      ],
+      "technique": [
+        "Prăjire",
+        "Sotare",
+        "La tigaie"
+      ]
+    },
+    "equipment": [
+      "La tigaie",
+      "Necesită blender"
+    ],
+    "totalTimeMinutes": null,
+    "keywords": [
+      "conopida",
+      "cu",
+      "orez",
+      "si",
+      "sos",
+      "rosu",
+      "fel",
+      "secundar",
+      "1",
+      "buc",
+      "boia",
+      "lingura",
+      "curry",
+      "oua",
+      "3",
+      "pesmet",
+      "300",
+      "g",
+      "sare",
+      "piper",
+      "ulei",
+      "ceapa",
+      "mare",
+      "conserva",
+      "rosii",
+      "intregi",
+      "unt",
+      "usturoi",
+      "2",
+      "catei",
+      "curcuma",
+      "lingurita",
+      "picant",
+      "ghimbir",
+      "coriandru",
+      "zahar",
+      "iaurt",
+      "patrunjel",
+      "crocant",
+      "condimentat",
+      "cremos",
+      "satios",
+      "complexitate",
+      "medie",
+      "necesita",
+      "atentie",
+      "pranz",
+      "cina",
+      "pentru",
+      "weekend",
+      "fara",
+      "carne",
+      "vegetarian",
+      "la",
+      "tigaie",
+      "blender",
+      "prajire",
+      "sotare"
+    ]
+  },
+  {
+    "slug": "dovlecel-pane",
+    "title": "Dovlecel pane",
+    "name": "Dovlecel pane",
+    "category": "Fel secundar",
+    "description": "Se feliaza rondele dovlecelul",
+    "ingredients": [
+      "Dovlecel (2 buc.)",
+      "Faina (300g)",
+      "Oua (2 buc.)",
+      "Ulei",
+      "Sare*",
+      "Piper*",
+      "Rosii*",
+      "Banza*",
+      "Paine pe vatra*",
+      "*dupa gust"
+    ],
+    "requiredIngredients": [
+      "Dovlecel (2 buc.)",
+      "Faina (300g)",
+      "Oua (2 buc.)",
+      "Ulei",
+      "Sare*",
+      "Piper*",
+      "Rosii*",
+      "Banza*",
+      "Paine pe vatra*",
+      "*dupa gust"
+    ],
+    "optionalIngredients": [],
+    "requiredIngredientTokens": [
+      {
+        "label": "Dovlecel (2 buc.)",
+        "tokens": [
+          "dovlecel"
+        ]
+      },
+      {
+        "label": "Faina (300g)",
+        "tokens": [
+          "faina",
+          "300g"
+        ]
+      },
+      {
+        "label": "Oua (2 buc.)",
+        "tokens": [
+          "oua",
+          "ou"
+        ]
+      },
+      {
+        "label": "Ulei",
+        "tokens": [
+          "ulei"
+        ]
+      },
+      {
+        "label": "Sare*",
+        "tokens": [
+          "sare"
+        ]
+      },
+      {
+        "label": "Piper*",
+        "tokens": [
+          "piper"
+        ]
+      },
+      {
+        "label": "Rosii*",
+        "tokens": [
+          "rosii",
+          "rosie"
+        ]
+      },
+      {
+        "label": "Banza*",
+        "tokens": [
+          "banza"
+        ]
+      },
+      {
+        "label": "Paine pe vatra*",
+        "tokens": [
+          "paine",
+          "pe",
+          "vatra"
+        ]
+      }
+    ],
+    "optionalIngredientTokens": [],
+    "ingredientTokens": [
+      "dovlecel",
+      "faina",
+      "300g",
+      "oua",
+      "ou",
+      "ulei",
+      "sare",
+      "piper",
+      "rosii",
+      "rosie",
+      "banza",
+      "paine",
+      "pe",
+      "vatra",
+      "pane",
+      "fel",
+      "secundar",
+      "2",
+      "buc",
+      "dupa",
+      "gust",
+      "crocant",
+      "sarat",
+      "usor",
+      "necesita",
+      "atentie",
+      "sub",
+      "30",
+      "minute",
+      "gustare",
+      "pranz",
+      "pentru",
+      "zile",
+      "aglomerate",
+      "fara",
+      "carne",
+      "vegetarian",
+      "la",
+      "tigaie",
+      "prajire"
+    ],
+    "tags": {
+      "taste": [
+        "Crocant",
+        "Sărat",
+        "Ușor"
+      ],
+      "complexity": [
+        "Ușor",
+        "Necesită atenție"
+      ],
+      "time": [
+        "Sub 30 minute"
+      ],
+      "context": [
+        "Gustare",
+        "Prânz",
+        "Pentru zile aglomerate"
+      ],
+      "diet": [
+        "Fără carne",
+        "Vegetarian"
+      ],
+      "equipment": [
+        "La tigaie"
+      ],
+      "technique": [
+        "Prăjire",
+        "La tigaie"
+      ]
+    },
+    "equipment": [
+      "La tigaie"
+    ],
+    "totalTimeMinutes": null,
+    "keywords": [
+      "dovlecel",
+      "pane",
+      "fel",
+      "secundar",
+      "2",
+      "buc",
+      "faina",
+      "300g",
+      "oua",
+      "ulei",
+      "sare",
+      "piper",
+      "rosii",
+      "banza",
+      "paine",
+      "pe",
+      "vatra",
+      "dupa",
+      "gust",
+      "crocant",
+      "sarat",
+      "usor",
+      "necesita",
+      "atentie",
+      "sub",
+      "30",
+      "minute",
+      "gustare",
+      "pranz",
+      "pentru",
+      "zile",
+      "aglomerate",
+      "fara",
+      "carne",
+      "vegetarian",
+      "la",
+      "tigaie",
+      "prajire"
+    ]
+  },
+  {
+    "slug": "fajitas-de-pui",
+    "title": "Fajitas de pui",
+    "name": "Fajitas de pui",
+    "category": "Fel secundar",
+    "description": "Se taie pieptul de pui in bucati mici (2-3 cm). Se condimenteaza, dupa gust, cu sare, piper, boia dulce, usturoi praf si turmeric.",
+    "ingredients": [
+      "Piept de pui - 2 buc.",
+      "Cascaval razuit*",
+      "Sare*",
+      "Piper*",
+      "Usturoi praf*",
+      "Turmeric*",
+      "Boia dulce*",
+      "Ulei de masline*",
+      "Ardei gras in trei culori - 4 buc.",
+      "Ceapa mare - 1 buc.",
+      "Usturoi - 1 catel",
+      "Zeama lamaie - 1/2 lamaie",
+      "Lipii mari (libaneze) - 4 buc.",
+      "Unt topit",
+      "*dupa gust"
+    ],
+    "requiredIngredients": [
+      "Piept de pui - 2 buc.",
+      "Cascaval razuit*",
+      "Sare*",
+      "Piper*",
+      "Usturoi praf*",
+      "Turmeric*",
+      "Boia dulce*",
+      "Ulei de masline*",
+      "Ardei gras in trei culori - 4 buc.",
+      "Ceapa mare - 1 buc.",
+      "Usturoi - 1 catel",
+      "Zeama lamaie - 1/2 lamaie",
+      "Lipii mari (libaneze) - 4 buc.",
+      "Unt topit",
+      "*dupa gust"
+    ],
+    "optionalIngredients": [],
+    "requiredIngredientTokens": [
+      {
+        "label": "Piept de pui - 2 buc.",
+        "tokens": [
+          "piept",
+          "pui"
+        ]
+      },
+      {
+        "label": "Cascaval razuit*",
+        "tokens": [
+          "cascaval",
+          "razuit"
+        ]
+      },
+      {
+        "label": "Sare*",
+        "tokens": [
+          "sare"
+        ]
+      },
+      {
+        "label": "Piper*",
+        "tokens": [
+          "piper"
+        ]
+      },
+      {
+        "label": "Usturoi praf*",
+        "tokens": [
+          "usturoi",
+          "praf"
+        ]
+      },
+      {
+        "label": "Turmeric*",
+        "tokens": [
+          "turmeric"
+        ]
+      },
+      {
+        "label": "Boia dulce*",
+        "tokens": [
+          "boia",
+          "dulce"
+        ]
+      },
+      {
+        "label": "Ulei de masline*",
+        "tokens": [
+          "ulei",
+          "masline"
+        ]
+      },
+      {
+        "label": "Ardei gras in trei culori - 4 buc.",
+        "tokens": [
+          "ardei",
+          "gras",
+          "in",
+          "trei",
+          "culori"
+        ]
+      },
+      {
+        "label": "Ceapa mare - 1 buc.",
+        "tokens": [
+          "ceapa",
+          "cepe",
+          "mare"
+        ]
+      },
+      {
+        "label": "Usturoi - 1 catel",
+        "tokens": [
+          "usturoi",
+          "catel"
+        ]
+      },
+      {
+        "label": "Zeama lamaie - 1/2 lamaie",
+        "tokens": [
+          "zeama",
+          "lamaie",
+          "lamai"
+        ]
+      },
+      {
+        "label": "Lipii mari (libaneze) - 4 buc.",
+        "tokens": [
+          "lipii",
+          "mari",
+          "libaneze"
+        ]
+      },
+      {
+        "label": "Unt topit",
+        "tokens": [
+          "unt",
+          "topit"
+        ]
+      }
+    ],
+    "optionalIngredientTokens": [],
+    "ingredientTokens": [
+      "piept",
+      "pui",
+      "cascaval",
+      "razuit",
+      "sare",
+      "piper",
+      "usturoi",
+      "praf",
+      "turmeric",
+      "boia",
+      "dulce",
+      "ulei",
+      "masline",
+      "ardei",
+      "gras",
+      "in",
+      "trei",
+      "culori",
+      "ceapa",
+      "cepe",
+      "mare",
+      "catel",
+      "zeama",
+      "lamaie",
+      "lamai",
+      "lipii",
+      "mari",
+      "libaneze",
+      "unt",
+      "topit",
+      "fajitas",
+      "de",
+      "fel",
+      "secundar",
+      "2",
+      "buc",
+      "4",
+      "1",
+      "1-2",
+      "dupa",
+      "gust",
+      "condimentat",
+      "satios",
+      "fresh",
+      "complexitate",
+      "medie",
+      "risc",
+      "mic",
+      "greseala",
+      "sub",
+      "60",
+      "minute",
+      "pranz",
+      "cina",
+      "pentru",
+      "familie",
+      "cu",
+      "carne",
+      "la",
+      "tigaie",
+      "sotare"
+    ],
+    "tags": {
+      "taste": [
+        "Condimentat",
+        "Sățios",
+        "Fresh"
+      ],
+      "complexity": [
+        "Complexitate medie",
+        "Risc mic de greșeală"
+      ],
+      "time": [
+        "Sub 60 minute"
+      ],
+      "context": [
+        "Prânz",
+        "Cină",
+        "Pentru familie"
+      ],
+      "diet": [
+        "Cu carne"
+      ],
+      "equipment": [
+        "La tigaie"
+      ],
+      "technique": [
+        "Sotare",
+        "La tigaie"
+      ]
+    },
+    "equipment": [
+      "La tigaie"
+    ],
+    "totalTimeMinutes": null,
+    "keywords": [
+      "fajitas",
+      "de",
+      "pui",
+      "fel",
+      "secundar",
+      "piept",
+      "2",
+      "buc",
+      "cascaval",
+      "razuit",
+      "sare",
+      "piper",
+      "usturoi",
+      "praf",
+      "turmeric",
+      "boia",
+      "dulce",
+      "ulei",
+      "masline",
+      "ardei",
+      "gras",
+      "in",
+      "trei",
+      "culori",
+      "4",
+      "ceapa",
+      "mare",
+      "1",
+      "catel",
+      "zeama",
+      "lamaie",
+      "1-2",
+      "lipii",
+      "mari",
+      "libaneze",
+      "unt",
+      "topit",
+      "dupa",
+      "gust",
+      "condimentat",
+      "satios",
+      "fresh",
+      "complexitate",
+      "medie",
+      "risc",
+      "mic",
+      "greseala",
+      "sub",
+      "60",
+      "minute",
+      "pranz",
+      "cina",
+      "pentru",
+      "familie",
+      "cu",
+      "carne",
+      "la",
+      "tigaie",
+      "sotare"
+    ]
+  },
+  {
+    "slug": "gulas-cu-spaetzle",
+    "title": "Gulas cu Spaetzle",
+    "name": "Gulas cu Spaetzle",
+    "category": "Fel secundar",
+    "description": "Se curata ceapa, cartofii si usturoiul.",
+    "ingredients": [
+      "Porc (500g)",
+      "Ceapa mare (2 buc.)",
+      "Usturoi (2 catei)",
+      "Spaetzle (~250g)",
+      "Cartofi (~500g)",
+      "Mix legume (ceap, morcov, ardei, patrunjel radacina, pastarnac radacina)",
+      "Apa",
+      "Sare*",
+      "Boia*",
+      "Piper negru proaspat rasnit*",
+      "Ulei floarea soarelui",
+      "Pasta gulas*",
+      "Pasta tomate*",
+      "Frunze patrunjel*",
+      "*dupa gust"
+    ],
+    "requiredIngredients": [
+      "Porc (500g)",
+      "Ceapa mare (2 buc.)",
+      "Usturoi (2 catei)",
+      "Spaetzle (~250g)",
+      "Cartofi (~500g)",
+      "Mix legume (ceap, morcov, ardei, patrunjel radacina, pastarnac radacina)",
+      "Apa",
+      "Sare*",
+      "Boia*",
+      "Piper negru proaspat rasnit*",
+      "Ulei floarea soarelui",
+      "Pasta gulas*",
+      "Pasta tomate*",
+      "Frunze patrunjel*",
+      "*dupa gust"
+    ],
+    "optionalIngredients": [],
+    "requiredIngredientTokens": [
+      {
+        "label": "Porc (500g)",
+        "tokens": [
+          "porc",
+          "500g"
+        ]
+      },
+      {
+        "label": "Ceapa mare (2 buc.)",
+        "tokens": [
+          "ceapa",
+          "cepe",
+          "mare"
+        ]
+      },
+      {
+        "label": "Usturoi (2 catei)",
+        "tokens": [
+          "usturoi",
+          "catei"
+        ]
+      },
+      {
+        "label": "Spaetzle (~250g)",
+        "tokens": [
+          "spaetzle",
+          "250g"
+        ]
+      },
+      {
+        "label": "Cartofi (~500g)",
+        "tokens": [
+          "cartofi",
+          "cartof",
+          "500g"
+        ]
+      },
+      {
+        "label": "Mix legume (ceap, morcov, ardei, patrunjel radacina, pastarnac radacina)",
+        "tokens": [
+          "mix",
+          "legume",
+          "ceap",
+          "morcov",
+          "ardei",
+          "patrunjel",
+          "radacina",
+          "pastarnac"
+        ]
+      },
+      {
+        "label": "Apa",
+        "tokens": [
+          "apa"
+        ]
+      },
+      {
+        "label": "Sare*",
+        "tokens": [
+          "sare"
+        ]
+      },
+      {
+        "label": "Boia*",
+        "tokens": [
+          "boia"
+        ]
+      },
+      {
+        "label": "Piper negru proaspat rasnit*",
+        "tokens": [
+          "piper",
+          "negru",
+          "rasnit"
+        ]
+      },
+      {
+        "label": "Ulei floarea soarelui",
+        "tokens": [
+          "ulei",
+          "floarea",
+          "soarelui"
+        ]
+      },
+      {
+        "label": "Pasta gulas*",
+        "tokens": [
+          "pasta",
+          "gulas"
+        ]
+      },
+      {
+        "label": "Pasta tomate*",
+        "tokens": [
+          "pasta",
+          "tomate"
+        ]
+      },
+      {
+        "label": "Frunze patrunjel*",
+        "tokens": [
+          "frunze",
+          "patrunjel"
+        ]
+      }
+    ],
+    "optionalIngredientTokens": [],
+    "ingredientTokens": [
+      "porc",
+      "500g",
+      "ceapa",
+      "cepe",
+      "mare",
+      "usturoi",
+      "catei",
+      "spaetzle",
+      "250g",
+      "cartofi",
+      "cartof",
+      "mix",
+      "legume",
+      "ceap",
+      "morcov",
+      "ardei",
+      "patrunjel",
+      "radacina",
+      "pastarnac",
+      "apa",
+      "sare",
+      "boia",
+      "piper",
+      "negru",
+      "rasnit",
+      "ulei",
+      "floarea",
+      "soarelui",
+      "pasta",
+      "gulas",
+      "tomate",
+      "frunze",
+      "cu",
+      "fel",
+      "secundar",
+      "2",
+      "buc",
+      "proaspat",
+      "dupa",
+      "gust",
+      "satios",
+      "condimentat",
+      "aromat",
+      "rustic",
+      "complexitate",
+      "medie",
+      "pranz",
+      "cina",
+      "comfort",
+      "food",
+      "carne",
+      "la",
+      "oala",
+      "sotare",
+      "fierbere"
+    ],
+    "tags": {
+      "taste": [
+        "Sățios",
+        "Condimentat",
+        "Aromat",
+        "Rustic"
+      ],
+      "complexity": [
+        "Complexitate medie"
+      ],
+      "context": [
+        "Prânz",
+        "Cină",
+        "Comfort food"
+      ],
+      "diet": [
+        "Cu carne"
+      ],
+      "equipment": [
+        "La oală"
+      ],
+      "technique": [
+        "Sotare",
+        "Fierbere"
+      ]
+    },
+    "equipment": [
+      "La oală"
+    ],
+    "totalTimeMinutes": null,
+    "keywords": [
+      "gulas",
+      "cu",
+      "spaetzle",
+      "fel",
+      "secundar",
+      "porc",
+      "500g",
+      "ceapa",
+      "mare",
+      "2",
+      "buc",
+      "usturoi",
+      "catei",
+      "250g",
+      "cartofi",
+      "mix",
+      "legume",
+      "ceap",
+      "morcov",
+      "ardei",
+      "patrunjel",
+      "radacina",
+      "pastarnac",
+      "apa",
+      "sare",
+      "boia",
+      "piper",
+      "negru",
+      "proaspat",
+      "rasnit",
+      "ulei",
+      "floarea",
+      "soarelui",
+      "pasta",
+      "tomate",
+      "frunze",
+      "dupa",
+      "gust",
+      "satios",
+      "condimentat",
+      "aromat",
+      "rustic",
+      "complexitate",
+      "medie",
+      "pranz",
+      "cina",
+      "comfort",
+      "food",
+      "carne",
+      "la",
+      "oala",
+      "sotare",
+      "fierbere"
+    ]
+  },
+  {
+    "slug": "mancare-de-mazare-cu-pui",
+    "title": "Mancare de mazare cu pui",
+    "name": "Mancare de mazare cu pui",
+    "category": "Fel secundar",
+    "description": "Se taie pieptul de pui cuburi medii.",
+    "ingredients": [
+      "Mazare (500g)",
+      "Mixt legume (ceapa, morcov, patrunjel radacina, pastarnac radacina)",
+      "Piept pui (1/2 buc.)",
+      "Faina (2 linguri)",
+      "Smantana (2 linguri)",
+      "Ulei",
+      "Apa",
+      "Marar*",
+      "Sare*",
+      "Piper*",
+      "*dupa gust"
+    ],
+    "requiredIngredients": [
+      "Mazare (500g)",
+      "Mixt legume (ceapa, morcov, patrunjel radacina, pastarnac radacina)",
+      "Piept pui (1/2 buc.)",
+      "Faina (2 linguri)",
+      "Smantana (2 linguri)",
+      "Ulei",
+      "Apa",
+      "Marar*",
+      "Sare*",
+      "Piper*",
+      "*dupa gust"
+    ],
+    "optionalIngredients": [],
+    "requiredIngredientTokens": [
+      {
+        "label": "Mazare (500g)",
+        "tokens": [
+          "mazare",
+          "500g"
+        ]
+      },
+      {
+        "label": "Mixt legume (ceapa, morcov, patrunjel radacina, pastarnac radacina)",
+        "tokens": [
+          "mixt",
+          "legume",
+          "ceapa",
+          "cepe",
+          "morcov",
+          "patrunjel",
+          "radacina",
+          "pastarnac"
+        ]
+      },
+      {
+        "label": "Piept pui (1/2 buc.)",
+        "tokens": [
+          "piept",
+          "pui"
+        ]
+      },
+      {
+        "label": "Faina (2 linguri)",
+        "tokens": [
+          "faina"
+        ]
+      },
+      {
+        "label": "Smantana (2 linguri)",
+        "tokens": [
+          "smantana"
+        ]
+      },
+      {
+        "label": "Ulei",
+        "tokens": [
+          "ulei"
+        ]
+      },
+      {
+        "label": "Apa",
+        "tokens": [
+          "apa"
+        ]
+      },
+      {
+        "label": "Marar*",
+        "tokens": [
+          "marar"
+        ]
+      },
+      {
+        "label": "Sare*",
+        "tokens": [
+          "sare"
+        ]
+      },
+      {
+        "label": "Piper*",
+        "tokens": [
+          "piper"
+        ]
+      }
+    ],
+    "optionalIngredientTokens": [],
+    "ingredientTokens": [
+      "mazare",
+      "500g",
+      "mixt",
+      "legume",
+      "ceapa",
+      "cepe",
+      "morcov",
+      "patrunjel",
+      "radacina",
+      "pastarnac",
+      "piept",
+      "pui",
+      "faina",
+      "smantana",
+      "ulei",
+      "apa",
+      "marar",
+      "sare",
+      "piper",
+      "mancare",
+      "de",
+      "cu",
+      "fel",
+      "secundar",
+      "1-2",
+      "buc",
+      "2",
+      "linguri",
+      "dupa",
+      "gust",
+      "cremos",
+      "satios",
+      "aromat",
+      "complexitate",
+      "medie",
+      "sub",
+      "60",
+      "minute",
+      "pranz",
+      "cina",
+      "pentru",
+      "familie",
+      "carne",
+      "la",
+      "oala",
+      "sotare",
+      "fierbere"
+    ],
+    "tags": {
+      "taste": [
+        "Cremos",
+        "Sățios",
+        "Aromat"
+      ],
+      "complexity": [
+        "Complexitate medie"
+      ],
+      "time": [
+        "Sub 60 minute"
+      ],
+      "context": [
+        "Prânz",
+        "Cină",
+        "Pentru familie"
+      ],
+      "diet": [
+        "Cu carne"
+      ],
+      "equipment": [
+        "La oală"
+      ],
+      "technique": [
+        "Sotare",
+        "Fierbere"
+      ]
+    },
+    "equipment": [
+      "La oală"
+    ],
+    "totalTimeMinutes": null,
+    "keywords": [
+      "mancare",
+      "de",
+      "mazare",
+      "cu",
+      "pui",
+      "fel",
+      "secundar",
+      "500g",
+      "mixt",
+      "legume",
+      "ceapa",
+      "morcov",
+      "patrunjel",
+      "radacina",
+      "pastarnac",
+      "piept",
+      "1-2",
+      "buc",
+      "faina",
+      "2",
+      "linguri",
+      "smantana",
+      "ulei",
+      "apa",
+      "marar",
+      "sare",
+      "piper",
+      "dupa",
+      "gust",
+      "cremos",
+      "satios",
+      "aromat",
+      "complexitate",
+      "medie",
+      "sub",
+      "60",
+      "minute",
+      "pranz",
+      "cina",
+      "pentru",
+      "familie",
+      "carne",
+      "la",
+      "oala",
+      "sotare",
+      "fierbere"
+    ]
+  },
+  {
+    "slug": "peste-cu-cartofi-natur",
+    "title": "Peste marinat cu cartofi natur",
+    "name": "Peste marinat cu cartofi natur",
+    "category": "Fel secundar",
+    "description": "Se usuca pestele bine cu prosoape de hartie, se unge pestele uniform cu zeama de lamaie, mustar, sare si piper si se lasa la marinat minim 3 ore.",
+    "ingredients": [
+      "Pangasius file (4 buc.)",
+      "Lamaie (1 buc.)",
+      "Mustar (4 linguri)",
+      "Sare*",
+      "Piper*",
+      "Cartofi (1kg)",
+      "Unt (20g)",
+      "Apa",
+      "Patrunjel*",
+      "*dupa gust"
+    ],
+    "requiredIngredients": [
+      "Pangasius file (4 buc.)",
+      "Lamaie (1 buc.)",
+      "Mustar (4 linguri)",
+      "Sare*",
+      "Piper*",
+      "Cartofi (1kg)",
+      "Unt (20g)",
+      "Apa",
+      "Patrunjel*",
+      "*dupa gust"
+    ],
+    "optionalIngredients": [],
+    "requiredIngredientTokens": [
+      {
+        "label": "Pangasius file (4 buc.)",
+        "tokens": [
+          "pangasius",
+          "file"
+        ]
+      },
+      {
+        "label": "Lamaie (1 buc.)",
+        "tokens": [
+          "lamaie",
+          "lamai"
+        ]
+      },
+      {
+        "label": "Mustar (4 linguri)",
+        "tokens": [
+          "mustar"
+        ]
+      },
+      {
+        "label": "Sare*",
+        "tokens": [
+          "sare"
+        ]
+      },
+      {
+        "label": "Piper*",
+        "tokens": [
+          "piper"
+        ]
+      },
+      {
+        "label": "Cartofi (1kg)",
+        "tokens": [
+          "cartofi",
+          "cartof",
+          "1kg"
+        ]
+      },
+      {
+        "label": "Unt (20g)",
+        "tokens": [
+          "unt",
+          "20g"
+        ]
+      },
+      {
+        "label": "Apa",
+        "tokens": [
+          "apa"
+        ]
+      },
+      {
+        "label": "Patrunjel*",
+        "tokens": [
+          "patrunjel"
+        ]
+      }
+    ],
+    "optionalIngredientTokens": [],
+    "ingredientTokens": [
+      "pangasius",
+      "file",
+      "lamaie",
+      "lamai",
+      "mustar",
+      "sare",
+      "piper",
+      "cartofi",
+      "cartof",
+      "1kg",
+      "unt",
+      "20g",
+      "apa",
+      "patrunjel",
+      "peste",
+      "marinat",
+      "cu",
+      "natur",
+      "fel",
+      "secundar",
+      "4",
+      "buc",
+      "1",
+      "linguri",
+      "dupa",
+      "gust",
+      "acrisor",
+      "usor",
+      "aromat",
+      "complexitate",
+      "medie",
+      "necesita",
+      "atentie",
+      "timp",
+      "de",
+      "asteptare",
+      "buna",
+      "pentru",
+      "pregatit",
+      "din",
+      "pranz",
+      "cina",
+      "weekend",
+      "carne",
+      "cuptor",
+      "tava",
+      "la",
+      "oala",
+      "marinare",
+      "coacere",
+      "fierbere"
+    ],
+    "tags": {
+      "taste": [
+        "Acrișor",
+        "Ușor",
+        "Aromat"
+      ],
+      "complexity": [
+        "Complexitate medie",
+        "Necesită atenție"
+      ],
+      "time": [
+        "Necesită timp de așteptare",
+        "Bună pentru pregătit din timp"
+      ],
+      "context": [
+        "Prânz",
+        "Cină",
+        "Pentru weekend"
+      ],
+      "diet": [
+        "Cu carne"
+      ],
+      "equipment": [
+        "Necesită cuptor",
+        "Necesită tavă",
+        "La oală"
+      ],
+      "technique": [
+        "Marinare",
+        "Coacere",
+        "Fierbere",
+        "La cuptor"
+      ]
+    },
+    "equipment": [
+      "Necesită cuptor",
+      "Necesită tavă",
+      "La oală"
+    ],
+    "totalTimeMinutes": null,
+    "keywords": [
+      "peste",
+      "marinat",
+      "cu",
+      "cartofi",
+      "natur",
+      "fel",
+      "secundar",
+      "pangasius",
+      "file",
+      "4",
+      "buc",
+      "lamaie",
+      "1",
+      "mustar",
+      "linguri",
+      "sare",
+      "piper",
+      "1kg",
+      "unt",
+      "20g",
+      "apa",
+      "patrunjel",
+      "dupa",
+      "gust",
+      "acrisor",
+      "usor",
+      "aromat",
+      "complexitate",
+      "medie",
+      "necesita",
+      "atentie",
+      "timp",
+      "de",
+      "asteptare",
+      "buna",
+      "pentru",
+      "pregatit",
+      "din",
+      "pranz",
+      "cina",
+      "weekend",
+      "carne",
+      "cuptor",
+      "tava",
+      "la",
+      "oala",
+      "marinare",
+      "coacere",
+      "fierbere"
+    ]
+  },
+  {
+    "slug": "pui-cu-lamaie-si-cartofi",
+    "title": "Piept de pui cu lamaie si cartofi aurii",
+    "name": "Piept de pui cu lamaie si cartofi aurii",
+    "category": "Fel secundar",
+    "description": "Se taie puiul pe jumatate (in 4 bucati).",
+    "ingredients": [
+      "Piept de pui - 2 buc.",
+      "Faina - 35g",
+      "Parmezan - 20g",
+      "Oua - 2 buc.",
+      "Ulei de masline",
+      "Unt",
+      "Usturoi praf*",
+      "Piper*",
+      "Sare*",
+      "Zeama lamaie - 1 lamaie",
+      "Cuburi Maggi - 1 buc.",
+      "Ceapa verde - 1 buc.",
+      "Vin alb - 60ml",
+      "Apa - 180ml",
+      "Carofi noi - 1kg",
+      "Folie de copt - 1 buc.",
+      "*dupa gust"
+    ],
+    "requiredIngredients": [
+      "Piept de pui - 2 buc.",
+      "Faina - 35g",
+      "Parmezan - 20g",
+      "Oua - 2 buc.",
+      "Ulei de masline",
+      "Unt",
+      "Usturoi praf*",
+      "Piper*",
+      "Sare*",
+      "Zeama lamaie - 1 lamaie",
+      "Cuburi Maggi - 1 buc.",
+      "Ceapa verde - 1 buc.",
+      "Vin alb - 60ml",
+      "Apa - 180ml",
+      "Carofi noi - 1kg",
+      "Folie de copt - 1 buc.",
+      "*dupa gust"
+    ],
+    "optionalIngredients": [],
+    "requiredIngredientTokens": [
+      {
+        "label": "Piept de pui - 2 buc.",
+        "tokens": [
+          "piept",
+          "pui"
+        ]
+      },
+      {
+        "label": "Faina - 35g",
+        "tokens": [
+          "faina",
+          "35g"
+        ]
+      },
+      {
+        "label": "Parmezan - 20g",
+        "tokens": [
+          "parmezan",
+          "20g"
+        ]
+      },
+      {
+        "label": "Oua - 2 buc.",
+        "tokens": [
+          "oua",
+          "ou"
+        ]
+      },
+      {
+        "label": "Ulei de masline",
+        "tokens": [
+          "ulei",
+          "masline"
+        ]
+      },
+      {
+        "label": "Unt",
+        "tokens": [
+          "unt"
+        ]
+      },
+      {
+        "label": "Usturoi praf*",
+        "tokens": [
+          "usturoi",
+          "praf"
+        ]
+      },
+      {
+        "label": "Piper*",
+        "tokens": [
+          "piper"
+        ]
+      },
+      {
+        "label": "Sare*",
+        "tokens": [
+          "sare"
+        ]
+      },
+      {
+        "label": "Zeama lamaie - 1 lamaie",
+        "tokens": [
+          "zeama",
+          "lamaie",
+          "lamai"
+        ]
+      },
+      {
+        "label": "Cuburi Maggi - 1 buc.",
+        "tokens": [
+          "cuburi",
+          "maggi"
+        ]
+      },
+      {
+        "label": "Ceapa verde - 1 buc.",
+        "tokens": [
+          "ceapa",
+          "cepe",
+          "verde"
+        ]
+      },
+      {
+        "label": "Vin alb - 60ml",
+        "tokens": [
+          "vin",
+          "alb",
+          "60ml"
+        ]
+      },
+      {
+        "label": "Apa - 180ml",
+        "tokens": [
+          "apa",
+          "180ml"
+        ]
+      },
+      {
+        "label": "Carofi noi - 1kg",
+        "tokens": [
+          "carofi",
+          "noi",
+          "1kg"
+        ]
+      },
+      {
+        "label": "Folie de copt - 1 buc.",
+        "tokens": [
+          "folie",
+          "copt"
+        ]
+      }
+    ],
+    "optionalIngredientTokens": [],
+    "ingredientTokens": [
+      "piept",
+      "pui",
+      "faina",
+      "35g",
+      "parmezan",
+      "20g",
+      "oua",
+      "ou",
+      "ulei",
+      "masline",
+      "unt",
+      "usturoi",
+      "praf",
+      "piper",
+      "sare",
+      "zeama",
+      "lamaie",
+      "lamai",
+      "cuburi",
+      "maggi",
+      "ceapa",
+      "cepe",
+      "verde",
+      "vin",
+      "alb",
+      "60ml",
+      "apa",
+      "180ml",
+      "carofi",
+      "noi",
+      "1kg",
+      "folie",
+      "copt",
+      "de",
+      "cu",
+      "si",
+      "cartofi",
+      "aurii",
+      "fel",
+      "secundar",
+      "2",
+      "buc",
+      "1",
+      "dupa",
+      "gust",
+      "acrisor",
+      "crocant",
+      "satios",
+      "aromat",
+      "complexitate",
+      "medie",
+      "necesita",
+      "atentie",
+      "pranz",
+      "cina",
+      "pentru",
+      "familie",
+      "carne",
+      "la",
+      "tigaie",
+      "prajire"
+    ],
+    "tags": {
+      "taste": [
+        "Acrișor",
+        "Crocant",
+        "Sățios",
+        "Aromat"
+      ],
+      "complexity": [
+        "Complexitate medie",
+        "Necesită atenție"
+      ],
+      "context": [
+        "Prânz",
+        "Cină",
+        "Pentru familie"
+      ],
+      "diet": [
+        "Cu carne"
+      ],
+      "equipment": [
+        "La tigaie"
+      ],
+      "technique": [
+        "Prăjire",
+        "La tigaie"
+      ]
+    },
+    "equipment": [
+      "La tigaie"
+    ],
+    "totalTimeMinutes": null,
+    "keywords": [
+      "piept",
+      "de",
+      "pui",
+      "cu",
+      "lamaie",
+      "si",
+      "cartofi",
+      "aurii",
+      "fel",
+      "secundar",
+      "2",
+      "buc",
+      "faina",
+      "35g",
+      "parmezan",
+      "20g",
+      "oua",
+      "ulei",
+      "masline",
+      "unt",
+      "usturoi",
+      "praf",
+      "piper",
+      "sare",
+      "zeama",
+      "1",
+      "cuburi",
+      "maggi",
+      "ceapa",
+      "verde",
+      "vin",
+      "alb",
+      "60ml",
+      "apa",
+      "180ml",
+      "carofi",
+      "noi",
+      "1kg",
+      "folie",
+      "copt",
+      "dupa",
+      "gust",
+      "acrisor",
+      "crocant",
+      "satios",
+      "aromat",
+      "complexitate",
+      "medie",
+      "necesita",
+      "atentie",
+      "pranz",
+      "cina",
+      "pentru",
+      "familie",
+      "carne",
+      "la",
+      "tigaie",
+      "prajire"
+    ]
+  },
+  {
+    "slug": "pui-dulce-acrisor-cu-orez",
+    "title": "Pui dulce-acrisor cu orez",
+    "name": "Pui dulce-acrisor cu orez",
+    "category": "Fel secundar",
+    "description": "Se taie pieptul de pui in bucati medii (4-5 cm). Se condimenteaza, dupa gust, cu sare, piper si usturoi praf. Puiul condimentat se da prin faina asi apoi prin ou.",
+    "ingredients": [
+      "Piept de pui - 2 buc.",
+      "Faina - aprox. 100g",
+      "Oua - 2 buc.",
+      "Ulei",
+      "Sare*",
+      "Piper*",
+      "Usturoi praf*",
+      "Orez - 4 maini",
+      "Apa",
+      "Ketchup dulce - minim 100g",
+      "Zahar - 2 linguri",
+      "Otet de mere (orice otet dulce)*",
+      "Sos Soia*",
+      "Foaie de copt - 1 buc.",
+      "*dupa gust"
+    ],
+    "requiredIngredients": [
+      "Piept de pui - 2 buc.",
+      "Faina - aprox. 100g",
+      "Oua - 2 buc.",
+      "Ulei",
+      "Sare*",
+      "Piper*",
+      "Usturoi praf*",
+      "Orez - 4 maini",
+      "Apa",
+      "Ketchup dulce - minim 100g",
+      "Zahar - 2 linguri",
+      "Otet de mere (orice otet dulce)*",
+      "Sos Soia*",
+      "Foaie de copt - 1 buc.",
+      "*dupa gust"
+    ],
+    "optionalIngredients": [],
+    "requiredIngredientTokens": [
+      {
+        "label": "Piept de pui - 2 buc.",
+        "tokens": [
+          "piept",
+          "pui"
+        ]
+      },
+      {
+        "label": "Faina - aprox. 100g",
+        "tokens": [
+          "faina",
+          "aprox",
+          "100g"
+        ]
+      },
+      {
+        "label": "Oua - 2 buc.",
+        "tokens": [
+          "oua",
+          "ou"
+        ]
+      },
+      {
+        "label": "Ulei",
+        "tokens": [
+          "ulei"
+        ]
+      },
+      {
+        "label": "Sare*",
+        "tokens": [
+          "sare"
+        ]
+      },
+      {
+        "label": "Piper*",
+        "tokens": [
+          "piper"
+        ]
+      },
+      {
+        "label": "Usturoi praf*",
+        "tokens": [
+          "usturoi",
+          "praf"
+        ]
+      },
+      {
+        "label": "Orez - 4 maini",
+        "tokens": [
+          "orez",
+          "maini"
+        ]
+      },
+      {
+        "label": "Apa",
+        "tokens": [
+          "apa"
+        ]
+      },
+      {
+        "label": "Ketchup dulce - minim 100g",
+        "tokens": [
+          "ketchup",
+          "dulce",
+          "minim",
+          "100g"
+        ]
+      },
+      {
+        "label": "Zahar - 2 linguri",
+        "tokens": [
+          "zahar"
+        ]
+      },
+      {
+        "label": "Otet de mere (orice otet dulce)*",
+        "tokens": [
+          "otet",
+          "mere",
+          "orice",
+          "dulce"
+        ]
+      },
+      {
+        "label": "Sos Soia*",
+        "tokens": [
+          "sos",
+          "soia"
+        ]
+      },
+      {
+        "label": "Foaie de copt - 1 buc.",
+        "tokens": [
+          "foaie",
+          "copt"
+        ]
+      }
+    ],
+    "optionalIngredientTokens": [],
+    "ingredientTokens": [
+      "piept",
+      "pui",
+      "faina",
+      "aprox",
+      "100g",
+      "oua",
+      "ou",
+      "ulei",
+      "sare",
+      "piper",
+      "usturoi",
+      "praf",
+      "orez",
+      "maini",
+      "apa",
+      "ketchup",
+      "dulce",
+      "minim",
+      "zahar",
+      "otet",
+      "mere",
+      "orice",
+      "sos",
+      "soia",
+      "foaie",
+      "copt",
+      "dulce-acrisor",
+      "cu",
+      "fel",
+      "secundar",
+      "de",
+      "2",
+      "buc",
+      "4",
+      "linguri",
+      "1",
+      "dupa",
+      "gust",
+      "acrisor",
+      "satios",
+      "complexitate",
+      "medie",
+      "necesita",
+      "atentie",
+      "pranz",
+      "cina",
+      "pentru",
+      "familie",
+      "carne",
+      "cuptor",
+      "tava",
+      "la",
+      "oala",
+      "coacere",
+      "fierbere"
+    ],
+    "tags": {
+      "taste": [
+        "Dulce",
+        "Acrișor",
+        "Sățios"
+      ],
+      "complexity": [
+        "Complexitate medie",
+        "Necesită atenție"
+      ],
+      "context": [
+        "Prânz",
+        "Cină",
+        "Pentru familie"
+      ],
+      "diet": [
+        "Cu carne"
+      ],
+      "equipment": [
+        "Necesită cuptor",
+        "Necesită tavă",
+        "La oală"
+      ],
+      "technique": [
+        "Coacere",
+        "Fierbere",
+        "La cuptor"
+      ]
+    },
+    "equipment": [
+      "Necesită cuptor",
+      "Necesită tavă",
+      "La oală"
+    ],
+    "totalTimeMinutes": null,
+    "keywords": [
+      "pui",
+      "dulce-acrisor",
+      "cu",
+      "orez",
+      "fel",
+      "secundar",
+      "piept",
+      "de",
+      "2",
+      "buc",
+      "faina",
+      "aprox",
+      "100g",
+      "oua",
+      "ulei",
+      "sare",
+      "piper",
+      "usturoi",
+      "praf",
+      "4",
+      "maini",
+      "apa",
+      "ketchup",
+      "dulce",
+      "minim",
+      "zahar",
+      "linguri",
+      "otet",
+      "mere",
+      "orice",
+      "sos",
+      "soia",
+      "foaie",
+      "copt",
+      "1",
+      "dupa",
+      "gust",
+      "acrisor",
+      "satios",
+      "complexitate",
+      "medie",
+      "necesita",
+      "atentie",
+      "pranz",
+      "cina",
+      "pentru",
+      "familie",
+      "carne",
+      "cuptor",
+      "tava",
+      "la",
+      "oala",
+      "coacere",
+      "fierbere"
+    ]
+  },
+  {
+    "slug": "pulpe-de-pui-cu-orzo",
+    "title": "Pulpe de pui dezosate cu orzo",
+    "name": "Pulpe de pui dezosate cu orzo",
+    "category": "Fel secundar",
+    "description": "Se bat pulpele de pui putin. Se condimenteaza cu boia dulce, sare, piper, usturoi praf, curry si cimbru.",
+    "ingredients": [
+      "Pulpe de pui dezosate - 4 buc.",
+      "Boia dulce*",
+      "Sare*",
+      "Piper*",
+      "Usturoi praf*",
+      "Curry*",
+      "Cimbru*",
+      "Unt",
+      "Ulei dasline",
+      "Orzo - 400g",
+      "Ciuperci - 250g",
+      "Catei de usturoi - 6 buc.",
+      "Cuburi Maggi - 2 buc.",
+      "Apa - 1,2 litri",
+      "Patrunjel - 1 legatura",
+      "Parmezan - 50g",
+      "Unt topit",
+      "Ceapa verde - 2 buc.",
+      "Zeama lamaie - 2 lamai",
+      "*dupa gust"
+    ],
+    "requiredIngredients": [
+      "Pulpe de pui dezosate - 4 buc.",
+      "Boia dulce*",
+      "Sare*",
+      "Piper*",
+      "Usturoi praf*",
+      "Curry*",
+      "Cimbru*",
+      "Unt",
+      "Ulei dasline",
+      "Orzo - 400g",
+      "Ciuperci - 250g",
+      "Catei de usturoi - 6 buc.",
+      "Cuburi Maggi - 2 buc.",
+      "Apa - 1,2 litri",
+      "Patrunjel - 1 legatura",
+      "Parmezan - 50g",
+      "Unt topit",
+      "Ceapa verde - 2 buc.",
+      "Zeama lamaie - 2 lamai",
+      "*dupa gust"
+    ],
+    "optionalIngredients": [],
+    "requiredIngredientTokens": [
+      {
+        "label": "Pulpe de pui dezosate - 4 buc.",
+        "tokens": [
+          "pulpe",
+          "pui",
+          "dezosate"
+        ]
+      },
+      {
+        "label": "Boia dulce*",
+        "tokens": [
+          "boia",
+          "dulce"
+        ]
+      },
+      {
+        "label": "Sare*",
+        "tokens": [
+          "sare"
+        ]
+      },
+      {
+        "label": "Piper*",
+        "tokens": [
+          "piper"
+        ]
+      },
+      {
+        "label": "Usturoi praf*",
+        "tokens": [
+          "usturoi",
+          "praf"
+        ]
+      },
+      {
+        "label": "Curry*",
+        "tokens": [
+          "curry"
+        ]
+      },
+      {
+        "label": "Cimbru*",
+        "tokens": [
+          "cimbru"
+        ]
+      },
+      {
+        "label": "Unt",
+        "tokens": [
+          "unt"
+        ]
+      },
+      {
+        "label": "Ulei dasline",
+        "tokens": [
+          "ulei",
+          "dasline"
+        ]
+      },
+      {
+        "label": "Orzo - 400g",
+        "tokens": [
+          "orzo",
+          "400g"
+        ]
+      },
+      {
+        "label": "Ciuperci - 250g",
+        "tokens": [
+          "ciuperci",
+          "250g"
+        ]
+      },
+      {
+        "label": "Catei de usturoi - 6 buc.",
+        "tokens": [
+          "catei",
+          "usturoi"
+        ]
+      },
+      {
+        "label": "Cuburi Maggi - 2 buc.",
+        "tokens": [
+          "cuburi",
+          "maggi"
+        ]
+      },
+      {
+        "label": "Apa - 1,2 litri",
+        "tokens": [
+          "apa"
+        ]
+      },
+      {
+        "label": "Patrunjel - 1 legatura",
+        "tokens": [
+          "patrunjel",
+          "legatura"
+        ]
+      },
+      {
+        "label": "Parmezan - 50g",
+        "tokens": [
+          "parmezan",
+          "50g"
+        ]
+      },
+      {
+        "label": "Unt topit",
+        "tokens": [
+          "unt",
+          "topit"
+        ]
+      },
+      {
+        "label": "Ceapa verde - 2 buc.",
+        "tokens": [
+          "ceapa",
+          "cepe",
+          "verde"
+        ]
+      },
+      {
+        "label": "Zeama lamaie - 2 lamai",
+        "tokens": [
+          "zeama",
+          "lamaie",
+          "lamai"
+        ]
+      }
+    ],
+    "optionalIngredientTokens": [],
+    "ingredientTokens": [
+      "pulpe",
+      "pui",
+      "dezosate",
+      "boia",
+      "dulce",
+      "sare",
+      "piper",
+      "usturoi",
+      "praf",
+      "curry",
+      "cimbru",
+      "unt",
+      "ulei",
+      "dasline",
+      "orzo",
+      "400g",
+      "ciuperci",
+      "250g",
+      "catei",
+      "cuburi",
+      "maggi",
+      "apa",
+      "patrunjel",
+      "legatura",
+      "parmezan",
+      "50g",
+      "topit",
+      "ceapa",
+      "cepe",
+      "verde",
+      "zeama",
+      "lamaie",
+      "lamai",
+      "de",
+      "cu",
+      "fel",
+      "secundar",
+      "4",
+      "buc",
+      "6",
+      "2",
+      "1-2",
+      "litri",
+      "1",
+      "dupa",
+      "gust",
+      "cremos",
+      "satios",
+      "aromat",
+      "complexitate",
+      "medie",
+      "pranz",
+      "cina",
+      "pentru",
+      "familie",
+      "carne",
+      "la",
+      "tigaie",
+      "sotare"
+    ],
+    "tags": {
+      "taste": [
+        "Cremos",
+        "Sățios",
+        "Aromat"
+      ],
+      "complexity": [
+        "Complexitate medie"
+      ],
+      "context": [
+        "Prânz",
+        "Cină",
+        "Pentru familie"
+      ],
+      "diet": [
+        "Cu carne"
+      ],
+      "equipment": [
+        "La tigaie"
+      ],
+      "technique": [
+        "Sotare",
+        "La tigaie"
+      ]
+    },
+    "equipment": [
+      "La tigaie"
+    ],
+    "totalTimeMinutes": null,
+    "keywords": [
+      "pulpe",
+      "de",
+      "pui",
+      "dezosate",
+      "cu",
+      "orzo",
+      "fel",
+      "secundar",
+      "4",
+      "buc",
+      "boia",
+      "dulce",
+      "sare",
+      "piper",
+      "usturoi",
+      "praf",
+      "curry",
+      "cimbru",
+      "unt",
+      "ulei",
+      "dasline",
+      "400g",
+      "ciuperci",
+      "250g",
+      "catei",
+      "6",
+      "cuburi",
+      "maggi",
+      "2",
+      "apa",
+      "1-2",
+      "litri",
+      "patrunjel",
+      "1",
+      "legatura",
+      "parmezan",
+      "50g",
+      "topit",
+      "ceapa",
+      "verde",
+      "zeama",
+      "lamaie",
+      "lamai",
+      "dupa",
+      "gust",
+      "cremos",
+      "satios",
+      "aromat",
+      "complexitate",
+      "medie",
+      "pranz",
+      "cina",
+      "pentru",
+      "familie",
+      "carne",
+      "la",
+      "tigaie",
+      "sotare"
+    ]
+  },
+  {
+    "slug": "rata-la-cuptor-umpluta",
+    "title": "Rata la cuptor umpluta",
+    "name": "Rata la cuptor umpluta",
+    "category": "Fel secundar",
+    "description": "Se spala bine rata si se usuca cu prosoape de hartie. Se condimenteaza uniform cu sare, piper si boia si se lasa la marinat ~24h.",
+    "ingredients": [
+      "Rata (~2kg)",
+      "Unt (250g)",
+      "Apa (250ml)",
+      "Sare*",
+      "Piper*",
+      "Boia*",
+      "Ceapa marime medie (1 buc.)",
+      "Usturoi (2 catei)",
+      "Merisoare (200g)",
+      "Portocala/Mar/Para/Gutuie (2 buc.)",
+      "Orez (200g)",
+      "Ulei",
+      "Cartofi (1,5kg)",
+      "Portocala/Mar/Para/Gutuie (1 buc.)",
+      "Zeama lamaie (1/2 buc.)",
+      "Zeama portocale (2 buc.)",
+      "Zahar (200g)",
+      "Unt (40g)",
+      "Coniac/Esenta rom (50ml)",
+      "Scortisoara*",
+      "Cuisoare*",
+      "*dupa gust"
+    ],
+    "requiredIngredients": [
+      "Rata (~2kg)",
+      "Unt (250g)",
+      "Apa (250ml)",
+      "Sare*",
+      "Piper*",
+      "Boia*",
+      "Ceapa marime medie (1 buc.)",
+      "Usturoi (2 catei)",
+      "Merisoare (200g)",
+      "Portocala/Mar/Para/Gutuie (2 buc.)",
+      "Orez (200g)",
+      "Ulei",
+      "Cartofi (1,5kg)",
+      "Portocala/Mar/Para/Gutuie (1 buc.)",
+      "Zeama lamaie (1/2 buc.)",
+      "Zeama portocale (2 buc.)",
+      "Zahar (200g)",
+      "Unt (40g)",
+      "Coniac/Esenta rom (50ml)",
+      "Scortisoara*",
+      "Cuisoare*",
+      "*dupa gust"
+    ],
+    "optionalIngredients": [],
+    "requiredIngredientTokens": [
+      {
+        "label": "Rata (~2kg)",
+        "tokens": [
+          "rata",
+          "2kg"
+        ]
+      },
+      {
+        "label": "Unt (250g)",
+        "tokens": [
+          "unt",
+          "250g"
+        ]
+      },
+      {
+        "label": "Apa (250ml)",
+        "tokens": [
+          "apa",
+          "250ml"
+        ]
+      },
+      {
+        "label": "Sare*",
+        "tokens": [
+          "sare"
+        ]
+      },
+      {
+        "label": "Piper*",
+        "tokens": [
+          "piper"
+        ]
+      },
+      {
+        "label": "Boia*",
+        "tokens": [
+          "boia"
+        ]
+      },
+      {
+        "label": "Ceapa marime medie (1 buc.)",
+        "tokens": [
+          "ceapa",
+          "cepe",
+          "marime",
+          "medie"
+        ]
+      },
+      {
+        "label": "Usturoi (2 catei)",
+        "tokens": [
+          "usturoi",
+          "catei"
+        ]
+      },
+      {
+        "label": "Merisoare (200g)",
+        "tokens": [
+          "merisoare",
+          "200g"
+        ]
+      },
+      {
+        "label": "Portocala/Mar/Para/Gutuie (2 buc.)",
+        "tokens": [
+          "portocala",
+          "mar",
+          "para",
+          "gutuie"
+        ]
+      },
+      {
+        "label": "Orez (200g)",
+        "tokens": [
+          "orez",
+          "200g"
+        ]
+      },
+      {
+        "label": "Ulei",
+        "tokens": [
+          "ulei"
+        ]
+      },
+      {
+        "label": "Cartofi (1,5kg)",
+        "tokens": [
+          "cartofi",
+          "cartof",
+          "5kg"
+        ]
+      },
+      {
+        "label": "Portocala/Mar/Para/Gutuie (1 buc.)",
+        "tokens": [
+          "portocala",
+          "mar",
+          "para",
+          "gutuie"
+        ]
+      },
+      {
+        "label": "Zeama lamaie (1/2 buc.)",
+        "tokens": [
+          "zeama",
+          "lamaie",
+          "lamai"
+        ]
+      },
+      {
+        "label": "Zeama portocale (2 buc.)",
+        "tokens": [
+          "zeama",
+          "portocale"
+        ]
+      },
+      {
+        "label": "Zahar (200g)",
+        "tokens": [
+          "zahar",
+          "200g"
+        ]
+      },
+      {
+        "label": "Unt (40g)",
+        "tokens": [
+          "unt",
+          "40g"
+        ]
+      },
+      {
+        "label": "Coniac/Esenta rom (50ml)",
+        "tokens": [
+          "coniac",
+          "esenta",
+          "rom",
+          "50ml"
+        ]
+      },
+      {
+        "label": "Scortisoara*",
+        "tokens": [
+          "scortisoara"
+        ]
+      },
+      {
+        "label": "Cuisoare*",
+        "tokens": [
+          "cuisoare"
+        ]
+      }
+    ],
+    "optionalIngredientTokens": [],
+    "ingredientTokens": [
+      "rata",
+      "2kg",
+      "unt",
+      "250g",
+      "apa",
+      "250ml",
+      "sare",
+      "piper",
+      "boia",
+      "ceapa",
+      "cepe",
+      "marime",
+      "medie",
+      "usturoi",
+      "catei",
+      "merisoare",
+      "200g",
+      "portocala",
+      "mar",
+      "para",
+      "gutuie",
+      "orez",
+      "ulei",
+      "cartofi",
+      "cartof",
+      "5kg",
+      "zeama",
+      "lamaie",
+      "lamai",
+      "portocale",
+      "zahar",
+      "40g",
+      "coniac",
+      "esenta",
+      "rom",
+      "50ml",
+      "scortisoara",
+      "cuisoare",
+      "la",
+      "cuptor",
+      "umpluta",
+      "fel",
+      "secundar",
+      "umplutura",
+      "1",
+      "buc",
+      "2",
+      "portocala-mar-para-gutuie",
+      "garnitura",
+      "1-5kg",
+      "sos",
+      "1-2",
+      "coniac-esenta",
+      "dupa",
+      "gust",
+      "satios",
+      "aromat",
+      "rustic",
+      "complexitate",
+      "ridicata",
+      "necesita",
+      "atentie",
+      "timp",
+      "de",
+      "asteptare",
+      "buna",
+      "pentru",
+      "pregatit",
+      "din",
+      "cina",
+      "musafiri",
+      "weekend",
+      "cu",
+      "carne",
+      "tava",
+      "marinare",
+      "coacere"
+    ],
+    "tags": {
+      "taste": [
+        "Sățios",
+        "Aromat",
+        "Rustic"
+      ],
+      "complexity": [
+        "Complexitate ridicată",
+        "Necesită atenție"
+      ],
+      "time": [
+        "Necesită timp de așteptare",
+        "Bună pentru pregătit din timp"
+      ],
+      "context": [
+        "Cină",
+        "Pentru musafiri",
+        "Pentru weekend"
+      ],
+      "diet": [
+        "Cu carne"
+      ],
+      "equipment": [
+        "Necesită cuptor",
+        "Necesită tavă"
+      ],
+      "technique": [
+        "Marinare",
+        "Coacere",
+        "La cuptor"
+      ]
+    },
+    "equipment": [
+      "Necesită cuptor",
+      "Necesită tavă"
+    ],
+    "totalTimeMinutes": null,
+    "keywords": [
+      "rata",
+      "la",
+      "cuptor",
+      "umpluta",
+      "fel",
+      "secundar",
+      "2kg",
+      "unt",
+      "250g",
+      "apa",
+      "250ml",
+      "sare",
+      "piper",
+      "boia",
+      "umplutura",
+      "ceapa",
+      "marime",
+      "medie",
+      "1",
+      "buc",
+      "usturoi",
+      "2",
+      "catei",
+      "merisoare",
+      "200g",
+      "portocala-mar-para-gutuie",
+      "orez",
+      "ulei",
+      "garnitura",
+      "cartofi",
+      "1-5kg",
+      "sos",
+      "zeama",
+      "lamaie",
+      "1-2",
+      "portocale",
+      "zahar",
+      "40g",
+      "coniac-esenta",
+      "rom",
+      "50ml",
+      "scortisoara",
+      "cuisoare",
+      "dupa",
+      "gust",
+      "satios",
+      "aromat",
+      "rustic",
+      "complexitate",
+      "ridicata",
+      "necesita",
+      "atentie",
+      "timp",
+      "de",
+      "asteptare",
+      "buna",
+      "pentru",
+      "pregatit",
+      "din",
+      "cina",
+      "musafiri",
+      "weekend",
+      "cu",
+      "carne",
+      "tava",
+      "marinare",
+      "coacere"
+    ]
+  },
+  {
+    "slug": "snitel-pufos-de-pui",
+    "title": "Rata la cuptor umpluta",
+    "name": "Rata la cuptor umpluta",
+    "category": "Fel secundar",
+    "description": "Se injumatatesc pieptii de pui in grosime si se bat cu batatorul de carne.",
+    "ingredients": [
+      "Piept pui (2 buc.)",
+      "Faina (300g)",
+      "Oua (2 buc.)",
+      "Ulei",
+      "Sare*",
+      "Piper*",
+      "*dupa gust"
+    ],
+    "requiredIngredients": [
+      "Piept pui (2 buc.)",
+      "Faina (300g)",
+      "Oua (2 buc.)",
+      "Ulei",
+      "Sare*",
+      "Piper*",
+      "*dupa gust"
+    ],
+    "optionalIngredients": [],
+    "requiredIngredientTokens": [
+      {
+        "label": "Piept pui (2 buc.)",
+        "tokens": [
+          "piept",
+          "pui"
+        ]
+      },
+      {
+        "label": "Faina (300g)",
+        "tokens": [
+          "faina",
+          "300g"
+        ]
+      },
+      {
+        "label": "Oua (2 buc.)",
+        "tokens": [
+          "oua",
+          "ou"
+        ]
+      },
+      {
+        "label": "Ulei",
+        "tokens": [
+          "ulei"
+        ]
+      },
+      {
+        "label": "Sare*",
+        "tokens": [
+          "sare"
+        ]
+      },
+      {
+        "label": "Piper*",
+        "tokens": [
+          "piper"
+        ]
+      }
+    ],
+    "optionalIngredientTokens": [],
+    "ingredientTokens": [
+      "piept",
+      "pui",
+      "faina",
+      "300g",
+      "oua",
+      "ou",
+      "ulei",
+      "sare",
+      "piper",
+      "rata",
+      "la",
+      "cuptor",
+      "umpluta",
+      "fel",
+      "secundar",
+      "2",
+      "buc",
+      "dupa",
+      "gust",
+      "crocant",
+      "sarat",
+      "satios",
+      "complexitate",
+      "medie",
+      "necesita",
+      "atentie",
+      "sub",
+      "30",
+      "minute",
+      "pranz",
+      "cina",
+      "pentru",
+      "familie",
+      "cu",
+      "carne",
+      "tigaie",
+      "prajire"
+    ],
+    "tags": {
+      "taste": [
+        "Crocant",
+        "Sărat",
+        "Sățios"
+      ],
+      "complexity": [
+        "Complexitate medie",
+        "Necesită atenție"
+      ],
+      "time": [
+        "Sub 30 minute"
+      ],
+      "context": [
+        "Prânz",
+        "Cină",
+        "Pentru familie"
+      ],
+      "diet": [
+        "Cu carne"
+      ],
+      "equipment": [
+        "La tigaie"
+      ],
+      "technique": [
+        "Prăjire",
+        "La tigaie"
+      ]
+    },
+    "equipment": [
+      "La tigaie"
+    ],
+    "totalTimeMinutes": null,
+    "keywords": [
+      "rata",
+      "la",
+      "cuptor",
+      "umpluta",
+      "fel",
+      "secundar",
+      "piept",
+      "pui",
+      "2",
+      "buc",
+      "faina",
+      "300g",
+      "oua",
+      "ulei",
+      "sare",
+      "piper",
+      "dupa",
+      "gust",
+      "crocant",
+      "sarat",
+      "satios",
+      "complexitate",
+      "medie",
+      "necesita",
+      "atentie",
+      "sub",
+      "30",
+      "minute",
+      "pranz",
+      "cina",
+      "pentru",
+      "familie",
+      "cu",
+      "carne",
+      "tigaie",
+      "prajire"
+    ]
+  },
+  {
+    "slug": "shakshuka",
+    "title": "Shakshuka",
+    "name": "Shakshuka",
+    "category": "Fel secundar",
+    "description": "Se feliaza cubulete ardeii capia si ceapa.",
+    "ingredients": [
+      "Mix legume tocate",
+      "Morcov",
+      "Patrunjel",
+      "Pastarnac",
+      "Ceapa",
+      "Telina",
+      "Ardei capia - 4-5 buc.",
+      "Ceapa - 2 buc. (extra pe langa mix)",
+      "Conserva rosii intregi - 1 buc.",
+      "Catei de usturoi - 4 buc.",
+      "Patrunjel - 1 legatura",
+      "Bulion - 100ml",
+      "Apa - 20-30ml",
+      "Feta - 200g",
+      "Oua - 4 buc.",
+      "Ulei masline",
+      "Sare*",
+      "Piper*",
+      "Curry*",
+      "Boia dulce*",
+      "Coriandru*",
+      "Chilly*",
+      "Busuioc*",
+      "*dupa gust"
+    ],
+    "requiredIngredients": [
+      "Mix legume tocate",
+      "Morcov",
+      "Patrunjel",
+      "Pastarnac",
+      "Ceapa",
+      "Telina",
+      "Ardei capia - 4-5 buc.",
+      "Ceapa - 2 buc. (extra pe langa mix)",
+      "Conserva rosii intregi - 1 buc.",
+      "Catei de usturoi - 4 buc.",
+      "Patrunjel - 1 legatura",
+      "Bulion - 100ml",
+      "Apa - 20-30ml",
+      "Feta - 200g",
+      "Oua - 4 buc.",
+      "Ulei masline",
+      "Sare*",
+      "Piper*",
+      "Curry*",
+      "Boia dulce*",
+      "Coriandru*",
+      "Chilly*",
+      "Busuioc*",
+      "*dupa gust"
+    ],
+    "optionalIngredients": [],
+    "requiredIngredientTokens": [
+      {
+        "label": "Mix legume tocate",
+        "tokens": [
+          "mix",
+          "legume",
+          "tocate"
+        ]
+      },
+      {
+        "label": "Morcov",
+        "tokens": [
+          "morcov"
+        ]
+      },
+      {
+        "label": "Patrunjel",
+        "tokens": [
+          "patrunjel"
+        ]
+      },
+      {
+        "label": "Pastarnac",
+        "tokens": [
+          "pastarnac"
+        ]
+      },
+      {
+        "label": "Ceapa",
+        "tokens": [
+          "ceapa",
+          "cepe"
+        ]
+      },
+      {
+        "label": "Telina",
+        "tokens": [
+          "telina"
+        ]
+      },
+      {
+        "label": "Ardei capia - 4-5 buc.",
+        "tokens": [
+          "ardei",
+          "capia"
+        ]
+      },
+      {
+        "label": "Ceapa - 2 buc. (extra pe langa mix)",
+        "tokens": [
+          "ceapa",
+          "cepe",
+          "extra",
+          "pe",
+          "langa",
+          "mix"
+        ]
+      },
+      {
+        "label": "Conserva rosii intregi - 1 buc.",
+        "tokens": [
+          "conserva",
+          "rosii",
+          "rosie",
+          "intregi"
+        ]
+      },
+      {
+        "label": "Catei de usturoi - 4 buc.",
+        "tokens": [
+          "catei",
+          "usturoi"
+        ]
+      },
+      {
+        "label": "Patrunjel - 1 legatura",
+        "tokens": [
+          "patrunjel",
+          "legatura"
+        ]
+      },
+      {
+        "label": "Bulion - 100ml",
+        "tokens": [
+          "bulion",
+          "100ml"
+        ]
+      },
+      {
+        "label": "Apa - 20-30ml",
+        "tokens": [
+          "apa",
+          "30ml"
+        ]
+      },
+      {
+        "label": "Feta - 200g",
+        "tokens": [
+          "feta",
+          "200g"
+        ]
+      },
+      {
+        "label": "Oua - 4 buc.",
+        "tokens": [
+          "oua",
+          "ou"
+        ]
+      },
+      {
+        "label": "Ulei masline",
+        "tokens": [
+          "ulei",
+          "masline"
+        ]
+      },
+      {
+        "label": "Sare*",
+        "tokens": [
+          "sare"
+        ]
+      },
+      {
+        "label": "Piper*",
+        "tokens": [
+          "piper"
+        ]
+      },
+      {
+        "label": "Curry*",
+        "tokens": [
+          "curry"
+        ]
+      },
+      {
+        "label": "Boia dulce*",
+        "tokens": [
+          "boia",
+          "dulce"
+        ]
+      },
+      {
+        "label": "Coriandru*",
+        "tokens": [
+          "coriandru"
+        ]
+      },
+      {
+        "label": "Chilly*",
+        "tokens": [
+          "chilly"
+        ]
+      },
+      {
+        "label": "Busuioc*",
+        "tokens": [
+          "busuioc"
+        ]
+      }
+    ],
+    "optionalIngredientTokens": [],
+    "ingredientTokens": [
+      "mix",
+      "legume",
+      "tocate",
+      "morcov",
+      "patrunjel",
+      "pastarnac",
+      "ceapa",
+      "cepe",
+      "telina",
+      "ardei",
+      "capia",
+      "extra",
+      "pe",
+      "langa",
+      "conserva",
+      "rosii",
+      "rosie",
+      "intregi",
+      "catei",
+      "usturoi",
+      "legatura",
+      "bulion",
+      "100ml",
+      "apa",
+      "30ml",
+      "feta",
+      "200g",
+      "oua",
+      "ou",
+      "ulei",
+      "masline",
+      "sare",
+      "piper",
+      "curry",
+      "boia",
+      "dulce",
+      "coriandru",
+      "chilly",
+      "busuioc",
+      "shakshuka",
+      "fel",
+      "secundar",
+      "4-5",
+      "buc",
+      "2",
+      "1",
+      "de",
+      "4",
+      "20-30ml",
+      "dupa",
+      "gust",
+      "satios",
+      "condimentat",
+      "aromat",
+      "complexitate",
+      "medie",
+      "necesita",
+      "atentie",
+      "sub",
+      "60",
+      "minute",
+      "mic",
+      "dejun",
+      "pranz",
+      "cina",
+      "comfort",
+      "food",
+      "fara",
+      "carne",
+      "vegetarian",
+      "la",
+      "tigaie",
+      "sotare",
+      "fierbere"
+    ],
+    "tags": {
+      "taste": [
+        "Sățios",
+        "Condimentat",
+        "Aromat"
+      ],
+      "complexity": [
+        "Complexitate medie",
+        "Necesită atenție"
+      ],
+      "time": [
+        "Sub 60 minute"
+      ],
+      "context": [
+        "Mic dejun",
+        "Prânz",
+        "Cină",
+        "Comfort food"
+      ],
+      "diet": [
+        "Fără carne",
+        "Vegetarian"
+      ],
+      "equipment": [
+        "La tigaie"
+      ],
+      "technique": [
+        "Sotare",
+        "Fierbere",
+        "La tigaie"
+      ]
+    },
+    "equipment": [
+      "La tigaie"
+    ],
+    "totalTimeMinutes": null,
+    "keywords": [
+      "shakshuka",
+      "fel",
+      "secundar",
+      "mix",
+      "legume",
+      "tocate",
+      "morcov",
+      "patrunjel",
+      "pastarnac",
+      "ceapa",
+      "telina",
+      "ardei",
+      "capia",
+      "4-5",
+      "buc",
+      "2",
+      "extra",
+      "pe",
+      "langa",
+      "conserva",
+      "rosii",
+      "intregi",
+      "1",
+      "catei",
+      "de",
+      "usturoi",
+      "4",
+      "legatura",
+      "bulion",
+      "100ml",
+      "apa",
+      "20-30ml",
+      "feta",
+      "200g",
+      "oua",
+      "ulei",
+      "masline",
+      "sare",
+      "piper",
+      "curry",
+      "boia",
+      "dulce",
+      "coriandru",
+      "chilly",
+      "busuioc",
+      "dupa",
+      "gust",
+      "satios",
+      "condimentat",
+      "aromat",
+      "complexitate",
+      "medie",
+      "necesita",
+      "atentie",
+      "sub",
+      "60",
+      "minute",
+      "mic",
+      "dejun",
+      "pranz",
+      "cina",
+      "comfort",
+      "food",
+      "fara",
+      "carne",
+      "vegetarian",
+      "la",
+      "tigaie",
+      "sotare",
+      "fierbere"
+    ]
+  },
+  {
+    "slug": "steak-de-vita",
+    "title": "Steak de vita",
+    "name": "Steak de vita",
+    "category": "Fel secundar",
+    "description": "Scoate-ti carnea de la frigider si lasati-o la temperatura camerei 30 min.",
+    "ingredients": [
+      "Tigaie tip grill non-stick",
+      "Cleste (nu furculita, ca sa nu perforezi carnea)",
+      "Farfurie/platou/tocator de lemn pentru odihnirea carnii dupa prajire",
+      "Folie de aluminiu",
+      "Vrabioara manzat - 2 buc. (aprox 350 g)",
+      "Sare grunjoasa",
+      "Piper negru proaspat rasnit",
+      "Ulei floarea soarelui",
+      "Mustar Dijon - 3 lingurite",
+      "Ulei masline extravirgin - 3 lingurite",
+      "Usturoi pudra - 1 lingurita",
+      "Boia dulce - 1 lingurita",
+      "Cimbru uscat - 1/2 lingurita",
+      "Unt - 1 lingura",
+      "Usturoi - 1 catel",
+      "Rozmarin - 1 crenguta",
+      "Fulgi cartofi/cartofi",
+      "Unt",
+      "Lapte",
+      "Sare",
+      "Salata iceberg - 1/2 buc.",
+      "Rosii chery - aprox. 10 buc.",
+      "Ceapa rosie - 1/4 buc.",
+      "Castrevete - 5 buc. (cornison)",
+      "Termometru de carne (optional)"
+    ],
+    "requiredIngredients": [
+      "Tigaie tip grill non-stick",
+      "Cleste (nu furculita, ca sa nu perforezi carnea)",
+      "Farfurie/platou/tocator de lemn pentru odihnirea carnii dupa prajire",
+      "Folie de aluminiu",
+      "Vrabioara manzat - 2 buc. (aprox 350 g)",
+      "Sare grunjoasa",
+      "Piper negru proaspat rasnit",
+      "Ulei floarea soarelui",
+      "Mustar Dijon - 3 lingurite",
+      "Ulei masline extravirgin - 3 lingurite",
+      "Usturoi pudra - 1 lingurita",
+      "Boia dulce - 1 lingurita",
+      "Cimbru uscat - 1/2 lingurita",
+      "Unt - 1 lingura",
+      "Usturoi - 1 catel",
+      "Rozmarin - 1 crenguta",
+      "Fulgi cartofi/cartofi",
+      "Unt",
+      "Lapte",
+      "Sare",
+      "Salata iceberg - 1/2 buc.",
+      "Rosii chery - aprox. 10 buc.",
+      "Ceapa rosie - 1/4 buc.",
+      "Castrevete - 5 buc. (cornison)"
+    ],
+    "optionalIngredients": [
+      "Termometru de carne (optional)"
+    ],
+    "requiredIngredientTokens": [
+      {
+        "label": "Tigaie tip grill non-stick",
+        "tokens": [
+          "tigaie",
+          "tip",
+          "grill",
+          "non",
+          "stick"
+        ]
+      },
+      {
+        "label": "Cleste (nu furculita, ca sa nu perforezi carnea)",
+        "tokens": [
+          "cleste",
+          "nu",
+          "furculita",
+          "ca",
+          "sa",
+          "perforezi",
+          "carnea"
+        ]
+      },
+      {
+        "label": "Farfurie/platou/tocator de lemn pentru odihnirea carnii dupa prajire",
+        "tokens": [
+          "farfurie",
+          "platou",
+          "tocator",
+          "lemn",
+          "odihnirea",
+          "carnii",
+          "prajire"
+        ]
+      },
+      {
+        "label": "Folie de aluminiu",
+        "tokens": [
+          "folie",
+          "aluminiu"
+        ]
+      },
+      {
+        "label": "Vrabioara manzat - 2 buc. (aprox 350 g)",
+        "tokens": [
+          "vrabioara",
+          "manzat",
+          "aprox"
+        ]
+      },
+      {
+        "label": "Sare grunjoasa",
+        "tokens": [
+          "sare",
+          "grunjoasa"
+        ]
+      },
+      {
+        "label": "Piper negru proaspat rasnit",
+        "tokens": [
+          "piper",
+          "negru",
+          "rasnit"
+        ]
+      },
+      {
+        "label": "Ulei floarea soarelui",
+        "tokens": [
+          "ulei",
+          "floarea",
+          "soarelui"
+        ]
+      },
+      {
+        "label": "Mustar Dijon - 3 lingurite",
+        "tokens": [
+          "mustar",
+          "dijon"
+        ]
+      },
+      {
+        "label": "Ulei masline extravirgin - 3 lingurite",
+        "tokens": [
+          "ulei",
+          "masline",
+          "extravirgin"
+        ]
+      },
+      {
+        "label": "Usturoi pudra - 1 lingurita",
+        "tokens": [
+          "usturoi",
+          "pudra"
+        ]
+      },
+      {
+        "label": "Boia dulce - 1 lingurita",
+        "tokens": [
+          "boia",
+          "dulce"
+        ]
+      },
+      {
+        "label": "Cimbru uscat - 1/2 lingurita",
+        "tokens": [
+          "cimbru",
+          "uscat"
+        ]
+      },
+      {
+        "label": "Unt - 1 lingura",
+        "tokens": [
+          "unt"
+        ]
+      },
+      {
+        "label": "Usturoi - 1 catel",
+        "tokens": [
+          "usturoi",
+          "catel"
+        ]
+      },
+      {
+        "label": "Rozmarin - 1 crenguta",
+        "tokens": [
+          "rozmarin",
+          "crenguta"
+        ]
+      },
+      {
+        "label": "Fulgi cartofi/cartofi",
+        "tokens": [
+          "fulgi",
+          "cartofi",
+          "cartof"
+        ]
+      },
+      {
+        "label": "Unt",
+        "tokens": [
+          "unt"
+        ]
+      },
+      {
+        "label": "Lapte",
+        "tokens": [
+          "lapte"
+        ]
+      },
+      {
+        "label": "Sare",
+        "tokens": [
+          "sare"
+        ]
+      },
+      {
+        "label": "Salata iceberg - 1/2 buc.",
+        "tokens": [
+          "salata",
+          "iceberg"
+        ]
+      },
+      {
+        "label": "Rosii chery - aprox. 10 buc.",
+        "tokens": [
+          "rosii",
+          "rosie",
+          "chery",
+          "aprox"
+        ]
+      },
+      {
+        "label": "Ceapa rosie - 1/4 buc.",
+        "tokens": [
+          "ceapa",
+          "cepe",
+          "rosie",
+          "rosii"
+        ]
+      },
+      {
+        "label": "Castrevete - 5 buc. (cornison)",
+        "tokens": [
+          "castrevete",
+          "cornison"
+        ]
+      }
+    ],
+    "optionalIngredientTokens": [
+      {
+        "label": "Termometru de carne (optional)",
+        "tokens": [
+          "termometru",
+          "carne"
+        ]
+      }
+    ],
+    "ingredientTokens": [
+      "tigaie",
+      "tip",
+      "grill",
+      "non",
+      "stick",
+      "cleste",
+      "nu",
+      "furculita",
+      "ca",
+      "sa",
+      "perforezi",
+      "carnea",
+      "farfurie",
+      "platou",
+      "tocator",
+      "lemn",
+      "odihnirea",
+      "carnii",
+      "prajire",
+      "folie",
+      "aluminiu",
+      "vrabioara",
+      "manzat",
+      "aprox",
+      "sare",
+      "grunjoasa",
+      "piper",
+      "negru",
+      "rasnit",
+      "ulei",
+      "floarea",
+      "soarelui",
+      "mustar",
+      "dijon",
+      "masline",
+      "extravirgin",
+      "usturoi",
+      "pudra",
+      "boia",
+      "dulce",
+      "cimbru",
+      "uscat",
+      "unt",
+      "catel",
+      "rozmarin",
+      "crenguta",
+      "fulgi",
+      "cartofi",
+      "cartof",
+      "lapte",
+      "salata",
+      "iceberg",
+      "rosii",
+      "rosie",
+      "chery",
+      "ceapa",
+      "cepe",
+      "castrevete",
+      "cornison",
+      "termometru",
+      "carne",
+      "steak",
+      "de",
+      "vita",
+      "fel",
+      "secundar",
+      "ustensile",
+      "non-stick",
+      "optional",
+      "farfurie-platou-tocator",
+      "pentru",
+      "dupa",
+      "2",
+      "buc",
+      "350",
+      "g",
+      "proaspat",
+      "3",
+      "lingurite",
+      "1",
+      "lingurita",
+      "1-2",
+      "lingura",
+      "side",
+      "piure",
+      "cartofi-cartofi",
+      "verde",
+      "10",
+      "1-4",
+      "5",
+      "satios",
+      "aromat",
+      "necesita",
+      "atentie",
+      "cina",
+      "weekend",
+      "cu",
+      "la",
+      "marinare"
+    ],
+    "tags": {
+      "taste": [
+        "Sățios",
+        "Aromat"
+      ],
+      "complexity": [
+        "Necesită atenție"
+      ],
+      "context": [
+        "Cină",
+        "Pentru weekend"
+      ],
+      "diet": [
+        "Cu carne"
+      ],
+      "equipment": [
+        "La tigaie",
+        "Necesită termometru"
+      ],
+      "technique": [
+        "La tigaie",
+        "Marinare"
+      ]
+    },
+    "equipment": [
+      "La tigaie",
+      "Necesită termometru"
+    ],
+    "totalTimeMinutes": null,
+    "keywords": [
+      "steak",
+      "de",
+      "vita",
+      "fel",
+      "secundar",
+      "ustensile",
+      "tigaie",
+      "tip",
+      "grill",
+      "non-stick",
+      "cleste",
+      "nu",
+      "furculita",
+      "ca",
+      "sa",
+      "perforezi",
+      "carnea",
+      "termometru",
+      "carne",
+      "optional",
+      "farfurie-platou-tocator",
+      "lemn",
+      "pentru",
+      "odihnirea",
+      "carnii",
+      "dupa",
+      "prajire",
+      "folie",
+      "aluminiu",
+      "vrabioara",
+      "manzat",
+      "2",
+      "buc",
+      "aprox",
+      "350",
+      "g",
+      "sare",
+      "grunjoasa",
+      "piper",
+      "negru",
+      "proaspat",
+      "rasnit",
+      "ulei",
+      "floarea",
+      "soarelui",
+      "mustar",
+      "dijon",
+      "3",
+      "lingurite",
+      "masline",
+      "extravirgin",
+      "usturoi",
+      "pudra",
+      "1",
+      "lingurita",
+      "boia",
+      "dulce",
+      "cimbru",
+      "uscat",
+      "1-2",
+      "unt",
+      "lingura",
+      "catel",
+      "rozmarin",
+      "crenguta",
+      "side",
+      "piure",
+      "cartofi",
+      "fulgi",
+      "cartofi-cartofi",
+      "lapte",
+      "salata",
+      "verde",
+      "iceberg",
+      "rosii",
+      "chery",
+      "10",
+      "ceapa",
+      "rosie",
+      "1-4",
+      "castrevete",
+      "5",
+      "cornison",
+      "satios",
+      "aromat",
+      "necesita",
+      "atentie",
+      "cina",
+      "weekend",
+      "cu",
+      "la",
+      "marinare"
+    ]
+  },
+  {
+    "slug": "tocanita-de-cartofi",
+    "title": "Tocanita De Cartofi",
+    "name": "Tocanita De Cartofi",
+    "category": "Fel secundar",
+    "description": "Se curata ceapa, cartofii si usturoiul.",
+    "ingredients": [
+      "Piept pui (2 buc.)",
+      "Ceapa mare (2 buc.)",
+      "Usturoi (2 catei)",
+      "Cartofi (~1,5g)",
+      "Mix legume (ceap, morcov, ardei, patrunjel radacina, pastarnac radacina)",
+      "Apa",
+      "Sare*",
+      "Boia*",
+      "Piper negru proaspat rasnit*",
+      "Ulei floarea soarelui",
+      "Frunze patrunjel*",
+      "*dupa gust"
+    ],
+    "requiredIngredients": [
+      "Piept pui (2 buc.)",
+      "Ceapa mare (2 buc.)",
+      "Usturoi (2 catei)",
+      "Cartofi (~1,5g)",
+      "Mix legume (ceap, morcov, ardei, patrunjel radacina, pastarnac radacina)",
+      "Apa",
+      "Sare*",
+      "Boia*",
+      "Piper negru proaspat rasnit*",
+      "Ulei floarea soarelui",
+      "Frunze patrunjel*",
+      "*dupa gust"
+    ],
+    "optionalIngredients": [],
+    "requiredIngredientTokens": [
+      {
+        "label": "Piept pui (2 buc.)",
+        "tokens": [
+          "piept",
+          "pui"
+        ]
+      },
+      {
+        "label": "Ceapa mare (2 buc.)",
+        "tokens": [
+          "ceapa",
+          "cepe",
+          "mare"
+        ]
+      },
+      {
+        "label": "Usturoi (2 catei)",
+        "tokens": [
+          "usturoi",
+          "catei"
+        ]
+      },
+      {
+        "label": "Cartofi (~1,5g)",
+        "tokens": [
+          "cartofi",
+          "cartof",
+          "5g"
+        ]
+      },
+      {
+        "label": "Mix legume (ceap, morcov, ardei, patrunjel radacina, pastarnac radacina)",
+        "tokens": [
+          "mix",
+          "legume",
+          "ceap",
+          "morcov",
+          "ardei",
+          "patrunjel",
+          "radacina",
+          "pastarnac"
+        ]
+      },
+      {
+        "label": "Apa",
+        "tokens": [
+          "apa"
+        ]
+      },
+      {
+        "label": "Sare*",
+        "tokens": [
+          "sare"
+        ]
+      },
+      {
+        "label": "Boia*",
+        "tokens": [
+          "boia"
+        ]
+      },
+      {
+        "label": "Piper negru proaspat rasnit*",
+        "tokens": [
+          "piper",
+          "negru",
+          "rasnit"
+        ]
+      },
+      {
+        "label": "Ulei floarea soarelui",
+        "tokens": [
+          "ulei",
+          "floarea",
+          "soarelui"
+        ]
+      },
+      {
+        "label": "Frunze patrunjel*",
+        "tokens": [
+          "frunze",
+          "patrunjel"
+        ]
+      }
+    ],
+    "optionalIngredientTokens": [],
+    "ingredientTokens": [
+      "piept",
+      "pui",
+      "ceapa",
+      "cepe",
+      "mare",
+      "usturoi",
+      "catei",
+      "cartofi",
+      "cartof",
+      "5g",
+      "mix",
+      "legume",
+      "ceap",
+      "morcov",
+      "ardei",
+      "patrunjel",
+      "radacina",
+      "pastarnac",
+      "apa",
+      "sare",
+      "boia",
+      "piper",
+      "negru",
+      "rasnit",
+      "ulei",
+      "floarea",
+      "soarelui",
+      "frunze",
+      "tocanita",
+      "de",
+      "fel",
+      "secundar",
+      "2",
+      "buc",
+      "1-5g",
+      "proaspat",
+      "dupa",
+      "gust",
+      "satios",
+      "rustic",
+      "aromat",
+      "complexitate",
+      "medie",
+      "pranz",
+      "cina",
+      "pentru",
+      "familie",
+      "comfort",
+      "food",
+      "cu",
+      "carne",
+      "la",
+      "oala",
+      "sotare",
+      "fierbere"
+    ],
+    "tags": {
+      "taste": [
+        "Sățios",
+        "Rustic",
+        "Aromat"
+      ],
+      "complexity": [
+        "Complexitate medie"
+      ],
+      "context": [
+        "Prânz",
+        "Cină",
+        "Pentru familie",
+        "Comfort food"
+      ],
+      "diet": [
+        "Cu carne"
+      ],
+      "equipment": [
+        "La oală"
+      ],
+      "technique": [
+        "Sotare",
+        "Fierbere"
+      ]
+    },
+    "equipment": [
+      "La oală"
+    ],
+    "totalTimeMinutes": null,
+    "keywords": [
+      "tocanita",
+      "de",
+      "cartofi",
+      "fel",
+      "secundar",
+      "piept",
+      "pui",
+      "2",
+      "buc",
+      "ceapa",
+      "mare",
+      "usturoi",
+      "catei",
+      "1-5g",
+      "mix",
+      "legume",
+      "ceap",
+      "morcov",
+      "ardei",
+      "patrunjel",
+      "radacina",
+      "pastarnac",
+      "apa",
+      "sare",
+      "boia",
+      "piper",
+      "negru",
+      "proaspat",
+      "rasnit",
+      "ulei",
+      "floarea",
+      "soarelui",
+      "frunze",
+      "dupa",
+      "gust",
+      "satios",
+      "rustic",
+      "aromat",
+      "complexitate",
+      "medie",
+      "pranz",
+      "cina",
+      "pentru",
+      "familie",
+      "comfort",
+      "food",
+      "cu",
+      "carne",
+      "la",
+      "oala",
+      "sotare",
+      "fierbere"
+    ]
+  },
+  {
+    "slug": "tocanita-de-pui-cu-ardei",
+    "title": "Tocăniță de pui cu ardei copți",
+    "name": "Tocăniță de pui cu ardei copți",
+    "category": "Fel secundar",
+    "description": "Gătește pulpele de pui până se rumenesc ușor.",
+    "ingredients": [
+      "pulpe de pui",
+      "ardei capia",
+      "ceapă",
+      "usturoi",
+      "bulion",
+      "ulei de măsline",
+      "pătrunjel",
+      "busuioc",
+      "curry",
+      "piper",
+      "sare",
+      "pâine ciabatta"
+    ],
+    "requiredIngredients": [
+      "pulpe de pui",
+      "ardei capia",
+      "ceapă",
+      "usturoi",
+      "bulion",
+      "ulei de măsline",
+      "pătrunjel",
+      "busuioc",
+      "curry",
+      "piper",
+      "sare",
+      "pâine ciabatta"
+    ],
+    "optionalIngredients": [],
+    "requiredIngredientTokens": [
+      {
+        "label": "pulpe de pui",
+        "tokens": [
+          "pulpe",
+          "pui"
+        ]
+      },
+      {
+        "label": "ardei capia",
+        "tokens": [
+          "ardei",
+          "capia"
+        ]
+      },
+      {
+        "label": "ceapă",
+        "tokens": [
+          "ceapa",
+          "cepe"
+        ]
+      },
+      {
+        "label": "usturoi",
+        "tokens": [
+          "usturoi"
+        ]
+      },
+      {
+        "label": "bulion",
+        "tokens": [
+          "bulion"
+        ]
+      },
+      {
+        "label": "ulei de măsline",
+        "tokens": [
+          "ulei",
+          "masline"
+        ]
+      },
+      {
+        "label": "pătrunjel",
+        "tokens": [
+          "patrunjel"
+        ]
+      },
+      {
+        "label": "busuioc",
+        "tokens": [
+          "busuioc"
+        ]
+      },
+      {
+        "label": "curry",
+        "tokens": [
+          "curry"
+        ]
+      },
+      {
+        "label": "piper",
+        "tokens": [
+          "piper"
+        ]
+      },
+      {
+        "label": "sare",
+        "tokens": [
+          "sare"
+        ]
+      },
+      {
+        "label": "pâine ciabatta",
+        "tokens": [
+          "paine",
+          "ciabatta"
+        ]
+      }
+    ],
+    "optionalIngredientTokens": [],
+    "ingredientTokens": [
+      "pulpe",
+      "pui",
+      "ardei",
+      "capia",
+      "ceapa",
+      "cepe",
+      "usturoi",
+      "bulion",
+      "ulei",
+      "masline",
+      "patrunjel",
+      "busuioc",
+      "curry",
+      "piper",
+      "sare",
+      "paine",
+      "ciabatta",
+      "tocanita",
+      "de",
+      "cu",
+      "copti",
+      "fel",
+      "secundar",
+      "satios",
+      "aromat",
+      "condimentat",
+      "usor",
+      "risc",
+      "mic",
+      "greseala",
+      "pranz",
+      "cina",
+      "pentru",
+      "familie",
+      "carne",
+      "la",
+      "oala",
+      "sotare",
+      "fierbere"
+    ],
+    "tags": {
+      "taste": [
+        "Sățios",
+        "Aromat",
+        "Condimentat"
+      ],
+      "complexity": [
+        "Ușor",
+        "Risc mic de greșeală"
+      ],
+      "context": [
+        "Prânz",
+        "Cină",
+        "Pentru familie"
+      ],
+      "diet": [
+        "Cu carne"
+      ],
+      "equipment": [
+        "La oală"
+      ],
+      "technique": [
+        "Sotare",
+        "Fierbere"
+      ]
+    },
+    "equipment": [
+      "La oală"
+    ],
+    "totalTimeMinutes": null,
+    "keywords": [
+      "tocanita",
+      "de",
+      "pui",
+      "cu",
+      "ardei",
+      "copti",
+      "fel",
+      "secundar",
+      "pulpe",
+      "capia",
+      "ceapa",
+      "usturoi",
+      "bulion",
+      "ulei",
+      "masline",
+      "patrunjel",
+      "busuioc",
+      "curry",
+      "piper",
+      "sare",
+      "paine",
+      "ciabatta",
+      "satios",
+      "aromat",
+      "condimentat",
+      "usor",
+      "risc",
+      "mic",
+      "greseala",
+      "pranz",
+      "cina",
+      "pentru",
+      "familie",
+      "carne",
+      "la",
+      "oala",
+      "sotare",
+      "fierbere"
+    ]
+  },
+  {
+    "slug": "placinta-cu-dovleac",
+    "title": "Placinta cu dovleac",
+    "name": "Placinta cu dovleac",
+    "category": "Desert",
+    "description": "Se taie un dovleac galben sau dovleac \"placintar\" in bucati medi si se baga la cuptor pentru aproximativ 40 min la o temperatura de 190 °C.",
+    "ingredients": [
+      "Scortisoara - 125 g",
+      "Ghimbir pudra - 8 g",
+      "Nucsoara - 3 g",
+      "Cuisoare - 4 g",
+      "Oua - 2 buc.",
+      "Frisca lichida - 2/3 buc. * 200 ml",
+      "Dovleac copt zdrobit - 1 buc.",
+      "Vanilie pastaie/esenta",
+      "Aluat pentru foietaje",
+      "Zahar"
+    ],
+    "requiredIngredients": [
+      "Scortisoara - 125 g",
+      "Ghimbir pudra - 8 g",
+      "Nucsoara - 3 g",
+      "Cuisoare - 4 g",
+      "Oua - 2 buc.",
+      "Frisca lichida - 2/3 buc. * 200 ml",
+      "Dovleac copt zdrobit - 1 buc.",
+      "Vanilie pastaie/esenta",
+      "Aluat pentru foietaje",
+      "Zahar"
+    ],
+    "optionalIngredients": [],
+    "requiredIngredientTokens": [
+      {
+        "label": "Scortisoara - 125 g",
+        "tokens": [
+          "scortisoara"
+        ]
+      },
+      {
+        "label": "Ghimbir pudra - 8 g",
+        "tokens": [
+          "ghimbir",
+          "pudra"
+        ]
+      },
+      {
+        "label": "Nucsoara - 3 g",
+        "tokens": [
+          "nucsoara"
+        ]
+      },
+      {
+        "label": "Cuisoare - 4 g",
+        "tokens": [
+          "cuisoare"
+        ]
+      },
+      {
+        "label": "Oua - 2 buc.",
+        "tokens": [
+          "oua",
+          "ou"
+        ]
+      },
+      {
+        "label": "Frisca lichida - 2/3 buc. * 200 ml",
+        "tokens": [
+          "frisca",
+          "lichida"
+        ]
+      },
+      {
+        "label": "Dovleac copt zdrobit - 1 buc.",
+        "tokens": [
+          "dovleac",
+          "copt",
+          "zdrobit"
+        ]
+      },
+      {
+        "label": "Vanilie pastaie/esenta",
+        "tokens": [
+          "vanilie",
+          "pastaie",
+          "esenta"
+        ]
+      },
+      {
+        "label": "Aluat pentru foietaje",
+        "tokens": [
+          "aluat",
+          "foietaje"
+        ]
+      },
+      {
+        "label": "Zahar",
+        "tokens": [
+          "zahar"
+        ]
+      }
+    ],
+    "optionalIngredientTokens": [],
+    "ingredientTokens": [
+      "scortisoara",
+      "ghimbir",
+      "pudra",
+      "nucsoara",
+      "cuisoare",
+      "oua",
+      "ou",
+      "frisca",
+      "lichida",
+      "dovleac",
+      "copt",
+      "zdrobit",
+      "vanilie",
+      "pastaie",
+      "esenta",
+      "aluat",
+      "foietaje",
+      "zahar",
+      "placinta",
+      "cu",
+      "desert",
+      "125",
+      "g",
+      "8",
+      "3",
+      "4",
+      "2",
+      "buc",
+      "2-3",
+      "200",
+      "ml",
+      "1",
+      "pastaie-esenta",
+      "pentru",
+      "dulce",
+      "aromat",
+      "fin",
+      "complexitate",
+      "medie",
+      "necesita",
+      "atentie",
+      "weekend",
+      "musafiri",
+      "fara",
+      "carne",
+      "vegetarian",
+      "cuptor",
+      "tava",
+      "coacere",
+      "la"
+    ],
+    "tags": {
+      "taste": [
+        "Dulce",
+        "Aromat",
+        "Fin"
+      ],
+      "complexity": [
+        "Complexitate medie",
+        "Necesită atenție"
+      ],
+      "context": [
+        "Pentru weekend",
+        "Pentru musafiri"
+      ],
+      "diet": [
+        "Fără carne",
+        "Vegetarian"
+      ],
+      "equipment": [
+        "Necesită cuptor",
+        "Necesită tavă"
+      ],
+      "technique": [
+        "Coacere",
+        "La cuptor"
+      ]
+    },
+    "equipment": [
+      "Necesită cuptor",
+      "Necesită tavă"
+    ],
+    "totalTimeMinutes": null,
+    "keywords": [
+      "placinta",
+      "cu",
+      "dovleac",
+      "desert",
+      "scortisoara",
+      "125",
+      "g",
+      "ghimbir",
+      "pudra",
+      "8",
+      "nucsoara",
+      "3",
+      "cuisoare",
+      "4",
+      "oua",
+      "2",
+      "buc",
+      "frisca",
+      "lichida",
+      "2-3",
+      "200",
+      "ml",
+      "copt",
+      "zdrobit",
+      "1",
+      "vanilie",
+      "pastaie-esenta",
+      "aluat",
+      "pentru",
+      "foietaje",
+      "zahar",
+      "dulce",
+      "aromat",
+      "fin",
+      "complexitate",
+      "medie",
+      "necesita",
+      "atentie",
+      "weekend",
+      "musafiri",
+      "fara",
+      "carne",
+      "vegetarian",
+      "cuptor",
+      "tava",
+      "coacere",
+      "la"
+    ]
+  },
+  {
+    "slug": "charcuterie-board",
+    "title": "Charcuterie board",
+    "name": "Charcuterie board",
+    "category": "Rontaieli",
+    "description": "Se feliaza ardeiul, castravetele, salamul, branza si cascavalul.",
+    "ingredients": [
+      "Grisine*",
+      "Biscuiti graham*",
+      "Rosii chery*",
+      "Carnaciori sticks*",
+      "Castravete*",
+      "Ardei*",
+      "Branza feta/telemea*",
+      "Masline*",
+      "Cascaval*",
+      "Salata verde*",
+      "Salam*",
+      "Vin alb",
+      "*dupa gust"
+    ],
+    "requiredIngredients": [
+      "Grisine*",
+      "Biscuiti graham*",
+      "Rosii chery*",
+      "Carnaciori sticks*",
+      "Castravete*",
+      "Ardei*",
+      "Branza feta/telemea*",
+      "Masline*",
+      "Cascaval*",
+      "Salata verde*",
+      "Salam*",
+      "Vin alb",
+      "*dupa gust"
+    ],
+    "optionalIngredients": [],
+    "requiredIngredientTokens": [
+      {
+        "label": "Grisine*",
+        "tokens": [
+          "grisine"
+        ]
+      },
+      {
+        "label": "Biscuiti graham*",
+        "tokens": [
+          "biscuiti",
+          "graham"
+        ]
+      },
+      {
+        "label": "Rosii chery*",
+        "tokens": [
+          "rosii",
+          "rosie",
+          "chery"
+        ]
+      },
+      {
+        "label": "Carnaciori sticks*",
+        "tokens": [
+          "carnaciori",
+          "sticks"
+        ]
+      },
+      {
+        "label": "Castravete*",
+        "tokens": [
+          "castravete"
+        ]
+      },
+      {
+        "label": "Ardei*",
+        "tokens": [
+          "ardei"
+        ]
+      },
+      {
+        "label": "Branza feta/telemea*",
+        "tokens": [
+          "branza",
+          "feta",
+          "telemea"
+        ]
+      },
+      {
+        "label": "Masline*",
+        "tokens": [
+          "masline"
+        ]
+      },
+      {
+        "label": "Cascaval*",
+        "tokens": [
+          "cascaval"
+        ]
+      },
+      {
+        "label": "Salata verde*",
+        "tokens": [
+          "salata",
+          "verde"
+        ]
+      },
+      {
+        "label": "Salam*",
+        "tokens": [
+          "salam"
+        ]
+      },
+      {
+        "label": "Vin alb",
+        "tokens": [
+          "vin",
+          "alb"
+        ]
+      }
+    ],
+    "optionalIngredientTokens": [],
+    "ingredientTokens": [
+      "grisine",
+      "biscuiti",
+      "graham",
+      "rosii",
+      "rosie",
+      "chery",
+      "carnaciori",
+      "sticks",
+      "castravete",
+      "ardei",
+      "branza",
+      "feta",
+      "telemea",
+      "masline",
+      "cascaval",
+      "salata",
+      "verde",
+      "salam",
+      "vin",
+      "alb",
+      "charcuterie",
+      "board",
+      "rontaieli",
+      "feta-telemea",
+      "dupa",
+      "gust",
+      "sarat",
+      "fresh",
+      "usor",
+      "incepator",
+      "risc",
+      "mic",
+      "de",
+      "greseala",
+      "sub",
+      "15",
+      "minute",
+      "reteta",
+      "rapida",
+      "gustare",
+      "pentru",
+      "musafiri",
+      "weekend",
+      "cu",
+      "carne",
+      "fara",
+      "gatire"
+    ],
+    "tags": {
+      "taste": [
+        "Sărat",
+        "Fresh",
+        "Ușor"
+      ],
+      "complexity": [
+        "Începător",
+        "Ușor",
+        "Risc mic de greșeală"
+      ],
+      "time": [
+        "Sub 15 minute",
+        "Rețetă rapidă"
+      ],
+      "context": [
+        "Gustare",
+        "Pentru musafiri",
+        "Pentru weekend"
+      ],
+      "diet": [
+        "Cu carne"
+      ],
+      "technique": [
+        "Fără gătire"
+      ]
+    },
+    "equipment": [],
+    "totalTimeMinutes": null,
+    "keywords": [
+      "charcuterie",
+      "board",
+      "rontaieli",
+      "grisine",
+      "biscuiti",
+      "graham",
+      "rosii",
+      "chery",
+      "carnaciori",
+      "sticks",
+      "castravete",
+      "ardei",
+      "branza",
+      "feta-telemea",
+      "masline",
+      "cascaval",
+      "salata",
+      "verde",
+      "salam",
+      "vin",
+      "alb",
+      "dupa",
+      "gust",
+      "sarat",
+      "fresh",
+      "usor",
+      "incepator",
+      "risc",
+      "mic",
+      "de",
+      "greseala",
+      "sub",
+      "15",
+      "minute",
+      "reteta",
+      "rapida",
+      "gustare",
+      "pentru",
+      "musafiri",
+      "weekend",
+      "cu",
+      "carne",
+      "fara",
+      "gatire"
+    ]
+  },
+  {
+    "slug": "fructe-cu-nutella",
+    "title": "Fructe cu Nutella",
+    "name": "Fructe cu Nutella",
+    "category": "Rontaieli",
+    "description": "Se feliaza fructele si se adauga jumatate de lingurita de nutella peste ele.",
+    "ingredients": [
+      "Nutella",
+      "Banana/Capsuni/Mar/Afine/Kivi",
+      "*dupa gust"
+    ],
+    "requiredIngredients": [
+      "Nutella",
+      "Banana/Capsuni/Mar/Afine/Kivi",
+      "*dupa gust"
+    ],
+    "optionalIngredients": [],
+    "requiredIngredientTokens": [
+      {
+        "label": "Nutella",
+        "tokens": [
+          "nutella"
+        ]
+      },
+      {
+        "label": "Banana/Capsuni/Mar/Afine/Kivi",
+        "tokens": [
+          "banana",
+          "capsuni",
+          "mar",
+          "afine",
+          "kivi"
+        ]
+      }
+    ],
+    "optionalIngredientTokens": [],
+    "ingredientTokens": [
+      "nutella",
+      "banana",
+      "capsuni",
+      "mar",
+      "afine",
+      "kivi",
+      "fructe",
+      "cu",
+      "rontaieli",
+      "banana-capsuni-mar-afine-kivi",
+      "dupa",
+      "gust",
+      "dulce",
+      "fresh",
+      "usor",
+      "incepator",
+      "risc",
+      "mic",
+      "de",
+      "greseala",
+      "sub",
+      "15",
+      "minute",
+      "reteta",
+      "rapida",
+      "gustare",
+      "pentru",
+      "zile",
+      "aglomerate",
+      "fara",
+      "carne",
+      "vegetarian",
+      "gatire"
+    ],
+    "tags": {
+      "taste": [
+        "Dulce",
+        "Fresh",
+        "Ușor"
+      ],
+      "complexity": [
+        "Începător",
+        "Ușor",
+        "Risc mic de greșeală"
+      ],
+      "time": [
+        "Sub 15 minute",
+        "Rețetă rapidă"
+      ],
+      "context": [
+        "Gustare",
+        "Pentru zile aglomerate"
+      ],
+      "diet": [
+        "Fără carne",
+        "Vegetarian"
+      ],
+      "technique": [
+        "Fără gătire"
+      ]
+    },
+    "equipment": [],
+    "totalTimeMinutes": null,
+    "keywords": [
+      "fructe",
+      "cu",
+      "nutella",
+      "rontaieli",
+      "banana-capsuni-mar-afine-kivi",
+      "dupa",
+      "gust",
+      "dulce",
+      "fresh",
+      "usor",
+      "incepator",
+      "risc",
+      "mic",
+      "de",
+      "greseala",
+      "sub",
+      "15",
+      "minute",
+      "reteta",
+      "rapida",
+      "gustare",
+      "pentru",
+      "zile",
+      "aglomerate",
+      "fara",
+      "carne",
+      "vegetarian",
+      "gatire"
+    ]
+  },
+  {
+    "slug": "mar-cu-unt-de-arahide",
+    "title": "Mar cu unt de arahide",
+    "name": "Mar cu unt de arahide",
+    "category": "Rontaieli",
+    "description": "Se feliaza marul.",
+    "ingredients": [
+      "Mar (1 buc.)",
+      "Unt arahide (2 linguri)"
+    ],
+    "requiredIngredients": [
+      "Mar (1 buc.)",
+      "Unt arahide (2 linguri)"
+    ],
+    "optionalIngredients": [],
+    "requiredIngredientTokens": [
+      {
+        "label": "Mar (1 buc.)",
+        "tokens": [
+          "mar"
+        ]
+      },
+      {
+        "label": "Unt arahide (2 linguri)",
+        "tokens": [
+          "unt",
+          "arahide"
+        ]
+      }
+    ],
+    "optionalIngredientTokens": [],
+    "ingredientTokens": [
+      "mar",
+      "unt",
+      "arahide",
+      "cu",
+      "de",
+      "rontaieli",
+      "1",
+      "buc",
+      "2",
+      "linguri",
+      "dulce",
+      "fresh",
+      "usor",
+      "incepator",
+      "risc",
+      "mic",
+      "greseala",
+      "sub",
+      "15",
+      "minute",
+      "reteta",
+      "rapida",
+      "gustare",
+      "pentru",
+      "zile",
+      "aglomerate",
+      "fara",
+      "carne",
+      "vegetarian",
+      "lactate",
+      "ou",
+      "gatire"
+    ],
+    "tags": {
+      "taste": [
+        "Dulce",
+        "Fresh",
+        "Ușor"
+      ],
+      "complexity": [
+        "Începător",
+        "Ușor",
+        "Risc mic de greșeală"
+      ],
+      "time": [
+        "Sub 15 minute",
+        "Rețetă rapidă"
+      ],
+      "context": [
+        "Gustare",
+        "Pentru zile aglomerate"
+      ],
+      "diet": [
+        "Fără carne",
+        "Vegetarian",
+        "Fără lactate",
+        "Fără ou"
+      ],
+      "technique": [
+        "Fără gătire"
+      ]
+    },
+    "equipment": [],
+    "totalTimeMinutes": null,
+    "keywords": [
+      "mar",
+      "cu",
+      "unt",
+      "de",
+      "arahide",
+      "rontaieli",
+      "1",
+      "buc",
+      "2",
+      "linguri",
+      "dulce",
+      "fresh",
+      "usor",
+      "incepator",
+      "risc",
+      "mic",
+      "greseala",
+      "sub",
+      "15",
+      "minute",
+      "reteta",
+      "rapida",
+      "gustare",
+      "pentru",
+      "zile",
+      "aglomerate",
+      "fara",
+      "carne",
+      "vegetarian",
+      "lactate",
+      "ou",
+      "gatire"
+    ]
+  },
+  {
+    "slug": "paine-prajita-unt-arahide",
+    "title": "paine prajita cu unt de arahide",
+    "name": "paine prajita cu unt de arahide",
+    "category": "Rontaieli",
+    "description": "Se prajeste painea.",
+    "ingredients": [
+      "Paine (2 felii)",
+      "Unt arahide (2 linguri)",
+      "Banana/Capsune*",
+      "*dupa gust"
+    ],
+    "requiredIngredients": [
+      "Paine (2 felii)",
+      "Unt arahide (2 linguri)",
+      "Banana/Capsune*",
+      "*dupa gust"
+    ],
+    "optionalIngredients": [],
+    "requiredIngredientTokens": [
+      {
+        "label": "Paine (2 felii)",
+        "tokens": [
+          "paine"
+        ]
+      },
+      {
+        "label": "Unt arahide (2 linguri)",
+        "tokens": [
+          "unt",
+          "arahide"
+        ]
+      },
+      {
+        "label": "Banana/Capsune*",
+        "tokens": [
+          "banana",
+          "capsune"
+        ]
+      }
+    ],
+    "optionalIngredientTokens": [],
+    "ingredientTokens": [
+      "paine",
+      "unt",
+      "arahide",
+      "banana",
+      "capsune",
+      "prajita",
+      "cu",
+      "de",
+      "rontaieli",
+      "2",
+      "felii",
+      "linguri",
+      "banana-capsune",
+      "dupa",
+      "gust",
+      "dulce",
+      "crocant",
+      "usor",
+      "incepator",
+      "risc",
+      "mic",
+      "greseala",
+      "sub",
+      "15",
+      "minute",
+      "reteta",
+      "rapida",
+      "dejun",
+      "gustare",
+      "pentru",
+      "zile",
+      "aglomerate",
+      "fara",
+      "carne",
+      "vegetarian"
+    ],
+    "tags": {
+      "taste": [
+        "Dulce",
+        "Crocant",
+        "Ușor"
+      ],
+      "complexity": [
+        "Începător",
+        "Ușor",
+        "Risc mic de greșeală"
+      ],
+      "time": [
+        "Sub 15 minute",
+        "Rețetă rapidă"
+      ],
+      "context": [
+        "Mic dejun",
+        "Gustare",
+        "Pentru zile aglomerate"
+      ],
+      "diet": [
+        "Fără carne",
+        "Vegetarian"
+      ]
+    },
+    "equipment": [],
+    "totalTimeMinutes": null,
+    "keywords": [
+      "paine",
+      "prajita",
+      "cu",
+      "unt",
+      "de",
+      "arahide",
+      "rontaieli",
+      "2",
+      "felii",
+      "linguri",
+      "banana-capsune",
+      "dupa",
+      "gust",
+      "dulce",
+      "crocant",
+      "usor",
+      "incepator",
+      "risc",
+      "mic",
+      "greseala",
+      "sub",
+      "15",
+      "minute",
+      "reteta",
+      "rapida",
+      "dejun",
+      "gustare",
+      "pentru",
+      "zile",
+      "aglomerate",
+      "fara",
+      "carne",
+      "vegetarian"
+    ]
+  },
+  {
+    "slug": "salata-de-ciuperci",
+    "title": "Salata de ciuperci",
+    "name": "Salata de ciuperci",
+    "category": "Salate",
+    "description": "Se curata, se spala ciupercile si se taie marunt.",
+    "ingredients": [
+      "Ciuperci champignon (250g)",
+      "Usturoi (2 catei)",
+      "Cum maggi (1 buc.)",
+      "Faina (1 lingura)",
+      "Parmezan (100g)",
+      "Maioneza (2 linguri)",
+      "Iaurt (2 linguri)",
+      "Apa (100ml)",
+      "Ulei floarea soarelui",
+      "Paine",
+      "Rosii cherry",
+      "*dupa gust"
+    ],
+    "requiredIngredients": [
+      "Ciuperci champignon (250g)",
+      "Usturoi (2 catei)",
+      "Cum maggi (1 buc.)",
+      "Faina (1 lingura)",
+      "Parmezan (100g)",
+      "Maioneza (2 linguri)",
+      "Iaurt (2 linguri)",
+      "Apa (100ml)",
+      "Ulei floarea soarelui",
+      "Paine",
+      "Rosii cherry",
+      "*dupa gust"
+    ],
+    "optionalIngredients": [],
+    "requiredIngredientTokens": [
+      {
+        "label": "Ciuperci champignon (250g)",
+        "tokens": [
+          "ciuperci",
+          "champignon",
+          "250g"
+        ]
+      },
+      {
+        "label": "Usturoi (2 catei)",
+        "tokens": [
+          "usturoi",
+          "catei"
+        ]
+      },
+      {
+        "label": "Cum maggi (1 buc.)",
+        "tokens": [
+          "cum",
+          "maggi"
+        ]
+      },
+      {
+        "label": "Faina (1 lingura)",
+        "tokens": [
+          "faina"
+        ]
+      },
+      {
+        "label": "Parmezan (100g)",
+        "tokens": [
+          "parmezan",
+          "100g"
+        ]
+      },
+      {
+        "label": "Maioneza (2 linguri)",
+        "tokens": [
+          "maioneza"
+        ]
+      },
+      {
+        "label": "Iaurt (2 linguri)",
+        "tokens": [
+          "iaurt"
+        ]
+      },
+      {
+        "label": "Apa (100ml)",
+        "tokens": [
+          "apa",
+          "100ml"
+        ]
+      },
+      {
+        "label": "Ulei floarea soarelui",
+        "tokens": [
+          "ulei",
+          "floarea",
+          "soarelui"
+        ]
+      },
+      {
+        "label": "Paine",
+        "tokens": [
+          "paine"
+        ]
+      },
+      {
+        "label": "Rosii cherry",
+        "tokens": [
+          "rosii",
+          "rosie",
+          "cherry"
+        ]
+      }
+    ],
+    "optionalIngredientTokens": [],
+    "ingredientTokens": [
+      "ciuperci",
+      "champignon",
+      "250g",
+      "usturoi",
+      "catei",
+      "cum",
+      "maggi",
+      "faina",
+      "parmezan",
+      "100g",
+      "maioneza",
+      "iaurt",
+      "apa",
+      "100ml",
+      "ulei",
+      "floarea",
+      "soarelui",
+      "paine",
+      "rosii",
+      "rosie",
+      "cherry",
+      "salata",
+      "de",
+      "salate",
+      "2",
+      "1",
+      "buc",
+      "lingura",
+      "linguri",
+      "dupa",
+      "gust",
+      "cremos",
+      "sarat",
+      "satios",
+      "complexitate",
+      "medie",
+      "necesita",
+      "atentie",
+      "timp",
+      "asteptare",
+      "buna",
+      "pentru",
+      "pregatit",
+      "din",
+      "gustare",
+      "pranz",
+      "familie",
+      "fara",
+      "carne",
+      "vegetarian",
+      "la",
+      "tigaie",
+      "sotare"
+    ],
+    "tags": {
+      "taste": [
+        "Cremos",
+        "Sărat",
+        "Sățios"
+      ],
+      "complexity": [
+        "Complexitate medie",
+        "Necesită atenție"
+      ],
+      "time": [
+        "Necesită timp de așteptare",
+        "Bună pentru pregătit din timp"
+      ],
+      "context": [
+        "Gustare",
+        "Prânz",
+        "Pentru familie"
+      ],
+      "diet": [
+        "Fără carne",
+        "Vegetarian"
+      ],
+      "equipment": [
+        "La tigaie"
+      ],
+      "technique": [
+        "Sotare",
+        "La tigaie"
+      ]
+    },
+    "equipment": [
+      "La tigaie"
+    ],
+    "totalTimeMinutes": null,
+    "keywords": [
+      "salata",
+      "de",
+      "ciuperci",
+      "salate",
+      "champignon",
+      "250g",
+      "usturoi",
+      "2",
+      "catei",
+      "cum",
+      "maggi",
+      "1",
+      "buc",
+      "faina",
+      "lingura",
+      "parmezan",
+      "100g",
+      "maioneza",
+      "linguri",
+      "iaurt",
+      "apa",
+      "100ml",
+      "ulei",
+      "floarea",
+      "soarelui",
+      "paine",
+      "rosii",
+      "cherry",
+      "dupa",
+      "gust",
+      "cremos",
+      "sarat",
+      "satios",
+      "complexitate",
+      "medie",
+      "necesita",
+      "atentie",
+      "timp",
+      "asteptare",
+      "buna",
+      "pentru",
+      "pregatit",
+      "din",
+      "gustare",
+      "pranz",
+      "familie",
+      "fara",
+      "carne",
+      "vegetarian",
+      "la",
+      "tigaie",
+      "sotare"
+    ]
+  },
+  {
+    "slug": "avocado-cu-bacon",
+    "title": "Avocado cu bacon",
+    "name": "Avocado cu bacon",
+    "category": "Mic dejun",
+    "description": "Intr-o oala mica se fierb ouale timp de ~10 minute. Se toarna apa gheata/rece peste ele si se decojesc.",
+    "ingredients": [
+      "Paine (2 felii)",
+      "Ou (3 buc.)",
+      "Avocado (1 buc.)",
+      "Usturoi (1 catel)",
+      "Bacon (4 buc.)",
+      "Ceapa verde*",
+      "Rosii Cherry*",
+      "Sare*",
+      "Piper*",
+      "*dupa gust"
+    ],
+    "requiredIngredients": [
+      "Paine (2 felii)",
+      "Ou (3 buc.)",
+      "Avocado (1 buc.)",
+      "Usturoi (1 catel)",
+      "Bacon (4 buc.)",
+      "Ceapa verde*",
+      "Rosii Cherry*",
+      "Sare*",
+      "Piper*",
+      "*dupa gust"
+    ],
+    "optionalIngredients": [],
+    "requiredIngredientTokens": [
+      {
+        "label": "Paine (2 felii)",
+        "tokens": [
+          "paine"
+        ]
+      },
+      {
+        "label": "Ou (3 buc.)",
+        "tokens": [
+          "ou",
+          "oua"
+        ]
+      },
+      {
+        "label": "Avocado (1 buc.)",
+        "tokens": [
+          "avocado"
+        ]
+      },
+      {
+        "label": "Usturoi (1 catel)",
+        "tokens": [
+          "usturoi",
+          "catel"
+        ]
+      },
+      {
+        "label": "Bacon (4 buc.)",
+        "tokens": [
+          "bacon"
+        ]
+      },
+      {
+        "label": "Ceapa verde*",
+        "tokens": [
+          "ceapa",
+          "cepe",
+          "verde"
+        ]
+      },
+      {
+        "label": "Rosii Cherry*",
+        "tokens": [
+          "rosii",
+          "rosie",
+          "cherry"
+        ]
+      },
+      {
+        "label": "Sare*",
+        "tokens": [
+          "sare"
+        ]
+      },
+      {
+        "label": "Piper*",
+        "tokens": [
+          "piper"
+        ]
+      }
+    ],
+    "optionalIngredientTokens": [],
+    "ingredientTokens": [
+      "paine",
+      "ou",
+      "oua",
+      "avocado",
+      "usturoi",
+      "catel",
+      "bacon",
+      "ceapa",
+      "cepe",
+      "verde",
+      "rosii",
+      "rosie",
+      "cherry",
+      "sare",
+      "piper",
+      "cu",
+      "mic",
+      "dejun",
+      "2",
+      "felii",
+      "3",
+      "buc",
+      "1",
+      "4",
+      "dupa",
+      "gust",
+      "sarat",
+      "cremos",
+      "crocant",
+      "satios",
+      "usor",
+      "sub",
+      "30",
+      "minute",
+      "pentru",
+      "weekend",
+      "carne",
+      "la",
+      "oala",
+      "tigaie",
+      "fierbere",
+      "prajire"
+    ],
+    "tags": {
+      "taste": [
+        "Sărat",
+        "Cremos",
+        "Crocant",
+        "Sățios"
+      ],
+      "complexity": [
+        "Ușor"
+      ],
+      "time": [
+        "Sub 30 minute"
+      ],
+      "context": [
+        "Mic dejun",
+        "Pentru weekend"
+      ],
+      "diet": [
+        "Cu carne"
+      ],
+      "equipment": [
+        "La oală",
+        "La tigaie"
+      ],
+      "technique": [
+        "Fierbere",
+        "Prăjire",
+        "La tigaie"
+      ]
+    },
+    "equipment": [
+      "La oală",
+      "La tigaie"
+    ],
+    "totalTimeMinutes": null,
+    "keywords": [
+      "avocado",
+      "cu",
+      "bacon",
+      "mic",
+      "dejun",
+      "paine",
+      "2",
+      "felii",
+      "ou",
+      "3",
+      "buc",
+      "1",
+      "usturoi",
+      "catel",
+      "4",
+      "ceapa",
+      "verde",
+      "rosii",
+      "cherry",
+      "sare",
+      "piper",
+      "dupa",
+      "gust",
+      "sarat",
+      "cremos",
+      "crocant",
+      "satios",
+      "usor",
+      "sub",
+      "30",
+      "minute",
+      "pentru",
+      "weekend",
+      "carne",
+      "la",
+      "oala",
+      "tigaie",
+      "fierbere",
+      "prajire"
+    ]
+  },
+  {
+    "slug": "bagheta-bistro",
+    "title": "Bagheta bistro",
+    "name": "Bagheta bistro",
+    "category": "Mic dejun",
+    "description": "Bagheta se taie in 2 jumatati dupa care se sectioneaza pe lungime.",
+    "ingredients": [
+      "Bagheta de paine (1 buc)",
+      "Salata verde (~4 frunze)",
+      "Sunca presata (30g)",
+      "Iaurt (2 lingurite)",
+      "Unt*",
+      "Branza*",
+      "*dupa gust"
+    ],
+    "requiredIngredients": [
+      "Bagheta de paine (1 buc)",
+      "Salata verde (~4 frunze)",
+      "Sunca presata (30g)",
+      "Iaurt (2 lingurite)",
+      "Unt*",
+      "Branza*",
+      "*dupa gust"
+    ],
+    "optionalIngredients": [],
+    "requiredIngredientTokens": [
+      {
+        "label": "Bagheta de paine (1 buc)",
+        "tokens": [
+          "bagheta",
+          "paine"
+        ]
+      },
+      {
+        "label": "Salata verde (~4 frunze)",
+        "tokens": [
+          "salata",
+          "verde",
+          "frunze"
+        ]
+      },
+      {
+        "label": "Sunca presata (30g)",
+        "tokens": [
+          "sunca",
+          "presata",
+          "30g"
+        ]
+      },
+      {
+        "label": "Iaurt (2 lingurite)",
+        "tokens": [
+          "iaurt"
+        ]
+      },
+      {
+        "label": "Unt*",
+        "tokens": [
+          "unt"
+        ]
+      },
+      {
+        "label": "Branza*",
+        "tokens": [
+          "branza"
+        ]
+      }
+    ],
+    "optionalIngredientTokens": [],
+    "ingredientTokens": [
+      "bagheta",
+      "paine",
+      "salata",
+      "verde",
+      "frunze",
+      "sunca",
+      "presata",
+      "30g",
+      "iaurt",
+      "unt",
+      "branza",
+      "bistro",
+      "mic",
+      "dejun",
+      "de",
+      "1",
+      "buc",
+      "4",
+      "2",
+      "lingurite",
+      "dupa",
+      "gust",
+      "sarat",
+      "fresh",
+      "usor",
+      "incepator",
+      "risc",
+      "greseala",
+      "sub",
+      "15",
+      "minute",
+      "reteta",
+      "rapida",
+      "gustare",
+      "pentru",
+      "zile",
+      "aglomerate",
+      "cu",
+      "carne",
+      "fara",
+      "gatire"
+    ],
+    "tags": {
+      "taste": [
+        "Sărat",
+        "Fresh",
+        "Ușor"
+      ],
+      "complexity": [
+        "Începător",
+        "Ușor",
+        "Risc mic de greșeală"
+      ],
+      "time": [
+        "Sub 15 minute",
+        "Rețetă rapidă"
+      ],
+      "context": [
+        "Mic dejun",
+        "Gustare",
+        "Pentru zile aglomerate"
+      ],
+      "diet": [
+        "Cu carne"
+      ],
+      "technique": [
+        "Fără gătire"
+      ]
+    },
+    "equipment": [],
+    "totalTimeMinutes": null,
+    "keywords": [
+      "bagheta",
+      "bistro",
+      "mic",
+      "dejun",
+      "de",
+      "paine",
+      "1",
+      "buc",
+      "salata",
+      "verde",
+      "4",
+      "frunze",
+      "sunca",
+      "presata",
+      "30g",
+      "iaurt",
+      "2",
+      "lingurite",
+      "unt",
+      "branza",
+      "dupa",
+      "gust",
+      "sarat",
+      "fresh",
+      "usor",
+      "incepator",
+      "risc",
+      "greseala",
+      "sub",
+      "15",
+      "minute",
+      "reteta",
+      "rapida",
+      "gustare",
+      "pentru",
+      "zile",
+      "aglomerate",
+      "cu",
+      "carne",
+      "fara",
+      "gatire"
+    ]
+  },
+  {
+    "slug": "clatite-cu-mere",
+    "title": "Clatite cu mere",
+    "name": "Clatite cu mere",
+    "category": "Mic dejun",
+    "description": "Marul se spala, se curata de coaja, se taie in sferturi, se indeparteaza cotorul, iar pulpa fructului se da pe razatoare fina.",
+    "ingredients": [
+      "Mar (1 buc.)",
+      "Faina (180g)",
+      "Praf de copt (1 ½ lingurite)",
+      "Bicarbonat de sodiu (½ lingurita)",
+      "Scortisoara (1 lingurita)",
+      "Lapte (240ml)",
+      "Sirop artar (4 linguri)",
+      "Sirop de mere (1 lingurita)",
+      "Sare*",
+      "Nutella",
+      "Fructe",
+      "*dupa gust"
+    ],
+    "requiredIngredients": [
+      "Mar (1 buc.)",
+      "Faina (180g)",
+      "Praf de copt (1 ½ lingurite)",
+      "Bicarbonat de sodiu (½ lingurita)",
+      "Scortisoara (1 lingurita)",
+      "Lapte (240ml)",
+      "Sirop artar (4 linguri)",
+      "Sirop de mere (1 lingurita)",
+      "Sare*",
+      "Nutella",
+      "Fructe",
+      "*dupa gust"
+    ],
+    "optionalIngredients": [],
+    "requiredIngredientTokens": [
+      {
+        "label": "Mar (1 buc.)",
+        "tokens": [
+          "mar"
+        ]
+      },
+      {
+        "label": "Faina (180g)",
+        "tokens": [
+          "faina",
+          "180g"
+        ]
+      },
+      {
+        "label": "Praf de copt (1 ½ lingurite)",
+        "tokens": [
+          "praf",
+          "copt"
+        ]
+      },
+      {
+        "label": "Bicarbonat de sodiu (½ lingurita)",
+        "tokens": [
+          "bicarbonat",
+          "sodiu"
+        ]
+      },
+      {
+        "label": "Scortisoara (1 lingurita)",
+        "tokens": [
+          "scortisoara"
+        ]
+      },
+      {
+        "label": "Lapte (240ml)",
+        "tokens": [
+          "lapte",
+          "240ml"
+        ]
+      },
+      {
+        "label": "Sirop artar (4 linguri)",
+        "tokens": [
+          "sirop",
+          "artar"
+        ]
+      },
+      {
+        "label": "Sirop de mere (1 lingurita)",
+        "tokens": [
+          "sirop",
+          "mere"
+        ]
+      },
+      {
+        "label": "Sare*",
+        "tokens": [
+          "sare"
+        ]
+      },
+      {
+        "label": "Nutella",
+        "tokens": [
+          "nutella"
+        ]
+      },
+      {
+        "label": "Fructe",
+        "tokens": [
+          "fructe"
+        ]
+      }
+    ],
+    "optionalIngredientTokens": [],
+    "ingredientTokens": [
+      "mar",
+      "faina",
+      "180g",
+      "praf",
+      "copt",
+      "bicarbonat",
+      "sodiu",
+      "scortisoara",
+      "lapte",
+      "240ml",
+      "sirop",
+      "artar",
+      "mere",
+      "sare",
+      "nutella",
+      "fructe",
+      "clatite",
+      "cu",
+      "mic",
+      "dejun",
+      "1",
+      "buc",
+      "de",
+      "lingurite",
+      "lingurita",
+      "4",
+      "linguri",
+      "dupa",
+      "gust",
+      "dulce",
+      "aromat",
+      "complexitate",
+      "medie",
+      "necesita",
+      "atentie",
+      "sub",
+      "30",
+      "minute",
+      "pentru",
+      "weekend",
+      "fara",
+      "carne",
+      "vegetarian",
+      "la",
+      "tigaie"
+    ],
+    "tags": {
+      "taste": [
+        "Dulce",
+        "Aromat"
+      ],
+      "complexity": [
+        "Complexitate medie",
+        "Necesită atenție"
+      ],
+      "time": [
+        "Sub 30 minute"
+      ],
+      "context": [
+        "Mic dejun",
+        "Pentru weekend"
+      ],
+      "diet": [
+        "Fără carne",
+        "Vegetarian"
+      ],
+      "equipment": [
+        "La tigaie"
+      ],
+      "technique": [
+        "La tigaie"
+      ]
+    },
+    "equipment": [
+      "La tigaie"
+    ],
+    "totalTimeMinutes": null,
+    "keywords": [
+      "clatite",
+      "cu",
+      "mere",
+      "mic",
+      "dejun",
+      "mar",
+      "1",
+      "buc",
+      "faina",
+      "180g",
+      "praf",
+      "de",
+      "copt",
+      "lingurite",
+      "bicarbonat",
+      "sodiu",
+      "lingurita",
+      "scortisoara",
+      "lapte",
+      "240ml",
+      "sirop",
+      "artar",
+      "4",
+      "linguri",
+      "sare",
+      "nutella",
+      "fructe",
+      "dupa",
+      "gust",
+      "dulce",
+      "aromat",
+      "complexitate",
+      "medie",
+      "necesita",
+      "atentie",
+      "sub",
+      "30",
+      "minute",
+      "pentru",
+      "weekend",
+      "fara",
+      "carne",
+      "vegetarian",
+      "la",
+      "tigaie"
+    ]
+  },
+  {
+    "slug": "gris-cu-lapte-si-cocos",
+    "title": "Gris cu lapte, cocos si afine",
+    "name": "Gris cu lapte, cocos si afine",
+    "category": "Mic dejun",
+    "description": "Intr-o oala medie se incalzeste laptele la foc mic-mediu. Se adauga treptat grisul si zaharul si se amesteca in mod constant. Se fierbe pe foc mic-mediu timp de ~5 minute.",
+    "ingredients": [
+      "Lapte (400ml)",
+      "Gris (3 linguri)",
+      "Zahar (2 linguri)",
+      "Sirop de artar*",
+      "Cocos*",
+      "Afine*",
+      "*dupa gust"
+    ],
+    "requiredIngredients": [
+      "Lapte (400ml)",
+      "Gris (3 linguri)",
+      "Zahar (2 linguri)",
+      "Sirop de artar*",
+      "Cocos*",
+      "Afine*",
+      "*dupa gust"
+    ],
+    "optionalIngredients": [],
+    "requiredIngredientTokens": [
+      {
+        "label": "Lapte (400ml)",
+        "tokens": [
+          "lapte",
+          "400ml"
+        ]
+      },
+      {
+        "label": "Gris (3 linguri)",
+        "tokens": [
+          "gris"
+        ]
+      },
+      {
+        "label": "Zahar (2 linguri)",
+        "tokens": [
+          "zahar"
+        ]
+      },
+      {
+        "label": "Sirop de artar*",
+        "tokens": [
+          "sirop",
+          "artar"
+        ]
+      },
+      {
+        "label": "Cocos*",
+        "tokens": [
+          "cocos"
+        ]
+      },
+      {
+        "label": "Afine*",
+        "tokens": [
+          "afine"
+        ]
+      }
+    ],
+    "optionalIngredientTokens": [],
+    "ingredientTokens": [
+      "lapte",
+      "400ml",
+      "gris",
+      "zahar",
+      "sirop",
+      "artar",
+      "cocos",
+      "afine",
+      "cu",
+      "si",
+      "mic",
+      "dejun",
+      "3",
+      "linguri",
+      "2",
+      "de",
+      "dupa",
+      "gust",
+      "dulce",
+      "cremos",
+      "fin",
+      "incepator",
+      "usor",
+      "risc",
+      "greseala",
+      "sub",
+      "15",
+      "minute",
+      "reteta",
+      "rapida",
+      "pentru",
+      "zile",
+      "aglomerate",
+      "comfort",
+      "food",
+      "fara",
+      "carne",
+      "vegetarian",
+      "la",
+      "oala",
+      "fierbere"
+    ],
+    "tags": {
+      "taste": [
+        "Dulce",
+        "Cremos",
+        "Fin"
+      ],
+      "complexity": [
+        "Începător",
+        "Ușor",
+        "Risc mic de greșeală"
+      ],
+      "time": [
+        "Sub 15 minute",
+        "Rețetă rapidă"
+      ],
+      "context": [
+        "Mic dejun",
+        "Pentru zile aglomerate",
+        "Comfort food"
+      ],
+      "diet": [
+        "Fără carne",
+        "Vegetarian"
+      ],
+      "equipment": [
+        "La oală"
+      ],
+      "technique": [
+        "Fierbere"
+      ]
+    },
+    "equipment": [
+      "La oală"
+    ],
+    "totalTimeMinutes": null,
+    "keywords": [
+      "gris",
+      "cu",
+      "lapte",
+      "cocos",
+      "si",
+      "afine",
+      "mic",
+      "dejun",
+      "400ml",
+      "3",
+      "linguri",
+      "zahar",
+      "2",
+      "sirop",
+      "de",
+      "artar",
+      "dupa",
+      "gust",
+      "dulce",
+      "cremos",
+      "fin",
+      "incepator",
+      "usor",
+      "risc",
+      "greseala",
+      "sub",
+      "15",
+      "minute",
+      "reteta",
+      "rapida",
+      "pentru",
+      "zile",
+      "aglomerate",
+      "comfort",
+      "food",
+      "fara",
+      "carne",
+      "vegetarian",
+      "la",
+      "oala",
+      "fierbere"
+    ]
+  },
+  {
+    "slug": "omleta-cu-spanac",
+    "title": "Omleta cu spanac",
+    "name": "Omleta cu spanac",
+    "category": "Mic dejun",
+    "description": "Se incalzeste o tigaie mica pe foc mic-mediu.",
+    "ingredients": [
+      "Ou (4 buc.)",
+      "Sare*",
+      "Piper*",
+      "Spanac*",
+      "Branza*",
+      "Masline",
+      "Rosii Cheri",
+      "Ardei",
+      "*dupa gust"
+    ],
+    "requiredIngredients": [
+      "Ou (4 buc.)",
+      "Sare*",
+      "Piper*",
+      "Spanac*",
+      "Branza*",
+      "Masline",
+      "Rosii Cheri",
+      "Ardei",
+      "*dupa gust"
+    ],
+    "optionalIngredients": [],
+    "requiredIngredientTokens": [
+      {
+        "label": "Ou (4 buc.)",
+        "tokens": [
+          "ou",
+          "oua"
+        ]
+      },
+      {
+        "label": "Sare*",
+        "tokens": [
+          "sare"
+        ]
+      },
+      {
+        "label": "Piper*",
+        "tokens": [
+          "piper"
+        ]
+      },
+      {
+        "label": "Spanac*",
+        "tokens": [
+          "spanac"
+        ]
+      },
+      {
+        "label": "Branza*",
+        "tokens": [
+          "branza"
+        ]
+      },
+      {
+        "label": "Masline",
+        "tokens": [
+          "masline"
+        ]
+      },
+      {
+        "label": "Rosii Cheri",
+        "tokens": [
+          "rosii",
+          "rosie",
+          "cheri"
+        ]
+      },
+      {
+        "label": "Ardei",
+        "tokens": [
+          "ardei"
+        ]
+      }
+    ],
+    "optionalIngredientTokens": [],
+    "ingredientTokens": [
+      "ou",
+      "oua",
+      "sare",
+      "piper",
+      "spanac",
+      "branza",
+      "masline",
+      "rosii",
+      "rosie",
+      "cheri",
+      "ardei",
+      "omleta",
+      "cu",
+      "mic",
+      "dejun",
+      "4",
+      "buc",
+      "dupa",
+      "gust",
+      "sarat",
+      "usor",
+      "fresh",
+      "risc",
+      "de",
+      "greseala",
+      "sub",
+      "15",
+      "minute",
+      "reteta",
+      "rapida",
+      "pentru",
+      "zile",
+      "aglomerate",
+      "fara",
+      "carne",
+      "vegetarian",
+      "la",
+      "tigaie",
+      "prajire"
+    ],
+    "tags": {
+      "taste": [
+        "Sărat",
+        "Ușor",
+        "Fresh"
+      ],
+      "complexity": [
+        "Ușor",
+        "Risc mic de greșeală"
+      ],
+      "time": [
+        "Sub 15 minute",
+        "Rețetă rapidă"
+      ],
+      "context": [
+        "Mic dejun",
+        "Pentru zile aglomerate"
+      ],
+      "diet": [
+        "Fără carne",
+        "Vegetarian"
+      ],
+      "equipment": [
+        "La tigaie"
+      ],
+      "technique": [
+        "La tigaie",
+        "Prăjire"
+      ]
+    },
+    "equipment": [
+      "La tigaie"
+    ],
+    "totalTimeMinutes": null,
+    "keywords": [
+      "omleta",
+      "cu",
+      "spanac",
+      "mic",
+      "dejun",
+      "ou",
+      "4",
+      "buc",
+      "sare",
+      "piper",
+      "branza",
+      "masline",
+      "rosii",
+      "cheri",
+      "ardei",
+      "dupa",
+      "gust",
+      "sarat",
+      "usor",
+      "fresh",
+      "risc",
+      "de",
+      "greseala",
+      "sub",
+      "15",
+      "minute",
+      "reteta",
+      "rapida",
+      "pentru",
+      "zile",
+      "aglomerate",
+      "fara",
+      "carne",
+      "vegetarian",
+      "la",
+      "tigaie",
+      "prajire"
+    ]
+  },
+  {
+    "slug": "ou-posat-cu-avocado",
+    "title": "Ou posat cu avocado si somon",
+    "name": "Ou posat cu avocado si somon",
+    "category": "Mic dejun",
+    "description": "Intr-o cratita mica se pune apa la fiert. Cand apa incepe sa fiarba se scade focul la nivel mic.",
+    "ingredients": [
+      "Paine (2 felii)",
+      "Ou (2 buc)",
+      "Avocado (1 buc.)",
+      "Ceapa verde (1 buc.)",
+      "Castravete Fabio (½ buc.)",
+      "Marar (2 lingurite)",
+      "Ulei*",
+      "Frunze patrunjel*",
+      "Unt tartinabil*",
+      "Lamaie*",
+      "Sare*",
+      "Piper*",
+      "*dupa gust"
+    ],
+    "requiredIngredients": [
+      "Paine (2 felii)",
+      "Ou (2 buc)",
+      "Avocado (1 buc.)",
+      "Ceapa verde (1 buc.)",
+      "Castravete Fabio (½ buc.)",
+      "Marar (2 lingurite)",
+      "Ulei*",
+      "Frunze patrunjel*",
+      "Unt tartinabil*",
+      "Lamaie*",
+      "Sare*",
+      "Piper*",
+      "*dupa gust"
+    ],
+    "optionalIngredients": [],
+    "requiredIngredientTokens": [
+      {
+        "label": "Paine (2 felii)",
+        "tokens": [
+          "paine"
+        ]
+      },
+      {
+        "label": "Ou (2 buc)",
+        "tokens": [
+          "ou",
+          "oua"
+        ]
+      },
+      {
+        "label": "Avocado (1 buc.)",
+        "tokens": [
+          "avocado"
+        ]
+      },
+      {
+        "label": "Ceapa verde (1 buc.)",
+        "tokens": [
+          "ceapa",
+          "cepe",
+          "verde"
+        ]
+      },
+      {
+        "label": "Castravete Fabio (½ buc.)",
+        "tokens": [
+          "castravete",
+          "fabio"
+        ]
+      },
+      {
+        "label": "Marar (2 lingurite)",
+        "tokens": [
+          "marar"
+        ]
+      },
+      {
+        "label": "Ulei*",
+        "tokens": [
+          "ulei"
+        ]
+      },
+      {
+        "label": "Frunze patrunjel*",
+        "tokens": [
+          "frunze",
+          "patrunjel"
+        ]
+      },
+      {
+        "label": "Unt tartinabil*",
+        "tokens": [
+          "unt",
+          "tartinabil"
+        ]
+      },
+      {
+        "label": "Lamaie*",
+        "tokens": [
+          "lamaie",
+          "lamai"
+        ]
+      },
+      {
+        "label": "Sare*",
+        "tokens": [
+          "sare"
+        ]
+      },
+      {
+        "label": "Piper*",
+        "tokens": [
+          "piper"
+        ]
+      }
+    ],
+    "optionalIngredientTokens": [],
+    "ingredientTokens": [
+      "paine",
+      "ou",
+      "oua",
+      "avocado",
+      "ceapa",
+      "cepe",
+      "verde",
+      "castravete",
+      "fabio",
+      "marar",
+      "ulei",
+      "frunze",
+      "patrunjel",
+      "unt",
+      "tartinabil",
+      "lamaie",
+      "lamai",
+      "sare",
+      "piper",
+      "posat",
+      "cu",
+      "si",
+      "somon",
+      "mic",
+      "dejun",
+      "2",
+      "felii",
+      "buc",
+      "1",
+      "lingurite",
+      "dupa",
+      "gust",
+      "fresh",
+      "cremos",
+      "satios",
+      "complexitate",
+      "medie",
+      "necesita",
+      "atentie",
+      "sub",
+      "30",
+      "minute",
+      "pentru",
+      "weekend",
+      "carne",
+      "la",
+      "oala",
+      "fierbere"
+    ],
+    "tags": {
+      "taste": [
+        "Fresh",
+        "Cremos",
+        "Sățios"
+      ],
+      "complexity": [
+        "Complexitate medie",
+        "Necesită atenție"
+      ],
+      "time": [
+        "Sub 30 minute"
+      ],
+      "context": [
+        "Mic dejun",
+        "Pentru weekend"
+      ],
+      "diet": [
+        "Cu carne"
+      ],
+      "equipment": [
+        "La oală"
+      ],
+      "technique": [
+        "Fierbere"
+      ]
+    },
+    "equipment": [
+      "La oală"
+    ],
+    "totalTimeMinutes": null,
+    "keywords": [
+      "ou",
+      "posat",
+      "cu",
+      "avocado",
+      "si",
+      "somon",
+      "mic",
+      "dejun",
+      "paine",
+      "2",
+      "felii",
+      "buc",
+      "1",
+      "ceapa",
+      "verde",
+      "castravete",
+      "fabio",
+      "marar",
+      "lingurite",
+      "ulei",
+      "frunze",
+      "patrunjel",
+      "unt",
+      "tartinabil",
+      "lamaie",
+      "sare",
+      "piper",
+      "dupa",
+      "gust",
+      "fresh",
+      "cremos",
+      "satios",
+      "complexitate",
+      "medie",
+      "necesita",
+      "atentie",
+      "sub",
+      "30",
+      "minute",
+      "pentru",
+      "weekend",
+      "carne",
+      "la",
+      "oala",
+      "fierbere"
+    ]
+  },
+  {
+    "slug": "ovaz-cu-lapte",
+    "title": "Ovaz cu lapte",
+    "name": "Ovaz cu lapte",
+    "category": "Mic dejun",
+    "description": "Intr-o oala medie se adauga laptele si se incalzeste la foc mediu.",
+    "ingredients": [
+      "Ovaz (200 g)",
+      "Lapte (300ml)",
+      "Zahar (2 linguri)",
+      "Fructe/Gem/Sirop de artar"
+    ],
+    "requiredIngredients": [
+      "Ovaz (200 g)",
+      "Lapte (300ml)",
+      "Zahar (2 linguri)",
+      "Fructe/Gem/Sirop de artar"
+    ],
+    "optionalIngredients": [],
+    "requiredIngredientTokens": [
+      {
+        "label": "Ovaz (200 g)",
+        "tokens": [
+          "ovaz"
+        ]
+      },
+      {
+        "label": "Lapte (300ml)",
+        "tokens": [
+          "lapte",
+          "300ml"
+        ]
+      },
+      {
+        "label": "Zahar (2 linguri)",
+        "tokens": [
+          "zahar"
+        ]
+      },
+      {
+        "label": "Fructe/Gem/Sirop de artar",
+        "tokens": [
+          "fructe",
+          "gem",
+          "sirop",
+          "artar"
+        ]
+      }
+    ],
+    "optionalIngredientTokens": [],
+    "ingredientTokens": [
+      "ovaz",
+      "lapte",
+      "300ml",
+      "zahar",
+      "fructe",
+      "gem",
+      "sirop",
+      "artar",
+      "cu",
+      "mic",
+      "dejun",
+      "200",
+      "g",
+      "2",
+      "linguri",
+      "fructe-gem-sirop",
+      "de",
+      "dulce",
+      "cremos",
+      "fin",
+      "incepator",
+      "usor",
+      "risc",
+      "greseala",
+      "sub",
+      "15",
+      "minute",
+      "reteta",
+      "rapida",
+      "pentru",
+      "zile",
+      "aglomerate",
+      "comfort",
+      "food",
+      "fara",
+      "carne",
+      "vegetarian",
+      "la",
+      "oala",
+      "fierbere"
+    ],
+    "tags": {
+      "taste": [
+        "Dulce",
+        "Cremos",
+        "Fin"
+      ],
+      "complexity": [
+        "Începător",
+        "Ușor",
+        "Risc mic de greșeală"
+      ],
+      "time": [
+        "Sub 15 minute",
+        "Rețetă rapidă"
+      ],
+      "context": [
+        "Mic dejun",
+        "Pentru zile aglomerate",
+        "Comfort food"
+      ],
+      "diet": [
+        "Fără carne",
+        "Vegetarian"
+      ],
+      "equipment": [
+        "La oală"
+      ],
+      "technique": [
+        "Fierbere"
+      ]
+    },
+    "equipment": [
+      "La oală"
+    ],
+    "totalTimeMinutes": null,
+    "keywords": [
+      "ovaz",
+      "cu",
+      "lapte",
+      "mic",
+      "dejun",
+      "200",
+      "g",
+      "300ml",
+      "zahar",
+      "2",
+      "linguri",
+      "fructe-gem-sirop",
+      "de",
+      "artar",
+      "dulce",
+      "cremos",
+      "fin",
+      "incepator",
+      "usor",
+      "risc",
+      "greseala",
+      "sub",
+      "15",
+      "minute",
+      "reteta",
+      "rapida",
+      "pentru",
+      "zile",
+      "aglomerate",
+      "comfort",
+      "food",
+      "fara",
+      "carne",
+      "vegetarian",
+      "la",
+      "oala",
+      "fierbere"
+    ]
+  },
+  {
+    "slug": "ovaz-peste-noapte",
+    "title": "Ovaz peste noapte",
+    "name": "Ovaz peste noapte",
+    "category": "Mic dejun",
+    "description": "Intr-un borcan mediu (500g) se adauga laptele, iaurtul si mierea si se amesteca bine.",
+    "ingredients": [
+      "Ovaz (200 g)",
+      "Lapte (100g)",
+      "Iaurt (100g)",
+      "Seminte Chia (2 lingurite)",
+      "Miere (2 linguri)",
+      "Fructe/Gem"
+    ],
+    "requiredIngredients": [
+      "Ovaz (200 g)",
+      "Lapte (100g)",
+      "Iaurt (100g)",
+      "Seminte Chia (2 lingurite)",
+      "Miere (2 linguri)",
+      "Fructe/Gem"
+    ],
+    "optionalIngredients": [],
+    "requiredIngredientTokens": [
+      {
+        "label": "Ovaz (200 g)",
+        "tokens": [
+          "ovaz"
+        ]
+      },
+      {
+        "label": "Lapte (100g)",
+        "tokens": [
+          "lapte",
+          "100g"
+        ]
+      },
+      {
+        "label": "Iaurt (100g)",
+        "tokens": [
+          "iaurt",
+          "100g"
+        ]
+      },
+      {
+        "label": "Seminte Chia (2 lingurite)",
+        "tokens": [
+          "seminte",
+          "chia"
+        ]
+      },
+      {
+        "label": "Miere (2 linguri)",
+        "tokens": [
+          "miere"
+        ]
+      },
+      {
+        "label": "Fructe/Gem",
+        "tokens": [
+          "fructe",
+          "gem"
+        ]
+      }
+    ],
+    "optionalIngredientTokens": [],
+    "ingredientTokens": [
+      "ovaz",
+      "lapte",
+      "100g",
+      "iaurt",
+      "seminte",
+      "chia",
+      "miere",
+      "fructe",
+      "gem",
+      "peste",
+      "noapte",
+      "mic",
+      "dejun",
+      "200",
+      "g",
+      "2",
+      "lingurite",
+      "linguri",
+      "fructe-gem",
+      "dulce",
+      "cremos",
+      "fresh",
+      "incepator",
+      "usor",
+      "risc",
+      "de",
+      "greseala",
+      "necesita",
+      "timp",
+      "asteptare",
+      "buna",
+      "pentru",
+      "pregatit",
+      "din",
+      "zile",
+      "aglomerate",
+      "fara",
+      "carne",
+      "vegetarian",
+      "gatire"
+    ],
+    "tags": {
+      "taste": [
+        "Dulce",
+        "Cremos",
+        "Fresh"
+      ],
+      "complexity": [
+        "Începător",
+        "Ușor",
+        "Risc mic de greșeală"
+      ],
+      "time": [
+        "Necesită timp de așteptare",
+        "Bună pentru pregătit din timp"
+      ],
+      "context": [
+        "Mic dejun",
+        "Pentru zile aglomerate"
+      ],
+      "diet": [
+        "Fără carne",
+        "Vegetarian"
+      ],
+      "technique": [
+        "Fără gătire"
+      ]
+    },
+    "equipment": [],
+    "totalTimeMinutes": null,
+    "keywords": [
+      "ovaz",
+      "peste",
+      "noapte",
+      "mic",
+      "dejun",
+      "200",
+      "g",
+      "lapte",
+      "100g",
+      "iaurt",
+      "seminte",
+      "chia",
+      "2",
+      "lingurite",
+      "miere",
+      "linguri",
+      "fructe-gem",
+      "dulce",
+      "cremos",
+      "fresh",
+      "incepator",
+      "usor",
+      "risc",
+      "de",
+      "greseala",
+      "necesita",
+      "timp",
+      "asteptare",
+      "buna",
+      "pentru",
+      "pregatit",
+      "din",
+      "zile",
+      "aglomerate",
+      "fara",
+      "carne",
+      "vegetarian",
+      "gatire"
+    ]
+  },
+  {
+    "slug": "sandwitch-cu-mozzarella",
+    "title": "Sandwitch cu mozzarella",
+    "name": "Sandwitch cu mozzarella",
+    "category": "Mic dejun",
+    "description": "Feliile de paine se prajesc pana devin usor crocante.",
+    "ingredients": [
+      "Paine (4 felii)",
+      "Rosii (1 rosie mare)",
+      "Mozzarella (1 buc. mare)",
+      "Sunca presata (200g)",
+      "Spanac*",
+      "Sare*",
+      "Piper*",
+      "Crema de branza*",
+      "Goacamole*",
+      "*dupa gust"
+    ],
+    "requiredIngredients": [
+      "Paine (4 felii)",
+      "Rosii (1 rosie mare)",
+      "Mozzarella (1 buc. mare)",
+      "Sunca presata (200g)",
+      "Spanac*",
+      "Sare*",
+      "Piper*",
+      "Crema de branza*",
+      "Goacamole*",
+      "*dupa gust"
+    ],
+    "optionalIngredients": [],
+    "requiredIngredientTokens": [
+      {
+        "label": "Paine (4 felii)",
+        "tokens": [
+          "paine"
+        ]
+      },
+      {
+        "label": "Rosii (1 rosie mare)",
+        "tokens": [
+          "rosii",
+          "rosie",
+          "mare"
+        ]
+      },
+      {
+        "label": "Mozzarella (1 buc. mare)",
+        "tokens": [
+          "mozzarella",
+          "mare"
+        ]
+      },
+      {
+        "label": "Sunca presata (200g)",
+        "tokens": [
+          "sunca",
+          "presata",
+          "200g"
+        ]
+      },
+      {
+        "label": "Spanac*",
+        "tokens": [
+          "spanac"
+        ]
+      },
+      {
+        "label": "Sare*",
+        "tokens": [
+          "sare"
+        ]
+      },
+      {
+        "label": "Piper*",
+        "tokens": [
+          "piper"
+        ]
+      },
+      {
+        "label": "Crema de branza*",
+        "tokens": [
+          "crema",
+          "branza"
+        ]
+      },
+      {
+        "label": "Goacamole*",
+        "tokens": [
+          "goacamole"
+        ]
+      }
+    ],
+    "optionalIngredientTokens": [],
+    "ingredientTokens": [
+      "paine",
+      "rosii",
+      "rosie",
+      "mare",
+      "mozzarella",
+      "sunca",
+      "presata",
+      "200g",
+      "spanac",
+      "sare",
+      "piper",
+      "crema",
+      "branza",
+      "goacamole",
+      "sandwitch",
+      "cu",
+      "mic",
+      "dejun",
+      "4",
+      "felii",
+      "1",
+      "buc",
+      "de",
+      "dupa",
+      "gust",
+      "sarat",
+      "fresh",
+      "cremos",
+      "incepator",
+      "usor",
+      "risc",
+      "greseala",
+      "sub",
+      "15",
+      "minute",
+      "reteta",
+      "rapida",
+      "gustare",
+      "pentru",
+      "zile",
+      "aglomerate",
+      "carne"
+    ],
+    "tags": {
+      "taste": [
+        "Sărat",
+        "Fresh",
+        "Cremos"
+      ],
+      "complexity": [
+        "Începător",
+        "Ușor",
+        "Risc mic de greșeală"
+      ],
+      "time": [
+        "Sub 15 minute",
+        "Rețetă rapidă"
+      ],
+      "context": [
+        "Mic dejun",
+        "Gustare",
+        "Pentru zile aglomerate"
+      ],
+      "diet": [
+        "Cu carne"
+      ]
+    },
+    "equipment": [],
+    "totalTimeMinutes": null,
+    "keywords": [
+      "sandwitch",
+      "cu",
+      "mozzarella",
+      "mic",
+      "dejun",
+      "paine",
+      "4",
+      "felii",
+      "rosii",
+      "1",
+      "rosie",
+      "mare",
+      "buc",
+      "sunca",
+      "presata",
+      "200g",
+      "spanac",
+      "sare",
+      "piper",
+      "crema",
+      "de",
+      "branza",
+      "goacamole",
+      "dupa",
+      "gust",
+      "sarat",
+      "fresh",
+      "cremos",
+      "incepator",
+      "usor",
+      "risc",
+      "greseala",
+      "sub",
+      "15",
+      "minute",
+      "reteta",
+      "rapida",
+      "gustare",
+      "pentru",
+      "zile",
+      "aglomerate",
+      "carne"
+    ]
+  },
+  {
+    "slug": "sandwitch-cu-ton",
+    "title": "Sandwitch cu ton",
+    "name": "Sandwitch cu ton",
+    "category": "Mic dejun",
+    "description": "Feliile de paine se prajesc pana ce devin usor crocante.",
+    "ingredients": [
+      "Paine (2 felii)",
+      "Ton (200g)",
+      "Creapa (1 buc.)",
+      "Maioneza (2 linguri)",
+      "Tabasco (2 stropi)",
+      "Salata verde (2-3 frunze)",
+      "Sare*",
+      "Piper*",
+      "Lamaie*",
+      "Ardei kapia*",
+      "Castraveti murati*",
+      "*dupa gust"
+    ],
+    "requiredIngredients": [
+      "Paine (2 felii)",
+      "Ton (200g)",
+      "Creapa (1 buc.)",
+      "Maioneza (2 linguri)",
+      "Tabasco (2 stropi)",
+      "Salata verde (2-3 frunze)",
+      "Sare*",
+      "Piper*",
+      "Lamaie*",
+      "Ardei kapia*",
+      "Castraveti murati*",
+      "*dupa gust"
+    ],
+    "optionalIngredients": [],
+    "requiredIngredientTokens": [
+      {
+        "label": "Paine (2 felii)",
+        "tokens": [
+          "paine"
+        ]
+      },
+      {
+        "label": "Ton (200g)",
+        "tokens": [
+          "ton",
+          "200g"
+        ]
+      },
+      {
+        "label": "Creapa (1 buc.)",
+        "tokens": [
+          "creapa"
+        ]
+      },
+      {
+        "label": "Maioneza (2 linguri)",
+        "tokens": [
+          "maioneza"
+        ]
+      },
+      {
+        "label": "Tabasco (2 stropi)",
+        "tokens": [
+          "tabasco",
+          "stropi"
+        ]
+      },
+      {
+        "label": "Salata verde (2-3 frunze)",
+        "tokens": [
+          "salata",
+          "verde",
+          "frunze"
+        ]
+      },
+      {
+        "label": "Sare*",
+        "tokens": [
+          "sare"
+        ]
+      },
+      {
+        "label": "Piper*",
+        "tokens": [
+          "piper"
+        ]
+      },
+      {
+        "label": "Lamaie*",
+        "tokens": [
+          "lamaie",
+          "lamai"
+        ]
+      },
+      {
+        "label": "Ardei kapia*",
+        "tokens": [
+          "ardei",
+          "kapia"
+        ]
+      },
+      {
+        "label": "Castraveti murati*",
+        "tokens": [
+          "castraveti",
+          "murati"
+        ]
+      }
+    ],
+    "optionalIngredientTokens": [],
+    "ingredientTokens": [
+      "paine",
+      "ton",
+      "200g",
+      "creapa",
+      "maioneza",
+      "tabasco",
+      "stropi",
+      "salata",
+      "verde",
+      "frunze",
+      "sare",
+      "piper",
+      "lamaie",
+      "lamai",
+      "ardei",
+      "kapia",
+      "castraveti",
+      "murati",
+      "sandwitch",
+      "cu",
+      "mic",
+      "dejun",
+      "2",
+      "felii",
+      "1",
+      "buc",
+      "linguri",
+      "2-3",
+      "dupa",
+      "gust",
+      "sarat",
+      "acrisor",
+      "fresh",
+      "satios",
+      "incepator",
+      "usor",
+      "risc",
+      "de",
+      "greseala",
+      "sub",
+      "15",
+      "minute",
+      "reteta",
+      "rapida",
+      "gustare",
+      "pentru",
+      "zile",
+      "aglomerate",
+      "carne"
+    ],
+    "tags": {
+      "taste": [
+        "Sărat",
+        "Acrișor",
+        "Fresh",
+        "Sățios"
+      ],
+      "complexity": [
+        "Începător",
+        "Ușor",
+        "Risc mic de greșeală"
+      ],
+      "time": [
+        "Sub 15 minute",
+        "Rețetă rapidă"
+      ],
+      "context": [
+        "Mic dejun",
+        "Gustare",
+        "Pentru zile aglomerate"
+      ],
+      "diet": [
+        "Cu carne"
+      ]
+    },
+    "equipment": [],
+    "totalTimeMinutes": null,
+    "keywords": [
+      "sandwitch",
+      "cu",
+      "ton",
+      "mic",
+      "dejun",
+      "paine",
+      "2",
+      "felii",
+      "200g",
+      "creapa",
+      "1",
+      "buc",
+      "maioneza",
+      "linguri",
+      "tabasco",
+      "stropi",
+      "salata",
+      "verde",
+      "2-3",
+      "frunze",
+      "sare",
+      "piper",
+      "lamaie",
+      "ardei",
+      "kapia",
+      "castraveti",
+      "murati",
+      "dupa",
+      "gust",
+      "sarat",
+      "acrisor",
+      "fresh",
+      "satios",
+      "incepator",
+      "usor",
+      "risc",
+      "de",
+      "greseala",
+      "sub",
+      "15",
+      "minute",
+      "reteta",
+      "rapida",
+      "gustare",
+      "pentru",
+      "zile",
+      "aglomerate",
+      "carne"
+    ]
+  },
+  {
+    "slug": "toast-cu-ou-si-avocado",
+    "title": "Toast cu oua amestecate si avocado",
+    "name": "Toast cu oua amestecate si avocado",
+    "category": "Mic dejun",
+    "description": "Se incalzeste o tigaie mica pe foc mic-mediu.",
+    "ingredients": [
+      "Paine (2 felii)",
+      "Ou (4 buc.)",
+      "Avocado (½ buc.)",
+      "Seminte floarea soarelui*",
+      "Seminte in*",
+      "Sare*",
+      "Piper*",
+      "Masline",
+      "Rosii Cheri",
+      "Ardei",
+      "*dupa gust"
+    ],
+    "requiredIngredients": [
+      "Paine (2 felii)",
+      "Ou (4 buc.)",
+      "Avocado (½ buc.)",
+      "Seminte floarea soarelui*",
+      "Seminte in*",
+      "Sare*",
+      "Piper*",
+      "Masline",
+      "Rosii Cheri",
+      "Ardei",
+      "*dupa gust"
+    ],
+    "optionalIngredients": [],
+    "requiredIngredientTokens": [
+      {
+        "label": "Paine (2 felii)",
+        "tokens": [
+          "paine"
+        ]
+      },
+      {
+        "label": "Ou (4 buc.)",
+        "tokens": [
+          "ou",
+          "oua"
+        ]
+      },
+      {
+        "label": "Avocado (½ buc.)",
+        "tokens": [
+          "avocado"
+        ]
+      },
+      {
+        "label": "Seminte floarea soarelui*",
+        "tokens": [
+          "seminte",
+          "floarea",
+          "soarelui"
+        ]
+      },
+      {
+        "label": "Seminte in*",
+        "tokens": [
+          "seminte",
+          "in"
+        ]
+      },
+      {
+        "label": "Sare*",
+        "tokens": [
+          "sare"
+        ]
+      },
+      {
+        "label": "Piper*",
+        "tokens": [
+          "piper"
+        ]
+      },
+      {
+        "label": "Masline",
+        "tokens": [
+          "masline"
+        ]
+      },
+      {
+        "label": "Rosii Cheri",
+        "tokens": [
+          "rosii",
+          "rosie",
+          "cheri"
+        ]
+      },
+      {
+        "label": "Ardei",
+        "tokens": [
+          "ardei"
+        ]
+      }
+    ],
+    "optionalIngredientTokens": [],
+    "ingredientTokens": [
+      "paine",
+      "ou",
+      "oua",
+      "avocado",
+      "seminte",
+      "floarea",
+      "soarelui",
+      "in",
+      "sare",
+      "piper",
+      "masline",
+      "rosii",
+      "rosie",
+      "cheri",
+      "ardei",
+      "toast",
+      "cu",
+      "amestecate",
+      "si",
+      "mic",
+      "dejun",
+      "2",
+      "felii",
+      "4",
+      "buc",
+      "dupa",
+      "gust",
+      "cremos",
+      "satios",
+      "fresh",
+      "usor",
+      "sub",
+      "15",
+      "minute",
+      "reteta",
+      "rapida",
+      "pentru",
+      "zile",
+      "aglomerate",
+      "fara",
+      "carne",
+      "vegetarian",
+      "la",
+      "tigaie"
+    ],
+    "tags": {
+      "taste": [
+        "Cremos",
+        "Sățios",
+        "Fresh"
+      ],
+      "complexity": [
+        "Ușor"
+      ],
+      "time": [
+        "Sub 15 minute",
+        "Rețetă rapidă"
+      ],
+      "context": [
+        "Mic dejun",
+        "Pentru zile aglomerate"
+      ],
+      "diet": [
+        "Fără carne",
+        "Vegetarian"
+      ],
+      "equipment": [
+        "La tigaie"
+      ],
+      "technique": [
+        "La tigaie"
+      ]
+    },
+    "equipment": [
+      "La tigaie"
+    ],
+    "totalTimeMinutes": null,
+    "keywords": [
+      "toast",
+      "cu",
+      "oua",
+      "amestecate",
+      "si",
+      "avocado",
+      "mic",
+      "dejun",
+      "paine",
+      "2",
+      "felii",
+      "ou",
+      "4",
+      "buc",
+      "seminte",
+      "floarea",
+      "soarelui",
+      "in",
+      "sare",
+      "piper",
+      "masline",
+      "rosii",
+      "cheri",
+      "ardei",
+      "dupa",
+      "gust",
+      "cremos",
+      "satios",
+      "fresh",
+      "usor",
+      "sub",
+      "15",
+      "minute",
+      "reteta",
+      "rapida",
+      "pentru",
+      "zile",
+      "aglomerate",
+      "fara",
+      "carne",
+      "vegetarian",
+      "la",
+      "tigaie"
+    ]
+  }
+]

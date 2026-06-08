@@ -1,0 +1,58 @@
+[
+  {
+    "id": "fel-principal",
+    "slug": "fel-principal",
+    "title": "Fel principal",
+    "name": "Fel principal",
+    "description": "Supe, ciorbe și mâncăruri consistente pentru masa principală.",
+    "status": "published"
+  },
+  {
+    "id": "fel-secundar",
+    "slug": "fel-secundar",
+    "title": "Fel secundar",
+    "name": "Fel secundar",
+    "description": "Rețete calde, garnituri și feluri care completează masa.",
+    "status": "published"
+  },
+  {
+    "id": "desert",
+    "slug": "desert",
+    "title": "Desert",
+    "name": "Desert",
+    "description": "Dulciuri simple pentru familie și musafiri.",
+    "status": "published"
+  },
+  {
+    "id": "rontaieli",
+    "slug": "rontaieli",
+    "title": "Rontaieli",
+    "name": "Rontaieli",
+    "description": "Gustări rapide, platouri și idei de ronțăit.",
+    "status": "published"
+  },
+  {
+    "id": "salate",
+    "slug": "salate",
+    "title": "Salate",
+    "name": "Salate",
+    "description": "Salate și creme reci, bune lângă pâine prăjită.",
+    "status": "published"
+  },
+  {
+    "id": "bauturi",
+    "slug": "bauturi",
+    "title": "Băuturi",
+    "name": "Băuturi",
+    "description": "Băuturi și idei care urmează să fie adăugate.",
+    "status": "published"
+  },
+  {
+    "id": "mic-dejun",
+    "slug": "mic-dejun",
+    "title": "Mic dejun",
+    "name": "Mic dejun",
+    "description": "Idei pentru dimineți gustoase, rapide sau mai tihnite.",
+    "status": "published"
+  }
+]

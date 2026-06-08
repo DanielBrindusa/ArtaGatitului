@@ -1,45 +1,67 @@
 window.ARTA_DATA = {
   "categories": [
     {
-      "name": "Fel principal",
+      "id": "fel-principal",
       "slug": "fel-principal",
-      "description": "Supe, ciorbe și mâncăruri consistente pentru masa principală."
+      "title": "Fel principal",
+      "description": "Supe, ciorbe și mâncăruri consistente pentru masa principală.",
+      "status": "published",
+      "name": "Fel principal"
     },
     {
-      "name": "Fel secundar",
+      "id": "fel-secundar",
       "slug": "fel-secundar",
-      "description": "Rețete calde, garnituri și feluri care completează masa."
+      "title": "Fel secundar",
+      "description": "Rețete calde, garnituri și feluri care completează masa.",
+      "status": "published",
+      "name": "Fel secundar"
     },
     {
-      "name": "Desert",
+      "id": "desert",
       "slug": "desert",
-      "description": "Dulciuri simple pentru familie și musafiri."
+      "title": "Desert",
+      "description": "Dulciuri simple pentru familie și musafiri.",
+      "status": "published",
+      "name": "Desert"
     },
     {
-      "name": "Rontaieli",
+      "id": "rontaieli",
       "slug": "rontaieli",
-      "description": "Gustări rapide, platouri și idei de ronțăit."
+      "title": "Rontaieli",
+      "description": "Gustări rapide, platouri și idei de ronțăit.",
+      "status": "published",
+      "name": "Rontaieli"
     },
     {
-      "name": "Salate",
+      "id": "salate",
       "slug": "salate",
-      "description": "Salate și creme reci, bune lângă pâine prăjită."
+      "title": "Salate",
+      "description": "Salate și creme reci, bune lângă pâine prăjită.",
+      "status": "published",
+      "name": "Salate"
     },
     {
-      "name": "Băuturi",
+      "id": "bauturi",
       "slug": "bauturi",
-      "description": "Băuturi și idei care urmează să fie adăugate."
+      "title": "Băuturi",
+      "description": "Băuturi și idei care urmează să fie adăugate.",
+      "status": "published",
+      "name": "Băuturi"
     },
     {
-      "name": "Mic dejun",
+      "id": "mic-dejun",
       "slug": "mic-dejun",
-      "description": "Idei pentru dimineți gustoase, rapide sau mai tihnite."
+      "title": "Mic dejun",
+      "description": "Idei pentru dimineți gustoase, rapide sau mai tihnite.",
+      "status": "published",
+      "name": "Mic dejun"
     }
   ],
   "heroImage": "https://img1.wsimg.com/isteam/stock/19687/:/rs=w:1800,m",
   "recipes": [
     {
       "name": "Ciorba De Fasole Cu Afumatura",
+      "title": "Ciorba De Fasole Cu Afumatura",
       "slug": "ciorba-de-fasole",
       "category": "Fel principal",
       "description": "Se pune fasolea la umflat cu o zi inainte dupa care se arunca apa.",
@@ -57,6 +79,22 @@ window.ARTA_DATA = {
         "Afumatura"
       ],
       "preparation": [
+        "Pregatire:",
+        "Se pune fasolea la umflat cu o zi inainte dupa care se arunca apa.",
+        "Se fierbe fasolea pana la clocot si se schimba apa de 2 ori.",
+        "Se toaca ceapa marunt.",
+        "Se toaca ardeiul marunt.",
+        "Se rade morcovul.",
+        "Gatire:",
+        "Se fierbe afumatura pana devine moale.",
+        "Se fierbe fasolea pana devine moale si usor de strivit in apa de la afumatura fiarta (se mai adauga apa dupa nevoie).",
+        "Se calesc legumele impreuna si periodic se adauga o lingura de apa sa se inmoaie. Dupa ce seaca apa se adauga pasta de tomate si se caleste timp de 2-3 minute. In amestec se adauga un polonic din supa de fasole si se fierbe timp de aproximativ 5 minute.",
+        "Amestecul se adauga in oala cu ciorba de fasole si se fierbe din nou.",
+        "La final se adauga sare dupa gust.",
+        "Dupa ce s-a oprit focul, se adauga leustenul.",
+        "Se serveste cald impreuna paine proaspata."
+      ],
+      "steps": [
         "Pregatire:",
         "Se pune fasolea la umflat cu o zi inainte dupa care se arunca apa.",
         "Se fierbe fasolea pana la clocot si se schimba apa de 2 ori.",
@@ -113,6 +151,14 @@ window.ARTA_DATA = {
           "Sotare"
         ]
       },
+      "equipment": [
+        "La oală"
+      ],
+      "prepTimeMinutes": null,
+      "cookTimeMinutes": null,
+      "totalTimeMinutes": null,
+      "servings": null,
+      "image": null,
       "ratingSummary": null,
       "keywords": [
         "ciorba",
@@ -170,6 +216,7 @@ window.ARTA_DATA = {
     },
     {
       "name": "Supa de pui cu galuste",
+      "title": "Supa de pui cu galuste",
       "slug": "supa-de-pui-cu-galuste",
       "category": "Fel principal",
       "description": "Se curata morcovii, patrunjelul, pastarnacul, telina si ceapa.",
@@ -188,6 +235,13 @@ window.ARTA_DATA = {
         "Gris"
       ],
       "preparation": [
+        "Se curata morcovii, patrunjelul, pastarnacul, telina si ceapa.",
+        "Se pune apa intr-o oala mare si se adauga puiul si legumele curatate. Se pune la fiert si se aduna spuma periodic.",
+        "Se adauga vegeta/sare si piper dupa gust.",
+        "Separat, intr-un bol, se bate oul, se condimenteaza cu sare si piper, se adauga 3 linguri de apa din supa si gris pana ajunge la textura dorita (textura unui smoothie).",
+        "La final, in ultimele 5 minute, se adauga in oaal clocotinda galustele apoi cubul Magi si patrunjelul frunze."
+      ],
+      "steps": [
         "Se curata morcovii, patrunjelul, pastarnacul, telina si ceapa.",
         "Se pune apa intr-o oala mare si se adauga puiul si legumele curatate. Se pune la fiert si se aduna spuma periodic.",
         "Se adauga vegeta/sare si piper dupa gust.",
@@ -229,6 +283,14 @@ window.ARTA_DATA = {
           "Fierbere"
         ]
       },
+      "equipment": [
+        "La oală"
+      ],
+      "prepTimeMinutes": null,
+      "cookTimeMinutes": null,
+      "totalTimeMinutes": null,
+      "servings": null,
+      "image": null,
       "ratingSummary": null,
       "keywords": [
         "supa",
@@ -278,6 +340,7 @@ window.ARTA_DATA = {
     },
     {
       "name": "Carne prajita cu varza murata",
+      "title": "Carne prajita cu varza murata",
       "slug": "carne-cu-varza-murata",
       "category": "Fel secundar",
       "description": "Se taie carnea de porc cuburi (~4 cm).",
@@ -290,6 +353,11 @@ window.ARTA_DATA = {
         "*dupa gust"
       ],
       "preparation": [
+        "Se taie carnea de porc cuburi (~4 cm).",
+        "Intr-o tigaie medie se adauga putin ulei si se prajeste carnea timp de ~8 minute. Se adauga o cana de apa (200 ml) si se fierbe pana se evapora toata apa. Se adauga din nou ulei si se mai prajeste carnea inca ~5 minute.",
+        "Se serveste impreuna cu varza murata."
+      ],
+      "steps": [
         "Se taie carnea de porc cuburi (~4 cm).",
         "Intr-o tigaie medie se adauga putin ulei si se prajeste carnea timp de ~8 minute. Se adauga o cana de apa (200 ml) si se fierbe pana se evapora toata apa. Se adauga din nou ulei si se mai prajeste carnea inca ~5 minute.",
         "Se serveste impreuna cu varza murata."
@@ -332,6 +400,14 @@ window.ARTA_DATA = {
           "La tigaie"
         ]
       },
+      "equipment": [
+        "La tigaie"
+      ],
+      "prepTimeMinutes": null,
+      "cookTimeMinutes": null,
+      "totalTimeMinutes": null,
+      "servings": null,
+      "image": null,
       "ratingSummary": null,
       "keywords": [
         "carne",
@@ -375,6 +451,7 @@ window.ARTA_DATA = {
     },
     {
       "name": "Cartofi prajiti cu sos de iaurt si menta",
+      "title": "Cartofi prajiti cu sos de iaurt si menta",
       "slug": "cartofi-prajiti-cu-sos",
       "category": "Fel secundar",
       "description": "Se pune pe foc o oala cu apa si sare. Cartofii se curata si se taie sub forma de pai gros iar cand apa fierbe, se pun la fiert 2-3 minute.",
@@ -394,6 +471,17 @@ window.ARTA_DATA = {
         "Piper"
       ],
       "preparation": [
+        "Cartofii si ouale:",
+        "Se pune pe foc o oala cu apa si sare. Cartofii se curata si se taie sub forma de pai gros iar cand apa fierbe, se pun la fiert 2-3 minute.",
+        "Se scurge apa fierbinte si se lasa cartofii la racit 5-10 minute. Dupa ce s-au racit, cartofii se pun la prajit in uleiul incins pana se fac aurii.",
+        "Dupa prajire se condimenteaza cu sare/codimente pentru cartofi (optional) dupa gust.",
+        "Oul se prajeste imediat dupa cartofi in uleiul fierbinte.",
+        "Sosul:",
+        "Se curata usturoiul si se zdrobeste, dupa care se freaca cu sare si ulei de masline in mojar/bol.",
+        "Se razuieste putina coaja de lamaie marunt si se toaca frunzele de menta tocate, zeama de lamaie, piperul si mararul.",
+        "Se lasa la frigider 5-10 minute."
+      ],
+      "steps": [
         "Cartofii si ouale:",
         "Se pune pe foc o oala cu apa si sare. Cartofii se curata si se taie sub forma de pai gros iar cand apa fierbe, se pun la fiert 2-3 minute.",
         "Se scurge apa fierbinte si se lasa cartofii la racit 5-10 minute. Dupa ce s-au racit, cartofii se pun la prajit in uleiul incins pana se fac aurii.",
@@ -445,6 +533,15 @@ window.ARTA_DATA = {
           "La tigaie"
         ]
       },
+      "equipment": [
+        "La tigaie",
+        "La oală"
+      ],
+      "prepTimeMinutes": null,
+      "cookTimeMinutes": null,
+      "totalTimeMinutes": null,
+      "servings": null,
+      "image": null,
       "ratingSummary": null,
       "keywords": [
         "cartofi",
@@ -505,6 +602,7 @@ window.ARTA_DATA = {
     },
     {
       "name": "Chiftele de pui",
+      "title": "Chiftele de pui",
       "slug": "chiftele-de-pui",
       "category": "Fel secundar",
       "description": "Se fierb pulpele pentru ~30 minute.",
@@ -519,6 +617,12 @@ window.ARTA_DATA = {
         "*dupa gust"
       ],
       "preparation": [
+        "Se fierb pulpele pentru ~30 minute.",
+        "Se ia carnea de pe oase si se toaca marunt.",
+        "Intr-un bol se adauga carnea, faina, ouale, vegeta, piperul si cele doua linguri de apa (supa rezultata din fierbere). Compozitia trebuie sa fie consistenta.",
+        "Intr-o tigaie mica, se incalzeste uleiul si se adauga chiftelele care se prajesc timp de ~5 minute la foc mediu spe mic."
+      ],
+      "steps": [
         "Se fierb pulpele pentru ~30 minute.",
         "Se ia carnea de pe oase si se toaca marunt.",
         "Intr-un bol se adauga carnea, faina, ouale, vegeta, piperul si cele doua linguri de apa (supa rezultata din fierbere). Compozitia trebuie sa fie consistenta.",
@@ -563,6 +667,15 @@ window.ARTA_DATA = {
           "La tigaie"
         ]
       },
+      "equipment": [
+        "La oală",
+        "La tigaie"
+      ],
+      "prepTimeMinutes": null,
+      "cookTimeMinutes": null,
+      "totalTimeMinutes": null,
+      "servings": null,
+      "image": null,
       "ratingSummary": null,
       "keywords": [
         "chiftele",
@@ -608,6 +721,7 @@ window.ARTA_DATA = {
     },
     {
       "name": "Conopida cu orez si sos rosu",
+      "title": "Conopida cu orez si sos rosu",
       "slug": "conopida-cu-orez-1",
       "category": "Fel secundar",
       "description": "Se spala si se taie bucati medii. Se condimenteaza cu sare, piper, boia si curry. Intr-o tigaie adanca se pune uleiul la incalzit.",
@@ -634,6 +748,13 @@ window.ARTA_DATA = {
         "Patrunjel"
       ],
       "preparation": [
+        "Conopida:",
+        "Se spala si se taie bucati medii. Se condimenteaza cu sare, piper, boia si curry. Intr-o tigaie adanca se pune uleiul la incalzit.",
+        "Intr-un bol se bat 3 oua si se condimenteaza cu sare si piper. Intr-o farfurie se pune pesmetul. Cand uleiul este incins, se trec bucatile de conopida prin ou si prin pesmet apoi se pun la prajit pana se fac aurii.",
+        "Sos:",
+        "Se curata si se taie marunt ceapa si usturoiul. Acestea se calesc in unt pana cand sunt aurii. In aceeasi tigaie se adauga conserva de rosii, curcuma, ghimbir, coriandru, boia si zahar. Se lasa la fiert si se amesteca pana totul este omogen. Dupa ce s-a omogenizat, se lasa la racit apoi se transfera totul intr-un blender de mana unde se mai adauga iaurt si sos picant. Dupa ce a fost belduit, se adauga intr-un bol si se decoreaza cu frunze de patrunjel."
+      ],
+      "steps": [
         "Conopida:",
         "Se spala si se taie bucati medii. Se condimenteaza cu sare, piper, boia si curry. Intr-o tigaie adanca se pune uleiul la incalzit.",
         "Intr-un bol se bat 3 oua si se condimenteaza cu sare si piper. Intr-o farfurie se pune pesmetul. Cand uleiul este incins, se trec bucatile de conopida prin ou si prin pesmet apoi se pun la prajit pana se fac aurii.",
@@ -680,6 +801,15 @@ window.ARTA_DATA = {
           "La tigaie"
         ]
       },
+      "equipment": [
+        "La tigaie",
+        "Necesită blender"
+      ],
+      "prepTimeMinutes": null,
+      "cookTimeMinutes": null,
+      "totalTimeMinutes": null,
+      "servings": null,
+      "image": null,
       "ratingSummary": null,
       "keywords": [
         "conopida",
@@ -744,6 +874,7 @@ window.ARTA_DATA = {
     },
     {
       "name": "Dovlecel pane",
+      "title": "Dovlecel pane",
       "slug": "dovlecel-pane",
       "category": "Fel secundar",
       "description": "Se feliaza rondele dovlecelul",
@@ -760,6 +891,14 @@ window.ARTA_DATA = {
         "*dupa gust"
       ],
       "preparation": [
+        "Se feliaza rondele dovlecelul",
+        "Intr-o farfurie adanca se bat cele doua oua pana se omogenizeaza impreuna cu sarea si piperul.",
+        "Intr-o farfurie intainsa se pune faina.",
+        "Intr-o tigaie medie/mare se incalzeste uleiul la foc mediu.",
+        "Se trec rondelele de dovlecel prin faina, apoi prin ou si se prajesc pe ambele parti in uleiul incins pana devin aurii.",
+        "Se servesc impreuna cu rosiile, brinza si painea"
+      ],
+      "steps": [
         "Se feliaza rondele dovlecelul",
         "Intr-o farfurie adanca se bat cele doua oua pana se omogenizeaza impreuna cu sarea si piperul.",
         "Intr-o farfurie intainsa se pune faina.",
@@ -806,6 +945,14 @@ window.ARTA_DATA = {
           "La tigaie"
         ]
       },
+      "equipment": [
+        "La tigaie"
+      ],
+      "prepTimeMinutes": null,
+      "cookTimeMinutes": null,
+      "totalTimeMinutes": null,
+      "servings": null,
+      "image": null,
       "ratingSummary": null,
       "keywords": [
         "dovlecel",
@@ -850,6 +997,7 @@ window.ARTA_DATA = {
     },
     {
       "name": "Fajitas de pui",
+      "title": "Fajitas de pui",
       "slug": "fajitas-de-pui",
       "category": "Fel secundar",
       "description": "Se taie pieptul de pui in bucati mici (2-3 cm). Se condimenteaza, dupa gust, cu sare, piper, boia dulce, usturoi praf si turmeric.",
@@ -871,6 +1019,20 @@ window.ARTA_DATA = {
         "*dupa gust"
       ],
       "preparation": [
+        "Pregatire:",
+        "Se taie pieptul de pui in bucati mici (2-3 cm). Se condimenteaza, dupa gust, cu sare, piper, boia dulce, usturoi praf si turmeric.",
+        "Se taie legumele in bucati mici.",
+        "Se curata un catel de usturoi.",
+        "Gatire:",
+        "Intr-o tigaie se pune putin ulei de masline impreuna cu puiul condimentat si se prajeste pana devine auriu.",
+        "Se scoate puiul din tigaie si in aceeasi tigaie se calesc legumele.",
+        "Cand legumele sunt aproape de final, se zdrobeste usturoiul in tigaie (cu presa de usturoi). Se lasa la calit mestecand continu inca 2-3 minute.",
+        "Se scot legumele peste pui si peste intregul amestec se adauga zeama de lamaie.",
+        "Se ung lipiile pe o parte cu unt topit. In tigaia curata se pun doua lipii indoite pe jumatate sub forma de tacos, cu partea unsa cu unt. Se adauga cascaval iar apoi puiul cu legumele in ambele lipii si se incalzesc pana devin crocante.",
+        "Se intorc lipiile si se incalzesc din nou pana devine crocanta si cea de-a doua jumatate.",
+        "Se serveste cald cu muraturi reci."
+      ],
+      "steps": [
         "Pregatire:",
         "Se taie pieptul de pui in bucati mici (2-3 cm). Se condimenteaza, dupa gust, cu sare, piper, boia dulce, usturoi praf si turmeric.",
         "Se taie legumele in bucati mici.",
@@ -922,6 +1084,14 @@ window.ARTA_DATA = {
           "La tigaie"
         ]
       },
+      "equipment": [
+        "La tigaie"
+      ],
+      "prepTimeMinutes": null,
+      "cookTimeMinutes": null,
+      "totalTimeMinutes": null,
+      "servings": null,
+      "image": null,
       "ratingSummary": null,
       "keywords": [
         "fajitas",
@@ -987,6 +1157,7 @@ window.ARTA_DATA = {
     },
     {
       "name": "Gulas cu Spaetzle",
+      "title": "Gulas cu Spaetzle",
       "slug": "gulas-cu-spaetzle",
       "category": "Fel secundar",
       "description": "Se curata ceapa, cartofii si usturoiul.",
@@ -1008,6 +1179,17 @@ window.ARTA_DATA = {
         "*dupa gust"
       ],
       "preparation": [
+        "Se curata ceapa, cartofii si usturoiul.",
+        "Cartofii se taie colturi, se spala si se lasa in apa.",
+        "Se toaca ceapa marunt.",
+        "Se taie carnea bucati (cuburi).",
+        "Intr-o oala se pune ulei si se lasa la incalzit pe foc mediu. Dupa ce se incalzeste se adauga ceapa si legumele si se calesc timp de aproximativ 3-5 minute. Se adauga carnea si se rumeste impreuna cu mixul de legume si ceapa timp de alte 5-10 minute. La compozitie se adauga si usturioul zdrobit si se lasa la calit inca ~1 minut.",
+        "Se adauga apa cat sa acopere compozitia din oala, impreuna cu sare, boia, piper negru, pasta gulas si pasta tomate si se lasa la fiert pentru ~5 minute.",
+        "Se adauga cartofii si apa suficienta pentru a acoperi intregul continut al oalei.",
+        "Se lasa la fiert ~30 minute timp in care, in alta oala se fierb spaetzle (in ultimele ~10 minute). Se adauga spetzle in oala si se fierbe amestecand continu pana scade apa",
+        "Se taie frunzele de patrunjel si se adauga peste mancarea fara a amesteca."
+      ],
+      "steps": [
         "Se curata ceapa, cartofii si usturoiul.",
         "Cartofii se taie colturi, se spala si se lasa in apa.",
         "Se toaca ceapa marunt.",
@@ -1053,6 +1235,14 @@ window.ARTA_DATA = {
           "Fierbere"
         ]
       },
+      "equipment": [
+        "La oală"
+      ],
+      "prepTimeMinutes": null,
+      "cookTimeMinutes": null,
+      "totalTimeMinutes": null,
+      "servings": null,
+      "image": null,
       "ratingSummary": null,
       "keywords": [
         "gulas",
@@ -1112,6 +1302,7 @@ window.ARTA_DATA = {
     },
     {
       "name": "Mancare de mazare cu pui",
+      "title": "Mancare de mazare cu pui",
       "slug": "mancare-de-mazare-cu-pui",
       "category": "Fel secundar",
       "description": "Se taie pieptul de pui cuburi medii.",
@@ -1129,6 +1320,12 @@ window.ARTA_DATA = {
         "*dupa gust"
       ],
       "preparation": [
+        "Se taie pieptul de pui cuburi medii.",
+        "Intr-o oala medie se pune ulei si se calesc legumele pentru ~5 minute. Dupa cele 5 minute se adauga puiul si se lasa la calit alte ~5 minute.",
+        "Se adauga mazarea, mararul, sarea si piperul, se acopera cu apa si se lasa la fiert pe foc mediu ~30 minute.",
+        "Intr-un bol mic se face o pasa densa de faina cu smantana pentru galuste. Acestea se adauga in oala spre final cu o lingurita treptat amestecand ocazional si se lasa la fiert alte ~3 minute."
+      ],
+      "steps": [
         "Se taie pieptul de pui cuburi medii.",
         "Intr-o oala medie se pune ulei si se calesc legumele pentru ~5 minute. Dupa cele 5 minute se adauga puiul si se lasa la calit alte ~5 minute.",
         "Se adauga mazarea, mararul, sarea si piperul, se acopera cu apa si se lasa la fiert pe foc mediu ~30 minute.",
@@ -1171,6 +1368,14 @@ window.ARTA_DATA = {
           "Fierbere"
         ]
       },
+      "equipment": [
+        "La oală"
+      ],
+      "prepTimeMinutes": null,
+      "cookTimeMinutes": null,
+      "totalTimeMinutes": null,
+      "servings": null,
+      "image": null,
       "ratingSummary": null,
       "keywords": [
         "mancare",
@@ -1223,6 +1428,7 @@ window.ARTA_DATA = {
     },
     {
       "name": "Peste marinat cu cartofi natur",
+      "title": "Peste marinat cu cartofi natur",
       "slug": "peste-cu-cartofi-natur",
       "category": "Fel secundar",
       "description": "Se usuca pestele bine cu prosoape de hartie, se unge pestele uniform cu zeama de lamaie, mustar, sare si piper si se lasa la marinat minim 3 ore.",
@@ -1240,6 +1446,16 @@ window.ARTA_DATA = {
         "*dupa gust"
       ],
       "preparation": [
+        "Marinat:",
+        "Se usuca pestele bine cu prosoape de hartie, se unge pestele uniform cu zeama de lamaie, mustar, sare si piper si se lasa la marinat minim 3 ore.",
+        "Pestele:",
+        "Se pune pestele intr-o tava si se baga la cuptor timp de ~30 minute la 180°C.",
+        "Garnitura:",
+        "Se curata cartofii, se taie cuburi si se pun la fiert intr-o oala cu apa si sare pentru aproximativ ~20 minute.",
+        "Se adauga unt intr-o tigaie si se pun cartofii fierti la prajit pentru ~3 minute.",
+        "Se toaca patrunjelul si se pune peste cartofi."
+      ],
+      "steps": [
         "Marinat:",
         "Se usuca pestele bine cu prosoape de hartie, se unge pestele uniform cu zeama de lamaie, mustar, sare si piper si se lasa la marinat minim 3 ore.",
         "Pestele:",
@@ -1292,6 +1508,16 @@ window.ARTA_DATA = {
           "La cuptor"
         ]
       },
+      "equipment": [
+        "Necesită cuptor",
+        "Necesită tavă",
+        "La oală"
+      ],
+      "prepTimeMinutes": null,
+      "cookTimeMinutes": null,
+      "totalTimeMinutes": null,
+      "servings": null,
+      "image": null,
       "ratingSummary": null,
       "keywords": [
         "peste",
@@ -1347,6 +1573,7 @@ window.ARTA_DATA = {
     },
     {
       "name": "Piept de pui cu lamaie si cartofi aurii",
+      "title": "Piept de pui cu lamaie si cartofi aurii",
       "slug": "pui-cu-lamaie-si-cartofi",
       "category": "Fel secundar",
       "description": "Se taie puiul pe jumatate (in 4 bucati).",
@@ -1370,6 +1597,22 @@ window.ARTA_DATA = {
         "*dupa gust"
       ],
       "preparation": [
+        "Pregatire:",
+        "Se taie puiul pe jumatate (in 4 bucati).",
+        "Se amesteca faina cu sare, piper si usturoi praf.",
+        "Se razuieste parmezanul si se bate impreuna cu ouale.",
+        "Se toaca ceapa verde.",
+        "Se spala cartofii.",
+        "Intr-o tava se intinde folie de copt.",
+        "Se preincalzeste cuptorul la 220°C (cuptor electric cu ventilator)/230°C (cuptor electric fara ventilator)",
+        "Gatire:",
+        "Se fierb cartofii pana incep sa se inmoaie (aprox. 10 min). Se scot cartofii de la fiert si se amesteca cu sare, piper si ulei de masline dupa care se transfera in tava pregatita anterior. Se baga la cuptor la timp de aproximativ 15 minute (pana formeaza o crusta crocanta).",
+        "Se fierbe apa impreuna cu cele doua cuburi de magi (sau se gateste supa si se strecoara).",
+        "Se trece puiul prin faina condimentata anterior si apoi prin oul cu parmezan. Intr-o tigaie se adauga ulei de masline si unt si se prajesc pieptul de pui pana se coloreaza auriu. Se scoate puiul pe o farfurie.",
+        "In aceeasi tigaie se adauga supa de pui, zeama de lamaie, unt si doua linguri de faina. Se fierbe si se amesteca bine pana scade sosul. Se condimenteaza cu sare si piper si se adauga ceapa verde tocata. Puiul se transfera inapoi in tigaie si se fierbe pentru 2-3 minute.",
+        "Se serveste cald impreuna cu cartofii."
+      ],
+      "steps": [
         "Pregatire:",
         "Se taie puiul pe jumatate (in 4 bucati).",
         "Se amesteca faina cu sare, piper si usturoi praf.",
@@ -1421,6 +1664,14 @@ window.ARTA_DATA = {
           "La tigaie"
         ]
       },
+      "equipment": [
+        "La tigaie"
+      ],
+      "prepTimeMinutes": null,
+      "cookTimeMinutes": null,
+      "totalTimeMinutes": null,
+      "servings": null,
+      "image": null,
       "ratingSummary": null,
       "keywords": [
         "piept",
@@ -1485,6 +1736,7 @@ window.ARTA_DATA = {
     },
     {
       "name": "Pui dulce-acrisor cu orez",
+      "title": "Pui dulce-acrisor cu orez",
       "slug": "pui-dulce-acrisor-cu-orez",
       "category": "Fel secundar",
       "description": "Se taie pieptul de pui in bucati medii (4-5 cm). Se condimenteaza, dupa gust, cu sare, piper si usturoi praf. Puiul condimentat se da prin faina asi apoi prin ou.",
@@ -1506,6 +1758,19 @@ window.ARTA_DATA = {
         "*dupa gust"
       ],
       "preparation": [
+        "Pregatire:",
+        "Se taie pieptul de pui in bucati medii (4-5 cm). Se condimenteaza, dupa gust, cu sare, piper si usturoi praf. Puiul condimentat se da prin faina asi apoi prin ou.",
+        "Se pregateste sosul: Se amesteca bine ketchup-ul impreuna cu zaharul pana se topeste, se adauga otetul si sosul de soia, totul dupa gus (se poate ajusta in orice moment).",
+        "Intr-o tava se intinde foaia de copt.",
+        "Se preincalzeste cuptorul la 180°C (cuptor electric cu ventilator)/200°C (cuptor electric fara ventilator).",
+        "Gatire:",
+        "Intr-o tigaie se pregateste baia de ulei pentru pui.",
+        "Dupa ce s-a incins, se adauga puiul si se prajeste pana devine auriu.",
+        "Se scoate puiul intr-un bol si peste el se adauga sosul. Se amesteca bine dupa care se transfera in tava de copt pregatita anterior si se baga la cuptor timp de aproximativ 20 min (pana sosul de pe ele s-a redus si a devenit lipicios).",
+        "Pana se coace puiul, se fierbe orezul impreuna cu putina sare, dupa gust.",
+        "Se serveste cald."
+      ],
+      "steps": [
         "Pregatire:",
         "Se taie pieptul de pui in bucati medii (4-5 cm). Se condimenteaza, dupa gust, cu sare, piper si usturoi praf. Puiul condimentat se da prin faina asi apoi prin ou.",
         "Se pregateste sosul: Se amesteca bine ketchup-ul impreuna cu zaharul pana se topeste, se adauga otetul si sosul de soia, totul dupa gus (se poate ajusta in orice moment).",
@@ -1557,6 +1822,16 @@ window.ARTA_DATA = {
           "La cuptor"
         ]
       },
+      "equipment": [
+        "Necesită cuptor",
+        "Necesită tavă",
+        "La oală"
+      ],
+      "prepTimeMinutes": null,
+      "cookTimeMinutes": null,
+      "totalTimeMinutes": null,
+      "servings": null,
+      "image": null,
       "ratingSummary": null,
       "keywords": [
         "pui",
@@ -1617,6 +1892,7 @@ window.ARTA_DATA = {
     },
     {
       "name": "Pulpe de pui dezosate cu orzo",
+      "title": "Pulpe de pui dezosate cu orzo",
       "slug": "pulpe-de-pui-cu-orzo",
       "category": "Fel secundar",
       "description": "Se bat pulpele de pui putin. Se condimenteaza cu boia dulce, sare, piper, usturoi praf, curry si cimbru.",
@@ -1643,6 +1919,19 @@ window.ARTA_DATA = {
         "*dupa gust"
       ],
       "preparation": [
+        "Pregatire:",
+        "Se bat pulpele de pui putin. Se condimenteaza cu boia dulce, sare, piper, usturoi praf, curry si cimbru.",
+        "Se taie ciupercile felii.",
+        "Se toaca patrunjelul.",
+        "Se razuieste parmezanul.",
+        "Gatire:",
+        "Se pregateste sosul: Se topeste untul. Se taie ceapa verde marunt. Se storc doua lamai si se amesteca toate impreuna cu sarea, dupa gust.",
+        "Se fierbe apa impreuna cu cele doua cuburi de magi (sau se gateste supa si se strecoara).",
+        "Intr-o tigaie se adauga ulei de masline si unt si se prajesc pulpele de pui pana se coloreaza auriu. Se scot pulpele de pui pe o farfurie.",
+        "In aceeasi tigaie se pun ciupercile la calit cu putin unt. Spre final se zdropseste usturoiul, cu presa de usturoi peste ciuperci si se mai caleste 1-2 min. Peste continutul tigaii, se adauga supa de pui si orzo. Se lasa la fiert mestecand frecvent pana scade. Se adauga parmezanul razuit si patrunjelul taiat marunt. Se amesteca bine impreuna cu un cubulet de unt si puiul.",
+        "Se serveste cald impreuna cu sosul."
+      ],
+      "steps": [
         "Pregatire:",
         "Se bat pulpele de pui putin. Se condimenteaza cu boia dulce, sare, piper, usturoi praf, curry si cimbru.",
         "Se taie ciupercile felii.",
@@ -1689,6 +1978,14 @@ window.ARTA_DATA = {
           "La tigaie"
         ]
       },
+      "equipment": [
+        "La tigaie"
+      ],
+      "prepTimeMinutes": null,
+      "cookTimeMinutes": null,
+      "totalTimeMinutes": null,
+      "servings": null,
+      "image": null,
       "ratingSummary": null,
       "keywords": [
         "pulpe",
@@ -1753,6 +2050,7 @@ window.ARTA_DATA = {
     },
     {
       "name": "Rata la cuptor umpluta",
+      "title": "Rata la cuptor umpluta",
       "slug": "rata-la-cuptor-umpluta",
       "category": "Fel secundar",
       "description": "Se spala bine rata si se usuca cu prosoape de hartie. Se condimenteaza uniform cu sare, piper si boia si se lasa la marinat ~24h.",
@@ -1785,6 +2083,23 @@ window.ARTA_DATA = {
         "*dupa gust"
       ],
       "preparation": [
+        "Marinat:",
+        "Se spala bine rata si se usuca cu prosoape de hartie. Se condimenteaza uniform cu sare, piper si boia si se lasa la marinat ~24h.",
+        "Umplutura si garnitura:",
+        "Se curata ceapa, usturoiul, cartofii si fructele.",
+        "Se toaca marunt ceapa, se taie fructele si cartofii colturi.",
+        "Se spala orezul bine.",
+        "Se pune ulei intr-o tigaie medie si se calesc ceapa, merisoarele si orezul pentru 3-5 minute. Se adauga fructele, usturoiul zdrobit, sare, piper si boia si se calesc pentru alte ~2 minute.",
+        "Compozitia rezultata se baga in rata, se inchide bine rata, se unge cu unt uniform, se cresteaza pieptul ratei si se adauga felii de portocale in crestaturi.",
+        "Rata se aseaza intr-o tava medie impreuna cu apa, se acopera cu folie de aluminiu si se lasa la cuptor ~1,5 ore la aproximativ 180°C.",
+        "Se inlatura folia de aluminiu, se unge rata cu lichidul din tava si se adauga fructele si cartofii in tava pentru alte ~40 minute.",
+        "Rata se unge cu lichidul din tava frecvent.",
+        "Sosul:",
+        "Se curata fructele de coaja, se taie colturi si zeama unei jumatati de lamaie se adauga peste ele.",
+        "Intr-o oala mica se caramelizeaza zaharul la foc mic. Odata ce zaharul a fost complet caramelizat se adauga untul si zeama a doua portocale si se lasa la foc mic timp de ~5 minute.",
+        "Se adauga scortisoara fructele, coniac/esenta rom si cuisoarele. Se lasa la fiert la foc mic timp de ~5 minute. Dupa oprirea focului se scot cuisoarele din sos."
+      ],
+      "steps": [
         "Marinat:",
         "Se spala bine rata si se usuca cu prosoape de hartie. Se condimenteaza uniform cu sare, piper si boia si se lasa la marinat ~24h.",
         "Umplutura si garnitura:",
@@ -1843,6 +2158,15 @@ window.ARTA_DATA = {
           "La cuptor"
         ]
       },
+      "equipment": [
+        "Necesită cuptor",
+        "Necesită tavă"
+      ],
+      "prepTimeMinutes": null,
+      "cookTimeMinutes": null,
+      "totalTimeMinutes": null,
+      "servings": null,
+      "image": null,
       "ratingSummary": null,
       "keywords": [
         "rata",
@@ -1916,6 +2240,7 @@ window.ARTA_DATA = {
     },
     {
       "name": "Rata la cuptor umpluta",
+      "title": "Rata la cuptor umpluta",
       "slug": "snitel-pufos-de-pui",
       "category": "Fel secundar",
       "description": "Se injumatatesc pieptii de pui in grosime si se bat cu batatorul de carne.",
@@ -1929,6 +2254,13 @@ window.ARTA_DATA = {
         "*dupa gust"
       ],
       "preparation": [
+        "Se injumatatesc pieptii de pui in grosime si se bat cu batatorul de carne.",
+        "Intr-o farfurie adanca se bat cele doua oua pana se omogenizeaza impreuna cu sarea si piperul.",
+        "Intr-o farfurie intainsa se pune faina.",
+        "Intr-o tigaie medie/mare se incalzeste uleiul la foc mediu.",
+        "Se trece pieptul de pui batut prin faina, apoi prin ou si se prajeste pe ambele parti in uleiul incins pana devine auriu."
+      ],
+      "steps": [
         "Se injumatatesc pieptii de pui in grosime si se bat cu batatorul de carne.",
         "Intr-o farfurie adanca se bat cele doua oua pana se omogenizeaza impreuna cu sarea si piperul.",
         "Intr-o farfurie intainsa se pune faina.",
@@ -1973,6 +2305,14 @@ window.ARTA_DATA = {
           "La tigaie"
         ]
       },
+      "equipment": [
+        "La tigaie"
+      ],
+      "prepTimeMinutes": null,
+      "cookTimeMinutes": null,
+      "totalTimeMinutes": null,
+      "servings": null,
+      "image": null,
       "ratingSummary": null,
       "keywords": [
         "rata",
@@ -2015,6 +2355,7 @@ window.ARTA_DATA = {
     },
     {
       "name": "Shakshuka",
+      "title": "Shakshuka",
       "slug": "shakshuka",
       "category": "Fel secundar",
       "description": "Se feliaza cubulete ardeii capia si ceapa.",
@@ -2045,6 +2386,12 @@ window.ARTA_DATA = {
         "*dupa gust"
       ],
       "preparation": [
+        "Pregatire:",
+        "Se feliaza cubulete ardeii capia si ceapa.",
+        "Gatire:",
+        "Intr-o tigaie se adauga ulei si se caleste mix-ul de legume tocate cu ceapa si ardeiul capia timp de 5-10 minute. Se adauga condimentele, usturoiul zdrobit cu presa de usturoi si se caleste pentru inca 2-3 minute. Se adauga conserva de rosii cu bulionul si apa si fierbe cu capacul pus pentru aproximativ 25 min. Faci patru gauri in compozitie pentru oua si adaugi ouale in ele dupa care le mai gatesti cu capacul pus pentru inca 1-2 min (oua moi). La final se adauga feta si patrunjelul si se serveste cald cu paine ceabata."
+      ],
+      "steps": [
         "Pregatire:",
         "Se feliaza cubulete ardeii capia si ceapa.",
         "Gatire:",
@@ -2091,6 +2438,14 @@ window.ARTA_DATA = {
           "La tigaie"
         ]
       },
+      "equipment": [
+        "La tigaie"
+      ],
+      "prepTimeMinutes": null,
+      "cookTimeMinutes": null,
+      "totalTimeMinutes": null,
+      "servings": null,
+      "image": null,
       "ratingSummary": null,
       "keywords": [
         "shakshuka",
@@ -2167,6 +2522,7 @@ window.ARTA_DATA = {
     },
     {
       "name": "Steak de vita",
+      "title": "Steak de vita",
       "slug": "steak-de-vita",
       "category": "Fel secundar",
       "description": "Scoate-ti carnea de la frigider si lasati-o la temperatura camerei 30 min.",
@@ -2204,6 +2560,25 @@ window.ARTA_DATA = {
         "Castrevete - 5 buc. (cornison)"
       ],
       "preparation": [
+        "CARNE",
+        "Quick rub/Marinare:",
+        "Scoate-ti carnea de la frigider si lasati-o la temperatura camerei 30 min.",
+        "Intr-un bol mic amestecati mustarul Dijon, uleiul de masline, pudra de usturoi, boiaua dulce si cimbrul uscat.",
+        "Se unge fiecare bucata de carne cu sosul format si se lasa la frigider pentru marinare mai lunga (inainte de prajire se lasa carnea la temperatura camerei timp de 30 min) sau, pentru servire rapida, la temperatura camerei timp de 20-30 min.",
+        "Incalzire tigaie:",
+        "Se pune tigaia grill pe foc si se incalzeste pe for mediu-mare spre mare timp de aprox 5 min (fara sa fumege). NU SE PUNE ULEI IN TIGAIE! SE VA UNGE NUMAI CARNEA CU ULEI!",
+        "Uscarea si condimentarea finala:",
+        "Se sterge usor surprusul de marinada de pe carne cu un servetel.",
+        "Se tamponeaza usor cu ulei folosind pensula si se condimenteaza cu sare si piper ambele fete ale carnii.",
+        "Prajirea:",
+        "Vezi calculatorul de mai jos!",
+        "Pentru o crusta perfecta apasa carnea cu clestele timp de 10 sec. dupa ce o pui in tigaie pentru a avea un contact bun cu tigaia.",
+        "PIURE DE CARTOFI",
+        "Se infuzeaza laptele cu crenguta de rozmarin timp de 10-20 min.",
+        "Se fierbe apa impreuna cu cartofii (pentru fulgi se fierbe prima data apa si apoi se adauga fulgii).",
+        "Se piseaza carfoii si se adauga laptele si untul."
+      ],
+      "steps": [
         "CARNE",
         "Quick rub/Marinare:",
         "Scoate-ti carnea de la frigider si lasati-o la temperatura camerei 30 min.",
@@ -2261,6 +2636,15 @@ window.ARTA_DATA = {
           "Marinare"
         ]
       },
+      "equipment": [
+        "La tigaie",
+        "Necesită termometru"
+      ],
+      "prepTimeMinutes": null,
+      "cookTimeMinutes": null,
+      "totalTimeMinutes": null,
+      "servings": null,
+      "image": null,
       "ratingSummary": null,
       "keywords": [
         "steak",
@@ -2359,6 +2743,7 @@ window.ARTA_DATA = {
     },
     {
       "name": "Tocanita De Cartofi",
+      "title": "Tocanita De Cartofi",
       "slug": "tocanita-de-cartofi",
       "category": "Fel secundar",
       "description": "Se curata ceapa, cartofii si usturoiul.",
@@ -2377,6 +2762,17 @@ window.ARTA_DATA = {
         "*dupa gust"
       ],
       "preparation": [
+        "Se curata ceapa, cartofii si usturoiul.",
+        "Cartofii se taie colturi, se spala si se lasa in apa.",
+        "Se toaca ceapa marunt.",
+        "Se taie carnea bucati (cuburi).",
+        "Intr-o oala se pune ulei si se lasa la incalzit pe foc mediu. Dupa ce se incalzeste se adauga ceapa si legumele si se calesc timp de aproximativ 3-5 minute. Se adauga carnea si se rumeste impreuna cu mixul de legume si ceapa timp de alte 5-10 minute. La compozitie se adauga si usturioul zdrobit si se lasa la calit inca ~1 minut.",
+        "Se adauga apa cat sa acopere compozitia din oala, impreuna cu sare, boia si piper negru si se lasa la fiert pentru ~5 minute.",
+        "Se adauga cartofii si apa suficienta pentru a acoperi intregul continut al oalei.",
+        "Se lasa la fiert ~45 minute.",
+        "Se taie frunzele de patrunjel si se adauga peste mancarea fara a amesteca."
+      ],
+      "steps": [
         "Se curata ceapa, cartofii si usturoiul.",
         "Cartofii se taie colturi, se spala si se lasa in apa.",
         "Se toaca ceapa marunt.",
@@ -2422,6 +2818,14 @@ window.ARTA_DATA = {
           "Fierbere"
         ]
       },
+      "equipment": [
+        "La oală"
+      ],
+      "prepTimeMinutes": null,
+      "cookTimeMinutes": null,
+      "totalTimeMinutes": null,
+      "servings": null,
+      "image": null,
       "ratingSummary": null,
       "keywords": [
         "tocanita",
@@ -2480,6 +2884,7 @@ window.ARTA_DATA = {
     },
     {
       "name": "Tocăniță de pui cu ardei copți",
+      "title": "Tocăniță de pui cu ardei copți",
       "slug": "tocanita-de-pui-cu-ardei",
       "category": "Fel secundar",
       "description": "Gătește pulpele de pui până se rumenesc ușor.",
@@ -2498,6 +2903,12 @@ window.ARTA_DATA = {
         "pâine ciabatta"
       ],
       "preparation": [
+        "Gătește pulpele de pui până se rumenesc ușor.",
+        "Adaugă ceapa, usturoiul, ardeii copți și bulionul.",
+        "Lasă tocănița să fiarbă până când sosul se leagă.",
+        "Servește cu pătrunjel și pâine ciabatta."
+      ],
+      "steps": [
         "Gătește pulpele de pui până se rumenesc ușor.",
         "Adaugă ceapa, usturoiul, ardeii copți și bulionul.",
         "Lasă tocănița să fiarbă până când sosul se leagă.",
@@ -2538,6 +2949,14 @@ window.ARTA_DATA = {
           "Fierbere"
         ]
       },
+      "equipment": [
+        "La oală"
+      ],
+      "prepTimeMinutes": null,
+      "cookTimeMinutes": null,
+      "totalTimeMinutes": null,
+      "servings": null,
+      "image": null,
       "ratingSummary": null,
       "keywords": [
         "tocanita",
@@ -2582,6 +3001,7 @@ window.ARTA_DATA = {
     },
     {
       "name": "Placinta cu dovleac",
+      "title": "Placinta cu dovleac",
       "slug": "placinta-cu-dovleac",
       "category": "Desert",
       "description": "Se taie un dovleac galben sau dovleac \"placintar\" in bucati medi si se baga la cuptor pentru aproximativ 40 min la o temperatura de 190 °C.",
@@ -2598,6 +3018,14 @@ window.ARTA_DATA = {
         "Zahar"
       ],
       "preparation": [
+        "Se taie un dovleac galben sau dovleac \"placintar\" in bucati medi si se baga la cuptor pentru aproximativ 40 min la o temperatura de 190 °C.",
+        "Dupa coacerea dovleacului acesta se curata de pe coaja si se piseaza cu o furculita intr-un bol mediu/mare. Se adauga restul ingredientelor si se amesteca pana amestecul este omogen.",
+        "Se intinde aluatul rece si se taie in patratele mari.",
+        "Bucatile de aluat se umplu cu amestecul de dovleac pana ce jumatate din patrat este acoperit. Jumatatea neacoperita de amestec este se impatureste peste cealalta jumatate iar marginile se apasa cu furculita.",
+        "Se bat ouale intr-un castron. Apoi cu o pensula se intinde oul pe placintelele pregatite de copt.",
+        "Se baga la cuptor pentru 10-15 Min. la o temperatura de 200 °C."
+      ],
+      "steps": [
         "Se taie un dovleac galben sau dovleac \"placintar\" in bucati medi si se baga la cuptor pentru aproximativ 40 min la o temperatura de 190 °C.",
         "Dupa coacerea dovleacului acesta se curata de pe coaja si se piseaza cu o furculita intr-un bol mediu/mare. Se adauga restul ingredientelor si se amesteca pana amestecul este omogen.",
         "Se intinde aluatul rece si se taie in patratele mari.",
@@ -2642,6 +3070,15 @@ window.ARTA_DATA = {
           "La cuptor"
         ]
       },
+      "equipment": [
+        "Necesită cuptor",
+        "Necesită tavă"
+      ],
+      "prepTimeMinutes": null,
+      "cookTimeMinutes": null,
+      "totalTimeMinutes": null,
+      "servings": null,
+      "image": null,
       "ratingSummary": null,
       "keywords": [
         "placinta",
@@ -2695,6 +3132,7 @@ window.ARTA_DATA = {
     },
     {
       "name": "Charcuterie board",
+      "title": "Charcuterie board",
       "slug": "charcuterie-board",
       "category": "Rontaieli",
       "description": "Se feliaza ardeiul, castravetele, salamul, branza si cascavalul.",
@@ -2714,6 +3152,11 @@ window.ARTA_DATA = {
         "*dupa gust"
       ],
       "preparation": [
+        "Se feliaza ardeiul, castravetele, salamul, branza si cascavalul.",
+        "Se taie carnaciorii sticks in bucatele mici (~2 cm).",
+        "Se aseaza toate ingredientele pe un blat de lemn si se servesc impreuna cu un pahar de vin alb."
+      ],
+      "steps": [
         "Se feliaza ardeiul, castravetele, salamul, branza si cascavalul.",
         "Se taie carnaciorii sticks in bucatele mici (~2 cm).",
         "Se aseaza toate ingredientele pe un blat de lemn si se servesc impreuna cu un pahar de vin alb."
@@ -2754,6 +3197,12 @@ window.ARTA_DATA = {
           "Fără gătire"
         ]
       },
+      "equipment": [],
+      "prepTimeMinutes": null,
+      "cookTimeMinutes": null,
+      "totalTimeMinutes": null,
+      "servings": null,
+      "image": null,
       "ratingSummary": null,
       "keywords": [
         "charcuterie",
@@ -2804,6 +3253,7 @@ window.ARTA_DATA = {
     },
     {
       "name": "Fructe cu Nutella",
+      "title": "Fructe cu Nutella",
       "slug": "fructe-cu-nutella",
       "category": "Rontaieli",
       "description": "Se feliaza fructele si se adauga jumatate de lingurita de nutella peste ele.",
@@ -2813,6 +3263,10 @@ window.ARTA_DATA = {
         "*dupa gust"
       ],
       "preparation": [
+        "Se feliaza fructele si se adauga jumatate de lingurita de nutella peste ele.",
+        "Se savureaza fructele reci."
+      ],
+      "steps": [
         "Se feliaza fructele si se adauga jumatate de lingurita de nutella peste ele.",
         "Se savureaza fructele reci."
       ],
@@ -2852,6 +3306,12 @@ window.ARTA_DATA = {
           "Fără gătire"
         ]
       },
+      "equipment": [],
+      "prepTimeMinutes": null,
+      "cookTimeMinutes": null,
+      "totalTimeMinutes": null,
+      "servings": null,
+      "image": null,
       "ratingSummary": null,
       "keywords": [
         "fructe",
@@ -2886,6 +3346,7 @@ window.ARTA_DATA = {
     },
     {
       "name": "Mar cu unt de arahide",
+      "title": "Mar cu unt de arahide",
       "slug": "mar-cu-unt-de-arahide",
       "category": "Rontaieli",
       "description": "Se feliaza marul.",
@@ -2894,6 +3355,10 @@ window.ARTA_DATA = {
         "Unt arahide (2 linguri)"
       ],
       "preparation": [
+        "Se feliaza marul.",
+        "Se pune unt de arahide pe feliile de mar."
+      ],
+      "steps": [
         "Se feliaza marul.",
         "Se pune unt de arahide pe feliile de mar."
       ],
@@ -2935,6 +3400,12 @@ window.ARTA_DATA = {
           "Fără gătire"
         ]
       },
+      "equipment": [],
+      "prepTimeMinutes": null,
+      "cookTimeMinutes": null,
+      "totalTimeMinutes": null,
+      "servings": null,
+      "image": null,
       "ratingSummary": null,
       "keywords": [
         "mar",
@@ -2973,6 +3444,7 @@ window.ARTA_DATA = {
     },
     {
       "name": "paine prajita cu unt de arahide",
+      "title": "paine prajita cu unt de arahide",
       "slug": "paine-prajita-unt-arahide",
       "category": "Rontaieli",
       "description": "Se prajeste painea.",
@@ -2983,6 +3455,11 @@ window.ARTA_DATA = {
         "*dupa gust"
       ],
       "preparation": [
+        "Se prajeste painea.",
+        "Se taie frictele rondele.",
+        "Se pune unt de arahide pe feliile de paine prajita si se adauga feliile de fructe."
+      ],
+      "steps": [
         "Se prajeste painea.",
         "Se taie frictele rondele.",
         "Se pune unt de arahide pe feliile de paine prajita si se adauga feliile de fructe."
@@ -3021,6 +3498,12 @@ window.ARTA_DATA = {
           "Vegetarian"
         ]
       },
+      "equipment": [],
+      "prepTimeMinutes": null,
+      "cookTimeMinutes": null,
+      "totalTimeMinutes": null,
+      "servings": null,
+      "image": null,
       "ratingSummary": null,
       "keywords": [
         "paine",
@@ -3060,6 +3543,7 @@ window.ARTA_DATA = {
     },
     {
       "name": "Salata de ciuperci",
+      "title": "Salata de ciuperci",
       "slug": "salata-de-ciuperci",
       "category": "Salate",
       "description": "Se curata, se spala ciupercile si se taie marunt.",
@@ -3078,6 +3562,14 @@ window.ARTA_DATA = {
         "*dupa gust"
       ],
       "preparation": [
+        "Pregatire:",
+        "Se curata, se spala ciupercile si se taie marunt.",
+        "Se rade parmezanul.",
+        "Intr-o tigaie medie se pun ciupercile la calit cu usturoiul zdrobit si putin ulei pe foc mediu timp de ~5 minute. Se adauga un cub maggi, apa si faina si se lasa la fiert pana se omogenizeaza, dupa care se adauga si parmezanul.",
+        "Compozitia se lasa la racit ~30 minute. Cand este rece se adauga maioneza si iaurtul si se amesteca bine.",
+        "Se serveste pe paine prajita si cu rosii cherry."
+      ],
+      "steps": [
         "Pregatire:",
         "Se curata, se spala ciupercile si se taie marunt.",
         "Se rade parmezanul.",
@@ -3125,6 +3617,14 @@ window.ARTA_DATA = {
           "La tigaie"
         ]
       },
+      "equipment": [
+        "La tigaie"
+      ],
+      "prepTimeMinutes": null,
+      "cookTimeMinutes": null,
+      "totalTimeMinutes": null,
+      "servings": null,
+      "image": null,
       "ratingSummary": null,
       "keywords": [
         "salata",
@@ -3183,6 +3683,7 @@ window.ARTA_DATA = {
     },
     {
       "name": "Avocado cu bacon",
+      "title": "Avocado cu bacon",
       "slug": "avocado-cu-bacon",
       "category": "Mic dejun",
       "description": "Intr-o oala mica se fierb ouale timp de ~10 minute. Se toarna apa gheata/rece peste ele si se decojesc.",
@@ -3199,6 +3700,13 @@ window.ARTA_DATA = {
         "*dupa gust"
       ],
       "preparation": [
+        "Intr-o oala mica se fierb ouale timp de ~10 minute. Se toarna apa gheata/rece peste ele si se decojesc.",
+        "Intr-o tigaie mica, se prajeste baconul timp de ~5 minute la foc mediu pana devine usor crocant.",
+        "Se prajeste painea pana devine usor crocanta..",
+        "Rosiile cherry, ceapa verde si baconul se toaca marunt.",
+        "Pulpa de avocado si ouale se piseaza intr-o pasta omogena peste care se adauga sare si piper. Peste pasta de ou si avocado se piseaza usturoiul si se amesteca bine. Peste compozitie, se adauga ingredientele tocate si se serveste pe paine prajita."
+      ],
+      "steps": [
         "Intr-o oala mica se fierb ouale timp de ~10 minute. Se toarna apa gheata/rece peste ele si se decojesc.",
         "Intr-o tigaie mica, se prajeste baconul timp de ~5 minute la foc mediu pana devine usor crocant.",
         "Se prajeste painea pana devine usor crocanta..",
@@ -3244,6 +3752,15 @@ window.ARTA_DATA = {
           "La tigaie"
         ]
       },
+      "equipment": [
+        "La oală",
+        "La tigaie"
+      ],
+      "prepTimeMinutes": null,
+      "cookTimeMinutes": null,
+      "totalTimeMinutes": null,
+      "servings": null,
+      "image": null,
       "ratingSummary": null,
       "keywords": [
         "avocado",
@@ -3289,6 +3806,7 @@ window.ARTA_DATA = {
     },
     {
       "name": "Bagheta bistro",
+      "title": "Bagheta bistro",
       "slug": "bagheta-bistro",
       "category": "Mic dejun",
       "description": "Bagheta se taie in 2 jumatati dupa care se sectioneaza pe lungime.",
@@ -3302,6 +3820,10 @@ window.ARTA_DATA = {
         "*dupa gust"
       ],
       "preparation": [
+        "Bagheta se taie in 2 jumatati dupa care se sectioneaza pe lungime.",
+        "Se deschide bagheta taiata pe lungime si se unge cu unt, se adauga salata, sunca branza si iaurtul apoi se inchide painea."
+      ],
+      "steps": [
         "Bagheta se taie in 2 jumatati dupa care se sectioneaza pe lungime.",
         "Se deschide bagheta taiata pe lungime si se unge cu unt, se adauga salata, sunca branza si iaurtul apoi se inchide painea."
       ],
@@ -3341,6 +3863,12 @@ window.ARTA_DATA = {
           "Fără gătire"
         ]
       },
+      "equipment": [],
+      "prepTimeMinutes": null,
+      "cookTimeMinutes": null,
+      "totalTimeMinutes": null,
+      "servings": null,
+      "image": null,
       "ratingSummary": null,
       "keywords": [
         "bagheta",
@@ -3388,6 +3916,7 @@ window.ARTA_DATA = {
     },
     {
       "name": "Clatite cu mere",
+      "title": "Clatite cu mere",
       "slug": "clatite-cu-mere",
       "category": "Mic dejun",
       "description": "Marul se spala, se curata de coaja, se taie in sferturi, se indeparteaza cotorul, iar pulpa fructului se da pe razatoare fina.",
@@ -3406,6 +3935,13 @@ window.ARTA_DATA = {
         "*dupa gust"
       ],
       "preparation": [
+        "Marul se spala, se curata de coaja, se taie in sferturi, se indeparteaza cotorul, iar pulpa fructului se da pe razatoare fina.",
+        "Faina se amesteca cu praful de copt, bicarbonat de sodiu, scortisoara si sare. Laptele se amesteca cu siropul de artar si otetul de mere. Ingredientele se amestega intr-un aluat omogen.",
+        "Se incalzeste tigaia de clatite si se toarna forme micute de aluat de clatite cu polonicul.",
+        "Se coc ~3 minute pe fiecare parte.",
+        "Se taie fructele si se servesc impreuna cu nutella si clatitele calde."
+      ],
+      "steps": [
         "Marul se spala, se curata de coaja, se taie in sferturi, se indeparteaza cotorul, iar pulpa fructului se da pe razatoare fina.",
         "Faina se amesteca cu praful de copt, bicarbonat de sodiu, scortisoara si sare. Laptele se amesteca cu siropul de artar si otetul de mere. Ingredientele se amestega intr-un aluat omogen.",
         "Se incalzeste tigaia de clatite si se toarna forme micute de aluat de clatite cu polonicul.",
@@ -3448,6 +3984,14 @@ window.ARTA_DATA = {
           "La tigaie"
         ]
       },
+      "equipment": [
+        "La tigaie"
+      ],
+      "prepTimeMinutes": null,
+      "cookTimeMinutes": null,
+      "totalTimeMinutes": null,
+      "servings": null,
+      "image": null,
       "ratingSummary": null,
       "keywords": [
         "clatite",
@@ -3499,6 +4043,7 @@ window.ARTA_DATA = {
     },
     {
       "name": "Gris cu lapte, cocos si afine",
+      "title": "Gris cu lapte, cocos si afine",
       "slug": "gris-cu-lapte-si-cocos",
       "category": "Mic dejun",
       "description": "Intr-o oala medie se incalzeste laptele la foc mic-mediu. Se adauga treptat grisul si zaharul si se amesteca in mod constant. Se fierbe pe foc mic-mediu timp de ~5 minute.",
@@ -3512,6 +4057,10 @@ window.ARTA_DATA = {
         "*dupa gust"
       ],
       "preparation": [
+        "Intr-o oala medie se incalzeste laptele la foc mic-mediu. Se adauga treptat grisul si zaharul si se amesteca in mod constant. Se fierbe pe foc mic-mediu timp de ~5 minute.",
+        "Se serveste cald, impreuna cu sirop de artar, cocos si afine."
+      ],
+      "steps": [
         "Intr-o oala medie se incalzeste laptele la foc mic-mediu. Se adauga treptat grisul si zaharul si se amesteca in mod constant. Se fierbe pe foc mic-mediu timp de ~5 minute.",
         "Se serveste cald, impreuna cu sirop de artar, cocos si afine."
       ],
@@ -3555,6 +4104,14 @@ window.ARTA_DATA = {
           "Fierbere"
         ]
       },
+      "equipment": [
+        "La oală"
+      ],
+      "prepTimeMinutes": null,
+      "cookTimeMinutes": null,
+      "totalTimeMinutes": null,
+      "servings": null,
+      "image": null,
       "ratingSummary": null,
       "keywords": [
         "gris",
@@ -3602,6 +4159,7 @@ window.ARTA_DATA = {
     },
     {
       "name": "Omleta cu spanac",
+      "title": "Omleta cu spanac",
       "slug": "omleta-cu-spanac",
       "category": "Mic dejun",
       "description": "Se incalzeste o tigaie mica pe foc mic-mediu.",
@@ -3617,6 +4175,11 @@ window.ARTA_DATA = {
         "*dupa gust"
       ],
       "preparation": [
+        "Se incalzeste o tigaie mica pe foc mic-mediu.",
+        "Intr-un bol mic se bat bine ouale impreuna cu sare si piper, dupa care se adauga in tigaia calda unde se adauga branza si spanacul. Se prajeste cate ~1 minut pe fiecare parte.",
+        "Se serveste impreuna cu masline, rosii cheri si ardei taiati felii."
+      ],
+      "steps": [
         "Se incalzeste o tigaie mica pe foc mic-mediu.",
         "Intr-un bol mic se bat bine ouale impreuna cu sare si piper, dupa care se adauga in tigaia calda unde se adauga branza si spanacul. Se prajeste cate ~1 minut pe fiecare parte.",
         "Se serveste impreuna cu masline, rosii cheri si ardei taiati felii."
@@ -3660,6 +4223,14 @@ window.ARTA_DATA = {
           "Prăjire"
         ]
       },
+      "equipment": [
+        "La tigaie"
+      ],
+      "prepTimeMinutes": null,
+      "cookTimeMinutes": null,
+      "totalTimeMinutes": null,
+      "servings": null,
+      "image": null,
       "ratingSummary": null,
       "keywords": [
         "omleta",
@@ -3703,6 +4274,7 @@ window.ARTA_DATA = {
     },
     {
       "name": "Ou posat cu avocado si somon",
+      "title": "Ou posat cu avocado si somon",
       "slug": "ou-posat-cu-avocado",
       "category": "Mic dejun",
       "description": "Intr-o cratita mica se pune apa la fiert. Cand apa incepe sa fiarba se scade focul la nivel mic.",
@@ -3722,6 +4294,14 @@ window.ARTA_DATA = {
         "*dupa gust"
       ],
       "preparation": [
+        "Intr-o cratita mica se pune apa la fiert. Cand apa incepe sa fiarba se scade focul la nivel mic.",
+        "Se inveleste interiorul unei cani cu folie alimentara si se unge cu putin ulei, se adauga un ou si se inchide bine. Se adauga saculetul format cu ou in apa fierbinte si se fierbe la foc mic 6 minute.",
+        "Se taie somonul, castravetele si ceapa bucatele mici iar mararul si patrunjelul se toaca marunt.",
+        "Avocado se taie pe jumatate si pulpa se piseaza impreuna cu sare si zeama de lamaie. Dupa care se amesteca impreuna cu ingredientele tocate mai devreme.",
+        "Feliile de paine se prajesc pana devin usor crocante si se ung cu unt tartinabil, apoi cu amestecul de avocado rezultat mai sus.",
+        "Se serveste oul posat impreuna cu feliile de paine."
+      ],
+      "steps": [
         "Intr-o cratita mica se pune apa la fiert. Cand apa incepe sa fiarba se scade focul la nivel mic.",
         "Se inveleste interiorul unei cani cu folie alimentara si se unge cu putin ulei, se adauga un ou si se inchide bine. Se adauga saculetul format cu ou in apa fierbinte si se fierbe la foc mic 6 minute.",
         "Se taie somonul, castravetele si ceapa bucatele mici iar mararul si patrunjelul se toaca marunt.",
@@ -3766,6 +4346,14 @@ window.ARTA_DATA = {
           "Fierbere"
         ]
       },
+      "equipment": [
+        "La oală"
+      ],
+      "prepTimeMinutes": null,
+      "cookTimeMinutes": null,
+      "totalTimeMinutes": null,
+      "servings": null,
+      "image": null,
       "ratingSummary": null,
       "keywords": [
         "ou",
@@ -3817,6 +4405,7 @@ window.ARTA_DATA = {
     },
     {
       "name": "Ovaz cu lapte",
+      "title": "Ovaz cu lapte",
       "slug": "ovaz-cu-lapte",
       "category": "Mic dejun",
       "description": "Intr-o oala medie se adauga laptele si se incalzeste la foc mediu.",
@@ -3827,6 +4416,11 @@ window.ARTA_DATA = {
         "Fructe/Gem/Sirop de artar"
       ],
       "preparation": [
+        "Intr-o oala medie se adauga laptele si se incalzeste la foc mediu.",
+        "Cand laptele e cald se adauga zaharul si ovazul si se amesteca bine timp de 3-5 minute pana cand compozitia este omogena si ovazul fiert.",
+        "Se serveste cald cu fructe sau gem/sirop de artar."
+      ],
+      "steps": [
         "Intr-o oala medie se adauga laptele si se incalzeste la foc mediu.",
         "Cand laptele e cald se adauga zaharul si ovazul si se amesteca bine timp de 3-5 minute pana cand compozitia este omogena si ovazul fiert.",
         "Se serveste cald cu fructe sau gem/sirop de artar."
@@ -3871,6 +4465,14 @@ window.ARTA_DATA = {
           "Fierbere"
         ]
       },
+      "equipment": [
+        "La oală"
+      ],
+      "prepTimeMinutes": null,
+      "cookTimeMinutes": null,
+      "totalTimeMinutes": null,
+      "servings": null,
+      "image": null,
       "ratingSummary": null,
       "keywords": [
         "ovaz",
@@ -3914,6 +4516,7 @@ window.ARTA_DATA = {
     },
     {
       "name": "Ovaz peste noapte",
+      "title": "Ovaz peste noapte",
       "slug": "ovaz-peste-noapte",
       "category": "Mic dejun",
       "description": "Intr-un borcan mediu (500g) se adauga laptele, iaurtul si mierea si se amesteca bine.",
@@ -3926,6 +4529,11 @@ window.ARTA_DATA = {
         "Fructe/Gem"
       ],
       "preparation": [
+        "Intr-un borcan mediu (500g) se adauga laptele, iaurtul si mierea si se amesteca bine.",
+        "Se adauga ovazul si semintele de chia, se amesteca bine si la nevoie se completeaza cu lapte pentru a forma o compozitie omogena dar nu prea uscata.",
+        "Compozitia rezultata se lasa in frigider peste noapte si se poate servi cu fructe sau gem."
+      ],
+      "steps": [
         "Intr-un borcan mediu (500g) se adauga laptele, iaurtul si mierea si se amesteca bine.",
         "Se adauga ovazul si semintele de chia, se amesteca bine si la nevoie se completeaza cu lapte pentru a forma o compozitie omogena dar nu prea uscata.",
         "Compozitia rezultata se lasa in frigider peste noapte si se poate servi cu fructe sau gem."
@@ -3966,6 +4574,12 @@ window.ARTA_DATA = {
           "Fără gătire"
         ]
       },
+      "equipment": [],
+      "prepTimeMinutes": null,
+      "cookTimeMinutes": null,
+      "totalTimeMinutes": null,
+      "servings": null,
+      "image": null,
       "ratingSummary": null,
       "keywords": [
         "ovaz",
@@ -4010,6 +4624,7 @@ window.ARTA_DATA = {
     },
     {
       "name": "Sandwitch cu mozzarella",
+      "title": "Sandwitch cu mozzarella",
       "slug": "sandwitch-cu-mozzarella",
       "category": "Mic dejun",
       "description": "Feliile de paine se prajesc pana devin usor crocante.",
@@ -4026,6 +4641,11 @@ window.ARTA_DATA = {
         "*dupa gust"
       ],
       "preparation": [
+        "Feliile de paine se prajesc pana devin usor crocante.",
+        "Se taie rosia si mozzarella felii.",
+        "2 felii se ung cu goacamole si 2 felii se ung cu crema de branza. Pe felia cu goacamole se adauga 2-3 felii de rosii peste care se adauga sare si piper. Apoi se adauga mozzarella, bucatile de sunca presata si spanacul. Peste acestea se adauga feliile cu crema de branza."
+      ],
+      "steps": [
         "Feliile de paine se prajesc pana devin usor crocante.",
         "Se taie rosia si mozzarella felii.",
         "2 felii se ung cu goacamole si 2 felii se ung cu crema de branza. Pe felia cu goacamole se adauga 2-3 felii de rosii peste care se adauga sare si piper. Apoi se adauga mozzarella, bucatile de sunca presata si spanacul. Peste acestea se adauga feliile cu crema de branza."
@@ -4063,6 +4683,12 @@ window.ARTA_DATA = {
           "Cu carne"
         ]
       },
+      "equipment": [],
+      "prepTimeMinutes": null,
+      "cookTimeMinutes": null,
+      "totalTimeMinutes": null,
+      "servings": null,
+      "image": null,
       "ratingSummary": null,
       "keywords": [
         "sandwitch",
@@ -4111,6 +4737,7 @@ window.ARTA_DATA = {
     },
     {
       "name": "Sandwitch cu ton",
+      "title": "Sandwitch cu ton",
       "slug": "sandwitch-cu-ton",
       "category": "Mic dejun",
       "description": "Feliile de paine se prajesc pana ce devin usor crocante.",
@@ -4129,6 +4756,12 @@ window.ARTA_DATA = {
         "*dupa gust"
       ],
       "preparation": [
+        "Feliile de paine se prajesc pana ce devin usor crocante.",
+        "Tonul se stoarce bine de suc.",
+        "Se taie castravetii murati, ardeiul kapia si ceapa cuburi mici si se amesteca cu zeama de lamaie, sare, piper, tabasco si maioneza.",
+        "Peste painea prajita se adauga o frunza de salata si compozitia rezultata mai sus."
+      ],
+      "steps": [
         "Feliile de paine se prajesc pana ce devin usor crocante.",
         "Tonul se stoarce bine de suc.",
         "Se taie castravetii murati, ardeiul kapia si ceapa cuburi mici si se amesteca cu zeama de lamaie, sare, piper, tabasco si maioneza.",
@@ -4168,6 +4801,12 @@ window.ARTA_DATA = {
           "Cu carne"
         ]
       },
+      "equipment": [],
+      "prepTimeMinutes": null,
+      "cookTimeMinutes": null,
+      "totalTimeMinutes": null,
+      "servings": null,
+      "image": null,
       "ratingSummary": null,
       "keywords": [
         "sandwitch",
@@ -4222,6 +4861,7 @@ window.ARTA_DATA = {
     },
     {
       "name": "Toast cu oua amestecate si avocado",
+      "title": "Toast cu oua amestecate si avocado",
       "slug": "toast-cu-ou-si-avocado",
       "category": "Mic dejun",
       "description": "Se incalzeste o tigaie mica pe foc mic-mediu.",
@@ -4239,6 +4879,14 @@ window.ARTA_DATA = {
         "*dupa gust"
       ],
       "preparation": [
+        "Se incalzeste o tigaie mica pe foc mic-mediu.",
+        "Painea se prajeste pana devine usor crocanta.",
+        "Intr-un bol mic se bat bine ouale impreuna cu sare si piper, dupa care se adauga in tigaia calda unde se amesteca pana ce se gatesc complet.",
+        "Avocado se taie si pulpa unei jumatati se piseaza pana ce devine o pasta.",
+        "Painea prajita se unge cu pasta de avocado, peste care se adauga oul si semintele.",
+        "Se serveste impreuna cu masline, rosii cheri si ardei taiati felii."
+      ],
+      "steps": [
         "Se incalzeste o tigaie mica pe foc mic-mediu.",
         "Painea se prajeste pana devine usor crocanta.",
         "Intr-un bol mic se bat bine ouale impreuna cu sare si piper, dupa care se adauga in tigaia calda unde se amesteca pana ce se gatesc complet.",
@@ -4283,6 +4931,14 @@ window.ARTA_DATA = {
           "La tigaie"
         ]
       },
+      "equipment": [
+        "La tigaie"
+      ],
+      "prepTimeMinutes": null,
+      "cookTimeMinutes": null,
+      "totalTimeMinutes": null,
+      "servings": null,
+      "image": null,
       "ratingSummary": null,
       "keywords": [
         "toast",
@@ -4337,5 +4993,167 @@ window.ARTA_DATA = {
     "conopida-cu-orez-si-sos-rosu": "conopida-cu-orez-1",
     "piept-de-pui-cu-lamaie-si-cartofi-aurii": "pui-cu-lamaie-si-cartofi",
     "tocanita-de-pui-cu-ardei-copti": "tocanita-de-pui-cu-ardei"
+  },
+  "tagGroups": {
+    "taste": {
+      "label": "Gust",
+      "options": [
+        "Dulce",
+        "Sărat",
+        "Picant",
+        "Acrișor",
+        "Cremos",
+        "Crocant",
+        "Aromat",
+        "Fresh",
+        "Ușor",
+        "Sățios",
+        "Condimentat",
+        "Fin",
+        "Rustic"
+      ]
+    },
+    "complexity": {
+      "label": "Complexitate",
+      "options": [
+        "Începător",
+        "Ușor",
+        "Complexitate medie",
+        "Complexitate ridicată",
+        "Necesită atenție",
+        "Risc mic de greșeală",
+        "Risc mediu de greșeală",
+        "Risc ridicat de greșeală"
+      ]
+    },
+    "time": {
+      "label": "Timp",
+      "options": [
+        "Sub 15 minute",
+        "Sub 30 minute",
+        "Sub 60 minute",
+        "Rețetă rapidă",
+        "Necesită timp de așteptare",
+        "Bună pentru pregătit din timp"
+      ]
+    },
+    "context": {
+      "label": "Context",
+      "options": [
+        "Mic dejun",
+        "Prânz",
+        "Cină",
+        "Gustare",
+        "Pentru familie",
+        "Pentru musafiri",
+        "Pentru weekend",
+        "Pentru zile aglomerate",
+        "Comfort food"
+      ]
+    },
+    "diet": {
+      "label": "Dietă",
+      "options": [
+        "Cu carne",
+        "Fără carne",
+        "Vegetarian",
+        "Fără lactate",
+        "Fără ou",
+        "Fără gluten",
+        "Ușor de adaptat"
+      ]
+    },
+    "equipment": {
+      "label": "Echipament",
+      "options": [
+        "Fără cuptor",
+        "Necesită cuptor",
+        "La tigaie",
+        "La oală",
+        "Necesită blender",
+        "Necesită mixer",
+        "Necesită tavă",
+        "Necesită termometru"
+      ]
+    },
+    "technique": {
+      "label": "Tehnică",
+      "options": [
+        "Fierbere",
+        "Coacere",
+        "Prăjire",
+        "Sotare",
+        "Marinare",
+        "Frământare",
+        "La tigaie",
+        "La cuptor",
+        "Fără gătire"
+      ]
+    }
+  },
+  "ingredientAliases": {
+    "version": 1,
+    "aliases": [
+      {
+        "canonical": "ou",
+        "terms": [
+          "ou",
+          "ouă",
+          "oua"
+        ]
+      },
+      {
+        "canonical": "făină",
+        "terms": [
+          "făină",
+          "faina"
+        ]
+      },
+      {
+        "canonical": "lapte",
+        "terms": [
+          "lapte"
+        ]
+      },
+      {
+        "canonical": "cartof",
+        "terms": [
+          "cartof",
+          "cartofi"
+        ]
+      },
+      {
+        "canonical": "ceapă",
+        "terms": [
+          "ceapă",
+          "ceapa"
+        ]
+      },
+      {
+        "canonical": "usturoi",
+        "terms": [
+          "usturoi"
+        ]
+      },
+      {
+        "canonical": "pui",
+        "terms": [
+          "pui"
+        ]
+      },
+      {
+        "canonical": "carne",
+        "terms": [
+          "carne"
+        ]
+      },
+      {
+        "canonical": "zahăr",
+        "terms": [
+          "zahăr",
+          "zahar"
+        ]
+      }
+    ]
   }
 };
