@@ -23,7 +23,7 @@
   const THEME_KEY = "arta-gatitului-theme";
   const prefersReducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   let revealObserver = null;
-  const DATA_VERSION = "mq5bte26";
+  const DATA_VERSION = "mq5o57kj";
   const dataCache = new Map();
   let recipeIndexPromise = null;
   let searchDataPromise = null;
