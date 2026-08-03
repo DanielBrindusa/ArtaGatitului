@@ -23,7 +23,7 @@
   const THEME_KEY = "arta-gatitului-theme";
   const prefersReducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   let revealObserver = null;
-  const DATA_VERSION = "mq5o57kj";
+  const DATA_VERSION = "msdaevgq";
   const dataCache = new Map();
   let recipeIndexPromise = null;
   let searchDataPromise = null;
@@ -421,7 +421,7 @@
     const ingredients = (recipe.ingredients || []).filter((line) => !isSubheading(line)).slice(0, 5).join(", ");
     const titleId = "recipe-card-" + recipe.slug;
     return `
-      <a class="card recipe-card" aria-labelledby="${titleId}" href="${recipeUrl(recipe.slug)}">
+      <a class="card recipe-card" aria-labelledby="${titleId}" href="${recipeUrl(recipe.slug)}" data-recipe-slug="${escapeHtml(recipe.slug)}">
         <span class="category-pill">${escapeHtml(recipe.category)}</span>
         <h3 id="${titleId}">${escapeHtml(recipe.name)}</h3>
         ${tagsMarkup(recipe, true)}
@@ -1068,6 +1068,21 @@
     return items[Math.floor(Math.random() * items.length)];
   }
 
+  const RANDOMIZER_WINDOW_KEY = "arta-gatitului-randomizer-window";
+  const RANDOMIZER_WINDOW_MAX_AGE = 1000 * 60 * 60 * 24;
+
+  function randomizerSlots() {
+    return [
+      { label: "Mic dejun", variants: ["Mic dejun"] },
+      { label: "Fel principal", variants: ["Fel principal"] },
+      { label: "Fel secundar", variants: ["Fel secundar"] },
+      { label: "Desert", variants: ["Desert"] },
+      { label: "Băutură", variants: ["Bautura", "Băutură", "Bauturi", "Băuturi"] },
+      { label: "Salată", variants: ["Salata", "Salată", "Salate"] },
+      { label: "Rontaieli", variants: ["Rontaieli", "Ronțăieli"] }
+    ];
+  }
+
   function compactText(value) {
     return normalize(value).replace(/[^a-z0-9]+/g, "");
   }
@@ -1077,9 +1092,65 @@
     return variants.some((variant) => value === compactText(variant));
   }
 
+  function compactRandomizerRecipe(recipe) {
+    if (!recipe) return null;
+    return {
+      slug: recipe.slug,
+      name: recipe.name,
+      title: recipe.title || recipe.name,
+      category: recipe.category,
+      description: recipe.description || "",
+      ingredients: ((recipe.ingredients || []).filter((line) => !isSubheading(line))).slice(0, 5),
+      tags: recipe.tags || {},
+      totalTimeMinutes: recipe.totalTimeMinutes ?? null
+    };
+  }
+
+  function createRandomizerPlan() {
+    return {
+      version: 1,
+      createdAt: Date.now(),
+      activeSlug: "",
+      slots: randomizerSlots().map((slot) => {
+        const recipes = data.recipes.filter((recipe) => categoryMatches(recipe.category, slot.variants));
+        return {
+          label: slot.label,
+          variants: slot.variants,
+          recipe: compactRandomizerRecipe(pickRandom(recipes))
+        };
+      })
+    };
+  }
+
+  function storeRandomizerPlan(plan, activeSlug) {
+    if (!plan || !Array.isArray(plan.slots)) return;
+    try {
+      window.sessionStorage.setItem(RANDOMIZER_WINDOW_KEY, JSON.stringify({
+        ...plan,
+        activeSlug: activeSlug || plan.activeSlug || "",
+        updatedAt: Date.now()
+      }));
+    } catch {}
+  }
+
+  function readRandomizerPlan() {
+    try {
+      const raw = window.sessionStorage.getItem(RANDOMIZER_WINDOW_KEY);
+      if (!raw) return null;
+      const plan = JSON.parse(raw);
+      const createdAt = Number(plan.createdAt || plan.updatedAt || 0);
+      if (!Array.isArray(plan.slots) || !createdAt || Date.now() - createdAt > RANDOMIZER_WINDOW_MAX_AGE) {
+        window.sessionStorage.removeItem(RANDOMIZER_WINDOW_KEY);
+        return null;
+      }
+      return plan;
+    } catch {
+      return null;
+    }
+  }
+
   function mealCard(slot) {
-    const recipes = data.recipes.filter((recipe) => categoryMatches(recipe.category, slot.variants));
-    const recipe = pickRandom(recipes);
+    const recipe = slot.recipe;
     return `
       <section class="meal-slot">
         <h2 class="meal-slot-title">${escapeHtml(slot.label)}</h2>
@@ -1093,19 +1164,12 @@
     const result = document.getElementById("randomRecipeResult");
     if (!button || !result) return;
 
-    const slots = [
-      { label: "Mic dejun", variants: ["Mic dejun"] },
-      { label: "Fel principal", variants: ["Fel principal"] },
-      { label: "Fel secundar", variants: ["Fel secundar"] },
-      { label: "Desert", variants: ["Desert"] },
-      { label: "Băutură", variants: ["Bautura", "Băutură", "Bauturi", "Băuturi"] },
-      { label: "Salată", variants: ["Salata", "Salată", "Salate"] },
-      { label: "Rontaieli", variants: ["Rontaieli", "Ronțăieli"] }
-    ];
+    let currentPlan = null;
 
     function choose() {
+      currentPlan = createRandomizerPlan();
       result.innerHTML = data.recipes.length
-        ? `<div class="meal-grid">${slots.map(mealCard).join("")}</div>`
+        ? `<div class="meal-grid">${currentPlan.slots.map(mealCard).join("")}</div>`
         : '<div class="empty">Nu există încă rețete pentru randomizer.</div>';
       applyStagger(result);
       markRevealTargets(result);
@@ -1114,8 +1178,112 @@
       result.classList.add("is-refreshing");
     }
 
+    result.addEventListener("click", (event) => {
+      const link = event.target.closest(".recipe-card[data-recipe-slug]");
+      if (!link || !currentPlan) return;
+      storeRandomizerPlan(currentPlan, link.dataset.recipeSlug || "");
+    });
     button.addEventListener("click", choose);
     choose();
+  }
+
+  function storedRecipeSlug(value) {
+    return normalize(value).replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+  }
+
+  function floatingRandomizerItem(slot, currentSlug) {
+    const recipe = slot && slot.recipe ? normalizeRecipeRecord(slot.recipe) : null;
+    const slug = storedRecipeSlug(recipe && recipe.slug);
+    if (!recipe || !slug) return "";
+    const isActive = slug === currentSlug;
+    return `
+      <a class="floating-randomizer-item${isActive ? " is-active" : ""}" href="${recipeUrl(slug)}" data-floating-randomizer-link data-recipe-slug="${escapeHtml(slug)}"${isActive ? ' aria-current="page"' : ""}>
+        <span>${escapeHtml(slot.label || recipe.category || "Rețetă")}</span>
+        <strong>${escapeHtml(recipe.name)}</strong>
+        <em>${escapeHtml(recipe.category || "")}</em>
+      </a>
+    `;
+  }
+
+  function setupFloatingRandomizer() {
+    const currentSlug = storedRecipeSlug(document.body.dataset.recipeSlug || "");
+    if (!currentSlug) return;
+
+    let plan = readRandomizerPlan();
+    if (!plan || !Array.isArray(plan.slots) || !plan.slots.some((slot) => slot && slot.recipe && slot.recipe.slug)) return;
+
+    function render() {
+      document.querySelector("[data-floating-randomizer]")?.remove();
+      const panel = document.createElement("aside");
+      panel.className = "floating-randomizer" + (plan.minimized ? " is-minimized" : "");
+      panel.dataset.floatingRandomizer = "true";
+      panel.setAttribute("aria-label", "Meniu randomizat");
+      panel.innerHTML = `
+        <section class="floating-randomizer-window" aria-labelledby="floatingRandomizerTitle">
+          <div class="floating-randomizer-titlebar">
+            <span class="floating-window-dots" aria-hidden="true"><span></span><span></span><span></span></span>
+            <div>
+              <h2 id="floatingRandomizerTitle">Meniu Randomizer</h2>
+              <p>Ține meniul la îndemână</p>
+            </div>
+            <div class="floating-randomizer-controls">
+              <button type="button" data-floating-randomizer-minimize aria-label="Minimizează meniul randomizat">−</button>
+              <button type="button" data-floating-randomizer-close aria-label="Închide meniul randomizat">×</button>
+            </div>
+          </div>
+          <div class="floating-randomizer-body">
+            ${plan.slots.map((slot) => floatingRandomizerItem(slot, currentSlug)).join("")}
+          </div>
+          <div class="floating-randomizer-actions">
+            <a class="mini-btn" href="${root}randomizer/">Randomizer</a>
+            <button class="mini-btn" type="button" data-floating-randomizer-reroll>Alt meniu</button>
+          </div>
+        </section>
+        <button class="floating-randomizer-fab" type="button" data-floating-randomizer-restore aria-label="Deschide meniul randomizat">
+          <span aria-hidden="true">R</span>
+          <strong>Meniu</strong>
+        </button>
+      `;
+      document.body.append(panel);
+      markRevealTargets(panel);
+
+      panel.addEventListener("click", async (event) => {
+        const close = event.target.closest("[data-floating-randomizer-close]");
+        const minimize = event.target.closest("[data-floating-randomizer-minimize]");
+        const restore = event.target.closest("[data-floating-randomizer-restore]");
+        const reroll = event.target.closest("[data-floating-randomizer-reroll]");
+        const link = event.target.closest("[data-floating-randomizer-link]");
+
+        if (close) {
+          try {
+            window.sessionStorage.removeItem(RANDOMIZER_WINDOW_KEY);
+          } catch {}
+          panel.remove();
+          return;
+        }
+        if (minimize || restore) {
+          plan.minimized = Boolean(minimize);
+          storeRandomizerPlan(plan, plan.activeSlug || currentSlug);
+          render();
+          return;
+        }
+        if (reroll) {
+          await ensureRecipeIndexData();
+          plan = createRandomizerPlan();
+          plan.activeSlug = currentSlug;
+          storeRandomizerPlan(plan, currentSlug);
+          render();
+          return;
+        }
+        if (link) {
+          storeRandomizerPlan(plan, link.dataset.recipeSlug || "");
+        }
+      });
+    }
+
+    plan.activeSlug = currentSlug;
+    storeRandomizerPlan(plan, currentSlug);
+    render();
   }
 
   function setupSteakCalculators() {
@@ -2660,6 +2828,7 @@
     setupRecipeRatings();
     renderCategoryPage();
     setupRandomizer();
+    setupFloatingRandomizer();
     setupSteakCalculators();
     setupRecipeBuilder();
     setupHeroSurprise();
