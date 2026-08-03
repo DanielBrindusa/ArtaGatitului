@@ -23,7 +23,7 @@
   const THEME_KEY = "arta-gatitului-theme";
   const prefersReducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   let revealObserver = null;
-  const DATA_VERSION = "msdaevgq";
+  const DATA_VERSION = "msdc3pf0";
   const dataCache = new Map();
   let recipeIndexPromise = null;
   let searchDataPromise = null;
@@ -1529,6 +1529,8 @@
       beforeStart: document.getElementById("builderBeforeStart"),
       steps: document.getElementById("builderSteps"),
       tags: document.getElementById("builderTags"),
+      captureInput: document.getElementById("recipeCaptureInput"),
+      captureSummary: document.getElementById("recipeCaptureSummary"),
       ratingSummary: {
         overallAverage: document.getElementById("builderOverallAverage"),
         tasteAverage: document.getElementById("builderTasteAverage"),
@@ -1541,11 +1543,44 @@
       exportOutput: document.getElementById("recipeExportOutput"),
       validation: document.getElementById("builderValidation"),
       status: document.getElementById("builderStatus"),
-      importInput: document.getElementById("importRecipeJson")
+      importInput: document.getElementById("importRecipeJson"),
+      emailButton: document.getElementById("downloadRecipeEmail")
     };
     if (!els.title || !els.slug || !els.category || !els.ingredients || !els.beforeStart || !els.steps || !els.tags || !els.preview || !els.exportOutput) return;
 
     const draftKey = "arta-gatitului-recipe-builder-draft";
+    const ownerEmail = "brindusa.daniel@gmail.com";
+    const captureExample = [
+      "Ciorbă de cartofi",
+      "",
+      "Categorie: Fel principal",
+      "Timp pregătire: 15 min",
+      "Timp gătire: 40 min",
+      "Porții: 4",
+      "",
+      "Descriere:",
+      "O ciorbă simplă, bună pentru prânz.",
+      "",
+      "Ingrediente:",
+      "- cartofi",
+      "- morcov",
+      "- ceapă",
+      "- ardei",
+      "- bulion",
+      "- leuștean",
+      "- sare",
+      "",
+      "Înainte să începi:",
+      "- Spală și curăță legumele.",
+      "- Pregătește o oală încăpătoare.",
+      "",
+      "Pași:",
+      "1. Taie legumele.",
+      "2. Fierbe cartofii cu morcovul.",
+      "3. Călește ceapa cu ardeiul și bulionul.",
+      "4. Pune totul în oală și fierbe încă 10 minute.",
+      "5. Adaugă leuștean la final."
+    ].join("\n");
     const existingSlugs = new Set((data.recipes || []).map((recipe) => recipe.slug));
     let slugTouched = false;
     let autosaveTimer = null;
@@ -1562,6 +1597,202 @@
 
     function rowValues(container) {
       return cleanLines(Array.from(container.querySelectorAll("[data-builder-row-input]")).map((input) => input.value));
+    }
+
+    function stripListMarker(line) {
+      return String(line || "")
+        .replace(/^\s*[-*\u2022]\s+/, "")
+        .replace(/^\s*\d+[.)]\s+/, "")
+        .trim();
+    }
+
+    function sectionKey(label) {
+      const key = normalize(label).replace(/[^a-z0-9]+/g, " ").trim();
+      if (["titlu", "nume", "nume reteta", "titlu reteta"].includes(key)) return "name";
+      if (["categorie", "categoria"].includes(key)) return "category";
+      if (["descriere", "descriere scurta", "intro", "introducere"].includes(key)) return "description";
+      if (["ingrediente", "ingredient"].includes(key)) return "ingredients";
+      if (["inainte sa incepi", "inainte de inceput", "pregateste inainte", "checklist", "verificare"].includes(key)) return "beforeStart";
+      if (["pasi", "pasii", "mod de preparare", "preparare", "instructiuni", "metoda"].includes(key)) return "steps";
+      if (["note", "tips", "trucuri", "observatii", "observatii personale"].includes(key)) return "notes";
+      if (["cuvinte cheie", "keywords", "taguri", "tags", "etichete"].includes(key)) return "keywordsText";
+      if (["timp pregatire", "timp de pregatire", "prep time"].includes(key)) return "prepTime";
+      if (["timp gatire", "timp de gatire", "cook time"].includes(key)) return "cookTime";
+      if (["portii", "servings", "portii dificultate", "dificultate"].includes(key)) return "servings";
+      if (["imagine", "image", "poza", "foto"].includes(key)) return "image";
+      return "";
+    }
+
+    function categoryFromText(value) {
+      const wanted = normalize(value);
+      return (data.categories || []).find((category) => normalize(category.name) === wanted || normalize(category.slug) === wanted)?.name || "";
+    }
+
+    function closestCategory(value) {
+      const wanted = normalize(value);
+      if (!wanted) return "";
+      return (data.categories || []).find((category) => {
+        const name = normalize(category.name);
+        const slug = normalize(category.slug);
+        return wanted.includes(name) || wanted.includes(slug);
+      })?.name || "";
+    }
+
+    function appendParsedValue(parsed, key, value) {
+      const clean = stripListMarker(value);
+      if (!clean) return;
+      if (key === "ingredients" || key === "beforeStart" || key === "steps") {
+        const values = key === "steps" ? [clean] : clean.split(/\s*;\s*/).map((item) => item.trim()).filter(Boolean);
+        parsed[key].push(...values);
+      } else if (key === "description" || key === "notes") {
+        parsed[key] = [parsed[key], clean].filter(Boolean).join(" ");
+      } else if (key === "category") {
+        parsed.category = categoryFromText(clean) || closestCategory(clean) || clean;
+      } else if (key in parsed) {
+        parsed[key] = clean;
+      }
+    }
+
+    function parseRecipeCapture(text) {
+      const parsed = {
+        name: "",
+        category: "",
+        description: "",
+        prepTime: "",
+        cookTime: "",
+        servings: "",
+        image: "",
+        notes: "",
+        keywordsText: "",
+        ingredients: [],
+        beforeStart: [],
+        steps: []
+      };
+      const lines = String(text || "").split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+      let section = "";
+
+      lines.forEach((line) => {
+        const labelMatch = line.match(/^([^:]{2,48}):\s*(.*)$/);
+        if (labelMatch) {
+          const detected = sectionKey(labelMatch[1]);
+          if (detected) {
+            if (["name", "category", "prepTime", "cookTime", "servings", "image", "keywordsText"].includes(detected) && labelMatch[2]) {
+              appendParsedValue(parsed, detected, labelMatch[2]);
+              section = "";
+            } else {
+              section = detected;
+              if (labelMatch[2]) appendParsedValue(parsed, section, labelMatch[2]);
+            }
+            return;
+          }
+        }
+
+        const wholeLineSection = sectionKey(line.replace(/:$/, ""));
+        if (wholeLineSection && !/^\s*[-*\u2022]|^\s*\d+[.)]/.test(line)) {
+          section = wholeLineSection;
+          return;
+        }
+
+        if (!parsed.name && !/^\s*[-*\u2022]|^\s*\d+[.)]/.test(line)) {
+          parsed.name = stripListMarker(line);
+          return;
+        }
+
+        if (section) {
+          appendParsedValue(parsed, section, line);
+          return;
+        }
+
+        if (/^\s*\d+[.)]\s+/.test(line)) {
+          appendParsedValue(parsed, "steps", line);
+        } else if (/^\s*[-*\u2022]\s+/.test(line)) {
+          appendParsedValue(parsed, "ingredients", line);
+        } else if (!parsed.description) {
+          appendParsedValue(parsed, "description", line);
+        } else {
+          appendParsedValue(parsed, "notes", line);
+        }
+      });
+
+      if (!parsed.category) parsed.category = closestCategory(text) || els.category.value || (data.categories && data.categories[0] && data.categories[0].name) || "";
+      if (!parsed.description && parsed.name) parsed.description = "Rețetă de casă pentru " + parsed.name + ".";
+      return parsed;
+    }
+
+    function replaceRows(type, values) {
+      const containers = {
+        ingredients: els.ingredients,
+        beforeStart: els.beforeStart,
+        steps: els.steps
+      };
+      const container = containers[type];
+      if (!container) return;
+      container.textContent = "";
+      const rows = cleanLines(values);
+      (rows.length ? rows : [""]).forEach((line) => addRow(type, line));
+    }
+
+    function setCaptureSummary(message, success = false) {
+      if (!els.captureSummary) return;
+      els.captureSummary.textContent = message || "";
+      els.captureSummary.classList.toggle("is-success", Boolean(success && message));
+      pulseElement(els.captureSummary);
+    }
+
+    function applyTagSuggestions(sourceText, parsed) {
+      const normalizedSource = normalize([
+        sourceText,
+        parsed.name,
+        parsed.category,
+        parsed.description,
+        parsed.keywordsText,
+        parsed.ingredients.join(" "),
+        parsed.steps.join(" ")
+      ].join(" "));
+      els.tags.querySelectorAll('input[type="checkbox"]').forEach((input) => {
+        const tagText = normalize(input.value);
+        input.checked = tagText && normalizedSource.includes(tagText);
+      });
+      function checkTagValue(value) {
+        const input = Array.from(els.tags.querySelectorAll('input[type="checkbox"]')).find((candidate) => candidate.value === value);
+        if (input) input.checked = true;
+      }
+      if (parsed.category) checkTagValue(parsed.category);
+      const totalTime = (integerOrNull(parsed.prepTime) || 0) + (integerOrNull(parsed.cookTime) || 0);
+      if (totalTime > 0) {
+        if (totalTime <= 15) checkTagValue("Sub 15 minute");
+        else if (totalTime <= 30) checkTagValue("Sub 30 minute");
+        else if (totalTime <= 60) checkTagValue("Sub 60 minute");
+      }
+    }
+
+    function applyParsedRecipe(parsed, sourceText) {
+      if (parsed.name) els.title.value = parsed.name;
+      if (!slugTouched || !els.slug.value) els.slug.value = builderSlug(parsed.name);
+      if (parsed.category) {
+        const category = categoryFromText(parsed.category) || closestCategory(parsed.category);
+        if (category) els.category.value = category;
+      }
+      els.description.value = parsed.description || els.description.value;
+      els.prepTime.value = parsed.prepTime || "";
+      els.cookTime.value = parsed.cookTime || "";
+      els.servings.value = parsed.servings || "";
+      els.image.value = parsed.image || "";
+      els.notes.value = parsed.notes || "";
+      els.keywords.value = parsed.keywordsText || "";
+      replaceRows("ingredients", parsed.ingredients);
+      replaceRows("beforeStart", parsed.beforeStart);
+      replaceRows("steps", parsed.steps);
+      applyTagSuggestions(sourceText, parsed);
+      syncBuilder();
+      const pieces = [
+        parsed.name ? "titlu" : "",
+        parsed.category ? "categorie" : "",
+        parsed.ingredients.length ? parsed.ingredients.length + " ingrediente" : "",
+        parsed.steps.length ? parsed.steps.length + " pași" : "",
+        parsed.beforeStart.length ? parsed.beforeStart.length + " verificări" : ""
+      ].filter(Boolean);
+      setCaptureSummary(pieces.length ? "Am completat automat: " + pieces.join(", ") + "." : "Nu am putut detecta destule informații. Adaugă titlu, ingrediente și pași.", pieces.length > 0);
     }
 
     function setStatus(message) {
@@ -1704,7 +1935,8 @@
     }
 
     function integerOrNull(value) {
-      const number = Number(String(value || "").trim());
+      const match = String(value || "").match(/\d+/);
+      const number = match ? Number(match[0]) : Number(String(value || "").trim());
       return Number.isInteger(number) && number >= 0 ? number : null;
     }
 
@@ -2011,6 +2243,7 @@
       els.image.value = "";
       els.notes.value = "";
       els.keywords.value = "";
+      if (els.captureInput) els.captureInput.value = "";
       els.ingredients.textContent = "";
       els.beforeStart.textContent = "";
       els.steps.textContent = "";
@@ -2024,6 +2257,7 @@
       addRow("beforeStart");
       addRow("steps");
       slugTouched = false;
+      setCaptureSummary("");
       setStatus("Formular resetat.");
       syncBuilder();
     }
@@ -2045,21 +2279,248 @@
       }
     }
 
+    function contentRecipeJson() {
+      return JSON.stringify(contentRecipeObject(), null, 2);
+    }
+
+    function safeRecipeFileName(value, extension) {
+      return (builderSlug(value) || "reteta-noua") + extension;
+    }
+
+    function downloadTextFile(fileName, type, contents) {
+      const blob = new Blob([contents], { type });
+      const href = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = href;
+      link.download = fileName;
+      document.body.append(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(href);
+    }
+
+    function base64Utf8(value) {
+      const text = String(value || "");
+      if (typeof TextEncoder !== "undefined") {
+        const bytes = new TextEncoder().encode(text);
+        let binary = "";
+        bytes.forEach((byte) => {
+          binary += String.fromCharCode(byte);
+        });
+        return btoa(binary);
+      }
+      return btoa(unescape(encodeURIComponent(text)));
+    }
+
+    function wrapBase64(value) {
+      return String(value || "").replace(/.{1,76}/g, "$&\r\n").trim();
+    }
+
+    function mimeHeader(value) {
+      return "=?UTF-8?B?" + base64Utf8(value) + "?=";
+    }
+
+    function htmlList(values, ordered = false) {
+      const items = cleanLines(values || []).map((item) => '<li style="margin:0 0 6px;">' + escapeHtml(item) + '</li>').join("");
+      if (!items) return '<p style="margin:0;color:#6f6a63;">Nu a fost completat.</p>';
+      const tag = ordered ? "ol" : "ul";
+      return '<' + tag + ' style="margin:0;padding-left:22px;">' + items + '</' + tag + '>';
+    }
+
+    function textList(values, ordered = false) {
+      const items = cleanLines(values || []);
+      if (!items.length) return "Nu a fost completat.";
+      return items.map((item, index) => (ordered ? String(index + 1) + ". " : "- ") + item).join("\n");
+    }
+
+    function recipeTagsHtml(tags) {
+      const entries = Object.entries(tags || {}).map(([key, values]) => {
+        const label = TAG_GROUPS[key] ? TAG_GROUPS[key].label : key;
+        return [label, cleanLines(values || [])];
+      }).filter(([, values]) => values.length);
+      if (!entries.length) return '<p style="margin:0;color:#6f6a63;">Nu au fost selectate etichete.</p>';
+      return entries.map(([label, values]) => (
+        '<div style="margin:0 0 12px;">' +
+          '<p style="margin:0 0 6px;font-weight:700;color:#3b261a;">' + escapeHtml(label) + '</p>' +
+          values.map((tag) => '<span style="display:inline-block;margin:3px 4px 0 0;padding:5px 9px;border-radius:999px;background:#f3dfce;color:#583521;font-size:13px;">' + escapeHtml(tag) + '</span>').join("") +
+        '</div>'
+      )).join("");
+    }
+
+    function recipeTagsText(tags) {
+      const entries = Object.entries(tags || {}).map(([key, values]) => {
+        const label = TAG_GROUPS[key] ? TAG_GROUPS[key].label : key;
+        return [label, cleanLines(values || [])];
+      }).filter(([, values]) => values.length);
+      if (!entries.length) return "Nu au fost selectate etichete.";
+      return entries.map(([label, values]) => label + ": " + values.join(", ")).join("\n");
+    }
+
+    function emailMetaRows(recipe) {
+      const rows = [
+        ["Slug", recipe.slug],
+        ["Categorie", recipe.category],
+        ["Timp pregătire", recipe.prepTimeMinutes !== null ? recipe.prepTimeMinutes + " minute" : ""],
+        ["Timp gătire", recipe.cookTimeMinutes !== null ? recipe.cookTimeMinutes + " minute" : ""],
+        ["Timp total", recipe.totalTimeMinutes !== null ? recipe.totalTimeMinutes + " minute" : ""],
+        ["Porții", recipe.servings || ""],
+        ["Fișier recomandat", "src/content/recipes/" + safeRecipeFileName(recipe.slug || recipe.title, ".json")],
+        ["Rută publică", "retete/" + recipe.slug + "/"]
+      ].filter(([, value]) => value !== null && value !== undefined && value !== "");
+      return rows.map(([label, value]) => (
+        '<tr>' +
+          '<th style="padding:8px 10px;text-align:left;border-bottom:1px solid #ead9cb;color:#6f4b36;width:160px;">' + escapeHtml(label) + '</th>' +
+          '<td style="padding:8px 10px;border-bottom:1px solid #ead9cb;color:#2b211c;">' + escapeHtml(value) + '</td>' +
+        '</tr>'
+      )).join("");
+    }
+
+    function emailHtmlBody(recipe, fileName) {
+      const title = recipe.title || "Rețetă nouă";
+      return '<!doctype html><html><body style="margin:0;padding:0;background:#f7f2ec;color:#2b211c;font-family:Arial,Helvetica,sans-serif;">' +
+        '<div style="max-width:760px;margin:0 auto;padding:28px 18px;">' +
+          '<div style="background:#fffaf4;border:1px solid #ead9cb;border-radius:16px;overflow:hidden;box-shadow:0 18px 44px rgba(64,42,28,.14);">' +
+            '<div style="padding:24px 26px;background:#3b261a;color:#fff7ee;">' +
+              '<p style="margin:0 0 6px;text-transform:uppercase;letter-spacing:.08em;font-size:12px;color:#f3c6a5;">Arta Gătitului - rețetă propusă</p>' +
+              '<h1 style="margin:0;font-size:28px;line-height:1.2;">' + escapeHtml(title) + '</h1>' +
+            '</div>' +
+            '<div style="padding:24px 26px;">' +
+              '<p style="margin:0 0 18px;font-size:16px;line-height:1.55;">Bună, Daniel! Am pregătit o rețetă nouă pentru site. Atașamentul <strong>' + escapeHtml(fileName) + '</strong> este fișierul JSON care trebuie adăugat în proiect.</p>' +
+              '<h2 style="margin:24px 0 10px;font-size:18px;color:#3b261a;">Rezumat rețetă</h2>' +
+              '<table role="presentation" cellspacing="0" cellpadding="0" style="width:100%;border-collapse:collapse;background:#fff;border:1px solid #ead9cb;border-radius:10px;overflow:hidden;">' +
+                emailMetaRows(recipe) +
+              '</table>' +
+              '<h2 style="margin:24px 0 10px;font-size:18px;color:#3b261a;">Descriere</h2>' +
+              '<p style="margin:0;line-height:1.55;color:#3e342f;">' + escapeHtml(recipe.description || "Nu a fost completată o descriere.") + '</p>' +
+              '<h2 style="margin:24px 0 10px;font-size:18px;color:#3b261a;">Ingrediente</h2>' +
+              htmlList(recipe.ingredients, false) +
+              '<h2 style="margin:24px 0 10px;font-size:18px;color:#3b261a;">Înainte să începi</h2>' +
+              htmlList(recipe.beforeStart, false) +
+              '<h2 style="margin:24px 0 10px;font-size:18px;color:#3b261a;">Mod de preparare</h2>' +
+              htmlList(recipe.steps, true) +
+              '<h2 style="margin:24px 0 10px;font-size:18px;color:#3b261a;">Etichete</h2>' +
+              recipeTagsHtml(recipe.tags) +
+              '<div style="margin-top:26px;padding:18px;border-radius:12px;background:#f3dfce;border:1px solid #e3c4aa;">' +
+                '<h2 style="margin:0 0 10px;font-size:18px;color:#3b261a;">Ce trebuie făcut cu atașamentul</h2>' +
+                '<ol style="margin:0;padding-left:22px;line-height:1.55;">' +
+                  '<li>Descarcă atașamentul JSON din acest email.</li>' +
+                  '<li>Salvează-l în proiect la <strong>src/content/recipes/' + escapeHtml(fileName) + '</strong>.</li>' +
+                  '<li>Din folderul proiectului rulează <strong>npm run validate:content</strong>.</li>' +
+                  '<li>Dacă validarea trece, rulează <strong>npm run build</strong>.</li>' +
+                  '<li>Urcă pe GitHub fișierele schimbate și așteaptă redeploy-ul GitHub Pages.</li>' +
+                  '<li>Testează pagina publică <strong>retete/' + escapeHtml(recipe.slug) + '/</strong>, căutarea, categoria și Randomizer-ul.</li>' +
+                '</ol>' +
+              '</div>' +
+              '<p style="margin:18px 0 0;color:#6f6a63;font-size:14px;line-height:1.5;">Dacă atașamentul lipsește după deschiderea fișierului .eml, cere expeditorului să trimită manual fișierul JSON descărcat cu butonul <strong>Descarcă JSON</strong>.</p>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</body></html>';
+    }
+
+    function emailTextBody(recipe, fileName) {
+      return [
+        "Arta Gătitului - rețetă propusă",
+        "",
+        "Bună, Daniel!",
+        "Am pregătit o rețetă nouă pentru site. Atașamentul " + fileName + " este fișierul JSON care trebuie adăugat în proiect.",
+        "",
+        "Titlu: " + (recipe.title || "Rețetă nouă"),
+        "Slug: " + recipe.slug,
+        "Categorie: " + recipe.category,
+        "Timp pregătire: " + (recipe.prepTimeMinutes !== null ? recipe.prepTimeMinutes + " minute" : "necompletat"),
+        "Timp gătire: " + (recipe.cookTimeMinutes !== null ? recipe.cookTimeMinutes + " minute" : "necompletat"),
+        "Timp total: " + (recipe.totalTimeMinutes !== null ? recipe.totalTimeMinutes + " minute" : "necompletat"),
+        "Porții: " + (recipe.servings || "necompletat"),
+        "",
+        "Descriere:",
+        recipe.description || "Nu a fost completată o descriere.",
+        "",
+        "Ingrediente:",
+        textList(recipe.ingredients, false),
+        "",
+        "Înainte să începi:",
+        textList(recipe.beforeStart, false),
+        "",
+        "Mod de preparare:",
+        textList(recipe.steps, true),
+        "",
+        "Etichete:",
+        recipeTagsText(recipe.tags),
+        "",
+        "Ce trebuie făcut cu atașamentul:",
+        "1. Descarcă atașamentul JSON din acest email.",
+        "2. Salvează-l în proiect la src/content/recipes/" + fileName + ".",
+        "3. Din folderul proiectului rulează npm run validate:content.",
+        "4. Dacă validarea trece, rulează npm run build.",
+        "5. Urcă pe GitHub fișierele schimbate și așteaptă redeploy-ul GitHub Pages.",
+        "6. Testează pagina publică retete/" + recipe.slug + "/, căutarea, categoria și Randomizer-ul.",
+        "",
+        "Dacă atașamentul lipsește după deschiderea fișierului .eml, expeditorul poate atașa manual fișierul JSON descărcat cu butonul Descarcă JSON."
+      ].join("\n");
+    }
+
+    function emailDraftContents(recipe, fileName, jsonText) {
+      const subject = "New recipe " + (recipe.title || recipe.slug || "Untitled");
+      const boundary = "arta-gatitului-" + Date.now().toString(36);
+      const altBoundary = boundary + "-alt";
+      const htmlBody = emailHtmlBody(recipe, fileName);
+      const textBody = emailTextBody(recipe, fileName);
+      return [
+        "To: " + ownerEmail,
+        "Subject: " + mimeHeader(subject),
+        "MIME-Version: 1.0",
+        'Content-Type: multipart/mixed; boundary="' + boundary + '"',
+        "",
+        "--" + boundary,
+        'Content-Type: multipart/alternative; boundary="' + altBoundary + '"',
+        "",
+        "--" + altBoundary,
+        "Content-Type: text/plain; charset=UTF-8",
+        "Content-Transfer-Encoding: base64",
+        "",
+        wrapBase64(base64Utf8(textBody)),
+        "",
+        "--" + altBoundary,
+        "Content-Type: text/html; charset=UTF-8",
+        "Content-Transfer-Encoding: base64",
+        "",
+        wrapBase64(base64Utf8(htmlBody)),
+        "",
+        "--" + altBoundary + "--",
+        "",
+        "--" + boundary,
+        'Content-Type: application/json; name="' + fileName + '"',
+        "Content-Transfer-Encoding: base64",
+        'Content-Disposition: attachment; filename="' + fileName + '"',
+        "",
+        wrapBase64(base64Utf8(jsonText)),
+        "",
+        "--" + boundary + "--",
+        ""
+      ].join("\r\n");
+    }
+
     function downloadJson() {
       if (!validateBuilder(true)) {
         setStatus("Completează câmpurile obligatorii înainte de descărcare.");
         return;
       }
       const state = currentState();
-      const blob = new Blob([JSON.stringify(exportPackage(), null, 2)], { type: "application/json" });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = (state.slug || "reteta-noua") + ".json";
-      document.body.append(link);
-      link.click();
-      link.remove();
-      URL.revokeObjectURL(link.href);
+      downloadTextFile(safeRecipeFileName(state.slug || state.name, ".json"), "application/json;charset=utf-8", contentRecipeJson());
       setStatus("Fișier JSON descărcat.");
+    }
+
+    function downloadEmailDraft() {
+      if (!validateBuilder(true)) {
+        setStatus("Completează câmpurile obligatorii înainte de email.");
+        return;
+      }
+      const recipe = contentRecipeObject();
+      const fileName = safeRecipeFileName(recipe.slug || recipe.title, ".json");
+      const emailFileName = safeRecipeFileName("new-recipe-" + (recipe.slug || recipe.title), ".eml");
+      downloadTextFile(emailFileName, "message/rfc822;charset=utf-8", emailDraftContents(recipe, fileName, contentRecipeJson()));
+      setStatus("Email pregătit. Deschide fișierul .eml, verifică mesajul și trimite-l către " + ownerEmail + ".");
     }
 
     function loadDraft() {
@@ -2135,6 +2596,29 @@
     });
     document.getElementById("copyRecipeExport")?.addEventListener("click", copyExport);
     document.getElementById("downloadRecipeJson")?.addEventListener("click", downloadJson);
+    els.emailButton?.addEventListener("click", downloadEmailDraft);
+    document.getElementById("parseRecipeCapture")?.addEventListener("click", () => {
+      const text = els.captureInput ? els.captureInput.value : "";
+      if (!text.trim()) {
+        setCaptureSummary("Lipește mai întâi textul rețetei.");
+        if (els.captureInput) els.captureInput.focus();
+        return;
+      }
+      applyParsedRecipe(parseRecipeCapture(text), text);
+    });
+    document.getElementById("loadRecipeCaptureExample")?.addEventListener("click", () => {
+      if (!els.captureInput) return;
+      els.captureInput.value = captureExample;
+      setCaptureSummary("Exemplul este pregătit. Apasă Transformă în formular.");
+      els.captureInput.focus();
+    });
+    document.getElementById("clearRecipeCapture")?.addEventListener("click", () => {
+      if (els.captureInput) {
+        els.captureInput.value = "";
+        els.captureInput.focus();
+      }
+      setCaptureSummary("");
+    });
     document.getElementById("saveRecipeDraft")?.addEventListener("click", () => saveDraft(false));
     document.getElementById("loadRecipeDraft")?.addEventListener("click", loadDraft);
     document.getElementById("resetRecipeBuilder")?.addEventListener("click", resetBuilder);
