@@ -1,0 +1,265 @@
+<!--
+  GoDaddy custom-code snippet for the floating Randomizer window.
+  Add this site-wide if possible, or add it to the Randomizer page and recipe pages.
+  If your GoDaddy Randomizer container has a different class/id, add data-ag-randomizer
+  to that section or update RANDOMIZER_CONTAINER_SELECTOR below.
+-->
+<style>
+  #ag-floating-randomizer {
+    position: fixed;
+    top: 108px;
+    right: 88px;
+    z-index: 9999;
+    width: min(330px, calc(100vw - 24px));
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: #fff3e8;
+    pointer-events: none;
+  }
+
+  #ag-floating-randomizer .ag-window,
+  #ag-floating-randomizer .ag-fab {
+    pointer-events: auto;
+    border: 1px solid rgba(255, 214, 186, .18);
+    border-radius: 12px;
+    background: rgba(24, 29, 41, .94);
+    box-shadow: 0 24px 70px rgba(0, 0, 0, .46);
+    backdrop-filter: blur(18px);
+  }
+
+  #ag-floating-randomizer .ag-titlebar {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 12px;
+    align-items: center;
+    padding: 12px;
+    border-bottom: 1px solid rgba(255, 214, 186, .18);
+    background: linear-gradient(135deg, rgba(255, 255, 255, .08), rgba(255, 255, 255, .025));
+  }
+
+  #ag-floating-randomizer h2 {
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.15;
+  }
+
+  #ag-floating-randomizer p {
+    margin: 2px 0 0;
+    color: #d4bba8;
+    font-size: 13px;
+  }
+
+  #ag-floating-randomizer button {
+    min-width: 32px;
+    min-height: 32px;
+    border: 1px solid rgba(255, 214, 186, .18);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, .06);
+    color: #fff3e8;
+    font: inherit;
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  #ag-floating-randomizer button:hover,
+  #ag-floating-randomizer a:hover {
+    border-color: #ff8a5b;
+    background: rgba(255, 138, 91, .16);
+  }
+
+  #ag-floating-randomizer .ag-body {
+    display: grid;
+    gap: 8px;
+    max-height: min(52vh, 420px);
+    overflow: auto;
+    padding: 12px;
+  }
+
+  #ag-floating-randomizer a {
+    display: grid;
+    gap: 2px;
+    padding: 10px 12px;
+    border: 1px solid rgba(255, 255, 255, .08);
+    border-radius: 8px;
+    background: rgba(15, 17, 23, .46);
+    color: #fff3e8;
+    text-decoration: none;
+  }
+
+  #ag-floating-randomizer a[aria-current="page"] {
+    border-color: #ff8a5b;
+    background: rgba(255, 138, 91, .13);
+  }
+
+  #ag-floating-randomizer a span {
+    color: #8ff0c8;
+    font-size: 12px;
+    font-weight: 900;
+    text-transform: uppercase;
+  }
+
+  #ag-floating-randomizer a strong {
+    line-height: 1.18;
+  }
+
+  #ag-floating-randomizer .ag-fab {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    color: #fff3e8;
+    font-weight: 900;
+  }
+
+  #ag-floating-randomizer.is-minimized .ag-window {
+    display: none;
+  }
+
+  #ag-floating-randomizer.is-minimized .ag-fab {
+    display: inline-flex;
+  }
+
+  @media (max-width: 760px) {
+    #ag-floating-randomizer {
+      top: auto;
+      right: 12px;
+      bottom: 72px;
+      left: 12px;
+      width: auto;
+    }
+
+    #ag-floating-randomizer .ag-body {
+      max-height: 34vh;
+    }
+  }
+</style>
+
+<script>
+  (function () {
+    const STORAGE_KEY = "ag-floating-randomizer-v1";
+    const RANDOMIZER_CONTAINER_SELECTOR = "#randomRecipeResult, .randomizer-panel, [data-ag-randomizer]";
+    const MAX_AGE = 1000 * 60 * 60 * 24;
+
+    function clean(value) {
+      return String(value || "").replace(/\s+/g, " ").trim();
+    }
+
+    function escapeHtml(value) {
+      return clean(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function normalizedUrl(href) {
+      try {
+        const url = new URL(href, window.location.href);
+        url.hash = "";
+        return url.href.replace(/\/index\.html$/i, "/");
+      } catch {
+        return "";
+      }
+    }
+
+    function randomizerContainer() {
+      return document.querySelector(RANDOMIZER_CONTAINER_SELECTOR);
+    }
+
+    function slotLabel(anchor) {
+      return clean(anchor.getAttribute("data-ag-slot"))
+        || clean(anchor.closest("[data-ag-slot]")?.getAttribute("data-ag-slot"))
+        || clean(anchor.closest(".meal-slot")?.querySelector(".meal-slot-title")?.textContent)
+        || clean(anchor.closest("section, article, div")?.querySelector("h2, h3")?.textContent)
+        || "Rețetă";
+    }
+
+    function recipeTitle(anchor) {
+      return clean(anchor.getAttribute("data-ag-title"))
+        || clean(anchor.querySelector("h1, h2, h3, strong")?.textContent)
+        || clean(anchor.textContent)
+        || "Rețetă";
+    }
+
+    function savePlan(clickedAnchor) {
+      const container = randomizerContainer();
+      if (!container || !container.contains(clickedAnchor)) return;
+
+      const seen = new Set();
+      const items = Array.from(container.querySelectorAll("a[href]"))
+        .map((anchor) => ({
+          label: slotLabel(anchor),
+          title: recipeTitle(anchor),
+          url: normalizedUrl(anchor.href)
+        }))
+        .filter((item) => item.url && !seen.has(item.url) && seen.add(item.url));
+
+      if (!items.length) return;
+      window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify({
+        createdAt: Date.now(),
+        activeUrl: normalizedUrl(clickedAnchor.href),
+        items
+      }));
+    }
+
+    function readPlan() {
+      try {
+        const raw = window.sessionStorage.getItem(STORAGE_KEY);
+        if (!raw) return null;
+        const plan = JSON.parse(raw);
+        if (!Array.isArray(plan.items) || Date.now() - Number(plan.createdAt || 0) > MAX_AGE) {
+          window.sessionStorage.removeItem(STORAGE_KEY);
+          return null;
+        }
+        return plan;
+      } catch {
+        return null;
+      }
+    }
+
+    function renderPlan() {
+      const container = randomizerContainer();
+      if (container) return;
+
+      const plan = readPlan();
+      if (!plan) return;
+      const currentUrl = normalizedUrl(window.location.href);
+      const panel = document.createElement("aside");
+      panel.id = "ag-floating-randomizer";
+      panel.setAttribute("aria-label", "Meniu Randomizer");
+      panel.innerHTML = [
+        '<section class="ag-window" aria-labelledby="agFloatingRandomizerTitle">',
+        '<div class="ag-titlebar"><div><h2 id="agFloatingRandomizerTitle">Meniu Randomizer</h2><p>Ține meniul la îndemână</p></div><button type="button" data-ag-minimize aria-label="Minimizează">−</button><button type="button" data-ag-close aria-label="Închide">×</button></div>',
+        '<div class="ag-body">',
+        plan.items.map((item) => '<a href="' + escapeHtml(item.url) + '"' + (normalizedUrl(item.url) === currentUrl ? ' aria-current="page"' : '') + '><span>' + escapeHtml(item.label) + '</span><strong>' + escapeHtml(item.title) + '</strong></a>').join(""),
+        '</div></section>',
+        '<button class="ag-fab" type="button" data-ag-restore aria-label="Deschide meniul randomizat">R <strong>Meniu</strong></button>'
+      ].join("");
+      document.body.appendChild(panel);
+
+      panel.addEventListener("click", function (event) {
+        if (event.target.closest("[data-ag-close]")) {
+          window.sessionStorage.removeItem(STORAGE_KEY);
+          panel.remove();
+        } else if (event.target.closest("[data-ag-minimize]")) {
+          panel.classList.add("is-minimized");
+        } else if (event.target.closest("[data-ag-restore]")) {
+          panel.classList.remove("is-minimized");
+        } else {
+          const link = event.target.closest("a[href]");
+          if (link) {
+            plan.activeUrl = normalizedUrl(link.href);
+            window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(plan));
+          }
+        }
+      });
+    }
+
+    document.addEventListener("click", function (event) {
+      const anchor = event.target.closest("a[href]");
+      if (anchor) savePlan(anchor);
+    });
+
+    document.addEventListener("DOMContentLoaded", renderPlan);
+  })();
+</script>
