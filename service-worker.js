@@ -1,4 +1,4 @@
-const CACHE_NAME = "arta-gatitului-msdaevgq";
+const CACHE_NAME = "arta-gatitului-msdc3pf0";
 const CACHE_PREFIX = "arta-gatitului-";
 const SHELL_CACHE = CACHE_NAME + "-shell";
 const HTML_CACHE = CACHE_NAME + "-html";
@@ -16,21 +16,21 @@ const CORE_ASSETS = [
   "manifest.json",
   "manifest.webmanifest",
   "assets/css/style.css",
-  "assets/css/style.css?v=msdaevgq",
+  "assets/css/style.css?v=msdc3pf0",
   "assets/js/site.js",
-  "assets/js/site.js?v=msdaevgq",
+  "assets/js/site.js?v=msdc3pf0",
   "assets/data/recipe-index.json",
-  "assets/data/recipe-index.json?v=msdaevgq",
+  "assets/data/recipe-index.json?v=msdc3pf0",
   "assets/data/search-index.json",
-  "assets/data/search-index.json?v=msdaevgq",
+  "assets/data/search-index.json?v=msdc3pf0",
   "assets/data/ingredient-index.json",
-  "assets/data/ingredient-index.json?v=msdaevgq",
+  "assets/data/ingredient-index.json?v=msdc3pf0",
   "assets/data/categories.json",
-  "assets/data/categories.json?v=msdaevgq",
+  "assets/data/categories.json?v=msdc3pf0",
   "assets/data/tag-groups.json",
-  "assets/data/tag-groups.json?v=msdaevgq",
+  "assets/data/tag-groups.json?v=msdc3pf0",
   "assets/data/ingredient-aliases.json",
-  "assets/data/ingredient-aliases.json?v=msdaevgq",
+  "assets/data/ingredient-aliases.json?v=msdc3pf0",
   "assets/icons/icon.png",
   "assets/icons/icon-192.png",
   "assets/icons/icon-512.png",

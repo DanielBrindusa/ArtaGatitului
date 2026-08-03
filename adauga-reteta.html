@@ -35,7 +35,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Source+Sans+3:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css?v=msdaevgq">
+  <link rel="stylesheet" href="assets/css/style.css?v=msdc3pf0">
 </head>
 <body data-builder-page="true">
 <a class="skip-link" href="#main-content">Sari la conținut</a>
@@ -114,25 +114,87 @@
         <div class="page-title">
           <p class="eyebrow">Instrument owner</p>
           <h1>Adaugă rețetă</h1>
-          <p>Această pagină te ajută să creezi o rețetă fără să scrii cod. Previzualizarea se actualizează automat, iar exportul rămâne compatibil cu site-ul static de pe GitHub Pages.</p>
+          <p>Lipește rețeta exact cum ai scris-o în notițe, iar pagina o transformă în formatul potrivit pentru site. Editorul detaliat rămâne dedesubt pentru verificare și ajustări.</p>
         </div>
+
+        <section class="builder-capture builder-card" aria-labelledby="recipeCaptureTitle">
+          <div class="section-head compact-head">
+            <div>
+              <p class="eyebrow">Start rapid</p>
+              <h2 id="recipeCaptureTitle">Lipește rețeta aici</h2>
+              <p>Scrie natural, ca pe GoDaddy sau în Notes. Pune titlul, categoria dacă o știi, ingredientele și pașii. Restul se poate corecta după transformare.</p>
+            </div>
+          </div>
+
+          <label class="field builder-wide">
+            <span>Text rețetă</span>
+            <textarea id="recipeCaptureInput" rows="15" placeholder="Exemplu:
+Ciorbă de cartofi
+
+Categorie: Fel principal
+Timp pregătire: 15 min
+Timp gătire: 40 min
+Porții: 4
+
+Descriere:
+O ciorbă simplă, bună pentru prânz.
+
+Ingrediente:
+- cartofi
+- morcov
+- ceapă
+- ardei
+- bulion
+- leuștean
+- sare
+
+Înainte să începi:
+- Spală și curăță legumele.
+- Pregătește o oală încăpătoare.
+
+Pași:
+1. Taie legumele.
+2. Fierbe cartofii cu morcovul.
+3. Călește ceapa cu ardeiul și bulionul.
+4. Pune totul în oală și fierbe încă 10 minute.
+5. Adaugă leuștean la final."></textarea>
+          </label>
+
+          <div class="builder-capture-actions">
+            <button class="btn" type="button" id="parseRecipeCapture">Transformă în formular</button>
+            <button class="btn secondary" type="button" id="loadRecipeCaptureExample">Pune exemplu</button>
+            <button class="btn secondary" type="button" id="clearRecipeCapture">Curăță textul</button>
+          </div>
+          <p id="recipeCaptureSummary" class="builder-status" aria-live="polite"></p>
+
+          <details class="builder-capture-format">
+            <summary>Cum să scrii ca să fie detectat mai bine</summary>
+            <ul class="clean">
+              <li>Pune titlul pe primul rând sau scrie <code>Titlu: Numele rețetei</code>.</li>
+              <li>Scrie <code>Categorie:</code>, <code>Timp pregătire:</code>, <code>Timp gătire:</code> și <code>Porții:</code> dacă le știi.</li>
+              <li>Pune ingredientele sub titlul <code>Ingrediente:</code>, fiecare pe rând separat.</li>
+              <li>Pune pașii sub <code>Pași:</code>, <code>Mod de preparare:</code> sau <code>Preparare:</code>.</li>
+              <li>Poți folosi liniuțe, bullets sau numere. După transformare poți corecta orice în editorul de mai jos.</li>
+            </ul>
+          </details>
+        </section>
 
         <section class="builder-help" aria-labelledby="builderHelpTitle">
           <div class="builder-help-intro">
             <h2 id="builderHelpTitle">Cum adaugi o rețetă nouă</h2>
-            <p>Această pagină te ajută să creezi vizual o rețetă și să exportezi datele potrivite pentru proiect. Ea nu publică singură rețeta online, deoarece site-ul este static și rulează pe GitHub Pages.</p>
+            <p>Varianta cea mai simplă este să lipești rețeta în zona „Start rapid”, apoi să verifici ce a completat automat. Pagina nu publică singură rețeta online, deoarece site-ul este static și rulează pe GitHub Pages.</p>
           </div>
 
           <div class="builder-guide-grid">
             <article class="builder-guide-card">
-              <h3>1. Completează rețeta</h3>
+              <h3>1. Lipește sau completează rețeta</h3>
               <ol class="clean">
-                <li>Scrie titlul rețetei.</li>
-                <li>Alege categoria exactă din listă.</li>
-                <li>Adaugă descrierea scurtă.</li>
-                <li>Adaugă ingredientele și pașii de preparare.</li>
-                <li>Adaugă lista „Înainte să începi” și etichetele care descriu corect rețeta.</li>
-                <li>Verifică previzualizarea din dreapta.</li>
+                <li>Lipește rețeta în zona „Start rapid”.</li>
+                <li>Apasă <strong>Transformă în formular</strong>.</li>
+                <li>Verifică titlul, categoria, ingredientele și pașii completați automat.</li>
+                <li>Corectează manual doar ce nu a fost detectat perfect.</li>
+                <li>Adaugă etichete numai dacă vrei căutare și filtrare mai bună.</li>
+                <li>Verifică previzualizarea din dreapta înainte de export.</li>
               </ol>
             </article>
 
@@ -151,10 +213,12 @@
             <article class="builder-guide-card">
               <h3>4. Publicare pe GitHub Pages</h3>
               <ol class="clean">
-                <li>Salvează fișierul JSON în <code>src/content/recipes/</code>.</li>
-                <li>Rulează <code>npm run validate:content</code> și apoi <code>npm run build</code> pe calculatorul tău.</li>
-                <li>Urcă pe GitHub fișierele schimbate, inclusiv <code>assets/js/recipes.js</code>, <code>retete/&lt;slug&gt;/index.html</code> și <code>&lt;slug&gt;/index.html</code>.</li>
-                <li>Așteaptă redeploy-ul GitHub Pages, apoi testează rețeta pe site.</li>
+                <li>Apasă <strong>Descarcă JSON</strong>.</li>
+                <li>Salvează fișierul cu numele sugerat în <code>src/content/recipes/</code>.</li>
+                <li>Rulează <code>npm run validate:content</code>. Dacă apare o eroare, corectează fișierul indicat.</li>
+                <li>Rulează <code>npm run build</code> ca să se regenereze pagina HTML, listele, căutarea și Randomizer-ul.</li>
+                <li>Urcă pe GitHub fișierele schimbate.</li>
+                <li>Așteaptă redeploy-ul GitHub Pages, apoi testează linkul <code>retete/&lt;slug&gt;/</code>.</li>
               </ol>
             </article>
 
@@ -180,6 +244,17 @@
                 <li>Cardul arată bine pe mobil și desktop.</li>
                 <li>Randomizer-ul o poate folosi dacă categoria este inclusă.</li>
               </ul>
+            </article>
+
+            <article class="builder-guide-card">
+              <h3>7. Dacă nu ai acces la GitHub</h3>
+              <ol class="clean">
+                <li>Completează rețeta și verifică previzualizarea.</li>
+                <li>Apasă <strong>Descarcă email pentru owner</strong>.</li>
+                <li>Se descarcă un fișier <code>.eml</code> cu mesaj HTML și JSON-ul atașat.</li>
+                <li>Deschide fișierul în aplicația ta de email, verifică mesajul și trimite-l către owner.</li>
+                <li>Dacă aplicația de email nu păstrează atașamentul, atașează manual fișierul JSON descărcat cu <strong>Descarcă JSON</strong>.</li>
+              </ol>
             </article>
           </div>
 
@@ -336,8 +411,12 @@
             <section class="builder-card">
               <p class="eyebrow">Export</p>
               <h2>Date pentru proiect</h2>
-              <p class="builder-note">Copiază blocul de mai jos într-un fișier <strong>src/content/recipes/&lt;slug&gt;.json</strong>. Apoi rulează <strong>npm run validate:content</strong> și <strong>npm run build</strong> ca să generezi pagina rețetei.</p>
+              <p class="builder-note">Owner GitHub: descarcă JSON-ul și pune fișierul în <strong>src/content/recipes/&lt;slug&gt;.json</strong>. Apoi rulează <strong>npm run validate:content</strong> și <strong>npm run build</strong>, urcă fișierele schimbate pe GitHub și verifică rețeta după redeploy.</p>
+              <p class="builder-note">Fără acces la GitHub: apasă <strong>Descarcă email pentru owner</strong>, deschide fișierul email generat și trimite-l. Mesajul include instrucțiuni pentru owner și atașează JSON-ul rețetei.</p>
               <textarea id="recipeExportOutput" class="export-area" rows="14" readonly></textarea>
+              <div class="builder-handoff-actions">
+                <button class="btn secondary" type="button" id="downloadRecipeEmail">Descarcă email pentru owner</button>
+              </div>
               <label class="field import-field">
                 <span>Importă JSON exportat</span>
                 <input id="importRecipeJson" type="file" accept="application/json">
@@ -354,6 +433,6 @@
     </footer>
 <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 <script>window.ARTA_ROOT = "";</script>
-<script src="assets/js/site.js?v=msdaevgq" defer></script>
+<script src="assets/js/site.js?v=msdc3pf0" defer></script>
 </body>
 </html>
