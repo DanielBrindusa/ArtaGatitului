@@ -74,7 +74,15 @@ src/
     tag-groups.json
     ingredient-aliases.json
   schema/
+    block.schema.json
     recipe.schema.json
+  shared/
+    blocks/
+    content/
+    design/
+    render/
+    utils/
+    validation/
   scripts/
     build/
       config.mjs
@@ -99,6 +107,8 @@ src/
 - `src/data/tag-groups.json` contains the categorized tag groups used by recipes and the Recipe Builder.
 - `src/data/ingredient-aliases.json` contains starter Romanian ingredient aliases for future ingredient matching improvements.
 - `src/schema/recipe.schema.json` documents the recipe content shape.
+- `src/schema/block.schema.json` documents the constrained reusable block and responsive layout shape.
+- `src/shared/` contains normalization, validation, design tokens, block models, and shared recipe rendering primitives.
 - `src/scripts/build/` contains the modular static build pipeline.
 
 ## Recipe Shape
@@ -152,6 +162,16 @@ npm run validate:content
 
 This checks recipe JSON files, category names, duplicate slugs, required fields, empty ingredients, empty steps, and invalid JSON.
 
+## Tests
+
+Run:
+
+```bash
+npm test
+```
+
+Tests use Node's built-in test runner and cover shared normalization, schemas, block/layout validation, safe rendering, and representative generated recipe pages.
+
 ## Build
 
 Run:
@@ -194,7 +214,7 @@ Run:
 npm run check
 ```
 
-This validates content and then rebuilds the static site.
+This validates content, rebuilds the static site, and runs the automated tests.
 
 ## PWA Caching
 

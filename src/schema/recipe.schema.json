@@ -22,7 +22,13 @@
       "type": "array",
       "items": { "type": "string" }
     },
-    "tags": { "type": "object" },
+    "tags": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": { "type": "string", "minLength": 1 }
+      }
+    },
     "equipment": {
       "type": "array",
       "items": { "type": "string" }
@@ -35,6 +41,35 @@
     "sourceUrl": { "type": ["string", "null"] },
     "createdAt": { "type": ["string", "null"] },
     "updatedAt": { "type": ["string", "null"] },
+    "closing": { "type": ["string", "null"] },
+    "keywords": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "extras": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["type"],
+        "properties": {
+          "type": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+          "title": { "type": "string" }
+        },
+        "additionalProperties": true
+      }
+    },
+    "ratingSummary": {
+      "type": ["object", "null"],
+      "properties": {
+        "totalRatings": { "type": "integer", "minimum": 0 },
+        "overallAverage": { "type": "number", "minimum": 0, "maximum": 5 },
+        "tasteAverage": { "type": "number", "minimum": 0, "maximum": 5 },
+        "clarityAverage": { "type": "number", "minimum": 0, "maximum": 5 },
+        "complexityAverage": { "type": "number", "minimum": 0, "maximum": 5 },
+        "cookAgainPercent": { "type": "number", "minimum": 0, "maximum": 100 }
+      },
+      "additionalProperties": false
+    },
     "status": {
       "type": "string",
       "enum": ["published", "draft", "archived"]

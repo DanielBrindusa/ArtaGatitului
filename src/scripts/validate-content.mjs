@@ -1,5 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { validateRecipeSource } from '../shared/validation/recipe.mjs';
 
 const ROOT = process.cwd();
 const CONTENT_DIR = path.join(ROOT, 'src', 'content');
@@ -7,7 +8,6 @@ const RECIPES_DIR = path.join(CONTENT_DIR, 'recipes');
 const CATEGORIES_PATH = path.join(CONTENT_DIR, 'categories.json');
 const RECIPE_SCHEMA_PATH = path.join(ROOT, 'src', 'schema', 'recipe.schema.json');
 
-const allowedStatuses = new Set(['published', 'draft', 'archived']);
 const nullableTrackingFields = [
   'prepTimeMinutes',
   'cookTimeMinutes',
@@ -33,24 +33,6 @@ function relative(filePath) {
 
 function nonEmptyString(value) {
   return typeof value === 'string' && value.trim().length > 0;
-}
-
-function validateStringArray(recipe, filePath, field, issues, { requireNonEmpty = false } = {}) {
-  const value = recipe[field];
-  if (!Array.isArray(value)) {
-    issues.push(`${relative(filePath)}: ${field} must be an array`);
-    return;
-  }
-
-  if (requireNonEmpty && value.length === 0) {
-    issues.push(`${relative(filePath)}: ${field} must not be empty`);
-  }
-
-  value.forEach((item, index) => {
-    if (!nonEmptyString(item)) {
-      issues.push(`${relative(filePath)}: ${field}[${index}] must be a non-empty string`);
-    }
-  });
 }
 
 function categoryName(category) {
@@ -107,10 +89,8 @@ async function main() {
     if (!recipe) continue;
 
     validRecipeCount += 1;
-
-    if (!nonEmptyString(recipe.slug)) issues.push(`${relative(filePath)}: slug is required`);
-    if (!nonEmptyString(recipe.title)) issues.push(`${relative(filePath)}: title is required`);
-    if (!nonEmptyString(recipe.category)) issues.push(`${relative(filePath)}: category is required`);
+    const validation = validateRecipeSource(recipe, { categoryNames });
+    validation.errors.forEach((message) => issues.push(`${relative(filePath)}: ${message}`));
 
     if (nonEmptyString(recipe.slug)) {
       if (seenSlugs.has(recipe.slug)) {
@@ -122,25 +102,6 @@ async function main() {
       if (file !== `${recipe.slug}.json`) {
         warnings.push(`${relative(filePath)}: filename does not match slug "${recipe.slug}"`);
       }
-    }
-
-    if (nonEmptyString(recipe.category) && !categoryNames.has(recipe.category)) {
-      issues.push(`${relative(filePath)}: category "${recipe.category}" is not listed in categories.json`);
-    }
-
-    validateStringArray(recipe, filePath, 'ingredients', issues, { requireNonEmpty: true });
-    validateStringArray(recipe, filePath, 'steps', issues, { requireNonEmpty: true });
-
-    if (recipe.beforeStart !== undefined) {
-      validateStringArray(recipe, filePath, 'beforeStart', issues);
-    }
-
-    if (recipe.tags !== undefined && (recipe.tags === null || typeof recipe.tags !== 'object' || Array.isArray(recipe.tags))) {
-      issues.push(`${relative(filePath)}: tags must be an object when present`);
-    }
-
-    if (!allowedStatuses.has(recipe.status)) {
-      issues.push(`${relative(filePath)}: status must be one of ${Array.from(allowedStatuses).join(', ')}`);
     }
 
     const nullFields = nullableTrackingFields.filter((field) => recipe[field] === null || recipe[field] === undefined);

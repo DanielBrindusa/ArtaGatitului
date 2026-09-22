@@ -1,0 +1,271 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://artagatitului.local/schema/block.schema.json",
+  "title": "Arta Gătitului Content Block",
+  "type": "object",
+  "required": ["id", "type", "data"],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]{0,79}$"
+    },
+    "type": {
+      "enum": [
+        "section",
+        "heading",
+        "text",
+        "rich-text",
+        "image",
+        "divider",
+        "spacer",
+        "button",
+        "recipe-hero",
+        "recipe-metadata",
+        "ingredients",
+        "before-starting",
+        "equipment",
+        "instructions",
+        "rating",
+        "related-recipes"
+      ]
+    },
+    "data": {
+      "type": "object"
+    },
+    "layout": {
+      "$ref": "#/$defs/layout"
+    },
+    "responsive": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "desktop": { "$ref": "#/$defs/responsiveLayout" },
+        "tablet": { "$ref": "#/$defs/responsiveLayout" },
+        "mobile": { "$ref": "#/$defs/responsiveLayout" }
+      }
+    },
+    "variant": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$"
+    },
+    "style": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "tone": { "enum": ["default", "accent", "muted", "contrast"] },
+        "surface": { "enum": ["none", "plain", "card"] },
+        "radius": { "enum": ["none", "sm", "md", "lg"] }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "type": { "const": "section" } } },
+      "then": {
+        "properties": {
+          "data": {
+            "type": "object",
+            "required": ["blocks"],
+            "additionalProperties": false,
+            "properties": {
+              "blocks": { "type": "array", "items": { "$ref": "#" } }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "type": { "const": "heading" } } },
+      "then": {
+        "properties": {
+          "data": {
+            "type": "object",
+            "required": ["text", "level"],
+            "additionalProperties": false,
+            "properties": {
+              "text": { "$ref": "#/$defs/nonEmptyString" },
+              "level": { "type": "integer", "minimum": 1, "maximum": 6 }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "type": { "const": "text" } } },
+      "then": {
+        "properties": {
+          "data": {
+            "type": "object",
+            "required": ["text"],
+            "additionalProperties": false,
+            "properties": { "text": { "$ref": "#/$defs/nonEmptyString" } }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "type": { "const": "rich-text" } } },
+      "then": {
+        "properties": {
+          "data": {
+            "type": "object",
+            "required": ["paragraphs"],
+            "additionalProperties": false,
+            "properties": {
+              "paragraphs": { "type": "array", "items": { "$ref": "#/$defs/nonEmptyString" } }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "type": { "const": "image" } } },
+      "then": {
+        "properties": {
+          "data": {
+            "type": "object",
+            "required": ["src", "alt"],
+            "additionalProperties": false,
+            "properties": {
+              "src": { "$ref": "#/$defs/nonEmptyString" },
+              "alt": { "$ref": "#/$defs/nonEmptyString" },
+              "caption": { "$ref": "#/$defs/nonEmptyString" },
+              "loading": { "enum": ["lazy", "eager"] }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "type": { "enum": ["divider"] } } },
+      "then": { "properties": { "data": { "$ref": "#/$defs/emptyData" } } }
+    },
+    {
+      "if": { "properties": { "type": { "const": "spacer" } } },
+      "then": {
+        "properties": {
+          "data": {
+            "type": "object",
+            "required": ["size"],
+            "additionalProperties": false,
+            "properties": { "size": { "$ref": "#/$defs/spacing" } }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "type": { "const": "button" } } },
+      "then": {
+        "properties": {
+          "data": {
+            "type": "object",
+            "required": ["label", "href"],
+            "additionalProperties": false,
+            "properties": {
+              "label": { "$ref": "#/$defs/nonEmptyString" },
+              "href": { "$ref": "#/$defs/nonEmptyString" },
+              "target": { "enum": ["_self", "_blank"] }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "type": { "const": "recipe-hero" } } },
+      "then": {
+        "properties": {
+          "data": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "showCategory": { "type": "boolean" },
+              "showDescription": { "type": "boolean" }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "type": { "const": "recipe-metadata" } } },
+      "then": {
+        "properties": {
+          "data": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "fields": {
+                "type": "array",
+                "uniqueItems": true,
+                "items": { "enum": ["category", "prepTime", "cookTime", "totalTime", "servings", "equipment"] }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": { "enum": ["ingredients", "before-starting", "equipment", "instructions", "rating"] }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": { "heading": { "$ref": "#/$defs/nonEmptyString" } }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "type": { "const": "related-recipes" } } },
+      "then": {
+        "properties": {
+          "data": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "heading": { "$ref": "#/$defs/nonEmptyString" },
+              "limit": { "type": "integer", "minimum": 1, "maximum": 12 }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "nonEmptyString": { "type": "string", "minLength": 1 },
+    "spacing": { "enum": ["none", "xs", "sm", "md", "lg", "xl"] },
+    "layout": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "width": { "enum": ["narrow", "medium", "wide", "full"] },
+        "columns": { "enum": [1, 2, 3, 4] },
+        "gap": { "$ref": "#/$defs/spacing" },
+        "paddingBlock": { "$ref": "#/$defs/spacing" },
+        "align": { "enum": ["start", "center", "end", "stretch"] }
+      }
+    },
+    "responsiveLayout": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "width": { "enum": ["narrow", "medium", "wide", "full"] },
+        "columns": { "enum": [1, 2, 3, 4] },
+        "gap": { "$ref": "#/$defs/spacing" },
+        "paddingBlock": { "$ref": "#/$defs/spacing" },
+        "align": { "enum": ["start", "center", "end", "stretch"] },
+        "visible": { "type": "boolean" }
+      }
+    },
+    "emptyData": {
+      "type": "object",
+      "additionalProperties": false,
+      "maxProperties": 0
+    }
+  }
+}

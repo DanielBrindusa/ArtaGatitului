@@ -39,11 +39,20 @@ Current high-level layout:
       ingredient-aliases.json
       tag-groups.json
     schema/
+      block.schema.json
       recipe.schema.json
+    shared/
+      blocks/
+      content/
+      design/
+      render/
+      utils/
+      validation/
     scripts/
       build/*.mjs
       import/import-godaddy-audit.mjs
       validate-content.mjs
+  tests/*.test.mjs
   retete/<slug>/index.html
   categorie/<category-slug>/index.html
   <legacy-recipe-or-category-slug>/index.html
@@ -54,12 +63,13 @@ Current high-level layout:
 Important files:
 
 - `package.json` defines the npm scripts.
-- `build-static-site.mjs` contains most rendering logic, all generated CSS, generated browser JavaScript, the manifest renderer, service worker renderer, JSON-LD helpers, and PNG icon resizing helpers.
+- `build-static-site.mjs` contains the page shell, generated browser JavaScript, most generated CSS, manifest/service-worker rendering, JSON-LD helpers, and PNG icon resizing helpers. Recipe presentation and root design tokens are now imported from `src/shared`.
 - `src/scripts/build/*.mjs` contains the modular build pipeline around the large renderer entry point.
+- `src/shared` contains framework-independent content normalization, content types, constrained block/layout models, validators, design tokens, safe HTML utilities, and shared recipe/block renderers.
 - `src/content` and `src/data` are the current content source of truth.
 - Root HTML files, `retete/`, `categorie/`, root-level recipe/category aliases, `assets/`, `manifest*.json`, `service-worker.js`, `sitemap.xml`, and `robots.txt` are generated public output.
 
-There is no framework dependency, no bundler, no lockfile, and no checked-in GitHub Actions workflow at the time of this audit. The site is suitable for GitHub Pages because all runtime output is static.
+There is no framework dependency, no bundler, no external test dependency, no lockfile, and no checked-in GitHub Actions workflow. Tests use the built-in Node test runner. The site remains suitable for GitHub Pages because all runtime output is static.
 
 ## 2. Current Content Flow
 
@@ -106,7 +116,11 @@ Primary source-of-truth files:
 - `src/content/aliases.json`: route alias map for legacy recipe URLs.
 - `src/data/tag-groups.json`: canonical grouped tag vocabulary used by recipes and the recipe builder.
 - `src/data/ingredient-aliases.json`: ingredient alias list for ingredient matching.
-- `src/schema/recipe.schema.json`: schema documentation for recipe shape. The custom validator is stricter in some practical ways than the JSON schema.
+- `src/schema/recipe.schema.json`: schema documentation for recipe shape, including `closing`, `keywords`, `extras`, and `ratingSummary`.
+- `src/schema/block.schema.json`: first-version reusable block, layout, responsive, and tokenized-style schema.
+- `src/shared/content/normalize.mjs`: compatibility adapter from current/legacy recipe JSON to the normalized recipe model.
+- `src/shared/validation/*.mjs`: executable validation for source recipes and reusable blocks.
+- `src/shared/render/*.mjs`: composable recipe presentation primitives and the future page/block preview renderer.
 - `icon.png`: source icon copied and resized into `assets/icons/`.
 
 Supporting source files:
@@ -205,10 +219,10 @@ Rendering is split between static build-time rendering and client-side progressi
 
 Build-time rendering:
 
-- `build-static-site.mjs` exports renderer functions to `runBuild`.
+- `build-static-site.mjs` exports page-level renderers to `runBuild` and imports shared recipe rendering from `src/shared/render/recipe.mjs`.
 - `page()` emits the shared document shell, SEO tags, manifest link, theme bootstrap, navigation, install prompt, theme panel, command palette, footer, and `assets/js/site.js`.
 - `recipePage()` emits full recipe pages with real recipe content in HTML.
-- `staticRecipeDetail()` emits recipe hero, metadata, before-start checklist, ingredients, steps, tags, extras, ratings panel, and similar recipes.
+- `renderRecipeDetail()` composes shared hero, metadata, before-start, ingredients, instructions, tags, extras, ratings, card, and related-recipe primitives.
 - `categoryPage()`, `homePage()`, `searchPage()`, `ingredientMatcherPage()`, `randomizerPage()`, and other pages mostly emit shell markup and placeholder containers that client JavaScript fills from generated data.
 
 Client-side rendering:
@@ -218,14 +232,11 @@ Client-side rendering:
 - It renders home cards, category grids, category recipe lists, search results, ingredient matches, randomizer plans, command palette entries, and recipe detail fallback behavior.
 - It enhances static recipe pages with ratings, checklist persistence, steak calculators, quick actions, scroll progress, command palette, page transitions, theme switching, install prompt, and service worker registration.
 
-Renderer duplication:
+Remaining renderer duplication:
 
-- Recipe cards exist as `staticRecipeCard()` and client-side `card()`.
-- Tags exist as `staticTagsSection()` and client-side `tagsMarkup()`.
-- Ratings markup exists as `staticRatingSection()` and client-side `ratingSection()`.
-- Before-start markup exists as `staticBeforeStartSection()` and client-side `beforeStartSection()`.
-- Similar recipe logic exists as `staticSimilarRecipes()` and client-side `similarRecipes()`.
-- Steak calculator markup exists as `staticSteakCalculator()` and client-side `steakCalculator()`.
+- Server-side recipe cards, tags, ratings, before-start, related-recipe logic, and steak calculator markup are centralized in `src/shared/render/recipe.mjs`.
+- The generated browser runtime still contains client-side counterparts for fallback/enhancement behavior.
+- The legacy recipe-builder preview still creates DOM nodes independently. It can now migrate directly to `renderBlockTree()` or the same recipe primitives once a browser module/bundling boundary is introduced for the CMS.
 
 This duplication is the main existing obstacle to a shared CMS preview/public renderer.
 
@@ -357,8 +368,9 @@ Scripts:
 {
   "validate:content": "node src/scripts/validate-content.mjs",
   "build": "node build-static-site.mjs",
+  "test": "node --test",
   "import:godaddy": "node src/scripts/import/import-godaddy-audit.mjs",
-  "check": "npm run validate:content && npm run build"
+  "check": "npm run validate:content && npm run build && npm test"
 }
 ```
 
@@ -377,10 +389,10 @@ Deployment:
 
 ## 11. Technical Debt Relevant To The CMS
 
-- `build-static-site.mjs` is very large and mixes HTML rendering, CSS text, browser JS text, manifest generation, service-worker generation, image resizing, SEO helpers, and domain logic.
-- Static and client renderers duplicate recipe cards, recipe details, tags, before-start sections, ratings, related recipes, and steak calculator markup.
-- The current recipe schema allows additional properties and does not document all fields in use (`keywords`, `closing`, `extras`, `ratingSummary`).
-- Validation is handwritten and does not fully use the JSON schema.
+- `build-static-site.mjs` remains large and still mixes page shells, most CSS, browser JS, manifest generation, service-worker generation, image resizing, and SEO helpers.
+- The server-side recipe renderer is shared, but generated browser fallbacks and the legacy recipe-builder preview still duplicate parts of recipe presentation.
+- The recipe schema now documents all fields in current use, but retains `additionalProperties: true` for backward compatibility until a versioned content migration exists.
+- Validation is dependency-free and shared, but JSON Schema files are not yet executed by a general JSON Schema engine.
 - Generated output is committed alongside source, which is practical for GitHub Pages but increases review noise.
 - `BUILD_VERSION` defaults to a timestamp, so repeated builds can churn generated files.
 - Search/randomizer/category rendering depends heavily on generated client-side indexes, while recipe pages are mostly static HTML.
@@ -854,7 +866,7 @@ Do not reuse as future primary architecture:
 - Root generated HTML as editable source.
 - Legacy GoDaddy audit files as normal build input.
 
-## 23. Immediate Recommendations For Milestone 2
+## 23. Milestone 2 Plan At Audit Time
 
 Milestone 2 should not introduce React, Tauri, Firebase, or authentication yet. It should focus on reducing renderer duplication and creating shared foundations while proving the generated site remains identical or intentionally unchanged.
 
@@ -866,3 +878,113 @@ Recommended Milestone 2 scope:
 - Point both build-time recipe pages and recipe-builder preview toward the shared renderer.
 - Strengthen schema coverage for `closing`, `extras`, `ratingSummary`, and `keywords`.
 - Add focused tests or snapshot checks for route plan and representative rendered recipe output.
+
+## 24. Milestone 2 Implemented Architecture
+
+Milestone 2 implemented the shared foundation without changing the content source of truth, public routes, or runtime framework.
+
+### Shared layer
+
+The framework-independent layer now lives under `src/shared`:
+
+```text
+src/shared/
+  blocks/
+    model.mjs
+    layout.mjs
+  content/
+    types.mjs
+    normalize.mjs
+  design/
+    tokens.mjs
+  render/
+    blocks.mjs
+    recipe.mjs
+  utils/
+    html.mjs
+  validation/
+    blocks.mjs
+    recipe.mjs
+  index.mjs
+```
+
+- `content/types.mjs` records the runtime model version and JSDoc content contracts used by this JavaScript project.
+- `content/normalize.mjs` is the backward-compatible adapter for current and legacy recipe/category JSON.
+- `utils/html.mjs` owns shared slug generation, HTML escaping, and safe content URL checks.
+- `validation/recipe.mjs` is used by the repository content validator.
+- `design/tokens.mjs` owns the current root CSS constants and the initial controlled width, spacing, and radius vocabularies.
+- `index.mjs` provides one future import surface for the CMS while individual modules remain usable by the static build.
+
+### Block model
+
+The first block model is versioned as `BLOCK_MODEL_VERSION = 1`. Every block has a stable lowercase `id`, registered `type`, structured `data`, optional constrained `layout`, optional breakpoint overrides in `responsive`, an allowlisted `variant`, and tokenized `style` options.
+
+Registered generic types:
+
+- `section`
+- `heading`
+- `text`
+- `rich-text`
+- `image`
+- `divider`
+- `spacer`
+- `button`
+
+Registered recipe types:
+
+- `recipe-hero`
+- `recipe-metadata`
+- `ingredients`
+- `before-starting`
+- `equipment`
+- `instructions`
+- `rating`
+- `related-recipes`
+
+`src/schema/block.schema.json` documents the persisted form. `src/shared/validation/blocks.mjs` is the executable validation boundary. It rejects unknown types, unsupported fields, unsafe URLs, arbitrary style/CSS fields, invalid variants, and unregistered layout values. Text and rich text are plain strings or paragraph arrays; renderers escape them and do not accept executable scripts or raw HTML.
+
+### Layout and responsive model
+
+Layout is deliberately constrained:
+
+- widths: `narrow`, `medium`, `wide`, `full`
+- columns: `1`, `2`, `3`, `4`
+- spacing: `none`, `xs`, `sm`, `md`, `lg`, `xl`
+- alignment: `start`, `center`, `end`, `stretch`
+- responsive keys: `desktop`, `tablet`, `mobile`
+- responsive visibility: boolean per breakpoint
+
+There are no X/Y coordinates, absolute-position fields, raw CSS declarations, or arbitrary breakpoint names. `layoutClassNames()` translates valid configuration into deterministic class names, and `renderLayoutTokenCss()` provides matching base/desktop/tablet/mobile rules for a future CMS preview and public block renderer.
+
+### Structured recipe content versus presentation
+
+Recipe files remain canonical structured content under `src/content/recipes`. They have not been converted into page-layout documents. A future recipe template may arrange recipe blocks, but blocks such as `ingredients` and `instructions` read their values from a normalized recipe supplied in render context; they do not duplicate ingredient or instruction content in the layout tree.
+
+The recipe schema was extended backward-compatibly to document `closing`, `keywords`, `extras`, `ratingSummary`, and grouped tag arrays. Existing files remain valid and unchanged.
+
+### Rendering path
+
+Current static recipe rendering now follows:
+
+```text
+src/content/recipes/*.json
+  -> normalizeRecipe()
+  -> renderRecipeDetail() and composable recipe primitives
+  -> recipePage() document/SEO shell
+  -> generated recipe HTML
+```
+
+`renderBlock()` and `renderBlockTree()` call the same recipe primitives when supplied with recipe context. This is the preview boundary intended for the future CMS. The public build already consumes `renderRecipeDetail()` directly. Root CSS custom properties are emitted from `renderDesignTokenCss()` with the same current values.
+
+### Backward compatibility and verification
+
+- Current and legacy field aliases remain supported: `name`/`title`, `preparation`/`steps`, and tag-derived equipment.
+- Unknown existing recipe properties are preserved by normalization.
+- Existing recipe JSON was not rewritten.
+- Existing generated route planning, aliases, sitemap behavior, PWA files, search indexes, randomizer, and local ratings behavior remain unchanged.
+- Representative pre-refactor and post-refactor recipe article markup is byte-equivalent after normalizing Windows line endings.
+- Tests cover all 37 recipes, schema/registry alignment, invalid blocks/layouts, escaping, synthetic image/rating content, and generated representative pages.
+
+### Deferred work
+
+The browser fallback renderer and current recipe-builder preview are still embedded in generated `assets/js/site.js`. Moving them to browser-consumable shared modules requires a deliberate browser module or small bundling boundary; that work should accompany the CMS preview rather than introduce a framework migration here. Page templates, persisted block trees, global blocks, navigation editing, and a theme editor remain later-milestone work.
