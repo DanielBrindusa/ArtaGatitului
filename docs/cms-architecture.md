@@ -1,0 +1,868 @@
+# Arta Gatitului CMS Architecture Audit
+
+Milestone 1 documents the current static recipe website before any CMS, Tauri, Firebase, or repository migration work begins. The existing public website is generated as plain HTML, CSS, JavaScript, JSON data assets, manifests, and a service worker that can be served directly by GitHub Pages.
+
+## 1. Current Repository Architecture
+
+The repository is a static-site generator plus generated static output checked into the same tree.
+
+Current high-level layout:
+
+```text
+.
+  build-static-site.mjs
+  package.json
+  README.md
+  index.html
+  categorii.html
+  cauta.html
+  ce-pot-gati.html
+  adauga-reteta.html
+  offline.html
+  manifest.json
+  manifest.webmanifest
+  service-worker.js
+  sitemap.xml
+  robots.txt
+  assets/
+    css/style.css
+    data/*.json
+    icons/*.png
+    js/recipes.js
+    js/site.js
+  src/
+    content/
+      aliases.json
+      categories.json
+      recipes/*.json
+    data/
+      ingredient-aliases.json
+      tag-groups.json
+    schema/
+      recipe.schema.json
+    scripts/
+      build/*.mjs
+      import/import-godaddy-audit.mjs
+      validate-content.mjs
+  retete/<slug>/index.html
+  categorie/<category-slug>/index.html
+  <legacy-recipe-or-category-slug>/index.html
+  site-audit/
+  snippets/
+```
+
+Important files:
+
+- `package.json` defines the npm scripts.
+- `build-static-site.mjs` contains most rendering logic, all generated CSS, generated browser JavaScript, the manifest renderer, service worker renderer, JSON-LD helpers, and PNG icon resizing helpers.
+- `src/scripts/build/*.mjs` contains the modular build pipeline around the large renderer entry point.
+- `src/content` and `src/data` are the current content source of truth.
+- Root HTML files, `retete/`, `categorie/`, root-level recipe/category aliases, `assets/`, `manifest*.json`, `service-worker.js`, `sitemap.xml`, and `robots.txt` are generated public output.
+
+There is no framework dependency, no bundler, no lockfile, and no checked-in GitHub Actions workflow at the time of this audit. The site is suitable for GitHub Pages because all runtime output is static.
+
+## 2. Current Content Flow
+
+Current flow:
+
+```text
+src/content/recipes/*.json
+src/content/categories.json
+src/content/aliases.json
+src/data/tag-groups.json
+src/data/ingredient-aliases.json
+        |
+        v
+npm run validate:content
+        |
+        v
+npm run build
+        |
+        v
+src/scripts/build/content-loader.mjs normalizes content
+src/scripts/build/routes.mjs validates output route collisions
+build-static-site.mjs renderers generate HTML/CSS/JS/manifest/SW
+src/scripts/build/generate-data-assets.mjs generates browser indexes
+src/scripts/build/generate-pages.mjs generates pages
+src/scripts/build/generate-sitemap.mjs generates sitemap and robots
+        |
+        v
+Generated static output committed to the repository
+        |
+        v
+GitHub Pages serves the repository output
+```
+
+`npm run check` runs validation and then rebuilds.
+
+The build is deterministic for content structure, but the default `BUILD_VERSION` is `Date.now().toString(36)` unless `ARTA_BUILD_VERSION` is provided. That means `assets/js/site.js`, `service-worker.js`, and cache-busting query strings can change even when content has not changed.
+
+## 3. Source-Of-Truth Files
+
+Primary source-of-truth files:
+
+- `src/content/recipes/*.json`: canonical recipe content. There are 37 recipe JSON files.
+- `src/content/categories.json`: canonical category list. There are 7 categories.
+- `src/content/aliases.json`: route alias map for legacy recipe URLs.
+- `src/data/tag-groups.json`: canonical grouped tag vocabulary used by recipes and the recipe builder.
+- `src/data/ingredient-aliases.json`: ingredient alias list for ingredient matching.
+- `src/schema/recipe.schema.json`: schema documentation for recipe shape. The custom validator is stricter in some practical ways than the JSON schema.
+- `icon.png`: source icon copied and resized into `assets/icons/`.
+
+Supporting source files:
+
+- `build-static-site.mjs`: renderer and asset generator.
+- `src/scripts/build/*.mjs`: build pipeline modules.
+- `src/scripts/validate-content.mjs`: content validation script.
+- `extract-godaddy-site.mjs` and `src/scripts/import/import-godaddy-audit.mjs`: legacy GoDaddy audit/import tooling, not used by normal builds.
+- `README.md`: current operational documentation.
+
+## 4. Generated Files
+
+Generated public output includes:
+
+- Root pages: `index.html`, `categorii.html`, `cauta.html`, `ce-pot-gati.html`, `adauga-reteta.html`, `offline.html`.
+- Static utility routes: `portofoliu/index.html`, `randomizer/index.html`, `soon-to-come/index.html`.
+- Canonical category pages: `categorie/<category-slug>/index.html`.
+- Legacy category aliases: `<category-slug>/index.html`.
+- Canonical recipe pages: `retete/<recipe-slug>/index.html`.
+- Legacy root recipe aliases: `<recipe-slug>/index.html`.
+- Legacy alias recipe routes from `src/content/aliases.json`, both under `retete/<alias>/` and `<alias>/`.
+- Browser data indexes under `assets/data/`.
+- Browser scripts: `assets/js/site.js` and compatibility fallback `assets/js/recipes.js`.
+- Stylesheet: `assets/css/style.css`.
+- Icons under `assets/icons/`.
+- `manifest.json`, `manifest.webmanifest`, `service-worker.js`, `sitemap.xml`, and `robots.txt`.
+
+These generated files must remain compatible with existing URLs until a future migration explicitly preserves or redirects them.
+
+## 5. Existing Recipe Schema Analysis
+
+`src/schema/recipe.schema.json` requires:
+
+- `slug`
+- `title`
+- `category`
+- `ingredients`
+- `steps`
+- `status`
+
+The validator also requires:
+
+- non-empty `slug`, `title`, and `category`
+- unique slugs
+- filename equal to `<slug>.json` as a warning if mismatched
+- `category` must match a category title/name in `categories.json`
+- non-empty arrays for `ingredients` and `steps`
+- `beforeStart` must be an array when present
+- `tags` must be an object when present
+- `status` must be `published`, `draft`, or `archived`
+
+Current recipe census:
+
+- 37 recipe files.
+- 37 published recipes.
+- 0 draft recipes.
+- 0 archived recipes.
+- 37 recipes have `id`, `slug`, `title`, `description`, `category`, `ingredients`, `steps`, `beforeStart`, `tags`, `sourceUrl`, `status`, `closing`, and `keywords`.
+- 29 recipes have `equipment`.
+- 1 recipe has `extras`; `steak-de-vita` uses `extras: [{ type: "steak-calculator", ... }]`.
+- 0 recipes currently have real `prepTimeMinutes`, `cookTimeMinutes`, `totalTimeMinutes`, `servings`, `image`, `createdAt`, `updatedAt`, or `ratingSummary` values.
+
+Current category distribution:
+
+- `Mic dejun`: 11 recipes
+- `Fel secundar`: 18 recipes
+- `Rontaieli`: 4 recipes
+- `Fel principal`: 2 recipes
+- `Desert`: 1 recipe
+- `Salate`: 1 recipe
+- `Băuturi`: 0 recipes
+
+Current tag groups:
+
+- `taste`
+- `complexity`
+- `time`
+- `context`
+- `diet`
+- `equipment`
+- `technique`
+
+Important schema observations:
+
+- The schema has `additionalProperties: true`, so content can silently accumulate fields. This helped the current migration but should be narrowed later.
+- The renderer normalizes `title` into `name` for compatibility.
+- `steps` is normalized into `preparation` for older renderer/client paths.
+- `equipment` can come from either the top-level `equipment` field or `tags.equipment`.
+- `ratingSummary` is supported by renderer logic but absent in current content.
+- `extras` is supported but not part of the JSON schema properties. It is currently needed for the steak calculator.
+- `keywords` is supported and populated in recipes, but it is not in the JSON schema properties.
+
+## 6. Existing Rendering Analysis
+
+Rendering is split between static build-time rendering and client-side progressive rendering.
+
+Build-time rendering:
+
+- `build-static-site.mjs` exports renderer functions to `runBuild`.
+- `page()` emits the shared document shell, SEO tags, manifest link, theme bootstrap, navigation, install prompt, theme panel, command palette, footer, and `assets/js/site.js`.
+- `recipePage()` emits full recipe pages with real recipe content in HTML.
+- `staticRecipeDetail()` emits recipe hero, metadata, before-start checklist, ingredients, steps, tags, extras, ratings panel, and similar recipes.
+- `categoryPage()`, `homePage()`, `searchPage()`, `ingredientMatcherPage()`, `randomizerPage()`, and other pages mostly emit shell markup and placeholder containers that client JavaScript fills from generated data.
+
+Client-side rendering:
+
+- `assets/js/site.js` is generated from `jsFile()` in `build-static-site.mjs`.
+- It progressively loads JSON indexes from `assets/data` depending on the page.
+- It renders home cards, category grids, category recipe lists, search results, ingredient matches, randomizer plans, command palette entries, and recipe detail fallback behavior.
+- It enhances static recipe pages with ratings, checklist persistence, steak calculators, quick actions, scroll progress, command palette, page transitions, theme switching, install prompt, and service worker registration.
+
+Renderer duplication:
+
+- Recipe cards exist as `staticRecipeCard()` and client-side `card()`.
+- Tags exist as `staticTagsSection()` and client-side `tagsMarkup()`.
+- Ratings markup exists as `staticRatingSection()` and client-side `ratingSection()`.
+- Before-start markup exists as `staticBeforeStartSection()` and client-side `beforeStartSection()`.
+- Similar recipe logic exists as `staticSimilarRecipes()` and client-side `similarRecipes()`.
+- Steak calculator markup exists as `staticSteakCalculator()` and client-side `steakCalculator()`.
+
+This duplication is the main existing obstacle to a shared CMS preview/public renderer.
+
+## 7. Existing Recipe Editor Analysis
+
+The existing recipe creation page is `adauga-reteta.html`, generated by `recipeBuilderPage()` and powered by `setupRecipeBuilder()` in `assets/js/site.js`.
+
+Current capabilities:
+
+- Paste free-form recipe text and parse it into fields.
+- Edit title, slug, category, prep time, cook time, servings, description, image URL/path, ingredients, before-start checklist, preparation steps, notes, keywords, grouped tags, and optional rating summary.
+- Reorder and remove ingredient/before-start/step rows.
+- Auto-slugify titles.
+- Suggest tags from pasted text and timing.
+- Validate required fields in the browser.
+- Warn when a slug already exists.
+- Render a live preview.
+- Export the canonical content JSON expected by `src/content/recipes/<slug>.json`.
+- Copy JSON to clipboard.
+- Download JSON.
+- Save/load an autosaved local browser draft.
+- Import a previously exported JSON file.
+- Download an `.eml` email draft with the JSON attached for a repository owner.
+
+Current output shape:
+
+- The main export is a recipe object compatible with `src/content/recipes/*.json`.
+- It also creates legacy/fallback recipe objects inside an internal export package when saving local drafts.
+- It sets `status: "published"`, `closing: "Poftă bună!"`, `extras: []`, and calculates `keywords`.
+
+Preview fidelity:
+
+- The preview uses the same CSS classes as recipe pages and broadly matches the public recipe layout.
+- It does not call the exact same static recipe renderer used by `recipePage()`.
+- It omits some generated-page details such as canonical metadata, JSON-LD, similar recipes, route context, and some exact accessibility IDs.
+- This is a strong candidate for reuse as an early CMS form, but it should eventually call a shared recipe renderer rather than maintaining a separate DOM-building preview.
+
+Recommended reuse:
+
+- Reuse parsing, slugging, row editing, grouped tag selection, local draft autosave, JSON import/export, and validation ideas.
+- Replace the long-term preview renderer with the future shared renderer.
+- Keep this page during the transition as a low-risk owner tool and fallback path.
+
+## 8. Existing PWA Analysis
+
+Manifest:
+
+- Generated as both `manifest.json` and `manifest.webmanifest`.
+- Uses `name: "Arta Gătitului"` and `short_name: "Rețete"`.
+- Uses `start_url: "./"` and `scope: "./"`.
+- Uses `display: "standalone"` with `display_override: ["standalone", "minimal-ui"]`.
+- Uses `prefer_related_applications: false`.
+- References generated 192px and 512px PNG icons.
+
+Service worker:
+
+- Generated by `serviceWorkerFile()`.
+- Registered by `registerServiceWorker()` in `assets/js/site.js`.
+- Uses a cache name based on `BUILD_VERSION`.
+- Precaches core shell routes and core assets, not every recipe page.
+- Uses network-first for navigations and falls back to `offline.html`.
+- Uses stale-while-revalidate for CSS, JS, JSON, and webmanifest assets.
+- Uses cache-first for images with `MAX_IMAGE_CACHE_ITEMS = 60`.
+- Cleans old cache versions on activation.
+- Calls `skipWaiting()` on install and `clients.claim()` on activation.
+
+Install UX:
+
+- `setupInstallPrompt()` handles `beforeinstallprompt`, shows a custom install toast, supports dismissal in localStorage, and shows fallback installation help for platforms without a native prompt.
+
+Tauri implication:
+
+- Public PWA and Tauri View Mode should remain separate surfaces that can share website rendering but should not fight over service worker scope, install prompts, or native shell behavior.
+- A Tauri wrapper should either load the static site in a controlled way or host bundled files without needing the browser install prompt.
+- Future app builds should be careful with service-worker caching in development and native shells.
+
+## 9. Existing Search, Randomizer, Category, Tags, And Ratings Architecture
+
+Search:
+
+- Build generates `assets/data/search-index.json`.
+- `generate-data-assets.mjs` normalizes search text by removing diacritics, lowercasing, tokenizing, and deduplicating tokens.
+- `setupSearch()` loads `search-index.json`, categories, and tag groups.
+- Search uses full-token matching so short tokens such as `ou` do not match arbitrary longer words.
+- `setupPrefilledSearch()` reads `?q=` from the URL.
+
+Ingredient matcher:
+
+- Build generates `assets/data/ingredient-index.json`.
+- It splits ingredients into required and optional rows.
+- It filters ingredient subheadings.
+- It removes measurement and filler stop words.
+- It expands aliases from defaults plus `src/data/ingredient-aliases.json`.
+- Client-side `setupIngredientMatcher()` stores the user's available ingredient text in localStorage and groups matches by completeness.
+
+Randomizer:
+
+- `randomizer/index.html` provides a generated static shell.
+- `setupRandomizer()` creates a random menu with slots for mic dejun, fel principal, fel secundar, desert, bautura, salata, and rontaieli.
+- It stores a randomizer plan in sessionStorage so a floating randomizer panel can follow the user into recipe pages.
+- Slot matching is hardcoded by category-name variants.
+
+Categories:
+
+- Build generates canonical `/categorie/<slug>/` and legacy `/<slug>/` category pages.
+- Client-side category pages load recipe indexes and render recipes by category name.
+
+Tags:
+
+- Tags are grouped in `src/data/tag-groups.json`.
+- Recipe cards show up to three priority tags based on a fixed priority order.
+- Full recipe pages show grouped tag chips linking to search queries.
+
+Ratings:
+
+- Public aggregate rating rendering exists but no current recipes have `ratingSummary`.
+- Visitor ratings are stored only in the local browser via localStorage keys of the form `artaGatituluiRatings:<slug>`.
+- The site explicitly notes that public cross-user ratings would require a database.
+
+## 10. Current Build And Deploy Pipeline
+
+Package manager:
+
+- npm.
+
+Scripts:
+
+```json
+{
+  "validate:content": "node src/scripts/validate-content.mjs",
+  "build": "node build-static-site.mjs",
+  "import:godaddy": "node src/scripts/import/import-godaddy-audit.mjs",
+  "check": "npm run validate:content && npm run build"
+}
+```
+
+Node assumptions:
+
+- No `.nvmrc`, `.node-version`, `engines`, lockfile, or CI config is present.
+- The audited local runtime was Node `v24.18.0` and npm `12.0.1`.
+- The code uses modern ESM and built-in `fetch` in the legacy GoDaddy extraction script, so future automation should pin a current Node LTS or newer.
+
+Deployment:
+
+- No `.github/workflows` directory is present.
+- The current deploy model appears to be checked-in generated files served by GitHub Pages.
+- There is no automated build/deploy workflow yet.
+- Later milestones should add GitHub Actions carefully, preserving the existing public output and URL structure.
+
+## 11. Technical Debt Relevant To The CMS
+
+- `build-static-site.mjs` is very large and mixes HTML rendering, CSS text, browser JS text, manifest generation, service-worker generation, image resizing, SEO helpers, and domain logic.
+- Static and client renderers duplicate recipe cards, recipe details, tags, before-start sections, ratings, related recipes, and steak calculator markup.
+- The current recipe schema allows additional properties and does not document all fields in use (`keywords`, `closing`, `extras`, `ratingSummary`).
+- Validation is handwritten and does not fully use the JSON schema.
+- Generated output is committed alongside source, which is practical for GitHub Pages but increases review noise.
+- `BUILD_VERSION` defaults to a timestamp, so repeated builds can churn generated files.
+- Search/randomizer/category rendering depends heavily on generated client-side indexes, while recipe pages are mostly static HTML.
+- Randomizer category slot matching is hardcoded around category names and variants.
+- There is no automated CI/deploy pipeline.
+- SEO default `SITE_CONFIG.siteUrl` is still a placeholder unless `ARTA_SITE_URL` is set during build.
+- Current images are mostly absent from recipe content and the hero uses a remote GoDaddy stock image URL.
+- The builder preview is close to the public recipe layout but not the same renderer.
+- Legacy GoDaddy audit files are tracked and useful historically, but they are not part of normal build flow.
+
+## 12. Proposed CMS Target Architecture
+
+The target should evolve incrementally toward:
+
+```text
+structured content
+  -> normalized content models
+  -> validated block/template/page data
+  -> shared renderer
+  -> static website output
+  -> CMS preview output
+  -> Tauri Windows/Android View Mode output
+```
+
+The finished architecture should keep zero mandatory hosting cost:
+
+- GitHub repository remains the published content source of truth.
+- GitHub Pages serves public static output.
+- GitHub Actions can validate/build/deploy.
+- Firebase Authentication can authenticate authorized editors.
+- Firestore can store drafts and small synchronized editor state.
+- No Firebase Storage for recipe/site images.
+- Images remain in GitHub.
+- Tauri 2 provides Windows and Android shells.
+- No paid API or OpenAI runtime dependency.
+
+Recommended architectural direction:
+
+- Keep current public static output working while introducing shared foundations.
+- Extract content normalization, schema validation, route planning, and rendering in small steps.
+- Treat CMS data as structured JSON, not executable HTML.
+- Separate structured content from layout/template data.
+- Make CMS preview and static public build call the same renderer wherever practical.
+- Keep generated output routes backward-compatible.
+
+## 13. Proposed Shared Renderer Architecture
+
+Target renderer layers:
+
+```text
+shared/
+  content/
+    loadContent()
+    normalizeRecipe()
+    normalizeCategory()
+    validateContent()
+  routes/
+    buildRoutePlan()
+    canonicalUrlFor()
+  render/
+    renderPageShell()
+    renderBlockTree()
+    renderRecipe()
+    renderRecipeCard()
+    renderCategory()
+    renderNavigation()
+    renderGlobalBlock()
+  blocks/
+    blockSchemas
+    blockRegistry
+    responsiveLayoutTypes
+website/
+  build/
+    generateStaticSite()
+    generateDataIndexes()
+    generateSitemap()
+cms/
+  preview/
+    renderPreviewUsingSharedRenderer()
+  editor/
+    visual editors call shared schemas and renderer
+src-tauri/
+  Tauri shell and native integrations
+```
+
+Near-term extraction order:
+
+1. Move pure helpers out of `build-static-site.mjs`: `slugify`, `escapeHtml`, URL helpers, list rendering, time formatting, tag normalization, ingredient/token helpers.
+2. Extract recipe rendering into shared functions that return HTML strings or a renderer-neutral virtual block model.
+3. Make static recipe pages and recipe-builder preview call the same recipe renderer.
+4. Extract card/category/search/randomizer view models so static output and CMS preview consume the same normalized data.
+5. Introduce block rendering after the recipe renderer is stable.
+
+Renderer requirement:
+
+- The CMS preview must not be a separate imitation of public website HTML.
+- The public build and CMS preview should share the same content normalization, block interpretation, layout rules, and component renderer.
+- Surface-specific wrappers are acceptable: public pages need SEO and static routes; CMS preview needs selection handles, edit overlays, draft state, and unsaved markers.
+
+## 14. Proposed Reusable Block Data Model
+
+Blocks should remain structured and responsive, not arbitrary pixel-positioned objects.
+
+Conceptual block shape:
+
+```json
+{
+  "id": "stable-block-id",
+  "type": "recipe.ingredients",
+  "data": {},
+  "layout": {
+    "width": "wide",
+    "spacing": {
+      "top": "md",
+      "bottom": "md"
+    },
+    "align": "start"
+  },
+  "responsive": {
+    "desktop": {},
+    "tablet": {},
+    "mobile": {}
+  },
+  "variant": "default",
+  "visibility": {
+    "desktop": true,
+    "tablet": true,
+    "mobile": true
+  }
+}
+```
+
+Block families:
+
+- Content blocks: heading, text, rich text, image, gallery, video, button, divider, spacer.
+- Layout blocks: section, container, columns, grid.
+- Recipe blocks: recipe hero, ingredients, instructions, before starting, equipment, cooking time, preparation time, servings, difficulty, tags, rating, related recipes.
+- Discovery blocks: search, featured recipes, recipe carousel, categories, latest recipes, popular recipes, random recipe.
+- Site blocks: navigation, header, footer, announcement, logo, social links.
+
+Block rules:
+
+- Every block has a stable ID.
+- Every block has a registered type.
+- Data is validated according to block type.
+- Layout settings are constrained by tokens and enums.
+- Responsive settings are breakpoint-specific overrides, not arbitrary CSS injection.
+- User content cannot execute arbitrary HTML or JavaScript.
+- Rich text should be a structured document format with an allowlist of marks/nodes.
+
+Example recipe template block tree:
+
+```json
+{
+  "id": "template-recipe-default",
+  "type": "layout.section",
+  "layout": { "width": "wide" },
+  "children": [
+    { "id": "hero", "type": "recipe.hero", "data": { "source": "recipe" } },
+    { "id": "meta", "type": "recipe.meta", "data": { "fields": ["category", "prepTimeMinutes", "cookTimeMinutes", "servings", "equipment"] } },
+    { "id": "before", "type": "recipe.beforeStart", "data": { "source": "recipe.beforeStart" } },
+    {
+      "id": "recipe-body",
+      "type": "layout.columns",
+      "layout": { "columns": [1, 1], "stackOn": "mobile" },
+      "children": [
+        { "id": "ingredients", "type": "recipe.ingredients", "data": { "source": "recipe.ingredients" } },
+        { "id": "instructions", "type": "recipe.instructions", "data": { "source": "recipe.steps" } }
+      ]
+    }
+  ]
+}
+```
+
+## 15. Structured Content Vs Layout
+
+Structured recipe content should remain independent from presentation.
+
+Structured content examples:
+
+- recipe title
+- slug
+- category
+- ingredients
+- instructions
+- before-start checklist
+- equipment
+- prep/cook/total time
+- servings
+- tags
+- source URL
+- images
+- status
+
+Presentation/layout examples:
+
+- which recipe blocks appear
+- block order
+- page width
+- columns
+- spacing
+- card style
+- responsive stacking
+- variant choice
+
+Recommended storage split:
+
+```text
+content/recipes/<slug>.json
+  Pure recipe fields and metadata.
+
+content/templates/recipe-default.json
+  Block tree and presentation defaults.
+
+content/pages/<page>.json
+  Normal page structured content plus block layout.
+
+content/globals/*.json
+  Shared global block instances.
+
+content/site/*.json
+  Navigation, categories, tags, settings, theme tokens.
+```
+
+Individual recipe pages should be able to use a template, override selected layout settings, or detach from a template later, while keeping the recipe data unchanged.
+
+## 16. Proposed Templates Model
+
+Template types:
+
+- `recipe.default`
+- `recipe.dessert`
+- `recipe.drinks`
+- `page.normal`
+- `page.category`
+- `page.landing`
+
+Template shape:
+
+```json
+{
+  "id": "recipe-default",
+  "name": "Recipe - Default",
+  "appliesTo": "recipe",
+  "version": 1,
+  "blocks": [],
+  "allowedOverrides": [
+    "layout.spacing",
+    "layout.width",
+    "variant",
+    "visibility"
+  ]
+}
+```
+
+Template behavior:
+
+- Content items reference a template by ID.
+- Template updates affect all attached pages unless an override exists.
+- Overrides should be structured and explicit.
+- Detaching from a template should copy the resolved block tree into the page.
+- A migration should create a default recipe template that reproduces the current recipe page layout before adding new visual editing features.
+
+## 17. Proposed Global-Block Model
+
+Global blocks represent reusable site sections such as:
+
+- header
+- footer
+- navigation
+- announcement
+- random recipe CTA
+- social links
+- reusable promotional section
+
+Reference shape:
+
+```json
+{
+  "id": "header-ref",
+  "type": "global.reference",
+  "data": {
+    "globalId": "site-header"
+  }
+}
+```
+
+Global block storage:
+
+```text
+content/globals/site-header.json
+content/globals/site-footer.json
+content/site/navigation.json
+content/site/theme.json
+```
+
+Rules:
+
+- Editing a global block updates every page that references it.
+- Global references should be resolvable at build time and preview time.
+- Global blocks should be versioned so drafts can preview changes before publishing.
+- Navigation should be structured data, not hardcoded arrays inside a renderer.
+
+## 18. Proposed Responsive-Layout Model
+
+Responsive layout should be tokenized and constrained.
+
+Recommended concepts:
+
+- Width tokens: `full`, `wide`, `content`, `narrow`.
+- Spacing tokens: `none`, `xs`, `sm`, `md`, `lg`, `xl`.
+- Column presets: `1`, `2-equal`, `sidebar-left`, `sidebar-right`, `3-equal`.
+- Stack rules: `never`, `tablet`, `mobile`.
+- Alignment: `start`, `center`, `end`, `stretch`.
+- Visibility by breakpoint.
+- Style variants registered per block type.
+
+Avoid:
+
+- arbitrary absolute X/Y positioning
+- arbitrary script injection
+- raw CSS from content
+- unrestricted HTML blocks in recipe/page data
+- device-specific content forks unless explicitly necessary
+
+## 19. Recommended Folder Architecture
+
+Do not move the repository immediately. Introduce the target structure incrementally.
+
+Recommended eventual shape:
+
+```text
+content/
+  recipes/
+  pages/
+  templates/
+  globals/
+  site/
+shared/
+  content/
+  schema/
+  render/
+  blocks/
+  routes/
+website/
+  build/
+  public/
+cms/
+  app/
+  editor/
+  preview/
+src-tauri/
+  ...
+assets/
+  ...
+docs/
+  ...
+```
+
+Conservative migration from current tree:
+
+1. Keep `src/content` where it is during early milestones.
+2. Extract reusable code under `src/shared` or `shared` first.
+3. Only move content from `src/content` to top-level `content` after imports, validation, and static build all support the move.
+4. Keep generated public output paths unchanged.
+5. Introduce `website/` once the build can emit public output reliably from shared modules.
+6. Introduce `cms/` only after the shared renderer foundation exists.
+7. Introduce `src-tauri/` after the web/static viewer is stable enough to wrap.
+
+## 20. Migration Strategy
+
+Recommended migration phases:
+
+1. Documentation and audit: this milestone.
+2. Extract shared rendering foundations without changing output.
+3. Add deterministic build versioning for local/CI builds to reduce generated churn.
+4. Strengthen schemas to include all fields currently in use.
+5. Create shared recipe renderer and make recipe pages plus builder preview use it.
+6. Create a block registry and represent the current recipe page as a template-backed block tree.
+7. Add page/global/site content files behind current generated output.
+8. Introduce the CMS shell and preview using the shared renderer.
+9. Add Tauri 2 shell for View Mode only.
+10. Add authentication and draft synchronization only after local editing/rendering is proven.
+11. Add GitHub publishing with validation, branch safety, and rollback.
+
+Backward compatibility requirements:
+
+- Preserve `/retete/<slug>/`.
+- Preserve root recipe alias routes.
+- Preserve category alias routes.
+- Preserve search behavior.
+- Preserve randomizer behavior.
+- Preserve local-only ratings behavior until a deliberate rating model is designed.
+- Preserve PWA installability and offline fallback.
+- Preserve sitemap and canonical URL behavior.
+
+## 21. Risks And Mitigations
+
+Risk: Static and CMS preview diverge.
+
+- Mitigation: extract shared renderer before building the full visual CMS.
+
+Risk: Refactor breaks existing GitHub Pages URLs.
+
+- Mitigation: keep route plan validation, add route snapshot tests, and preserve aliases.
+
+Risk: Generated output creates noisy diffs.
+
+- Mitigation: add deterministic `ARTA_BUILD_VERSION` in CI and separate source/render changes from generated-output updates in reviews.
+
+Risk: Overly flexible CMS content becomes unsafe.
+
+- Mitigation: use schemas, block registries, allowlisted rich text, and no executable content fields.
+
+Risk: Firestore drafts become source of truth accidentally.
+
+- Mitigation: GitHub repository remains publish source of truth; Firestore stores drafts and editor state only until publication.
+
+Risk: Images become a paid storage problem.
+
+- Mitigation: store recipe/site images in GitHub, validate file paths, and optimize generated static assets.
+
+Risk: PWA service worker conflicts with Tauri/native shells.
+
+- Mitigation: isolate native app behavior and test service-worker scope in public web and Tauri contexts.
+
+Risk: Missing Node/CI version causes inconsistent builds.
+
+- Mitigation: add a Node version file and CI setup in a later milestone.
+
+Risk: Hardcoded navigation and randomizer slots limit CMS editing.
+
+- Mitigation: migrate navigation and discovery settings into structured `content/site` files.
+
+Risk: Existing recipe schema omits real fields.
+
+- Mitigation: update schema and validation before CMS writes content.
+
+## 22. Current Functionality To Reuse
+
+Reuse directly or adapt:
+
+- `src/content/recipes/*.json` as the starting recipe source of truth.
+- `src/content/categories.json` as the starting category source.
+- `src/content/aliases.json` to preserve URL compatibility.
+- `src/data/tag-groups.json` for initial CMS tag controls.
+- `src/data/ingredient-aliases.json` for ingredient matcher.
+- `src/scripts/build/routes.mjs` route planning and collision validation.
+- `src/scripts/build/content-loader.mjs` normalization ideas.
+- `src/scripts/validate-content.mjs` as a baseline validator.
+- `generate-data-assets.mjs` index generation concepts.
+- Static recipe page SEO and JSON-LD generation.
+- Recipe builder parsing, slugging, local draft, import/export, and grouped tag UI.
+- Search tokenization and ingredient matching logic.
+- PWA install prompt, offline page, and service worker caching concepts.
+- Local ratings as a no-cost personal browser feature.
+- Steak calculator as an example of a typed recipe extra/block.
+
+Replace or refactor:
+
+- Separate static/client renderer duplicates.
+- Hardcoded navigation arrays in `build-static-site.mjs`.
+- Hardcoded randomizer slot/category matching.
+- Timestamp default build version.
+- Overbroad recipe schema.
+- Monolithic CSS/JS generation inside `build-static-site.mjs`.
+
+Do not reuse as future primary architecture:
+
+- Raw generated `assets/js/recipes.js` as content source.
+- Root generated HTML as editable source.
+- Legacy GoDaddy audit files as normal build input.
+
+## 23. Immediate Recommendations For Milestone 2
+
+Milestone 2 should not introduce React, Tauri, Firebase, or authentication yet. It should focus on reducing renderer duplication and creating shared foundations while proving the generated site remains identical or intentionally unchanged.
+
+Recommended Milestone 2 scope:
+
+- Add a deterministic local build version option.
+- Extract pure shared helpers.
+- Extract recipe/card/tag/rating/before-start renderers.
+- Point both build-time recipe pages and recipe-builder preview toward the shared renderer.
+- Strengthen schema coverage for `closing`, `extras`, `ratingSummary`, and `keywords`.
+- Add focused tests or snapshot checks for route plan and representative rendered recipe output.
