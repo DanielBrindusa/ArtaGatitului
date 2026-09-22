@@ -25,6 +25,7 @@ const GITHUB_API_ORIGIN: &str = "https://api.github.com";
 const GITHUB_OAUTH_ORIGIN: &str = "https://github.com";
 const GITHUB_API_VERSION: &str = "2026-03-10";
 const DEVICE_PAGE_URL: &str = "https://github.com/login/device";
+const ACTIONS_PAGE_URL: &str = "https://github.com/DanielBrindusa/ArtaGatitului/actions";
 const REPOSITORY_OWNER: &str = "DanielBrindusa";
 const REPOSITORY_NAME: &str = "ArtaGatitului";
 const REPOSITORY_FULL_NAME: &str = "DanielBrindusa/ArtaGatitului";
@@ -797,6 +798,14 @@ pub fn github_open_device_page(caller: Webview, app: AppHandle) -> Result<(), St
     app.opener()
         .open_url(DEVICE_PAGE_URL, None::<&str>)
         .map_err(|_| "The system browser could not be opened.".to_string())
+}
+
+#[tauri::command]
+pub fn github_open_actions_page(caller: Webview, app: AppHandle) -> Result<(), String> {
+    require_local_shell(&caller)?;
+    app.opener()
+        .open_url(ACTIONS_PAGE_URL, None::<&str>)
+        .map_err(|_| "The GitHub Actions page could not be opened.".to_string())
 }
 
 #[tauri::command]

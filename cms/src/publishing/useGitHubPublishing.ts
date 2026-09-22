@@ -9,6 +9,7 @@ import {
   cancelGitHubDeviceFlow,
   disconnectGitHub,
   getGitHubConnectionStatus,
+  openGitHubActionsPage,
   openGitHubDevicePage,
   pollGitHubDeviceFlow,
   prepareRecipePublish,
@@ -18,6 +19,10 @@ import {
   type PublishResult,
   type PublishReview,
 } from './githubClient';
+import {
+  pollRecipeDeployment,
+  type DeploymentStatus,
+} from './deploymentStatus.mjs';
 import { buildRecipePublicationSource, publicationMetadataFromResult } from './publicationModel.mjs';
 
 type FlushResult = 'saved' | 'offline' | 'conflict' | 'error';
@@ -50,6 +55,7 @@ export function useGitHubPublishing({ draft, uid, deviceId, flush, markPublished
   const [result, setResult] = useState<PublishResult | null>(null);
   const [metadataRecorded, setMetadataRecorded] = useState(true);
   const [stage, setStage] = useState<PublishingStage>('idle');
+  const [deploymentStatus, setDeploymentStatus] = useState<DeploymentStatus>('committed');
   const [error, setError] = useState<string | null>(null);
   const pollingGeneration = useRef(0);
   const busy = stage === 'validating' || stage === 'preparing' || stage === 'publishing';
@@ -73,6 +79,20 @@ export function useGitHubPublishing({ draft, uid, deviceId, flush, markPublished
   useEffect(() => {
     setReview(null);
   }, [draft]);
+
+  useEffect(() => {
+    if (!result) return undefined;
+    let active = true;
+    void pollRecipeDeployment({
+      slug: result.recipeSlug,
+      commitSha: result.commitSha,
+      shouldContinue: () => active,
+      onStatus: (status) => setDeploymentStatus(status),
+    });
+    return () => {
+      active = false;
+    };
+  }, [result]);
 
   const pollUntilComplete = useCallback(async (generation: number, initialDelaySeconds: number) => {
     let waitSeconds = initialDelaySeconds;
@@ -210,6 +230,7 @@ export function useGitHubPublishing({ draft, uid, deviceId, flush, markPublished
     setStage('publishing');
     try {
       const published = await publishRecipe(review.planId);
+      setDeploymentStatus('building');
       setResult(published);
       setReview(null);
       try {
@@ -232,7 +253,16 @@ export function useGitHubPublishing({ draft, uid, deviceId, flush, markPublished
 
   const closeResult = useCallback(() => {
     setResult(null);
+    setDeploymentStatus('committed');
     setStage('idle');
+  }, []);
+
+  const openActionsPage = useCallback(async () => {
+    try {
+      await openGitHubActionsPage();
+    } catch (openError) {
+      setError(messageFromError(openError));
+    }
   }, []);
 
   return {
@@ -243,6 +273,7 @@ export function useGitHubPublishing({ draft, uid, deviceId, flush, markPublished
     review,
     result,
     metadataRecorded,
+    deploymentStatus,
     stage,
     busy,
     error,
@@ -251,6 +282,7 @@ export function useGitHubPublishing({ draft, uid, deviceId, flush, markPublished
     startConnection,
     closeConnection,
     openDevicePage: openGitHubDevicePage,
+    openActionsPage,
     disconnect,
     refreshConnection,
     prepare,

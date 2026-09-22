@@ -16,7 +16,7 @@ test('representative generated recipe pages use the shared renderer output', asy
   for (const slug of REPRESENTATIVE_SLUGS) {
     const recipe = content.recipes.find((item) => item.slug === slug);
     assert.ok(recipe, `missing representative recipe ${slug}`);
-    const generatedPage = (await fs.readFile(`retete/${slug}/index.html`, 'utf8')).replace(/\r\n/g, '\n');
+    const generatedPage = (await fs.readFile(`dist/generated/retete/${slug}/index.html`, 'utf8')).replace(/\r\n/g, '\n');
     const renderedDetail = renderRecipeDetail(recipe, '../../', slug, content).replace(/\r\n/g, '\n');
     assert.ok(generatedPage.includes(renderedDetail), `${slug} does not contain the shared renderer output`);
   }

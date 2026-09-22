@@ -7,6 +7,7 @@ commands.allow = [
   "github_poll_device_flow",
   "github_cancel_device_flow",
   "github_open_device_page",
+  "github_open_actions_page",
   "github_disconnect",
   "github_prepare_recipe_publish",
   "github_publish_recipe"

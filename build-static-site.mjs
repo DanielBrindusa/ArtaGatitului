@@ -245,6 +245,7 @@ function page({
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="arta-build-version" content="${escapeHtml(BUILD_VERSION)}">
   <title>${escapeHtml(documentTitle)}</title>
   <meta name="description" content="${escapeHtml(metaDescription)}">
   <meta name="robots" content="${escapeHtml(robots)}">

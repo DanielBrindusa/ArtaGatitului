@@ -76,6 +76,8 @@ test('native publisher has a narrow token-free command surface and safe GitHub b
   assert.match(service, /repository_id/);
   assert.doesNotMatch(client, /accessToken|refreshToken|Authorization/);
   assert.doesNotMatch(permission, /github_request|get_raw_github_token/i);
+  assert.match(service, /ACTIONS_PAGE_URL: &str = "https:\/\/github\.com\/DanielBrindusa\/ArtaGatitului\/actions"/);
+  assert.match(permission, /github_open_actions_page/);
   assert.match(service, /assert!\(!allowed_publication_path\("\.github\/workflows\/deploy\.yml"\)\)/);
 });
 

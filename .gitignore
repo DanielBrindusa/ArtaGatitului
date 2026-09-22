@@ -1,6 +1,7 @@
 # JavaScript and frontend output
 node_modules/
 cms/dist/
+/dist/
 *.tsbuildinfo
 
 # Rust and Tauri output

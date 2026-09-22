@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { PATHS, ROOT, SOURCE_ICON_PATH } from './config.mjs';
+import { OUTPUT_ROOT, PATHS, ROOT, SOURCE_ICON_PATH } from './config.mjs';
 import { writeBinaryFile, writeTextFile } from './html-utils.mjs';
 
 const INGREDIENT_STOP_WORDS = new Set([
@@ -228,14 +228,22 @@ export async function generateDataAssets(content, renderers) {
   const sourceIcon = await fs.readFile(SOURCE_ICON_PATH);
   const dataIndexes = buildDataIndexes(content);
 
+  const sourceImages = path.join(ROOT, 'assets', 'images');
+  try {
+    await fs.cp(sourceImages, path.join(OUTPUT_ROOT, 'assets', 'images'), { recursive: true });
+  } catch (error) {
+    if (error.code !== 'ENOENT') throw error;
+  }
+
   await writeTextFile(path.join(PATHS.assetsJsDir, 'recipes.js'), renderers.dataFile(content));
   await writeTextFile(path.join(PATHS.assetsJsDir, 'site.js'), renderers.jsFile());
   await writeTextFile(path.join(PATHS.assetsCssDir, 'style.css'), renderers.cssFile());
   await Promise.all(Object.entries(dataIndexes).map(([fileName, payload]) => (
     writeTextFile(path.join(PATHS.assetsDataDir, fileName), `${JSON.stringify(payload, null, 2)}\n`)
   )));
-  await writeTextFile(path.join(ROOT, 'manifest.json'), renderers.manifestFile());
-  await writeTextFile(path.join(ROOT, 'manifest.webmanifest'), renderers.manifestFile());
+  await writeTextFile(path.join(OUTPUT_ROOT, 'manifest.json'), renderers.manifestFile());
+  await writeTextFile(path.join(OUTPUT_ROOT, 'manifest.webmanifest'), renderers.manifestFile());
+  await writeBinaryFile(path.join(OUTPUT_ROOT, 'icon.png'), sourceIcon);
   await writeBinaryFile(path.join(PATHS.iconsDir, 'icon.png'), sourceIcon);
   await writeBinaryFile(path.join(PATHS.iconsDir, 'icon-192.png'), renderers.resizePng(sourceIcon, 192));
   await writeBinaryFile(path.join(PATHS.iconsDir, 'icon-512.png'), renderers.resizePng(sourceIcon, 512));

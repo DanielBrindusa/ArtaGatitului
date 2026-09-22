@@ -1,6 +1,8 @@
 import { RECIPE_STATUSES } from '../content/types.mjs';
 import { isSafeContentUrl } from '../utils/html.mjs';
 
+const SAFE_SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+
 function isRecord(value) {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
 }
@@ -27,11 +29,12 @@ function validateNullableMinutes(recipe, field, errors) {
   }
 }
 
-export function validateRecipeSource(recipe, { categoryNames } = {}) {
+export function validateRecipeSource(recipe, { categoryNames, tagGroups } = {}) {
   const errors = [];
   if (!isRecord(recipe)) return { valid: false, errors: ['recipe must be an object'] };
 
   if (!nonEmptyString(recipe.slug)) errors.push('slug is required');
+  else if (!SAFE_SLUG.test(recipe.slug)) errors.push('slug must be a safe lowercase path segment');
   if (!nonEmptyString(recipe.title)) errors.push('title is required');
   if (!nonEmptyString(recipe.category)) errors.push('category is required');
   if (categoryNames instanceof Set && nonEmptyString(recipe.category) && !categoryNames.has(recipe.category)) {
@@ -46,7 +49,21 @@ export function validateRecipeSource(recipe, { categoryNames } = {}) {
 
   if (recipe.tags !== undefined) {
     if (!isRecord(recipe.tags)) errors.push('tags must be an object when present');
-    else Object.entries(recipe.tags).forEach(([group, values]) => validateStringArray(values, `tags.${group}`, errors));
+    else Object.entries(recipe.tags).forEach(([group, values]) => {
+      validateStringArray(values, `tags.${group}`, errors);
+      if (isRecord(tagGroups)) {
+        const definition = tagGroups[group];
+        if (!isRecord(definition) || !Array.isArray(definition.options)) {
+          errors.push(`tags.${group} is not a configured tag group`);
+        } else if (Array.isArray(values)) {
+          values.forEach((value) => {
+            if (typeof value === 'string' && !definition.options.includes(value)) {
+              errors.push(`tags.${group} contains unsupported value "${value}"`);
+            }
+          });
+        }
+      }
+    });
   }
 
   if (!RECIPE_STATUSES.includes(recipe.status)) {

@@ -1,11 +1,12 @@
 import path from 'node:path';
 
 export const ROOT = process.cwd();
-export const BUILD_VERSION = process.env.ARTA_BUILD_VERSION || Date.now().toString(36);
+export const OUTPUT_ROOT = path.resolve(ROOT, process.env.ARTA_OUTPUT_DIR || path.join('dist', 'generated'));
+export const BUILD_VERSION = process.env.ARTA_BUILD_VERSION || 'local';
 export const SITE_NAME = 'Arta Gătitului';
 export const HERO_IMAGE = 'https://img1.wsimg.com/isteam/stock/19687/:/rs=w:1800,m';
 export const SOURCE_ICON_PATH = path.join(ROOT, 'icon.png');
-export const DEFAULT_SITE_URL = 'https://YOUR-GITHUB-USERNAME.github.io/ArtaGatitului/';
+export const DEFAULT_SITE_URL = 'https://danielbrindusa.github.io/ArtaGatitului/';
 
 function normalizeSiteUrl(value) {
   const clean = String(value || DEFAULT_SITE_URL).trim();
@@ -46,10 +47,10 @@ export const PATHS = {
   aliasesFile: path.join(ROOT, 'src', 'content', 'aliases.json'),
   tagGroupsFile: path.join(ROOT, 'src', 'data', 'tag-groups.json'),
   ingredientAliasesFile: path.join(ROOT, 'src', 'data', 'ingredient-aliases.json'),
-  assetsJsDir: path.join(ROOT, 'assets', 'js'),
-  assetsCssDir: path.join(ROOT, 'assets', 'css'),
-  assetsDataDir: path.join(ROOT, 'assets', 'data'),
-  iconsDir: path.join(ROOT, 'assets', 'icons'),
+  assetsJsDir: path.join(OUTPUT_ROOT, 'assets', 'js'),
+  assetsCssDir: path.join(OUTPUT_ROOT, 'assets', 'css'),
+  assetsDataDir: path.join(OUTPUT_ROOT, 'assets', 'data'),
+  iconsDir: path.join(OUTPUT_ROOT, 'assets', 'icons'),
 };
 
 export const DEFAULT_SOON_SECTION = {

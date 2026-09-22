@@ -17,6 +17,28 @@ function DialogClose({ onClick }: { onClick: () => void }) {
 
 export function GitHubPublishingDialogs({ publishing }: { publishing: GitHubPublishingController }) {
   const { connection } = publishing;
+  const deploymentCopy = {
+    committed: {
+      title: 'Published to GitHub',
+      message: 'The source commit is ready for the website build.',
+      label: 'Committed',
+    },
+    building: {
+      title: 'Published to GitHub',
+      message: 'GitHub Actions is validating and building the website.',
+      label: 'Building website...',
+    },
+    deployed: {
+      title: 'Website deployed',
+      message: 'The generated recipe is now available on the public website.',
+      label: 'Deployed',
+    },
+    unknown: {
+      title: 'Deployment not confirmed',
+      message: 'The commit succeeded, but the website did not become visible during this check. Inspect the GitHub Actions run before retrying publication.',
+      label: 'Unknown',
+    },
+  }[publishing.deploymentStatus];
   return (
     <>
       {publishing.connectionOpen && (
@@ -82,16 +104,22 @@ export function GitHubPublishingDialogs({ publishing }: { publishing: GitHubPubl
         <div className="draft-dialog-backdrop" role="presentation">
           <div className="draft-dialog publish-success-dialog" role="dialog" aria-modal="true" aria-labelledby="publish-success-title">
             <DialogClose onClick={publishing.closeResult} />
-            <Check aria-hidden="true" size={24} />
-            <h2 id="publish-success-title">Committed to GitHub</h2>
-            <p>The recipe was committed successfully. Deployment to the public website is a separate step.</p>
+            {publishing.deploymentStatus === 'building'
+              ? <LoaderCircle className="draft-spinner" aria-hidden="true" size={24} />
+              : publishing.deploymentStatus === 'unknown'
+                ? <CircleAlert aria-hidden="true" size={24} />
+                : <Check aria-hidden="true" size={24} />}
+            <h2 id="publish-success-title">{deploymentCopy.title}</h2>
+            <p>{deploymentCopy.message}</p>
             <dl className="publish-summary">
               <div><dt>Commit</dt><dd><code>{publishing.result.commitSha.slice(0, 12)}</code></dd></div>
               <div><dt>Branch</dt><dd>{publishing.result.branch}</dd></div>
+              <div><dt>Deployment</dt><dd>{deploymentCopy.label}</dd></div>
               <div><dt>Draft</dt><dd>{publishing.metadataRecorded ? 'Marked published in Firestore' : 'Publication metadata saved locally and awaiting Firestore sync'}</dd></div>
             </dl>
             <div className="github-verified"><GitBranch aria-hidden="true" size={16} /><span>One commit contains every listed source file.</span></div>
-            <div className="draft-dialog-actions"><button className="primary-command" type="button" onClick={publishing.closeResult}>Done</button></div>
+            {publishing.error && <div className="publish-error" role="alert"><CircleAlert aria-hidden="true" size={16} /><span>{publishing.error}</span></div>}
+            <div className="draft-dialog-actions"><button className="secondary-command" type="button" onClick={() => void publishing.openActionsPage()}><ExternalLink aria-hidden="true" size={16} />GitHub Actions</button><button className="primary-command" type="button" onClick={publishing.closeResult}>Done</button></div>
           </div>
         </div>
       )}

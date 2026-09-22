@@ -100,6 +100,11 @@ export async function openGitHubDevicePage() {
   await invoke('github_open_device_page');
 }
 
+export async function openGitHubActionsPage() {
+  requireNativeApp();
+  await invoke('github_open_actions_page');
+}
+
 export async function disconnectGitHub() {
   requireNativeApp();
   await invoke('github_disconnect');
