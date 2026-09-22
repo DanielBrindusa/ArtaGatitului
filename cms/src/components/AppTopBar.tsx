@@ -1,6 +1,7 @@
 import {
   CheckCircle2,
   Eye,
+  Globe2,
   PencilLine,
   Settings,
   UploadCloud,
@@ -26,7 +27,7 @@ export function AppTopBar({ route, onNavigate }: AppTopBarProps) {
         <img src={brandIcon} alt="" />
         <div>
           <strong>Arta Gătitului</strong>
-          <span>Application shell</span>
+          <span>{route === 'view' ? 'Site public' : 'Application shell'}</span>
         </div>
       </div>
 
@@ -50,22 +51,30 @@ export function AppTopBar({ route, onNavigate }: AppTopBarProps) {
 
       <div className="topbar-actions">
         <span className="save-state">
-          <CheckCircle2 aria-hidden="true" size={16} />
-          Development mode
+          {route === 'view' ? (
+            <Globe2 aria-hidden="true" size={16} />
+          ) : (
+            <CheckCircle2 aria-hidden="true" size={16} />
+          )}
+          {route === 'view' ? 'Public View Mode' : 'Development mode'}
         </span>
-        <button
-          className="icon-command"
-          type="button"
-          title="Open View Mode"
-          aria-label="Open View Mode"
-          onClick={() => onNavigate('view')}
-        >
-          <Eye aria-hidden="true" size={18} />
-        </button>
-        <button className="publish-button" type="button" disabled title="Publishing is not available">
-          <UploadCloud aria-hidden="true" size={17} />
-          <span>Publish</span>
-        </button>
+        {route !== 'view' && (
+          <>
+            <button
+              className="icon-command"
+              type="button"
+              title="Open View Mode"
+              aria-label="Open View Mode"
+              onClick={() => onNavigate('view')}
+            >
+              <Eye aria-hidden="true" size={18} />
+            </button>
+            <button className="publish-button" type="button" disabled title="Publishing is not available">
+              <UploadCloud aria-hidden="true" size={17} />
+              <span>Publish</span>
+            </button>
+          </>
+        )}
       </div>
     </header>
   );

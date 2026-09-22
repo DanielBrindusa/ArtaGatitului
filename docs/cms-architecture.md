@@ -1017,3 +1017,25 @@ The local shared-renderer demo runs in a scriptless sandboxed iframe. Future rem
 ### Deferred work
 
 Milestones 4 and 5 remain responsible for full Windows and Android View Mode behavior. Authentication, draft synchronization, real editor controls, file operations, and GitHub publishing also remain deferred. `Development mode` is only a shell status, not an access-control implementation. See `docs/app-development.md` for commands, dependency rationale, toolchain prerequisites, and audited target status.
+
+## 26. Milestone 4 Windows View Mode
+
+Milestone 4 implements the Windows public-reading path without duplicating or packaging the generated website. The local React shell stays in the configured `main` webview and Rust creates a capability-free child webview named `public-view` for `https://danielbrindusa.github.io/ArtaGatitului/`.
+
+```text
+local main webview
+  -> product chrome, modes, loading/offline UI
+  -> scoped bounds/visibility/fixed-navigation commands
+
+remote public-view child webview
+  -> real GitHub Pages site and website service worker
+  -> no matching Tauri capability and no native IPC authority
+```
+
+The `cms-local` capability is webview-scoped to `main`. This distinction is essential: a window-scoped capability would apply to every child webview hosted by that window. The remote child has no remote capability entry, while the local shell receives only `view-mode-control`. That permission permits three commands and no arbitrary URL input, filesystem, shell, process, secret, GitHub, Firebase, or frontend opener access.
+
+Rust owns the top-level navigation boundary. Only HTTPS URLs on the exact GitHub Pages host and within the `/ArtaGatitului` path are allowed to remain in the child. Valid external web and email URLs open through the system default handler; unknown schemes and malformed or lookalike destinations are blocked. New-window requests are always denied after routing an allowed internal target back into the existing child or handing a safe external target to the system.
+
+The shell measures the website surface in logical pixels and updates the child bounds during resize. Loading and connectivity errors remain local so a remote failure cannot replace the whole application shell. A sandboxed iframe provides visual development fallback outside Tauri but does not represent the production security boundary.
+
+The public site remains the sole source of public content. GitHub Pages updates appear after ordinary refresh/cache behavior. Android View Mode, authentication, editor services, drafts, and publishing remain later milestones.

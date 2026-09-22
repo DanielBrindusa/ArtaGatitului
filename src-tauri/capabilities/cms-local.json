@@ -1,8 +1,8 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "cms-local",
-  "description": "Local CMS shell with no native commands or plugin permissions.",
+  "description": "Local application shell with narrow public View Mode controls.",
   "local": true,
-  "windows": ["main"],
-  "permissions": []
+  "webviews": ["main"],
+  "permissions": ["view-mode-control"]
 }
