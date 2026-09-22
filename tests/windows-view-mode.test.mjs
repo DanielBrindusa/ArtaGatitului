@@ -15,8 +15,9 @@ async function readJson(path) {
 test('public View Mode is pinned to the published project origin and path', async () => {
   const nativeSource = await read('src-tauri/src/view_mode.rs');
   const frontendSource = await read('cms/src/views/ViewMode.tsx');
+  const adapterSource = await read('cms/src/platform/viewMode.ts');
 
-  for (const source of [nativeSource, frontendSource]) {
+  for (const source of [nativeSource, adapterSource]) {
     assert.match(source, /https:\/\/danielbrindusa\.github\.io\/ArtaGatitului\//);
     assert.match(source, /danielbrindusa\.github\.io/);
     assert.match(source, /\/ArtaGatitului\//);
@@ -29,24 +30,28 @@ test('public View Mode is pinned to the published project origin and path', asyn
 });
 
 test('remote public content has no capability or broad native permission', async () => {
-  const capability = await readJson('src-tauri/capabilities/cms-local.json');
+  const desktopCapability = await readJson('src-tauri/capabilities/cms-local.json');
+  const androidCapability = await readJson('src-tauri/capabilities/cms-android.json');
   const permission = await read('src-tauri/permissions/view-mode.toml');
   const nativeSource = await read('src-tauri/src/view_mode.rs');
 
-  assert.deepEqual(capability.webviews, ['main']);
-  assert.equal(JSON.stringify(capability).includes('public-view'), false);
-  assert.equal('remote' in capability, false);
+  assert.deepEqual(desktopCapability.webviews, ['main']);
+  assert.equal(JSON.stringify(desktopCapability).includes('public-view'), false);
+  assert.equal('remote' in desktopCapability, false);
+  assert.deepEqual(androidCapability.permissions, []);
+  assert.equal('remote' in androidCapability, false);
   assert.match(permission, /"set_view_bounds"/);
   assert.match(permission, /"set_view_visibility"/);
   assert.match(permission, /"navigate_view"/);
   assert.doesNotMatch(permission, /filesystem|shell|process|secret|store|\*/i);
-  assert.match(nativeSource, /caller\.label\(\) == LOCAL_SHELL_LABEL/);
+  assert.match(nativeSource, /caller\.label\(\) == LOCAL_SHELL_LABEL && is_local_shell_url\(&caller_url\)/);
 });
 
 test('View Mode provides native navigation, loading, and offline recovery', async () => {
   const source = await read('cms/src/views/ViewMode.tsx');
+  const adapter = await read('cms/src/platform/viewMode.ts');
 
-  assert.match(source, /type ViewAction = 'back' \| 'forward' \| 'home' \| 'reload'/);
+  assert.match(adapter, /type ViewAction = 'back' \| 'forward' \| 'home' \| 'reload'/);
   assert.match(source, /Alt\+Stânga/);
   assert.match(source, /event\.ctrlKey && event\.key\.toLowerCase\(\) === 'l'/);
   assert.match(source, /Se încarcă site-ul public/);

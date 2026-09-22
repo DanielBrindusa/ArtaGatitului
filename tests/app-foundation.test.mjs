@@ -10,17 +10,24 @@ async function readJson(path) {
 
 test('Tauri exposes narrow controls only to the local shell webview', async () => {
   const config = await readJson('src-tauri/tauri.conf.json');
-  const capability = await readJson('src-tauri/capabilities/cms-local.json');
+  const desktopCapability = await readJson('src-tauri/capabilities/cms-local.json');
+  const androidCapability = await readJson('src-tauri/capabilities/cms-android.json');
 
   assert.equal(config.identifier, 'ro.danielbrindusa.artagatitului');
-  assert.deepEqual(config.app.security.capabilities, ['cms-local']);
+  assert.deepEqual(config.app.security.capabilities, ['cms-local', 'cms-android']);
   assert.equal(config.app.withGlobalTauri, false);
   assert.equal(config.app.security.assetProtocol.enable, false);
-  assert.equal(capability.local, true);
-  assert.equal('windows' in capability, false);
-  assert.deepEqual(capability.webviews, ['main']);
-  assert.deepEqual(capability.permissions, ['view-mode-control']);
-  assert.equal('remote' in capability, false);
+  assert.equal(desktopCapability.local, true);
+  assert.equal('windows' in desktopCapability, false);
+  assert.deepEqual(desktopCapability.platforms, ['linux', 'macOS', 'windows']);
+  assert.deepEqual(desktopCapability.webviews, ['main']);
+  assert.deepEqual(desktopCapability.permissions, ['view-mode-control']);
+  assert.equal('remote' in desktopCapability, false);
+  assert.equal(androidCapability.local, true);
+  assert.deepEqual(androidCapability.platforms, ['android']);
+  assert.deepEqual(androidCapability.webviews, ['main']);
+  assert.deepEqual(androidCapability.permissions, []);
+  assert.equal('remote' in androidCapability, false);
 });
 
 test('Rust registers only the scoped View Mode command surface', async () => {
@@ -44,4 +51,7 @@ test('desktop and Android builds use the same application identity', async () =>
 
   assert.equal(packageConfig.version, tauriConfig.version);
   assert.equal(androidConfig.bundle.android.minSdkVersion, 24);
+  assert.equal(androidConfig.bundle.android.versionCode, 1000);
+  assert.equal(androidConfig.bundle.android.autoIncrementVersionCode, false);
+  assert.equal(androidConfig.app.windows[0].create, false);
 });

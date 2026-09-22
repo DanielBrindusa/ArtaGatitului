@@ -1,4 +1,3 @@
-#[cfg(desktop)]
 mod view_mode;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -21,6 +20,12 @@ pub fn run() {
             view_mode::set_view_visibility,
             view_mode::navigate_view
         ]);
+
+    #[cfg(mobile)]
+    let builder = builder.setup(|app| {
+        view_mode::create_mobile_view(app)?;
+        Ok(())
+    });
 
     builder
         .run(tauri::generate_context!())

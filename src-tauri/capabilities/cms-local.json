@@ -3,6 +3,7 @@
   "identifier": "cms-local",
   "description": "Local application shell with narrow public View Mode controls.",
   "local": true,
+  "platforms": ["linux", "macOS", "windows"],
   "webviews": ["main"],
   "permissions": ["view-mode-control"]
 }

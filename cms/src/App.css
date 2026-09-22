@@ -52,6 +52,14 @@ button:disabled {
   min-height: 100vh;
 }
 
+.app-shell-mobile-view {
+  height: 100vh;
+  height: 100dvh;
+  min-height: 100vh;
+  min-height: 100dvh;
+  grid-template-rows: minmax(0, 1fr);
+}
+
 .app-topbar {
   position: relative;
   z-index: 20;
@@ -214,6 +222,19 @@ button:disabled {
   grid-template-rows: 44px minmax(0, 1fr);
   overflow: hidden;
   background: var(--app-canvas);
+}
+
+.android-view-workspace {
+  height: 100%;
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.android-view-workspace .view-state {
+  padding:
+    calc(28px + env(safe-area-inset-top, 0px))
+    calc(28px + env(safe-area-inset-right, 0px))
+    calc(28px + env(safe-area-inset-bottom, 0px))
+    calc(28px + env(safe-area-inset-left, 0px));
 }
 
 .view-toolbar {

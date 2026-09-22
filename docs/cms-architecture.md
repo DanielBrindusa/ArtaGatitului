@@ -1038,4 +1038,29 @@ Rust owns the top-level navigation boundary. Only HTTPS URLs on the exact GitHub
 
 The shell measures the website surface in logical pixels and updates the child bounds during resize. Loading and connectivity errors remain local so a remote failure cannot replace the whole application shell. A sandboxed iframe provides visual development fallback outside Tauri but does not represent the production security boundary.
 
-The public site remains the sole source of public content. GitHub Pages updates appear after ordinary refresh/cache behavior. Android View Mode, authentication, editor services, drafts, and publishing remain later milestones.
+The public site remains the sole source of public content. GitHub Pages updates appear after ordinary refresh/cache behavior. Authentication, editor services, drafts, and publishing remain later milestones.
+
+## 27. Milestone 5 Android View Mode
+
+Milestone 5 adds Android to the same frontend and Rust project without duplicating the website or creating a second mobile application. Desktop continues to use `public-view`; Android uses its one top-level `main` WebView.
+
+```text
+shared ViewMode React state + connectivity + offline UI
+  -> browser adapter: sandboxed development iframe
+  -> desktop adapter: capability-free public-view child
+  -> Android adapter: replace bundled main URL with trusted public URL
+
+shared Rust URL policy + external opener policy
+  -> desktop child navigation hooks
+  -> Android main-WebView navigation hooks
+```
+
+The Android window is marked `create: false` in the platform override and constructed from that same configuration in Rust. This allows the initial bundled page, every top-level navigation, download, and new-window request to pass through the View Mode policy. The bundled page performs the trusted reachability check and shows branded loading/offline recovery. On success, `location.replace()` removes that launcher entry and navigates the existing WebView to GitHub Pages.
+
+This top-level transition is a security requirement, not merely a presentation choice. Tauri cannot distinguish an embedded iframe's IPC origin from its parent WebView on Android. `cms-android` therefore grants no commands, applies only to bundled local content, and no remote capability exists. When `main` becomes remote it has no native authority. The desktop-only commands additionally validate both `main` and the bundled shell origin, preventing a remote same-label caller from passing defense-in-depth checks.
+
+Tauri's Android app plugin provides native Back handling: WebView history is traversed when `canGoBack()` is true, and otherwise normal Android Back is invoked. Replacing the startup page avoids a duplicate launcher step. Internal links remain in the WebView, while Rust sends validated external web/email destinations to the device handler and denies unknown schemes, downloads, and popup creation.
+
+Android is not orientation-locked. The generated Activity handles orientation and screen-size changes in place. The local launcher and injected public-site compatibility CSS account for safe-area insets and edge-to-edge system bars. Normal Activity background/foreground preserves the WebView and its current navigation; OS process eviction may still produce a cold start at home. No deep-link intent filter is added, although the stable package identifier and centralized URL policy can support verified recipe App Links later.
+
+The only generated manifest permission is `INTERNET`. There are no storage, location, contacts, camera, microphone, shell, filesystem, or broad IPC grants. Launcher and adaptive icon assets reuse the canonical repository artwork. Production signing credentials remain intentionally absent.

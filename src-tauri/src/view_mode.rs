@@ -1,16 +1,23 @@
-use serde::Deserialize;
-use tauri::{
-    webview::{NewWindowResponse, WebviewBuilder},
-    App, AppHandle, LogicalPosition, LogicalSize, Manager, Rect, Webview, WebviewUrl,
-};
+use tauri::{webview::NewWindowResponse, App, AppHandle, Manager};
 use tauri_plugin_opener::OpenerExt;
+
+#[cfg(desktop)]
+use serde::Deserialize;
+#[cfg(desktop)]
+use tauri::{
+    webview::WebviewBuilder, LogicalPosition, LogicalSize, Rect, Webview, WebviewUrl,
+};
+#[cfg(mobile)]
+use tauri::webview::WebviewWindowBuilder;
 
 pub const PUBLIC_SITE_URL: &str = "https://danielbrindusa.github.io/ArtaGatitului/";
 const PUBLIC_SITE_HOST: &str = "danielbrindusa.github.io";
 const PUBLIC_SITE_PATH: &str = "/ArtaGatitului";
-const PUBLIC_VIEW_LABEL: &str = "public-view";
 const LOCAL_SHELL_LABEL: &str = "main";
+#[cfg(desktop)]
+const PUBLIC_VIEW_LABEL: &str = "public-view";
 
+#[cfg(desktop)]
 const VIEW_INITIALIZATION_SCRIPT: &str = r#"
 (() => {
   const trustedOrigin = 'https://danielbrindusa.github.io';
@@ -53,6 +60,68 @@ const VIEW_INITIALIZATION_SCRIPT: &str = r#"
 })();
 "#;
 
+#[cfg(mobile)]
+const MOBILE_INITIALIZATION_SCRIPT: &str = r#"
+try {
+  Object.defineProperty(window.navigator, 'standalone', {
+    configurable: false,
+    value: true
+  });
+} catch (_) {}
+
+(() => {
+  const applyNativeInsets = () => {
+    const viewport = document.querySelector('meta[name="viewport"]');
+    if (!document.head || !viewport) return false;
+
+    if (!viewport.content.includes('viewport-fit=cover')) {
+      viewport.content = `${viewport.content}, viewport-fit=cover`;
+    }
+
+    if (!document.getElementById('arta-native-safe-areas')) {
+      const style = document.createElement('style');
+      style.id = 'arta-native-safe-areas';
+      style.textContent = `
+        .site-header { padding-top: env(safe-area-inset-top, 0px); }
+        .nav-wrap {
+          padding-left: calc(var(--space-4) + env(safe-area-inset-left, 0px));
+          padding-right: calc(var(--space-4) + env(safe-area-inset-right, 0px));
+        }
+        .footer { padding-bottom: env(safe-area-inset-bottom, 0px); }
+        .install-toast, .offline-badge {
+          right: calc(var(--space-4) + env(safe-area-inset-right, 0px));
+          bottom: calc(var(--space-4) + env(safe-area-inset-bottom, 0px));
+        }
+        .quick-actions {
+          right: calc(var(--space-4) + env(safe-area-inset-right, 0px));
+          bottom: calc(var(--space-4) + 74px + env(safe-area-inset-bottom, 0px));
+        }
+        .theme-panel {
+          right: calc(var(--space-4) + env(safe-area-inset-right, 0px));
+          top: calc(74px + env(safe-area-inset-top, 0px));
+        }
+        .floating-randomizer {
+          right: calc(var(--space-4) + 64px + env(safe-area-inset-right, 0px));
+          top: calc(108px + env(safe-area-inset-top, 0px));
+        }
+        .scroll-progress { top: env(safe-area-inset-top, 0px); }
+      `;
+      document.head.appendChild(style);
+    }
+
+    return true;
+  };
+
+  if (!applyNativeInsets()) {
+    const observer = new MutationObserver(() => {
+      if (applyNativeInsets()) observer.disconnect();
+    });
+    observer.observe(document, { childList: true, subtree: true });
+  }
+})();
+"#;
+
+#[cfg(desktop)]
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ViewBounds {
@@ -77,6 +146,24 @@ fn is_safe_external_url(url: &tauri::Url) -> bool {
     matches!(url.scheme(), "http" | "https" | "mailto")
 }
 
+fn is_local_shell_url(url: &tauri::Url) -> bool {
+    if !url.username().is_empty() || url.password().is_some() {
+        return false;
+    }
+
+    let production_shell = match (url.scheme(), url.host_str(), url.port()) {
+        ("tauri", Some("localhost"), None) => true,
+        ("http" | "https", Some("tauri.localhost"), None) => true,
+        _ => false,
+    };
+    let development_shell = cfg!(debug_assertions)
+        && url.scheme() == "http"
+        && matches!(url.host_str(), Some("localhost") | Some("127.0.0.1"))
+        && url.port() == Some(1420);
+
+    production_shell || development_shell
+}
+
 fn open_external(app: &AppHandle, url: &tauri::Url) {
     if !is_safe_external_url(url) {
         eprintln!("Blocked unsupported external navigation scheme: {}", url.scheme());
@@ -88,19 +175,26 @@ fn open_external(app: &AppHandle, url: &tauri::Url) {
     }
 }
 
+#[cfg(desktop)]
 fn public_webview(app: &AppHandle) -> Result<Webview, String> {
     app.get_webview(PUBLIC_VIEW_LABEL)
         .ok_or_else(|| "Public View Mode is not available.".to_string())
 }
 
+#[cfg(desktop)]
 fn require_local_shell(caller: &Webview) -> Result<(), String> {
-    if caller.label() == LOCAL_SHELL_LABEL {
+    let caller_url = caller
+        .url()
+        .map_err(|_| "The application shell URL could not be verified.".to_string())?;
+
+    if caller.label() == LOCAL_SHELL_LABEL && is_local_shell_url(&caller_url) {
         Ok(())
     } else {
         Err("This command is restricted to the local application shell.".to_string())
     }
 }
 
+#[cfg(desktop)]
 #[tauri::command]
 pub fn set_view_bounds(
     caller: Webview,
@@ -129,6 +223,7 @@ pub fn set_view_bounds(
         .map_err(|error| error.to_string())
 }
 
+#[cfg(desktop)]
 #[tauri::command]
 pub fn set_view_visibility(
     caller: Webview,
@@ -146,6 +241,7 @@ pub fn set_view_visibility(
     .map_err(|error| error.to_string())
 }
 
+#[cfg(desktop)]
 #[tauri::command]
 pub fn navigate_view(
     caller: Webview,
@@ -169,6 +265,7 @@ pub fn navigate_view(
     .map_err(|error| error.to_string())
 }
 
+#[cfg(desktop)]
 pub fn create_public_view(app: &mut App) -> tauri::Result<()> {
     let window = app
         .get_window(LOCAL_SHELL_LABEL)
@@ -223,9 +320,50 @@ pub fn create_public_view(app: &mut App) -> tauri::Result<()> {
     Ok(())
 }
 
+#[cfg(mobile)]
+pub fn create_mobile_view(app: &mut App) -> tauri::Result<()> {
+    let window_config = app
+        .config()
+        .app
+        .windows
+        .first()
+        .expect("the Android main webview configuration must exist");
+    let navigation_app = app.handle().clone();
+    let popup_app = app.handle().clone();
+
+    WebviewWindowBuilder::from_config(app.handle(), window_config)?
+        .initialization_script(MOBILE_INITIALIZATION_SCRIPT)
+        .devtools(cfg!(debug_assertions))
+        .on_download(|_, _| false)
+        .on_navigation(move |url| {
+            if is_local_shell_url(url) || is_trusted_site_url(url) {
+                true
+            } else {
+                open_external(&navigation_app, url);
+                false
+            }
+        })
+        .on_new_window(move |url, _| {
+            if is_trusted_site_url(&url) {
+                if let Some(view) = popup_app.get_webview(LOCAL_SHELL_LABEL) {
+                    if let Err(error) = view.navigate(url) {
+                        eprintln!("Could not open an internal popup link in Android View Mode: {error}");
+                    }
+                }
+            } else {
+                open_external(&popup_app, &url);
+            }
+
+            NewWindowResponse::Deny
+        })
+        .build()?;
+
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
-    use super::is_trusted_site_url;
+    use super::{is_local_shell_url, is_trusted_site_url, PUBLIC_SITE_URL};
 
     fn url(value: &str) -> tauri::Url {
         value.parse().expect("test URL should parse")
@@ -255,5 +393,13 @@ mod tests {
         assert!(!is_trusted_site_url(&url(
             "https://example.com/ArtaGatitului/"
         )));
+    }
+
+    #[test]
+    fn recognizes_only_application_shell_origins() {
+        assert!(is_local_shell_url(&url("tauri://localhost/index.html")));
+        assert!(is_local_shell_url(&url("http://tauri.localhost/index.html")));
+        assert!(!is_local_shell_url(&url(PUBLIC_SITE_URL)));
+        assert!(!is_local_shell_url(&url("https://tauri.localhost.evil.example/")));
     }
 }

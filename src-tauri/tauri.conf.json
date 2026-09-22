@@ -24,7 +24,7 @@
       }
     ],
     "security": {
-      "capabilities": ["cms-local"],
+      "capabilities": ["cms-local", "cms-android"],
       "csp": "default-src 'self'; connect-src ipc: http://ipc.localhost https://danielbrindusa.github.io; font-src 'self' data:; frame-src 'self' https://danielbrindusa.github.io; img-src 'self' data: blob:; object-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; base-uri 'none'; form-action 'none'",
       "devCsp": "default-src 'self'; connect-src ipc: http://ipc.localhost http://localhost:1420 ws://localhost:1420 https://danielbrindusa.github.io; font-src 'self' data:; frame-src 'self' https://danielbrindusa.github.io; img-src 'self' data: blob:; object-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; base-uri 'none'; form-action 'none'",
       "freezePrototype": true,
