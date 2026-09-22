@@ -17,7 +17,9 @@ const DRAFT_ID = /^[a-z0-9][a-z0-9-]{0,79}$/;
 const ATTACHMENT_ID = /^[a-z0-9][a-z0-9-]{0,79}$/;
 const DRAFT_KEYS = new Set([
   'id', 'contentType', 'schemaVersion', 'title', 'slug', 'status', 'data', 'layout',
-  'createdAt', 'updatedAt', 'updatedByUid', 'revision', 'publishedCommitSha', 'publishedAt',
+  'createdAt', 'updatedAt', 'updatedByUid', 'revision', 'publishedCommitSha',
+  'publishedRepository', 'publishedBranch', 'publishedSourceDraftId', 'publishedSlug',
+  'publishedAt',
 ]);
 const DATA_KEYS = new Set(['modelVersion', 'recipe', 'attachments']);
 const RECIPE_KEYS = new Set([
@@ -143,6 +145,10 @@ function normalizeV1(value) {
     updatedByUid: string(value.updatedByUid),
     revision: Number.isInteger(value.revision) && value.revision >= 0 ? value.revision : 0,
     publishedCommitSha: nullableString(value.publishedCommitSha),
+    publishedRepository: nullableString(value.publishedRepository),
+    publishedBranch: nullableString(value.publishedBranch),
+    publishedSourceDraftId: nullableString(value.publishedSourceDraftId),
+    publishedSlug: nullableString(value.publishedSlug),
     publishedAt: nullableString(value.publishedAt),
   };
 }
@@ -240,6 +246,10 @@ export function createRecipeDraft(updatedByUid, options = {}) {
     updatedByUid,
     revision: 0,
     publishedCommitSha: null,
+    publishedRepository: null,
+    publishedBranch: null,
+    publishedSourceDraftId: null,
+    publishedSlug: null,
     publishedAt: null,
   };
 }
@@ -262,6 +272,10 @@ export function duplicateRecipeDraft(source, updatedByUid, options = {}) {
   copy.updatedByUid = updatedByUid;
   copy.revision = 0;
   copy.publishedCommitSha = null;
+  copy.publishedRepository = null;
+  copy.publishedBranch = null;
+  copy.publishedSourceDraftId = null;
+  copy.publishedSlug = null;
   copy.publishedAt = null;
   return copy;
 }
@@ -316,7 +330,30 @@ export function validateDraftForStorage(value) {
   if (value.publishedCommitSha !== null && typeof value.publishedCommitSha !== 'string') {
     errors.push('publishedCommitSha must be a string or null');
   }
+  ['publishedRepository', 'publishedBranch', 'publishedSourceDraftId', 'publishedSlug'].forEach((field) => {
+    if (value[field] != null && typeof value[field] !== 'string') {
+      errors.push(`${field} must be a string or null`);
+    }
+  });
   if (!validNullableTimestamp(value.publishedAt)) errors.push('publishedAt must be an ISO timestamp or null');
+  const publicationFields = [
+    value.publishedCommitSha ?? null,
+    value.publishedRepository ?? null,
+    value.publishedBranch ?? null,
+    value.publishedSourceDraftId ?? null,
+    value.publishedSlug ?? null,
+    value.publishedAt ?? null,
+  ];
+  if (value.status === 'published') {
+    if (!/^[0-9a-f]{40}$/.test(value.publishedCommitSha ?? '')) errors.push('publishedCommitSha must be a Git commit SHA');
+    if (value.publishedRepository !== 'DanielBrindusa/ArtaGatitului') errors.push('publishedRepository must be the configured repository');
+    if (value.publishedBranch !== 'main') errors.push('publishedBranch must be main');
+    if (value.publishedSourceDraftId !== value.id) errors.push('publishedSourceDraftId must match the draft id');
+    if (value.publishedSlug !== value.slug) errors.push('publishedSlug must match the draft slug');
+    if (value.publishedAt === null) errors.push('publishedAt is required for published drafts');
+  } else if (publicationFields.some((field) => field !== null)) {
+    errors.push('publication metadata is allowed only for published drafts');
+  }
 
   if (isRecord(value.data)) {
     checkOnlyKeys(value.data, DATA_KEYS, 'data', errors);

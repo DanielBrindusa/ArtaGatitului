@@ -246,6 +246,39 @@ button:disabled {
   background: rgba(255, 255, 255, 0.04);
 }
 
+.publish-button:not(:disabled) {
+  border-color: var(--color-primary);
+  color: #170d08;
+  background: var(--color-primary);
+  cursor: pointer;
+}
+
+.publish-button:not(:disabled):hover {
+  background: var(--color-primary-hover);
+}
+
+.github-connection-button {
+  display: inline-flex;
+  min-height: 36px;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 11px;
+  border: 1px solid var(--app-border-strong);
+  border-radius: var(--radius-md);
+  color: var(--color-text);
+  background: var(--app-panel-raised);
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.github-connection-button:hover,
+.github-connection-button.connected {
+  border-color: var(--color-primary);
+  color: var(--color-primary-hover);
+}
+
 .workspace {
   min-width: 0;
   min-height: 0;
@@ -1299,6 +1332,7 @@ button:disabled {
 }
 
 .draft-dialog {
+  position: relative;
   display: grid;
   width: min(460px, 100%);
   gap: 10px;
@@ -1307,6 +1341,169 @@ button:disabled {
   border-radius: var(--radius-md);
   background: var(--app-panel);
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+}
+
+.github-dialog,
+.publish-review-dialog,
+.publish-success-dialog {
+  width: min(560px, 100%);
+}
+
+.dialog-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: inline-grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  color: var(--color-text-muted);
+  background: transparent;
+  cursor: pointer;
+}
+
+.dialog-close:hover {
+  border-color: var(--app-border-strong);
+  color: var(--color-text);
+  background: var(--app-panel-raised);
+}
+
+.github-device-code {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  margin: 6px 0;
+  padding: 14px;
+  border: 1px solid var(--app-border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--app-canvas);
+}
+
+.github-device-code span,
+.publish-summary dt,
+.publish-review-section > strong {
+  color: var(--color-text-muted);
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.github-device-code strong {
+  font-family: var(--font-mono);
+  font-size: 20px;
+  letter-spacing: 0;
+}
+
+.github-open-button {
+  display: inline-flex;
+  min-height: 38px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 13px;
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-md);
+  color: #170d08;
+  background: var(--color-primary);
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.github-waiting,
+.github-verified,
+.github-setup-note,
+.publish-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 6px 0 0;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-muted);
+  background: var(--app-canvas);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.github-verified {
+  border-color: rgba(91, 179, 118, 0.45);
+  color: #a5dab4;
+}
+
+.publish-error {
+  border-color: rgba(218, 98, 78, 0.52);
+  color: #ffb4a7;
+}
+
+.publish-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  margin: 6px 0;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-border);
+}
+
+.publish-summary div {
+  min-width: 0;
+  padding: 11px 12px;
+  background: var(--app-canvas);
+}
+
+.publish-summary dt,
+.publish-summary dd {
+  margin: 0;
+}
+
+.publish-summary dd {
+  margin-top: 4px;
+  overflow-wrap: anywhere;
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+.publish-review-section {
+  display: grid;
+  gap: 7px;
+  padding: 11px 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.publish-review-section h3 {
+  margin: 0;
+}
+
+.publish-review-section ul {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.publish-review-section li {
+  display: flex;
+  min-width: 0;
+  align-items: flex-start;
+  gap: 7px;
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.publish-review-section li svg {
+  flex: 0 0 auto;
+  color: #79c58f;
 }
 
 .draft-dialog > svg {
@@ -1786,6 +1983,20 @@ button:disabled {
     display: none;
   }
 
+  .github-connection-button {
+    width: 36px;
+    padding: 0;
+  }
+
+  .github-connection-button span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+  }
+
   .edit-workspace {
     grid-template-columns: 230px minmax(0, 1fr) 220px;
   }
@@ -2087,6 +2298,10 @@ button:disabled {
   .draft-dialog-actions,
   .conflict-actions {
     display: grid;
+  }
+
+  .publish-summary {
+    grid-template-columns: 1fr;
   }
 
   .auth-workspace {

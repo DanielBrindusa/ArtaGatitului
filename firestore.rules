@@ -70,7 +70,8 @@ service cloud.firestore {
       return draft.keys().hasOnly([
           'id', 'contentType', 'schemaVersion', 'title', 'slug', 'status',
           'data', 'layout', 'createdAt', 'updatedAt', 'updatedByUid',
-          'revision', 'publishedCommitSha', 'publishedAt'
+          'revision', 'publishedCommitSha', 'publishedRepository',
+          'publishedBranch', 'publishedSourceDraftId', 'publishedSlug', 'publishedAt'
         ])
         && draft.id == draftId
         && draft.contentType == 'recipe'
@@ -95,7 +96,25 @@ service cloud.firestore {
         && draft.revision is int
         && draft.revision > 0
         && validNullableString(draft.publishedCommitSha)
-        && (draft.publishedAt == null || draft.publishedAt is timestamp);
+        && validNullableString(draft.publishedRepository)
+        && validNullableString(draft.publishedBranch)
+        && validNullableString(draft.publishedSourceDraftId)
+        && validNullableString(draft.publishedSlug)
+        && (draft.publishedAt == null || draft.publishedAt is timestamp)
+        && ((draft.status == 'published'
+            && draft.publishedCommitSha.matches('^[0-9a-f]{40}$')
+            && draft.publishedRepository == 'DanielBrindusa/ArtaGatitului'
+            && draft.publishedBranch == 'main'
+            && draft.publishedSourceDraftId == draft.id
+            && draft.publishedSlug == draft.slug
+            && draft.publishedAt is timestamp)
+          || (draft.status in ['draft', 'ready']
+            && draft.publishedCommitSha == null
+            && draft.publishedRepository == null
+            && draft.publishedBranch == null
+            && draft.publishedSourceDraftId == null
+            && draft.publishedSlug == null
+            && draft.publishedAt == null));
     }
 
     function validWorkspaceSetting(setting) {

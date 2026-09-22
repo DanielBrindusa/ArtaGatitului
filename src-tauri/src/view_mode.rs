@@ -1,15 +1,14 @@
-use tauri::{webview::NewWindowResponse, App, AppHandle, Manager};
+use tauri::{webview::NewWindowResponse, App, AppHandle, Manager, Webview};
 use tauri_plugin_opener::OpenerExt;
 
 #[cfg(desktop)]
 use serde::Deserialize;
-#[cfg(desktop)]
-use tauri::{
-    webview::WebviewBuilder, LogicalPosition, LogicalSize, Rect, Webview, WebviewUrl,
-};
 #[cfg(mobile)]
 use tauri::webview::WebviewWindowBuilder;
+#[cfg(desktop)]
+use tauri::{webview::WebviewBuilder, LogicalPosition, LogicalSize, Rect, WebviewUrl};
 
+#[cfg(desktop)]
 pub const PUBLIC_SITE_URL: &str = "https://danielbrindusa.github.io/ArtaGatitului/";
 const PUBLIC_SITE_HOST: &str = "danielbrindusa.github.io";
 const PUBLIC_SITE_PATH: &str = "/ArtaGatitului";
@@ -197,11 +196,10 @@ fn is_local_shell_url(url: &tauri::Url) -> bool {
         return false;
     }
 
-    let production_shell = match (url.scheme(), url.host_str(), url.port()) {
-        ("tauri", Some("localhost"), None) => true,
-        ("http" | "https", Some("tauri.localhost"), None) => true,
-        _ => false,
-    };
+    let production_shell = matches!(
+        (url.scheme(), url.host_str(), url.port()),
+        ("tauri", Some("localhost"), None) | ("http" | "https", Some("tauri.localhost"), None)
+    );
     let development_shell = cfg!(debug_assertions)
         && url.scheme() == "http"
         && matches!(url.host_str(), Some("localhost") | Some("127.0.0.1"))
@@ -212,7 +210,10 @@ fn is_local_shell_url(url: &tauri::Url) -> bool {
 
 fn open_external(app: &AppHandle, url: &tauri::Url) {
     if !is_safe_external_url(url) {
-        eprintln!("Blocked unsupported external navigation scheme: {}", url.scheme());
+        eprintln!(
+            "Blocked unsupported external navigation scheme: {}",
+            url.scheme()
+        );
         return;
     }
 
@@ -227,8 +228,7 @@ fn public_webview(app: &AppHandle) -> Result<Webview, String> {
         .ok_or_else(|| "Public View Mode is not available.".to_string())
 }
 
-#[cfg(desktop)]
-fn require_local_shell(caller: &Webview) -> Result<(), String> {
+pub(crate) fn require_local_shell(caller: &Webview) -> Result<(), String> {
     let caller_url = caller
         .url()
         .map_err(|_| "The application shell URL could not be verified.".to_string())?;
@@ -242,11 +242,7 @@ fn require_local_shell(caller: &Webview) -> Result<(), String> {
 
 #[cfg(desktop)]
 #[tauri::command]
-pub fn set_view_bounds(
-    caller: Webview,
-    app: AppHandle,
-    bounds: ViewBounds,
-) -> Result<(), String> {
+pub fn set_view_bounds(caller: Webview, app: AppHandle, bounds: ViewBounds) -> Result<(), String> {
     require_local_shell(&caller)?;
 
     let values = [bounds.x, bounds.y, bounds.width, bounds.height];
@@ -271,29 +267,16 @@ pub fn set_view_bounds(
 
 #[cfg(desktop)]
 #[tauri::command]
-pub fn set_view_visibility(
-    caller: Webview,
-    app: AppHandle,
-    visible: bool,
-) -> Result<(), String> {
+pub fn set_view_visibility(caller: Webview, app: AppHandle, visible: bool) -> Result<(), String> {
     require_local_shell(&caller)?;
     let view = public_webview(&app)?;
 
-    if visible {
-        view.show()
-    } else {
-        view.hide()
-    }
-    .map_err(|error| error.to_string())
+    if visible { view.show() } else { view.hide() }.map_err(|error| error.to_string())
 }
 
 #[cfg(desktop)]
 #[tauri::command]
-pub fn navigate_view(
-    caller: Webview,
-    app: AppHandle,
-    action: String,
-) -> Result<(), String> {
+pub fn navigate_view(caller: Webview, app: AppHandle, action: String) -> Result<(), String> {
     require_local_shell(&caller)?;
     let view = public_webview(&app)?;
 
@@ -393,7 +376,9 @@ pub fn create_mobile_view(app: &mut App) -> tauri::Result<()> {
             if is_trusted_site_url(&url) {
                 if let Some(view) = popup_app.get_webview(LOCAL_SHELL_LABEL) {
                     if let Err(error) = view.navigate(url) {
-                        eprintln!("Could not open an internal popup link in Android View Mode: {error}");
+                        eprintln!(
+                            "Could not open an internal popup link in Android View Mode: {error}"
+                        );
                     }
                 }
             } else {
@@ -444,8 +429,12 @@ mod tests {
     #[test]
     fn recognizes_only_application_shell_origins() {
         assert!(is_local_shell_url(&url("tauri://localhost/index.html")));
-        assert!(is_local_shell_url(&url("http://tauri.localhost/index.html")));
+        assert!(is_local_shell_url(&url(
+            "http://tauri.localhost/index.html"
+        )));
         assert!(!is_local_shell_url(&url(PUBLIC_SITE_URL)));
-        assert!(!is_local_shell_url(&url("https://tauri.localhost.evil.example/")));
+        assert!(!is_local_shell_url(&url(
+            "https://tauri.localhost.evil.example/"
+        )));
     }
 }

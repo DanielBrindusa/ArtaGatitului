@@ -39,7 +39,21 @@ export interface RecipeDraft {
   updatedByUid: string;
   revision: number;
   publishedCommitSha: string | null;
+  publishedRepository: string | null;
+  publishedBranch: string | null;
+  publishedSourceDraftId: string | null;
+  publishedSlug: string | null;
   publishedAt: string | null;
+}
+
+export interface DraftPublicationMetadata {
+  commitSha: string;
+  repository: 'DanielBrindusa/ArtaGatitului';
+  branch: 'main';
+  sourceDraftId: string;
+  recipeSlug: string;
+  imagePath: string | null;
+  publishedAt: string;
 }
 
 export interface DraftValidationResult { valid: boolean; errors: string[] }

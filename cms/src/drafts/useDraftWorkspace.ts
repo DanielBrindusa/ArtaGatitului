@@ -9,6 +9,7 @@ import {
 import {
   createRecipeDraft,
   duplicateRecipeDraft,
+  type DraftPublicationMetadata,
   type RecipeDraft,
 } from './draftModel.mjs';
 import {
@@ -565,6 +566,76 @@ export function useDraftWorkspace(uid: string) {
     }).catch(() => undefined);
   }, [service, uid]);
 
+  const markPublished = useCallback(async (metadata: DraftPublicationMetadata) => {
+    if (await flush() !== 'saved') {
+      throw new Error('Save the current draft before recording publication.');
+    }
+    const current = activeRef.current;
+    if (!current || current.draft.id !== metadata.sourceDraftId || current.draft.slug !== metadata.recipeSlug) {
+      throw new Error('The published recipe no longer matches the active draft.');
+    }
+    if (autosaveTimerRef.current !== undefined) {
+      window.clearTimeout(autosaveTimerRef.current);
+      autosaveTimerRef.current = undefined;
+    }
+    const publishedDraft: RecipeDraft = {
+      ...current.draft,
+      status: 'published',
+      data: {
+        ...current.draft.data,
+        recipe: {
+          ...current.draft.data.recipe,
+          status: 'published',
+          image: metadata.imagePath,
+        },
+        attachments: current.draft.data.attachments.map((attachment, index) => (
+          index === 0 ? { ...attachment, repositoryPath: metadata.imagePath } : attachment
+        )),
+      },
+      publishedCommitSha: metadata.commitSha,
+      publishedRepository: metadata.repository,
+      publishedBranch: metadata.branch,
+      publishedSourceDraftId: metadata.sourceDraftId,
+      publishedSlug: metadata.recipeSlug,
+      publishedAt: metadata.publishedAt,
+    };
+    const localRecord = {
+      draft: publishedDraft,
+      dirty: true,
+      baseRevision: current.baseRevision,
+      backedUpAt: new Date().toISOString(),
+    };
+    setActive(localRecord);
+    storeRecord(localRecord);
+    setSaveState('saving');
+    savingRef.current = { id: publishedDraft.id, targetRevision: current.baseRevision + 1 };
+    try {
+      const savedDraft = await service.saveDraft(publishedDraft, current.baseRevision, uid);
+      const savedRecord = {
+        draft: savedDraft,
+        dirty: false,
+        baseRevision: savedDraft.revision,
+        backedUpAt: new Date().toISOString(),
+      };
+      setActive(savedRecord);
+      storeRecord(savedRecord);
+      setSaveState('saved');
+      return savedDraft;
+    } catch (error) {
+      if (error instanceof DraftConflictError) {
+        setWorkspaceConflict({ localDraft: publishedDraft, remoteDraft: error.remoteDraft });
+        setConflictIds((ids) => new Set(ids).add(publishedDraft.id));
+        setSaveState('conflict');
+      } else {
+        setSaveState(online() ? 'error' : 'offline');
+        setErrorMessage('The GitHub commit succeeded, but publication metadata is still saved only on this device.');
+      }
+      throw error;
+    } finally {
+      savingRef.current = null;
+    }
+  }, [flush, service, setActive, setWorkspaceConflict, storeRecord, uid]);
+
   const drafts = useMemo<DraftListItem[]>(() => records.map((record) => ({
     ...record,
     hasConflict: conflictIds.has(record.draft.id),
@@ -590,6 +661,7 @@ export function useDraftWorkspace(uid: string) {
     useCloudVersion,
     saveConflictAsCopy,
     setPreviewBreakpoint,
+    markPublished,
     flush,
     dismissError: () => setErrorMessage(null),
   };

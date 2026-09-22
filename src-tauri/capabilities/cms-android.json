@@ -1,9 +1,9 @@
 {
   "$schema": "../gen/schemas/mobile-schema.json",
   "identifier": "cms-android",
-  "description": "Bundled Android startup and offline shell without native command access.",
+  "description": "Bundled Android shell with GitHub publishing available only to local CMS content.",
   "local": true,
   "platforms": ["android"],
   "webviews": ["main"],
-  "permissions": []
+  "permissions": ["github-publishing"]
 }

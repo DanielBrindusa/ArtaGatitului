@@ -7,6 +7,7 @@ import {
   Copy,
   Eye,
   FileText,
+  GitFork,
   HardDrive,
   LoaderCircle,
   LogOut,
@@ -34,6 +35,8 @@ import { BlockLibrary } from '../editor/BlockLibrary';
 import { createBlockId, insertDraftBlock } from '../editor/editorModel.mjs';
 import { validateDraftImage } from '../editor/imageValidation.mjs';
 import { loadDraftImage, removeDraftImage, storeDraftImage } from '../editor/localImageStore';
+import { GitHubPublishingDialogs } from '../publishing/GitHubPublishingDialogs';
+import { useGitHubPublishing, type GitHubPublishingController } from '../publishing/useGitHubPublishing';
 import {
   VisualRecipeCanvas,
   type EditorViewport,
@@ -61,6 +64,7 @@ function EditorTopBar({
   email,
   onNavigate,
   onSignOut,
+  publishing,
 }: {
   draft: RecipeDraft | null;
   workspace: ReturnType<typeof useDraftWorkspace>;
@@ -71,6 +75,7 @@ function EditorTopBar({
   email: string | null;
   onNavigate: (route: AppRoute) => void;
   onSignOut: () => void;
+  publishing: GitHubPublishingController;
 }) {
   const viewportOptions = [
     { value: 'desktop' as const, label: 'Desktop', Icon: Monitor },
@@ -117,7 +122,21 @@ function EditorTopBar({
           <summary title="Editor account" aria-label="Editor account"><Settings2 aria-hidden="true" size={17} /></summary>
           <div><strong>{email ?? 'Approved editor'}</strong><button type="button" onClick={onSignOut}><LogOut aria-hidden="true" size={15} />Sign out</button></div>
         </details>
-        <button className="publish-button" type="button" disabled title="GitHub publishing will be enabled in Milestone 9"><UploadCloud aria-hidden="true" size={16} /><span>Publish</span></button>
+        <button className={`github-connection-button${publishing.connection?.repositoryVerified ? ' connected' : ''}`} type="button" title={publishing.connection?.repositoryVerified ? 'GitHub connected' : 'Connect GitHub'} onClick={publishing.openConnection}><GitFork aria-hidden="true" size={16} /><span>{publishing.connection?.repositoryVerified ? 'GitHub ready' : 'Connect GitHub'}</span></button>
+        <button
+          className="publish-button"
+          type="button"
+          disabled={!draft || draft.status === 'published' || !publishing.connection?.repositoryVerified || publishing.busy}
+          title={draft?.status === 'published'
+            ? 'This draft is already published'
+            : publishing.connection?.repositoryVerified
+              ? 'Review and publish this recipe'
+              : 'Connect and verify GitHub before publishing'}
+          onClick={() => void publishing.prepare()}
+        >
+          {publishing.busy ? <LoaderCircle className="draft-spinner" aria-hidden="true" size={16} /> : <UploadCloud aria-hidden="true" size={16} />}
+          <span>{publishing.stage === 'validating' ? 'Validating' : publishing.stage === 'preparing' ? 'Preparing' : publishing.stage === 'publishing' ? 'Publishing' : draft?.status === 'published' ? 'Published' : 'Publish'}</span>
+        </button>
       </div>
     </header>
   );
@@ -142,6 +161,13 @@ export function EditMode({
   const [localImageUrl, setLocalImageUrl] = useState<string | null>(null);
   const [localImageStatus, setLocalImageStatus] = useState<LocalImageStatus>('none');
   const [imageError, setImageError] = useState<string | null>(null);
+  const publishing = useGitHubPublishing({
+    draft,
+    uid,
+    deviceId: workspace.deviceId,
+    flush: workspace.flush,
+    markPublished: workspace.markPublished,
+  });
 
   const viewport = workspace.previewBreakpoint;
   const selectedBlock = useMemo(
@@ -246,10 +272,10 @@ export function EditMode({
 
   return (
     <main className="visual-editor-workspace">
-      <EditorTopBar draft={draft} workspace={workspace} mode={mode} setMode={setMode} viewport={viewport} setViewport={workspace.setPreviewBreakpoint} email={email} onNavigate={onNavigate} onSignOut={onSignOut} />
+      <EditorTopBar draft={draft} workspace={workspace} mode={mode} setMode={setMode} viewport={viewport} setViewport={workspace.setPreviewBreakpoint} email={email} onNavigate={onNavigate} onSignOut={onSignOut} publishing={publishing} />
 
-      {(workspace.errorMessage || imageError) && (
-        <div className="editor-notice" role="status"><AlertTriangle aria-hidden="true" size={16} /><span>{imageError ?? workspace.errorMessage}</span><button type="button" title="Dismiss" aria-label="Dismiss message" onClick={() => { setImageError(null); workspace.dismissError(); }}><X aria-hidden="true" size={15} /></button></div>
+      {(workspace.errorMessage || imageError || publishing.error) && (
+        <div className="editor-notice" role="status"><AlertTriangle aria-hidden="true" size={16} /><span>{imageError ?? publishing.error ?? workspace.errorMessage}</span><button type="button" title="Dismiss" aria-label="Dismiss message" onClick={() => { setImageError(null); publishing.setError(null); workspace.dismissError(); }}><X aria-hidden="true" size={15} /></button></div>
       )}
 
       {!draft ? (
@@ -273,6 +299,8 @@ export function EditMode({
       {workspace.conflict && (
         <div className="draft-dialog-backdrop" role="presentation"><div className="draft-dialog" role="alertdialog" aria-modal="true" aria-labelledby="conflict-title"><RefreshCw aria-hidden="true" size={22} /><h2 id="conflict-title">This draft changed on another device</h2><p>Your local edits are still in the recovery copy. Choose the cloud version, or preserve your edits as a new draft.</p><div className="draft-dialog-actions conflict-actions"><button className="secondary-command" type="button" onClick={workspace.useCloudVersion}><Cloud aria-hidden="true" size={16} />Use cloud version</button><button className="primary-command" type="button" onClick={workspace.saveConflictAsCopy}><Copy aria-hidden="true" size={16} />Save mine as copy</button></div></div></div>
       )}
+
+      <GitHubPublishingDialogs publishing={publishing} />
     </main>
   );
 }

@@ -43,14 +43,14 @@ test('Android public content replaces the local launcher instead of using an ifr
   assert.match(app, /route === 'view' && VIEW_MODE_PLATFORM === 'android'/);
 });
 
-test('Android capability is local-only and grants no native commands', async () => {
+test('Android capability grants only local GitHub publishing commands', async () => {
   const capability = await readJson('src-tauri/capabilities/cms-android.json');
   const nativeSource = await read('src-tauri/src/view_mode.rs');
 
   assert.equal(capability.local, true);
   assert.deepEqual(capability.platforms, ['android']);
   assert.deepEqual(capability.webviews, ['main']);
-  assert.deepEqual(capability.permissions, []);
+  assert.deepEqual(capability.permissions, ['github-publishing']);
   assert.equal('remote' in capability, false);
   assert.match(nativeSource, /is_local_shell_url\(&caller_url\)/);
   assert.doesNotMatch(capability.permissions.join(' '), /filesystem|shell|process|store|camera|microphone|location|contacts/i);

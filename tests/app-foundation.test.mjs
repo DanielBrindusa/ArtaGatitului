@@ -21,16 +21,16 @@ test('Tauri exposes narrow controls only to the local shell webview', async () =
   assert.equal('windows' in desktopCapability, false);
   assert.deepEqual(desktopCapability.platforms, ['linux', 'macOS', 'windows']);
   assert.deepEqual(desktopCapability.webviews, ['main']);
-  assert.deepEqual(desktopCapability.permissions, ['view-mode-control']);
+  assert.deepEqual(desktopCapability.permissions, ['view-mode-control', 'github-publishing']);
   assert.equal('remote' in desktopCapability, false);
   assert.equal(androidCapability.local, true);
   assert.deepEqual(androidCapability.platforms, ['android']);
   assert.deepEqual(androidCapability.webviews, ['main']);
-  assert.deepEqual(androidCapability.permissions, []);
+  assert.deepEqual(androidCapability.permissions, ['github-publishing']);
   assert.equal('remote' in androidCapability, false);
 });
 
-test('Rust registers only the scoped View Mode command surface', async () => {
+test('Rust registers only the scoped native command surfaces', async () => {
   const rustSource = await readFile(
     new URL('src-tauri/src/lib.rs', repositoryRoot),
     'utf8',

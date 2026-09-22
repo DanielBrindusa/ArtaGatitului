@@ -1,0 +1,11 @@
+{
+  "installations": [
+    {
+      "id": 42,
+      "account": { "login": "DanielBrindusa" },
+      "permissions": { "contents": "write", "metadata": "read" },
+      "repository_selection": "selected",
+      "suspended_at": null
+    }
+  ]
+}

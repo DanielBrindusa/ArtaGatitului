@@ -120,6 +120,8 @@ test('Android public View exposes only a navigation path back to the guarded loc
   assert.match(nativeSource, /arta-native-editor-link/);
   assert.match(nativeSource, /http:\/\/tauri\.localhost\/#edit/);
   assert.match(nativeSource, /http:\/\/localhost:1420\/#edit/);
-  assert.deepEqual(androidCapability.permissions, []);
+  assert.deepEqual(androidCapability.permissions, ['github-publishing']);
+  assert.equal(androidCapability.local, true);
+  assert.deepEqual(androidCapability.webviews, ['main']);
   assert.equal('remote' in androidCapability, false);
 });

@@ -64,6 +64,10 @@ function draftDocument(id, revision = 1) {
     updatedByUid: approvedUid,
     revision,
     publishedCommitSha: null,
+    publishedRepository: null,
+    publishedBranch: null,
+    publishedSourceDraftId: null,
+    publishedSlug: null,
     publishedAt: null,
   };
 }
@@ -140,6 +144,29 @@ test('draft rules require a monotonic revision and immutable creation time', { s
   }));
   const snapshot = await getDoc(reference);
   assert.equal(snapshot.data().revision, 2);
+});
+
+test('publication metadata is complete, repository-pinned, and retained on the draft', { skip: !emulatorAvailable }, async () => {
+  const database = environment.authenticatedContext(approvedUid).firestore();
+  const reference = doc(database, 'workspaces/arta-gatitului/drafts/draft-published');
+  await assertSucceeds(setDoc(reference, draftDocument('draft-published')));
+  const published = draftDocument('draft-published', 2);
+  published.status = 'published';
+  published.data.recipe.status = 'published';
+  published.publishedCommitSha = 'a'.repeat(40);
+  published.publishedRepository = 'DanielBrindusa/ArtaGatitului';
+  published.publishedBranch = 'main';
+  published.publishedSourceDraftId = 'draft-published';
+  published.publishedSlug = 'test-draft';
+  published.publishedAt = serverTimestamp();
+  published.createdAt = (await getDoc(reference)).data().createdAt;
+  await assertSucceeds(setDoc(reference, published));
+  await assertFails(updateDoc(reference, {
+    revision: 3,
+    publishedBranch: 'app-development',
+    updatedAt: serverTimestamp(),
+    updatedByUid: approvedUid,
+  }));
 });
 
 test('approved editors can access only their own preferences', { skip: !emulatorAvailable }, async () => {

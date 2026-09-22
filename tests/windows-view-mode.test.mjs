@@ -38,7 +38,9 @@ test('remote public content has no capability or broad native permission', async
   assert.deepEqual(desktopCapability.webviews, ['main']);
   assert.equal(JSON.stringify(desktopCapability).includes('public-view'), false);
   assert.equal('remote' in desktopCapability, false);
-  assert.deepEqual(androidCapability.permissions, []);
+  assert.deepEqual(androidCapability.permissions, ['github-publishing']);
+  assert.equal(androidCapability.local, true);
+  assert.deepEqual(androidCapability.webviews, ['main']);
   assert.equal('remote' in androidCapability, false);
   assert.match(permission, /"set_view_bounds"/);
   assert.match(permission, /"set_view_visibility"/);
