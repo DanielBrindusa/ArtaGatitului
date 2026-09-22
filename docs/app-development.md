@@ -1,6 +1,6 @@
 # Arta Gatitului Application Development
 
-Milestones 4 through 6 provide public Windows and Android readers plus Firebase-authenticated access to the local authoring shell. The static website remains an independent GitHub Pages build and is not frozen into either application package. Firestore drafts, functional editing, and publishing remain deferred.
+Milestones 4 through 7 provide public Windows and Android readers, Firebase-authenticated access to the local authoring shell, and synchronized Firestore drafts with local recovery. The static website remains an independent GitHub Pages build and is not frozen into either application package. Visual editing and GitHub publishing remain deferred.
 
 ## Project structure
 
@@ -57,11 +57,11 @@ Firebase uses `browserLocalPersistence`; Firebase stores and refreshes its own s
 
 An authenticated user reaches Edit or Settings only when the exact Firebase UID appears in `VITE_FIREBASE_EDITOR_UIDS`. The value accepts a comma-separated list so more trusted editors can be added later. Email is display metadata and is never the authorization key. An unapproved authenticated account remains isolated from authoring UI and can sign out or return to public View.
 
-This UID list is a client-side UI gate, not a tamper-proof data authorization system. It does not protect a future remote database. Milestone 7 must add and test Firestore Security Rules that require an authenticated approved UID for every draft/settings path before any Firestore data is introduced. Firebase identity also grants no GitHub publishing or broad native authority.
+This UID list is a client-side UI gate, not a tamper-proof data authorization system. Milestone 7 adds and tests independent Firestore Security Rules that require the same explicitly approved UID for every draft/settings path. Firebase identity grants no GitHub publishing or broad native authority.
 
 ### Firebase setup for ArtaGatitului Editor
 
-1. Create or select a Firebase project in the Firebase console and keep it on the Spark plan. Do not enable billing, Hosting, Storage, Functions, Extensions, or Firestore for this milestone.
+1. Create or select a Firebase project in the Firebase console and keep it on the Spark plan. Do not enable billing, Hosting, Storage, Functions, or Extensions. Milestone 7 adds Firestore separately in Production mode; see `docs/firebase-setup.md`.
 2. In Project settings, register a Web App for the Tauri frontend. Do not select Firebase Hosting.
 3. In Authentication > Sign-in method, enable only Email/Password. Do not enable anonymous or federated providers.
 4. In Authentication > Users, manually add the trusted editor. The application intentionally contains no Create Account flow.
@@ -231,7 +231,7 @@ Remote website content is untrusted relative to the native process:
 - The three desktop commands verify both the caller label and the bundled local-shell origin. Navigation accepts a fixed action enum represented by four strings, never an arbitrary URL.
 - No filesystem, shell, process, secret-store, GitHub, native Firebase, or opener permission is exposed to frontend code. Firebase Authentication is an ordinary HTTPS client dependency, not a Tauri capability.
 - The opener plugin's automatic JavaScript link handling is disabled. Rust calls it only after validating an intercepted external URL.
-- `withGlobalTauri` and the asset protocol remain disabled. The local CSP names the public-site origin plus `identitytoolkit.googleapis.com` for Email/Password sign-in/account lookup and `securetoken.googleapis.com` for token refresh. It grants no HTTPS wildcard, Firebase Hosting, Firestore, Storage, or arbitrary Google origin.
+- `withGlobalTauri` and the asset protocol remain disabled. The local CSP names the public-site origin, the two exact Authentication endpoints, and `firestore.googleapis.com`. It grants no HTTPS wildcard, Firebase Hosting, Storage, Realtime Database, or arbitrary Google origin.
 - Top-level remote navigation requires HTTPS, the exact host `danielbrindusa.github.io`, and `/ArtaGatitului` as a path boundary. Credentials and nonstandard ports are rejected.
 - Downloads initiated by the remote child are denied in this milestone.
 - Android creates no iframe and grants no remote capability. The public top-level page therefore cannot call application, core, or plugin commands even though Android reuses the `main` WebView label.
@@ -247,11 +247,12 @@ Automated tests inspect authentication-state transitions, direct-route guards, U
 - `lucide-react`: accessible, consistent interface icons without a component-suite dependency.
 - `@tauri-apps/api`: typed `invoke` access from the local shell to the three scoped View Mode commands.
 - `@tauri-apps/cli`: official Tauri 2 development, build, icon, and mobile commands.
-- `firebase`: modular Web SDK usage limited to Firebase Authentication with Email/Password and local session persistence.
+- `firebase`: modular Web SDK usage for Email/Password Authentication and the Firestore draft service.
+- `@firebase/rules-unit-testing`: development-only Firestore Security Rules assertions; the rule script invokes a pinned `firebase-tools@15.30.2` through `npx` to run the local demo-project emulator without shipping the CLI in the app dependency tree.
 - Rust `tauri` and `tauri-build`: native application runner, child-webview host, and generated build context. The pinned `unstable` Tauri feature is required for the documented multiwebview API.
 - Rust `tauri-plugin-opener`: opens validated external URLs in the system browser from trusted Rust code; no frontend opener permission is granted.
 
-Firestore, drag-and-drop, rich-text, GitHub, and UI-suite packages remain deferred to the milestones that need them. Firebase Hosting, Storage, Functions, Extensions, Admin SDK, analytics, messaging, and OAuth providers are intentionally absent.
+Drag-and-drop, rich-text, GitHub, and UI-suite packages remain deferred to the milestones that need them. Firebase Hosting, Storage, Functions, Extensions, Admin SDK, analytics, messaging, and OAuth providers are intentionally absent.
 
 ## Milestone 4 verification
 
@@ -289,6 +290,35 @@ The local browser shell was checked with no Firebase configuration and with temp
 `npm run check:all` passed content validation, the 107-route public build, all 32 Node tests, strict TypeScript, and the production CMS build. `npm audit --omit=dev` reported zero vulnerabilities. Tests cover approved and unapproved UIDs, signed-out/loading/error states, both authoring route guards, public View independence, local persistence selection, absence of registration providers, environment shape, exact Auth CSP origins, and the Android editor return path.
 
 No real Firebase project, Web App configuration, approved UID, editor password, or unapproved test account was supplied to this repository. Correct-credential login, wrong-credential responses, real UID rejection, Firebase token restoration after a native restart, and live Firebase sign-out therefore remain manual tests after completing the setup above. Windows native compilation again stopped because `cargo` is not installed. Android debug APK compilation stopped at the same `cargo metadata` prerequisite; no emulator or device is available, so Android authentication, persistence, background/foreground, and logout are not claimed as device-verified.
+
+## Milestone 7 draft synchronization
+
+Edit Mode now exposes a compact draft list and structured recipe form. New drafts are valid storage documents even while required publication fields are incomplete. Title, slug, status, descriptive fields, ingredient and instruction lists, equipment, timing, servings, tags, and the shared layout block tree remain separate. The form is intentionally not a visual block editor.
+
+Every edit writes a versioned recovery record to application-local `localStorage`, scoped by authenticated Firebase UID. The recovery record contains draft content, base revision, dirty state, local backup time, and a random device identifier. It contains no password, Firebase token, GitHub token, or image bytes. This mechanism was chosen instead of a Tauri Store plugin because it uses the existing Web Storage surface without adding native commands or storage permissions. Its data contract and browser behavior are tested; native restart persistence still requires Windows and Android device verification. Clearing the WebView/app profile removes the recovery copy, so it is recovery storage rather than a permanent database.
+
+Firestore is explicitly initialized with `memoryLocalCache()` and automatic long-polling detection. Persistent IndexedDB caching is not enabled: Firebase documents persistent web caching for named desktop browsers, and equivalent behavior has not been established for both Tauri WebView2 and Android WebView. The local recovery store is therefore the durable offline layer. Firestore transactions fail offline by design; while disconnected, the UI says **Offline - saved locally**, retains edits, and retries after an online event or another flush trigger.
+
+Remote autosave is debounced by 1,000 ms and also requested on field blur, draft switch, Edit Mode unmount, page hide, visibility transition, and restored connectivity. Lifecycle flushes are best-effort because an operating system can terminate a WebView before a network transaction finishes; the synchronous local recovery write happens before those points. A cloud save is marked **Saved** only after its transaction commits.
+
+Every draft save transaction reads the current remote document and compares its monotonically increasing `revision` with the local `baseRevision`. A mismatch raises a conflict and performs no write. Snapshot listeners update clean drafts, but never replace a dirty local draft. Conflict choices are limited to using the cloud version or creating a new local copy; there is no force-overwrite path. Deletes also verify the expected revision and require a title-bearing confirmation dialog.
+
+The synchronized paths are:
+
+```text
+workspaces/arta-gatitului/drafts/<draftId>
+users/<firebaseUid>/preferences/editor
+```
+
+The preference document contains only last-opened draft ID and selected preview breakpoint. The rules also reserve validated small documents under `workspaces/arta-gatitului/settings/<settingId>` for later non-secret workspace state. All unrelated paths default-deny. The checked-in rules contain a safe-deny UID placeholder that must be replaced before deployment; see `docs/firebase-setup.md`.
+
+Draft schema version 1 reuses shared content model version 1 and shared block model version 1. Reads pass through a migration/normalization boundary, unknown future versions fail safely, and uploads reject malformed block layouts, non-JSON values, oversized documents, binary-like values, and data URLs. Full recipe validation is a separate publish boundary, so incomplete autosaved work does not pretend to be publish-ready.
+
+Attachment documents contain metadata only: filename, alt text, local attachment ID, source device ID, and future repository path. Without Firebase Storage, unpublished image bytes remain on the source device and are not cross-device available. The metadata is retained rather than silently discarded.
+
+The Firestore rules suite runs against `demo-artagatitului` and verifies unauthenticated denial, unapproved-user denial, approved workspace access, unrelated-path denial, revision constraints, and own-user preference isolation. Run it with `npm run test:firestore-rules`; Java 21 or newer is required by the emulator.
+
+The Milestone 7 browser pass used a temporary local-only visual harness, removed immediately afterward, to inspect the draft list, structured form, local-recovery/sync-failure states, and delete confirmation at the narrow in-app-browser width. The versioned local backup round trip is covered by automated tests. The Firestore emulator rules suite passes all five authorization scenarios, and the production frontend build succeeds. No real Firebase project configuration or editor credentials were supplied, so live cloud autosave, Windows native close/reopen recovery, Android lifecycle recovery, and real cross-device synchronization/conflicts are not claimed as tested. They remain manual checks after `docs/firebase-setup.md` is completed and native toolchains/devices are available.
 
 ## Windows prerequisites and current status
 

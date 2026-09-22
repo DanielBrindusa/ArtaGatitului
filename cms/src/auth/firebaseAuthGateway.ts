@@ -1,4 +1,4 @@
-import { getApps, initializeApp, type FirebaseOptions } from 'firebase/app';
+import type { FirebaseOptions } from 'firebase/app';
 import {
   browserLocalPersistence,
   initializeAuth,
@@ -8,6 +8,7 @@ import {
   type Auth,
 } from 'firebase/auth';
 import type { AuthUser } from './authState.mjs';
+import { getFirebaseApp } from '../firebase/firebaseClient';
 
 export interface AuthGateway {
   observe(onUser: (user: AuthUser | null) => void, onError: (error: unknown) => void): () => void;
@@ -15,14 +16,12 @@ export interface AuthGateway {
   signOut(): Promise<void>;
 }
 
-const FIREBASE_APP_NAME = 'arta-gatitului-editor';
 let authInstance: Auth | undefined;
 
 function firebaseAuth(options: FirebaseOptions) {
   if (authInstance) return authInstance;
 
-  const existingApp = getApps().find((app) => app.name === FIREBASE_APP_NAME);
-  const app = existingApp ?? initializeApp(options, FIREBASE_APP_NAME);
+  const app = getFirebaseApp(options);
   authInstance = initializeAuth(app, { persistence: browserLocalPersistence });
   return authInstance;
 }

@@ -7,6 +7,7 @@
     "validate:content": "node src/scripts/validate-content.mjs",
     "build": "node build-static-site.mjs",
     "test": "node --test",
+    "test:firestore-rules": "npx --yes firebase-tools@15.30.2 emulators:exec --project demo-artagatitului --only firestore \"node --test tests/firestore-rules.test.mjs\"",
     "import:godaddy": "node src/scripts/import/import-godaddy-audit.mjs",
     "check": "npm run validate:content && npm run build && npm test",
     "app:dev": "vite --config cms/vite.config.ts",
@@ -30,6 +31,7 @@
     "react-dom": "19.3.0"
   },
   "devDependencies": {
+    "@firebase/rules-unit-testing": "5.0.2",
     "@tauri-apps/cli": "2.11.5",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",

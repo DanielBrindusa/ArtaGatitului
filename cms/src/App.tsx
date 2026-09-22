@@ -30,7 +30,9 @@ export default function App() {
       )}
       {surface === 'view' && <ViewMode />}
       {surface === 'auth' && <AuthGate onReturnToView={() => navigate('view')} />}
-      {surface === 'edit' && <EditMode />}
+      {surface === 'edit' && auth.state.status === 'authenticated-editor' && (
+        <EditMode uid={auth.state.user.uid} />
+      )}
       {surface === 'settings' && (
         <SettingsMode
           userEmail={auth.state.status === 'authenticated-editor' ? auth.state.user.email : null}

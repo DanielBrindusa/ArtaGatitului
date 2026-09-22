@@ -99,7 +99,7 @@ test('Firebase configuration is externalized and contains no password or Admin c
   assert.doesNotMatch(example, /BEGIN PRIVATE KEY|"private_key"|@gmail\.com/i);
 });
 
-test('Tauri permits only the exact Firebase Authentication REST origins', async () => {
+test('Tauri permits only the exact Firebase Authentication and Firestore REST origins', async () => {
   const config = await readJson('src-tauri/tauri.conf.json');
   const csp = config.app.security.csp;
   const devCsp = config.app.security.devCsp;
@@ -107,8 +107,9 @@ test('Tauri permits only the exact Firebase Authentication REST origins', async 
   for (const policy of [csp, devCsp]) {
     assert.match(policy, /https:\/\/identitytoolkit\.googleapis\.com/);
     assert.match(policy, /https:\/\/securetoken\.googleapis\.com/);
+    assert.match(policy, /https:\/\/firestore\.googleapis\.com/);
     assert.doesNotMatch(policy, /https:\/\/\*/);
-    assert.doesNotMatch(policy, /firebaseio|firestore|storage\.googleapis|firebaseapp\.com/);
+    assert.doesNotMatch(policy, /firebaseio|storage\.googleapis|firebaseapp\.com/);
   }
 });
 

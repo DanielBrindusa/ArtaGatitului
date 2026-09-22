@@ -1,0 +1,455 @@
+import {
+  BLOCK_MODEL_VERSION,
+  CONTENT_MODEL_VERSION,
+  normalizeRecipe,
+  validateBlock,
+} from '../../../src/shared/index.mjs';
+import { validateRecipeSource } from '../../../src/shared/validation/recipe.mjs';
+import { isSafeContentUrl } from '../../../src/shared/utils/html.mjs';
+
+export const DRAFT_SCHEMA_VERSION = 1;
+export const DRAFT_STATUSES = Object.freeze(['draft', 'ready', 'published']);
+export const DRAFT_CONTENT_TYPES = Object.freeze(['recipe']);
+export const MAX_DRAFT_BYTES = 750_000;
+
+const DRAFT_ID = /^[a-z0-9][a-z0-9-]{0,79}$/;
+const ATTACHMENT_ID = /^[a-z0-9][a-z0-9-]{0,79}$/;
+const DRAFT_KEYS = new Set([
+  'id', 'contentType', 'schemaVersion', 'title', 'slug', 'status', 'data', 'layout',
+  'createdAt', 'updatedAt', 'updatedByUid', 'revision', 'publishedCommitSha', 'publishedAt',
+]);
+const DATA_KEYS = new Set(['modelVersion', 'recipe', 'attachments']);
+const RECIPE_KEYS = new Set([
+  'id', 'slug', 'title', 'name', 'description', 'category', 'ingredients', 'steps',
+  'preparation', 'beforeStart', 'tags', 'equipment', 'prepTimeMinutes',
+  'cookTimeMinutes', 'totalTimeMinutes', 'servings', 'image', 'sourceUrl',
+  'createdAt', 'updatedAt', 'status', 'closing', 'extras', 'ratingSummary', 'keywords',
+]);
+const LAYOUT_KEYS = new Set(['modelVersion', 'blocks']);
+const ATTACHMENT_KEYS = new Set([
+  'id', 'fileName', 'alt', 'localAttachmentId', 'sourceDeviceId', 'repositoryPath',
+]);
+
+function isRecord(value) {
+  return value !== null && typeof value === 'object' && !Array.isArray(value);
+}
+
+function clone(value) {
+  return JSON.parse(JSON.stringify(value));
+}
+
+function string(value, fallback = '') {
+  return typeof value === 'string' ? value : fallback;
+}
+
+function nullableString(value) {
+  return typeof value === 'string' ? value : null;
+}
+
+function stringArray(value) {
+  return Array.isArray(value) ? value.filter((item) => typeof item === 'string') : [];
+}
+
+function nullableNonNegativeInteger(value) {
+  return value === null || (Number.isInteger(value) && value >= 0) ? value : null;
+}
+
+function normalizeTags(value) {
+  if (!isRecord(value)) return {};
+  return Object.fromEntries(
+    Object.entries(value)
+      .filter(([key, items]) => key.trim() && Array.isArray(items))
+      .map(([key, items]) => [key, stringArray(items)]),
+  );
+}
+
+function normalizeAttachments(value) {
+  if (!Array.isArray(value)) return [];
+  return value.filter(isRecord).map((attachment) => ({
+    id: string(attachment.id),
+    fileName: string(attachment.fileName),
+    alt: string(attachment.alt),
+    localAttachmentId: nullableString(attachment.localAttachmentId),
+    sourceDeviceId: nullableString(attachment.sourceDeviceId),
+    repositoryPath: nullableString(attachment.repositoryPath),
+  }));
+}
+
+function normalizeRecipeData(value) {
+  const recipe = isRecord(value) ? value : {};
+  const steps = stringArray(recipe.steps);
+  return {
+    id: string(recipe.id),
+    slug: string(recipe.slug),
+    title: string(recipe.title),
+    name: string(recipe.name),
+    description: string(recipe.description),
+    category: string(recipe.category),
+    ingredients: stringArray(recipe.ingredients),
+    steps,
+    preparation: stringArray(recipe.preparation),
+    beforeStart: stringArray(recipe.beforeStart),
+    tags: normalizeTags(recipe.tags),
+    equipment: stringArray(recipe.equipment),
+    prepTimeMinutes: nullableNonNegativeInteger(recipe.prepTimeMinutes),
+    cookTimeMinutes: nullableNonNegativeInteger(recipe.cookTimeMinutes),
+    totalTimeMinutes: nullableNonNegativeInteger(recipe.totalTimeMinutes),
+    servings: recipe.servings === null || typeof recipe.servings === 'string' || Number.isInteger(recipe.servings)
+      ? recipe.servings
+      : null,
+    image: nullableString(recipe.image),
+    sourceUrl: nullableString(recipe.sourceUrl),
+    createdAt: nullableString(recipe.createdAt),
+    updatedAt: nullableString(recipe.updatedAt),
+    status: ['published', 'draft', 'archived'].includes(recipe.status) ? recipe.status : 'draft',
+    closing: string(recipe.closing),
+    extras: Array.isArray(recipe.extras) ? clone(recipe.extras) : [],
+    ratingSummary: isRecord(recipe.ratingSummary) ? clone(recipe.ratingSummary) : null,
+    keywords: stringArray(recipe.keywords),
+  };
+}
+
+function normalizeLayout(value) {
+  const layout = isRecord(value) ? value : {};
+  return {
+    modelVersion: BLOCK_MODEL_VERSION,
+    blocks: Array.isArray(layout.blocks) ? clone(layout.blocks) : [],
+  };
+}
+
+function normalizeV1(value) {
+  const data = isRecord(value.data) ? value.data : {};
+  return {
+    id: string(value.id),
+    contentType: 'recipe',
+    schemaVersion: DRAFT_SCHEMA_VERSION,
+    title: string(value.title),
+    slug: string(value.slug),
+    status: DRAFT_STATUSES.includes(value.status) ? value.status : 'draft',
+    data: {
+      modelVersion: CONTENT_MODEL_VERSION,
+      recipe: normalizeRecipeData(data.recipe),
+      attachments: normalizeAttachments(data.attachments),
+    },
+    layout: normalizeLayout(value.layout),
+    createdAt: nullableString(value.createdAt),
+    updatedAt: nullableString(value.updatedAt),
+    updatedByUid: string(value.updatedByUid),
+    revision: Number.isInteger(value.revision) && value.revision >= 0 ? value.revision : 0,
+    publishedCommitSha: nullableString(value.publishedCommitSha),
+    publishedAt: nullableString(value.publishedAt),
+  };
+}
+
+export class UnsupportedDraftSchemaError extends Error {
+  constructor(schemaVersion) {
+    super(`Draft schema version ${String(schemaVersion)} is not supported by this application.`);
+    this.name = 'UnsupportedDraftSchemaError';
+    this.schemaVersion = schemaVersion;
+  }
+}
+
+export class DraftValidationError extends Error {
+  constructor(errors) {
+    super(`Invalid draft:\n- ${errors.join('\n- ')}`);
+    this.name = 'DraftValidationError';
+    this.errors = errors;
+  }
+}
+
+export function migrateDraft(value) {
+  if (!isRecord(value)) throw new DraftValidationError(['draft must be an object']);
+  if (value.schemaVersion !== DRAFT_SCHEMA_VERSION) {
+    throw new UnsupportedDraftSchemaError(value.schemaVersion);
+  }
+  const validation = validateDraftForStorage(value);
+  if (!validation.valid) throw new DraftValidationError(validation.errors);
+  return normalizeV1(value);
+}
+
+export function slugifyDraftTitle(value) {
+  return string(value)
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+    .slice(0, 120);
+}
+
+export function createDraftId() {
+  const randomId = globalThis.crypto?.randomUUID?.()
+    ?? `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`;
+  return `draft-${randomId.toLowerCase()}`;
+}
+
+export function createRecipeDraft(updatedByUid, options = {}) {
+  const id = options.id || createDraftId();
+  const title = string(options.title, 'Untitled recipe');
+  const slug = slugifyDraftTitle(title) || id;
+  return {
+    id,
+    contentType: 'recipe',
+    schemaVersion: DRAFT_SCHEMA_VERSION,
+    title,
+    slug,
+    status: 'draft',
+    data: {
+      modelVersion: CONTENT_MODEL_VERSION,
+      recipe: {
+        id,
+        slug,
+        title,
+        name: title,
+        description: '',
+        category: '',
+        ingredients: [],
+        steps: [],
+        preparation: [],
+        beforeStart: [],
+        tags: {},
+        equipment: [],
+        prepTimeMinutes: null,
+        cookTimeMinutes: null,
+        totalTimeMinutes: null,
+        servings: null,
+        image: null,
+        sourceUrl: null,
+        createdAt: null,
+        updatedAt: null,
+        status: 'draft',
+        closing: '',
+        extras: [],
+        ratingSummary: null,
+        keywords: [],
+      },
+      attachments: [],
+    },
+    layout: {
+      modelVersion: BLOCK_MODEL_VERSION,
+      blocks: [
+        { id: 'recipe-hero', type: 'recipe-hero', data: { showCategory: true, showDescription: true } },
+        { id: 'recipe-metadata', type: 'recipe-metadata', data: {} },
+        { id: 'ingredients', type: 'ingredients', data: { heading: 'Ingrediente' } },
+        { id: 'instructions', type: 'instructions', data: { heading: 'Mod de preparare' } },
+      ],
+    },
+    createdAt: null,
+    updatedAt: null,
+    updatedByUid,
+    revision: 0,
+    publishedCommitSha: null,
+    publishedAt: null,
+  };
+}
+
+export function duplicateRecipeDraft(source, updatedByUid, options = {}) {
+  const sourceDraft = migrateDraft(source);
+  const title = string(options.title, `${sourceDraft.title || 'Untitled recipe'} copy`);
+  const copy = clone(sourceDraft);
+  copy.id = options.id || createDraftId();
+  copy.title = title;
+  copy.slug = slugifyDraftTitle(title) || copy.id;
+  copy.data.recipe.id = copy.id;
+  copy.data.recipe.title = title;
+  copy.data.recipe.name = title;
+  copy.data.recipe.slug = copy.slug;
+  copy.data.recipe.status = 'draft';
+  copy.status = 'draft';
+  copy.createdAt = null;
+  copy.updatedAt = null;
+  copy.updatedByUid = updatedByUid;
+  copy.revision = 0;
+  copy.publishedCommitSha = null;
+  copy.publishedAt = null;
+  return copy;
+}
+
+function checkPlainValue(value, path, errors, depth = 0) {
+  if (depth > 30) {
+    errors.push(`${path} exceeds the maximum nesting depth`);
+    return;
+  }
+  if (typeof value === 'string' && /^data:/i.test(value.trim())) {
+    errors.push(`${path} must not contain a data URL`);
+    return;
+  }
+  if (value === null || ['string', 'number', 'boolean'].includes(typeof value)) return;
+  if (Array.isArray(value)) {
+    value.forEach((item, index) => checkPlainValue(item, `${path}[${index}]`, errors, depth + 1));
+    return;
+  }
+  if (!isRecord(value) || Object.getPrototypeOf(value) !== Object.prototype) {
+    errors.push(`${path} must contain JSON-compatible values only`);
+    return;
+  }
+  Object.entries(value).forEach(([key, item]) => checkPlainValue(item, `${path}.${key}`, errors, depth + 1));
+}
+
+function checkOnlyKeys(value, allowed, path, errors) {
+  Object.keys(value).forEach((key) => {
+    if (!allowed.has(key)) errors.push(`${path}.${key} is not supported`);
+  });
+}
+
+function validNullableTimestamp(value) {
+  return value === null || (typeof value === 'string' && !Number.isNaN(Date.parse(value)));
+}
+
+export function validateDraftForStorage(value) {
+  const errors = [];
+  if (!isRecord(value)) return { valid: false, errors: ['draft must be an object'] };
+  checkOnlyKeys(value, DRAFT_KEYS, 'draft', errors);
+  if (!DRAFT_ID.test(value.id)) errors.push('id must be a stable lowercase identifier');
+  if (!DRAFT_CONTENT_TYPES.includes(value.contentType)) errors.push('contentType must be recipe');
+  if (value.schemaVersion !== DRAFT_SCHEMA_VERSION) errors.push(`schemaVersion must be ${DRAFT_SCHEMA_VERSION}`);
+  if (typeof value.title !== 'string' || value.title.length > 200) errors.push('title must be a string of at most 200 characters');
+  if (typeof value.slug !== 'string' || value.slug.length > 160) errors.push('slug must be a string of at most 160 characters');
+  if (!DRAFT_STATUSES.includes(value.status)) errors.push(`status must be one of ${DRAFT_STATUSES.join(', ')}`);
+  if (!isRecord(value.data)) errors.push('data must be an object');
+  if (!isRecord(value.layout)) errors.push('layout must be an object');
+  if (!Number.isInteger(value.revision) || value.revision < 0) errors.push('revision must be a non-negative integer');
+  if (typeof value.updatedByUid !== 'string' || !value.updatedByUid) errors.push('updatedByUid is required');
+  if (!validNullableTimestamp(value.createdAt)) errors.push('createdAt must be an ISO timestamp or null');
+  if (!validNullableTimestamp(value.updatedAt)) errors.push('updatedAt must be an ISO timestamp or null');
+  if (value.publishedCommitSha !== null && typeof value.publishedCommitSha !== 'string') {
+    errors.push('publishedCommitSha must be a string or null');
+  }
+  if (!validNullableTimestamp(value.publishedAt)) errors.push('publishedAt must be an ISO timestamp or null');
+
+  if (isRecord(value.data)) {
+    checkOnlyKeys(value.data, DATA_KEYS, 'data', errors);
+    if (value.data.modelVersion !== CONTENT_MODEL_VERSION) errors.push(`data.modelVersion must be ${CONTENT_MODEL_VERSION}`);
+    const recipe = value.data.recipe;
+    if (!isRecord(recipe)) errors.push('data.recipe must be an object');
+    else {
+      checkOnlyKeys(recipe, RECIPE_KEYS, 'data.recipe', errors);
+      ['id', 'title', 'name', 'slug', 'description', 'category', 'closing'].forEach((field) => {
+        if (typeof recipe[field] !== 'string') errors.push(`data.recipe.${field} must be a string`);
+      });
+      if (recipe.id !== value.id) errors.push('data.recipe.id must match draft id');
+      if (recipe.title !== value.title) errors.push('data.recipe.title must match draft title');
+      if (recipe.name !== value.title) errors.push('data.recipe.name must match draft title');
+      if (recipe.slug !== value.slug) errors.push('data.recipe.slug must match draft slug');
+      if (recipe.status !== (value.status === 'published' ? 'published' : 'draft')) {
+        errors.push('data.recipe.status must match the draft workflow state');
+      }
+      ['ingredients', 'steps', 'preparation', 'beforeStart', 'equipment', 'keywords'].forEach((field) => {
+        if (!Array.isArray(recipe[field]) || recipe[field].some((item) => typeof item !== 'string')) {
+          errors.push(`data.recipe.${field} must be a string array`);
+        }
+      });
+      if (Array.isArray(recipe.steps) && Array.isArray(recipe.preparation)
+        && JSON.stringify(recipe.steps) !== JSON.stringify(recipe.preparation)) {
+        errors.push('data.recipe.preparation must match data.recipe.steps');
+      }
+      if (!isRecord(recipe.tags) || Object.values(recipe.tags).some((items) => !Array.isArray(items) || items.some((item) => typeof item !== 'string'))) {
+        errors.push('data.recipe.tags must map names to string arrays');
+      }
+      ['prepTimeMinutes', 'cookTimeMinutes', 'totalTimeMinutes'].forEach((field) => {
+        if (recipe[field] !== null && (!Number.isInteger(recipe[field]) || recipe[field] < 0)) {
+          errors.push(`data.recipe.${field} must be a non-negative integer or null`);
+        }
+      });
+      if (recipe.servings !== null && typeof recipe.servings !== 'string'
+        && (!Number.isInteger(recipe.servings) || recipe.servings < 0)) {
+        errors.push('data.recipe.servings must be a non-negative integer, string, or null');
+      }
+      ['image', 'sourceUrl'].forEach((field) => {
+        if (recipe[field] !== null && typeof recipe[field] !== 'string') {
+          errors.push(`data.recipe.${field} must be a string or null`);
+        } else if (typeof recipe[field] === 'string'
+          && (!recipe[field].trim() || !isSafeContentUrl(recipe[field]))) {
+          errors.push(`data.recipe.${field} must be a safe relative or HTTP(S) URL`);
+        }
+      });
+      ['createdAt', 'updatedAt'].forEach((field) => {
+        if (!validNullableTimestamp(recipe[field])) errors.push(`data.recipe.${field} must be an ISO timestamp or null`);
+      });
+      if (!['published', 'draft', 'archived'].includes(recipe.status)) {
+        errors.push('data.recipe.status must use a shared recipe status');
+      }
+      if (!Array.isArray(recipe.extras) || recipe.extras.some((item) => !isRecord(item))) {
+        errors.push('data.recipe.extras must be an array of objects');
+      }
+      if (recipe.ratingSummary !== null && !isRecord(recipe.ratingSummary)) {
+        errors.push('data.recipe.ratingSummary must be an object or null');
+      }
+    }
+    if (!Array.isArray(value.data.attachments)) errors.push('data.attachments must be an array');
+    else if (value.data.attachments.length > 50) errors.push('data.attachments must contain at most 50 records');
+    else value.data.attachments.forEach((attachment, index) => {
+      if (!isRecord(attachment)) {
+        errors.push(`data.attachments[${index}] must be an object`);
+        return;
+      }
+      checkOnlyKeys(attachment, ATTACHMENT_KEYS, `data.attachments[${index}]`, errors);
+      if (!ATTACHMENT_ID.test(attachment.id)) errors.push(`data.attachments[${index}].id is invalid`);
+      if (typeof attachment.fileName !== 'string' || !attachment.fileName.trim()
+        || attachment.fileName.length > 255 || /[\\/]/.test(attachment.fileName)) {
+        errors.push(`data.attachments[${index}].fileName must be a safe filename`);
+      }
+      if (typeof attachment.alt !== 'string' || attachment.alt.length > 500) {
+        errors.push(`data.attachments[${index}].alt must be a string of at most 500 characters`);
+      }
+      ['localAttachmentId', 'sourceDeviceId', 'repositoryPath'].forEach((field) => {
+        if (attachment[field] !== null && typeof attachment[field] !== 'string') {
+          errors.push(`data.attachments[${index}].${field} must be a string or null`);
+        }
+      });
+      if (typeof attachment.repositoryPath === 'string'
+        && (!attachment.repositoryPath.trim() || !isSafeContentUrl(attachment.repositoryPath))) {
+        errors.push(`data.attachments[${index}].repositoryPath must be a safe relative or HTTP(S) URL`);
+      }
+    });
+  }
+
+  if (isRecord(value.layout)) {
+    checkOnlyKeys(value.layout, LAYOUT_KEYS, 'layout', errors);
+    if (value.layout.modelVersion !== BLOCK_MODEL_VERSION) errors.push(`layout.modelVersion must be ${BLOCK_MODEL_VERSION}`);
+    if (!Array.isArray(value.layout.blocks)) errors.push('layout.blocks must be an array');
+    else value.layout.blocks.forEach((block, index) => {
+      const result = validateBlock(block);
+      result.errors.forEach((error) => errors.push(`layout.blocks[${index}]: ${error}`));
+    });
+  }
+
+  checkPlainValue(value, 'draft', errors);
+  try {
+    const serialized = JSON.stringify(value);
+    const byteLength = new TextEncoder().encode(serialized).byteLength;
+    if (byteLength > MAX_DRAFT_BYTES) errors.push(`draft exceeds the ${MAX_DRAFT_BYTES} byte application limit`);
+  } catch {
+    errors.push('draft must be JSON serializable');
+  }
+  return { valid: errors.length === 0, errors };
+}
+
+export function assertDraftForStorage(value) {
+  const result = validateDraftForStorage(value);
+  if (!result.valid) throw new DraftValidationError(result.errors);
+  return value;
+}
+
+export function draftToRecipeSource(value) {
+  const draft = migrateDraft(value);
+  return normalizeRecipe({
+    ...draft.data.recipe,
+    id: draft.id,
+    title: draft.title,
+    name: draft.title,
+    slug: draft.slug,
+    status: draft.status === 'published' ? 'published' : 'draft',
+    preparation: draft.data.recipe.steps,
+    image: draft.data.attachments[0]?.repositoryPath ?? null,
+  }, `${draft.id}.json`);
+}
+
+export function validateDraftForPublish(value) {
+  try {
+    const recipe = draftToRecipeSource(value);
+    return validateRecipeSource(recipe);
+  } catch (error) {
+    return { valid: false, errors: [error instanceof Error ? error.message : 'Draft could not be normalized.'] };
+  }
+}

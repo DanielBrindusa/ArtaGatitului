@@ -1,0 +1,154 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isApprovedEditor() {
+      return request.auth != null
+        && request.auth.uid in [
+          "APPROVED_FIREBASE_UID"
+        ];
+    }
+
+    function validNullableString(value) {
+      return value == null || value is string;
+    }
+
+    function validDraftContent(data) {
+      return data is map
+        && data.keys().hasOnly(['modelVersion', 'recipe', 'attachments'])
+        && data.modelVersion == 1
+        && data.recipe is map
+        && data.recipe.keys().hasOnly([
+          'id', 'slug', 'title', 'name', 'description', 'category', 'ingredients',
+          'steps', 'preparation', 'beforeStart', 'tags', 'equipment',
+          'prepTimeMinutes', 'cookTimeMinutes', 'totalTimeMinutes', 'servings',
+          'image', 'sourceUrl', 'createdAt', 'updatedAt', 'status', 'closing',
+          'extras', 'ratingSummary', 'keywords'
+        ])
+        && data.recipe.id is string
+        && data.recipe.title is string
+        && data.recipe.name is string
+        && data.recipe.slug is string
+        && data.recipe.description is string
+        && data.recipe.category is string
+        && data.recipe.ingredients is list
+        && data.recipe.steps is list
+        && data.recipe.preparation is list
+        && data.recipe.steps == data.recipe.preparation
+        && data.recipe.beforeStart is list
+        && data.recipe.equipment is list
+        && (data.recipe.prepTimeMinutes == null
+          || (data.recipe.prepTimeMinutes is int && data.recipe.prepTimeMinutes >= 0))
+        && (data.recipe.cookTimeMinutes == null
+          || (data.recipe.cookTimeMinutes is int && data.recipe.cookTimeMinutes >= 0))
+        && (data.recipe.totalTimeMinutes == null
+          || (data.recipe.totalTimeMinutes is int && data.recipe.totalTimeMinutes >= 0))
+        && (data.recipe.servings == null || data.recipe.servings is string
+          || (data.recipe.servings is int && data.recipe.servings >= 0))
+        && data.recipe.tags is map
+        && (data.recipe.image == null || data.recipe.image is string)
+        && (data.recipe.sourceUrl == null || data.recipe.sourceUrl is string)
+        && (data.recipe.createdAt == null || data.recipe.createdAt is string)
+        && (data.recipe.updatedAt == null || data.recipe.updatedAt is string)
+        && data.recipe.status in ['published', 'draft', 'archived']
+        && data.recipe.closing is string
+        && data.recipe.extras is list
+        && (data.recipe.ratingSummary == null || data.recipe.ratingSummary is map)
+        && data.recipe.keywords is list
+        && data.attachments is list
+        && data.attachments.size() <= 50;
+    }
+
+    function validDraftLayout(layout) {
+      return layout is map
+        && layout.keys().hasOnly(['modelVersion', 'blocks'])
+        && layout.modelVersion == 1
+        && layout.blocks is list;
+    }
+
+    function validDraftDocument(draft, draftId) {
+      return draft.keys().hasOnly([
+          'id', 'contentType', 'schemaVersion', 'title', 'slug', 'status',
+          'data', 'layout', 'createdAt', 'updatedAt', 'updatedByUid',
+          'revision', 'publishedCommitSha', 'publishedAt'
+        ])
+        && draft.id == draftId
+        && draft.contentType == 'recipe'
+        && draft.schemaVersion == 1
+        && draft.title is string
+        && draft.title.size() <= 200
+        && draft.slug is string
+        && draft.slug.size() <= 160
+        && draft.status in ['draft', 'ready', 'published']
+        && validDraftContent(draft.data)
+        && draft.data.recipe.id == draft.id
+        && draft.data.recipe.title == draft.title
+        && draft.data.recipe.name == draft.title
+        && draft.data.recipe.slug == draft.slug
+        && ((draft.status == 'published' && draft.data.recipe.status == 'published')
+          || (draft.status in ['draft', 'ready'] && draft.data.recipe.status == 'draft'))
+        && validDraftLayout(draft.layout)
+        && draft.createdAt is timestamp
+        && draft.updatedAt is timestamp
+        && draft.updatedAt == request.time
+        && draft.updatedByUid == request.auth.uid
+        && draft.revision is int
+        && draft.revision > 0
+        && validNullableString(draft.publishedCommitSha)
+        && (draft.publishedAt == null || draft.publishedAt is timestamp);
+    }
+
+    function validWorkspaceSetting(setting) {
+      return setting.keys().hasOnly(['schemaVersion', 'value', 'updatedAt', 'updatedByUid'])
+        && setting.schemaVersion == 1
+        && setting.value is map
+        && setting.updatedAt is timestamp
+        && setting.updatedAt == request.time
+        && setting.updatedByUid == request.auth.uid;
+    }
+
+    function validPreference(preference) {
+      return preference.keys().hasOnly([
+          'schemaVersion', 'lastOpenedDraftId', 'previewBreakpoint',
+          'updatedAt', 'updatedByUid'
+        ])
+        && preference.schemaVersion == 1
+        && validNullableString(preference.lastOpenedDraftId)
+        && preference.previewBreakpoint in ['desktop', 'tablet', 'mobile']
+        && preference.updatedAt is timestamp
+        && preference.updatedAt == request.time
+        && preference.updatedByUid == request.auth.uid;
+    }
+
+    match /workspaces/arta-gatitului/drafts/{draftId} {
+      allow read: if isApprovedEditor();
+      allow create: if isApprovedEditor()
+        && validDraftDocument(request.resource.data, draftId)
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.revision == 1;
+      allow update: if isApprovedEditor()
+        && validDraftDocument(request.resource.data, draftId)
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.revision == resource.data.revision + 1;
+      allow delete: if isApprovedEditor();
+    }
+
+    match /workspaces/arta-gatitului/settings/{settingId} {
+      allow read: if isApprovedEditor();
+      allow create, update: if isApprovedEditor() && validWorkspaceSetting(request.resource.data);
+      allow delete: if isApprovedEditor();
+    }
+
+    match /users/{userId}/preferences/{preferenceId} {
+      allow read: if isApprovedEditor() && request.auth.uid == userId;
+      allow create, update: if isApprovedEditor()
+        && request.auth.uid == userId
+        && validPreference(request.resource.data);
+      allow delete: if isApprovedEditor() && request.auth.uid == userId;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

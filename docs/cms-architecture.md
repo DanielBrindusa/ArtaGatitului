@@ -1087,8 +1087,63 @@ The normalized state machine distinguishes initialization, signed-out, sign-in-i
 
 The Firebase SDK is isolated behind `FirebaseAuthGateway`. It initializes Email/Password Auth with `browserLocalPersistence`, observes restored sessions, signs in, and signs out. There is no registration, anonymous authentication, OAuth, phone authentication, custom token flow, Admin SDK, password-reset UI, or password persistence. Firebase error codes are converted to a small set of neutral user messages; raw errors and password values are not logged.
 
-Editor approval compares the authenticated immutable UID against a comma-separated build-time allowlist. Email is display-only. This check protects UI exposure but is not backend authorization because client code and client configuration can be inspected or modified. Before Milestone 7 stores any drafts, every Firestore collection must receive deny-by-default Security Rules that independently require authenticated approved UIDs, conceptually `request.auth != null && request.auth.uid == APPROVED_EDITOR_UID` or a tested multi-editor equivalent.
+Editor approval compares the authenticated immutable UID against a comma-separated build-time allowlist. Email is display-only. This check protects UI exposure but is not backend authorization because client code and client configuration can be inspected or modified. Milestone 7 independently enforces the same explicit UID authorization in deny-by-default Firestore Security Rules.
 
-The local CSP adds only `identitytoolkit.googleapis.com` and `securetoken.googleapis.com`, the Authentication API and token-refresh origins used by this flow. No Firebase remote origin receives a Tauri capability, and no new native command permission is added. Firebase identity remains separate from future GitHub publishing authorization.
+The local CSP adds the exact Authentication API, token-refresh, and Firestore API origins used by this flow. No Firebase remote origin receives a Tauri capability, and no new native command permission is added. Firebase identity remains separate from future GitHub publishing authorization.
 
 Android still displays the public site as an unprivileged top-level page. A small initialization-script control navigates back to the bundled local `#edit` route, destroying the remote document before the authentication UI loads. The same local guard then handles restored sessions or login. This preserves the Milestone 5 remote-content boundary while making Edit reachable on mobile without a second WebView or privileged remote iframe.
+
+## 29. Milestone 7 Firestore Synchronized Drafts
+
+Milestone 7 adds an authenticated draft system without changing the published website data path:
+
+```text
+structured editor state
+  -> per-user local recovery record
+  -> DraftService
+  -> Firestore transaction
+  -> workspaces/arta-gatitului/drafts/<draftId>
+
+published static website
+  <- GitHub repository (future publishing milestone)
+```
+
+Public View imports no draft service and remains usable when Firebase or Firestore is unavailable. Firestore is not queried by the published website, does not contain generated routes or search indexes, and is not a publication database.
+
+### Draft contract and migration
+
+Every draft has a stable ID, `contentType`, `schemaVersion`, title, slug, draft workflow status, structured `data`, separate `layout`, server-authoritative creation/update timestamps, updater UID, monotonic revision, and nullable publication metadata. Recipe data uses shared content model version 1; layout contains shared block model version 1 and validated `ContentBlock` entries. A storage validator permits incomplete editorial fields while the separate publish validator applies the existing complete recipe contract.
+
+All Firestore and local-backup reads pass through `migrateDraft`. Version 1 is normalized into the current contract, while missing or unknown future schema versions fail closed. This gives later migrations one explicit boundary instead of allowing React components to interpret arbitrary stored objects.
+
+Image references are metadata records only: expected filename, alt text, local attachment ID, source device ID, and nullable future repository path. Recursive validation rejects `data:` URLs and non-JSON/binary values before upload. Firebase Storage is not enabled, so another device can preserve and display attachment metadata but cannot claim that an unpublished local file is available there.
+
+### Service and concurrency boundary
+
+React components do not import Firestore. `DraftService` owns create, load, list, save, duplicate, delete, draft subscription, list subscription, and small per-user preference operations. It uses server timestamps and orders draft summaries by `updatedAt`; no composite index is required.
+
+Saves and deletes run in transactions. A save carries the revision from which editing began, reads the current remote document, and writes only when the two revisions match. The committed revision is exactly one greater. Firestore retries a transaction when its read changes, and the explicit expected-revision check then converts that race into a conflict instead of last-write-wins. Deletes apply the same expected-revision check.
+
+Snapshot listeners accept newer remote data only while the local document is clean. Dirty local data produces a conflict state and stays in recovery storage. The conflict dialog offers **Use cloud version** and **Save mine as copy**; there is intentionally no force-overwrite action and no CRDT or character-level merge.
+
+### Autosave and local recovery
+
+Keystrokes update editor state and a synchronous application-level `localStorage` recovery record. Remote Firestore autosave waits 1,000 ms after the latest edit, then flushes on blur, draft switching, connectivity restoration, and best-effort page/lifecycle transitions. UI states distinguish local recovery, cloud saving, committed save, offline recovery, conflict, and failure.
+
+Recovery data is versioned and keyed by authenticated UID. It includes draft content and synchronization metadata only, never credentials or tokens. `localStorage` avoids new native capabilities and uses a Web API available to both target WebViews, but native restart persistence has not yet been device-tested. Clearing app/WebView data removes it. It is a recovery layer, not a secret store or a replacement for Firestore.
+
+Firestore uses explicit in-memory caching. Persistent web cache support has not been proven across both Tauri WebView2 and Android WebView, so the architecture does not depend on IndexedDB persistence. Offline transaction failure leaves the dirty local record intact; a later online flush uses the same expected revision and can still surface a conflict safely.
+
+### Collections and authorization
+
+The active schema is shallow:
+
+```text
+workspaces/arta-gatitului/drafts/<draftId>
+workspaces/arta-gatitului/settings/<settingId>
+users/<firebaseUid>/preferences/<preferenceId>
+```
+
+Security Rules require both Firebase Authentication and an explicitly listed immutable UID. Workspace data is available only under the exact `arta-gatitului` path. Preferences additionally require `request.auth.uid == userId`. Draft creates require revision 1, updates require the previous revision plus one and immutable `createdAt`, and incoming documents have constrained keys and core types. Every unmatched path denies reads and writes.
+
+The committed approved UID is a non-user placeholder, leaving deployed rules safe-deny until configured. Emulator tests substitute a test UID in memory and never contact production. `firestore.indexes.json` is empty because current queries need only automatic single-field indexes. Exact console and deployment steps are in `docs/firebase-setup.md`.
