@@ -13,10 +13,14 @@ test('Firestore writes stay behind the draft service and use transactions', asyn
   assert.doesNotMatch(view, /firebase\/firestore/);
 });
 
-test('production rules remain safe-deny until an approved UID is configured', async () => {
+test('production rules use an explicit approved UID allow-list and default deny', async () => {
   const rules = await readFile(new URL('../firestore.rules', import.meta.url), 'utf8');
+  const allowList = rules.match(/request\.auth\.uid in \[([\s\S]*?)\]/);
 
-  assert.match(rules, /APPROVED_FIREBASE_UID/);
+  assert.ok(allowList, 'An explicit request.auth.uid allow-list is required.');
+  const approvedUids = JSON.parse(`[${allowList[1]}]`);
+  assert.ok(approvedUids.length > 0);
+  assert.ok(approvedUids.every((uid) => typeof uid === 'string' && uid.length > 0 && uid !== '*'));
   assert.match(rules, /request\.auth != null/);
   assert.match(rules, /match \/\{document=\*\*\}/);
   assert.match(rules, /allow read, write: if false/);

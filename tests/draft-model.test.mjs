@@ -9,6 +9,7 @@ import {
   validateDraftForStorage,
 } from '../cms/src/drafts/draftModel.mjs';
 import { LocalDraftBackup } from '../cms/src/drafts/localDraftBackup.mjs';
+import { shouldConflictOnMissingRemote } from '../cms/src/drafts/draftSyncPolicy.mjs';
 
 class MemoryStorage {
   values = new Map();
@@ -133,4 +134,23 @@ test('local backups are versioned, user-scoped, and retain dirty base revisions'
   assert.equal(editorOne.load(draft.id).baseRevision, 3);
   assert.equal(editorOne.getLastOpenedDraftId(), draft.id);
   assert.equal(editorTwo.list().length, 0);
+});
+
+test('a missing cloud snapshot does not conflict with a brand-new unsaved draft', () => {
+  const draft = createRecipeDraft('editor-one', { id: 'draft-new' });
+
+  assert.equal(shouldConflictOnMissingRemote({
+    draft,
+    dirty: true,
+    baseRevision: 0,
+    backedUpAt: '2026-01-01T00:00:00.000Z',
+  }), false);
+
+  draft.revision = 3;
+  assert.equal(shouldConflictOnMissingRemote({
+    draft,
+    dirty: true,
+    baseRevision: 3,
+    backedUpAt: '2026-01-01T00:00:00.000Z',
+  }), true);
 });

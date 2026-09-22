@@ -15,6 +15,7 @@ import {
   LocalDraftBackup,
   type DraftBackupRecord,
 } from './localDraftBackup.mjs';
+import { shouldConflictOnMissingRemote } from './draftSyncPolicy.mjs';
 
 const AUTOSAVE_DELAY_MS = 1_000;
 
@@ -73,6 +74,7 @@ export function useDraftWorkspace(uid: string) {
   const autosaveTimerRef = useRef<number | undefined>(undefined);
   const savePromiseRef = useRef<Promise<FlushResult> | null>(null);
   const savingRef = useRef<{ id: string; targetRevision: number } | null>(null);
+  const conflictRef = useRef<DraftConflict | null>(null);
   const scheduleSaveRef = useRef<() => void>(() => undefined);
   const preferredDraftIdRef = useRef<string | null>(backup.getLastOpenedDraftId());
   const initialPreferencesAppliedRef = useRef(false);
@@ -80,6 +82,15 @@ export function useDraftWorkspace(uid: string) {
   const setActive = useCallback((value: ActiveDraft | null) => {
     activeRef.current = value;
     setActiveState(value);
+  }, []);
+
+  const setWorkspaceConflict = useCallback((value: DraftConflict | null) => {
+    conflictRef.current = value;
+    setConflict(value);
+    if (value && autosaveTimerRef.current !== undefined) {
+      window.clearTimeout(autosaveTimerRef.current);
+      autosaveTimerRef.current = undefined;
+    }
   }, []);
 
   const refreshRecords = useCallback(() => {
@@ -103,6 +114,7 @@ export function useDraftWorkspace(uid: string) {
   }, [backup, refreshRecords]);
 
   const flush = useCallback(async (): Promise<FlushResult> => {
+    if (conflictRef.current) return 'conflict';
     if (savePromiseRef.current) {
       const result = await savePromiseRef.current;
       if (result === 'saved' && activeRef.current?.dirty) return flush();
@@ -156,7 +168,7 @@ export function useDraftWorkspace(uid: string) {
       } catch (error) {
         if (error instanceof DraftConflictError) {
           const latest = activeRef.current;
-          if (latest) setConflict({ localDraft: latest.draft, remoteDraft: error.remoteDraft });
+          if (latest) setWorkspaceConflict({ localDraft: latest.draft, remoteDraft: error.remoteDraft });
           setConflictIds((currentIds) => new Set(currentIds).add(draftToSave.id));
           setSaveState('conflict');
           return 'conflict';
@@ -175,7 +187,7 @@ export function useDraftWorkspace(uid: string) {
     const result = await operation;
     savePromiseRef.current = null;
     return result;
-  }, [service, setActive, storeRecord, uid]);
+  }, [service, setActive, setWorkspaceConflict, storeRecord, uid]);
 
   const scheduleSave = useCallback(() => {
     if (autosaveTimerRef.current !== undefined) window.clearTimeout(autosaveTimerRef.current);
@@ -280,10 +292,10 @@ export function useDraftWorkspace(uid: string) {
         if (!current || current.draft.id !== activeId || snapshot?.hasPendingWrites) return;
         if (!snapshot) {
           if (fromCache) return;
-          if (current.dirty) {
-            setConflict({ localDraft: current.draft, remoteDraft: null });
+          if (shouldConflictOnMissingRemote(current)) {
+            setWorkspaceConflict({ localDraft: current.draft, remoteDraft: null });
             setSaveState('conflict');
-          } else {
+          } else if (!current.dirty) {
             backup.remove(activeId);
             setActive(null);
             refreshRecords();
@@ -296,7 +308,7 @@ export function useDraftWorkspace(uid: string) {
           : null;
         if (snapshot.draft.revision === expectedOwnRevision) return;
         if (current.dirty) {
-          setConflict({ localDraft: current.draft, remoteDraft: snapshot.draft });
+          setWorkspaceConflict({ localDraft: current.draft, remoteDraft: snapshot.draft });
           setConflictIds((ids) => new Set(ids).add(activeId));
           setSaveState('conflict');
           return;
@@ -315,7 +327,7 @@ export function useDraftWorkspace(uid: string) {
         if (activeRef.current?.dirty) setSaveState(online() ? 'error' : 'offline');
       },
     );
-  }, [activeId, backup, refreshRecords, service, setActive, storeRecord]);
+  }, [activeId, backup, refreshRecords, service, setActive, setWorkspaceConflict, storeRecord]);
 
   useEffect(() => {
     const handleOnline = () => void flush();
@@ -465,48 +477,60 @@ export function useDraftWorkspace(uid: string) {
     } catch (error) {
       if (error instanceof DraftConflictError) {
         setDeleteCandidate(null);
-        setConflict({ localDraft: draft, remoteDraft: error.remoteDraft });
+        setWorkspaceConflict({ localDraft: draft, remoteDraft: error.remoteDraft });
         setSaveState('conflict');
       } else {
         setSaveState('error');
         setErrorMessage('The draft could not be deleted. No local or cloud data was removed.');
       }
     }
-  }, [backup, deleteCandidate, refreshRecords, service, setActive]);
+  }, [backup, deleteCandidate, refreshRecords, service, setActive, setWorkspaceConflict]);
 
   const useCloudVersion = useCallback(() => {
-    if (!conflict) return;
-    if (conflict.remoteDraft) {
-      const record = backup.save(conflict.remoteDraft, {
+    const currentConflict = conflictRef.current;
+    if (!currentConflict) return;
+    setWorkspaceConflict(null);
+    if (currentConflict.remoteDraft) {
+      const record = backup.save(currentConflict.remoteDraft, {
         dirty: false,
-        baseRevision: conflict.remoteDraft.revision,
+        baseRevision: currentConflict.remoteDraft.revision,
       });
       setActive(record);
+      backup.setLastOpenedDraftId(currentConflict.remoteDraft.id);
+      preferredDraftIdRef.current = currentConflict.remoteDraft.id;
     } else {
-      backup.remove(conflict.localDraft.id);
+      backup.remove(currentConflict.localDraft.id);
       setActive(null);
+      backup.setLastOpenedDraftId(null);
+      preferredDraftIdRef.current = null;
     }
     setConflictIds((ids) => {
       const next = new Set(ids);
-      next.delete(conflict.localDraft.id);
+      next.delete(currentConflict.localDraft.id);
       return next;
     });
-    setConflict(null);
     refreshRecords();
     setSaveState('saved');
-  }, [backup, conflict, refreshRecords, setActive]);
+    void service.savePreferences(uid, {
+      schemaVersion: 1,
+      lastOpenedDraftId: currentConflict.remoteDraft?.id ?? null,
+      previewBreakpoint,
+    }).catch(() => undefined);
+  }, [backup, previewBreakpoint, refreshRecords, service, setActive, setWorkspaceConflict, uid]);
 
   const saveConflictAsCopy = useCallback(() => {
-    if (!conflict) return;
-    if (conflict.remoteDraft) {
-      backup.save(conflict.remoteDraft, {
+    const currentConflict = conflictRef.current;
+    if (!currentConflict) return;
+    setWorkspaceConflict(null);
+    if (currentConflict.remoteDraft) {
+      backup.save(currentConflict.remoteDraft, {
         dirty: false,
-        baseRevision: conflict.remoteDraft.revision,
+        baseRevision: currentConflict.remoteDraft.revision,
       });
     } else {
-      backup.remove(conflict.localDraft.id);
+      backup.remove(currentConflict.localDraft.id);
     }
-    const copy = duplicateRecipeDraft(conflict.localDraft, uid);
+    const copy = duplicateRecipeDraft(currentConflict.localDraft, uid);
     const record = {
       draft: copy,
       dirty: true,
@@ -516,10 +540,9 @@ export function useDraftWorkspace(uid: string) {
     setActive(record);
     setSaveState(online() ? 'local' : 'offline');
     storeRecord(record);
-    setConflict(null);
     setConflictIds((ids) => {
       const next = new Set(ids);
-      next.delete(conflict.localDraft.id);
+      next.delete(currentConflict.localDraft.id);
       return next;
     });
     backup.setLastOpenedDraftId(copy.id);
@@ -530,7 +553,7 @@ export function useDraftWorkspace(uid: string) {
       previewBreakpoint,
     }).catch(() => undefined);
     scheduleSave();
-  }, [backup, conflict, previewBreakpoint, scheduleSave, service, setActive, storeRecord, uid]);
+  }, [backup, previewBreakpoint, scheduleSave, service, setActive, setWorkspaceConflict, storeRecord, uid]);
 
   const setPreviewBreakpoint = useCallback((value: EditorPreferences['previewBreakpoint']) => {
     setPreviewBreakpointState(value);

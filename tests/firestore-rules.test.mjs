@@ -71,7 +71,10 @@ function draftDocument(id, revision = 1) {
 test.before(async () => {
   if (!emulatorAvailable) return;
   const rulesTemplate = await readFile(new URL('../firestore.rules', import.meta.url), 'utf8');
-  const rules = rulesTemplate.replace('APPROVED_FIREBASE_UID', approvedUid);
+  const rules = rulesTemplate.replace(
+    /request\.auth\.uid in \[[\s\S]*?\]/,
+    `request.auth.uid in ["${approvedUid}"]`,
+  );
   environment = await initializeTestEnvironment({ projectId, firestore: { rules } });
 });
 
