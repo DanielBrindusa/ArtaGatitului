@@ -1064,3 +1064,31 @@ Tauri's Android app plugin provides native Back handling: WebView history is tra
 Android is not orientation-locked. The generated Activity handles orientation and screen-size changes in place. The local launcher and injected public-site compatibility CSS account for safe-area insets and edge-to-edge system bars. Normal Activity background/foreground preserves the WebView and its current navigation; OS process eviction may still produce a cold start at home. No deep-link intent filter is added, although the stable package identifier and centralized URL policy can support verified recipe App Links later.
 
 The only generated manifest permission is `INTERNET`. There are no storage, location, contacts, camera, microphone, shell, filesystem, or broad IPC grants. Launcher and adaptive icon assets reuse the canonical repository artwork. Production signing credentials remain intentionally absent.
+
+## 28. Milestone 6 Authentication Foundation
+
+Milestone 6 introduces Firebase Authentication only inside the bundled local CMS frontend. Public View remains independent: its Windows child webview and Android top-level GitHub Pages document receive no Firebase state, no Tauri permission, and no bridge to the local authoring shell.
+
+```text
+local React shell
+  -> AuthProvider
+     -> FirebaseAuthGateway
+        -> Email/Password sign-in
+        -> browser-local Firebase session persistence
+        -> auth-state observer
+  -> exact UID allowlist
+  -> Edit + Settings route guard
+
+public View
+  -> renders immediately regardless of auth state/configuration/network
+```
+
+The normalized state machine distinguishes initialization, signed-out, sign-in-in-progress, authenticated-but-unapproved, approved editor, recoverable authentication failure, and configuration failure. `resolveAppSurface()` is the single route decision: View always resolves publicly, while both current authoring routes resolve to the authentication gate unless state is `authenticated-editor`. Hiding a tab is never treated as route protection.
+
+The Firebase SDK is isolated behind `FirebaseAuthGateway`. It initializes Email/Password Auth with `browserLocalPersistence`, observes restored sessions, signs in, and signs out. There is no registration, anonymous authentication, OAuth, phone authentication, custom token flow, Admin SDK, password-reset UI, or password persistence. Firebase error codes are converted to a small set of neutral user messages; raw errors and password values are not logged.
+
+Editor approval compares the authenticated immutable UID against a comma-separated build-time allowlist. Email is display-only. This check protects UI exposure but is not backend authorization because client code and client configuration can be inspected or modified. Before Milestone 7 stores any drafts, every Firestore collection must receive deny-by-default Security Rules that independently require authenticated approved UIDs, conceptually `request.auth != null && request.auth.uid == APPROVED_EDITOR_UID` or a tested multi-editor equivalent.
+
+The local CSP adds only `identitytoolkit.googleapis.com` and `securetoken.googleapis.com`, the Authentication API and token-refresh origins used by this flow. No Firebase remote origin receives a Tauri capability, and no new native command permission is added. Firebase identity remains separate from future GitHub publishing authorization.
+
+Android still displays the public site as an unprivileged top-level page. A small initialization-script control navigates back to the bundled local `#edit` route, destroying the remote document before the authentication UI loads. The same local guard then handles restored sessions or login. This preserves the Milestone 5 remote-content boundary while making Edit reachable on mobile without a second WebView or privileged remote iframe.

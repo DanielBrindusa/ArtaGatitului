@@ -61,6 +61,13 @@ const VIEW_INITIALIZATION_SCRIPT: &str = r#"
 "#;
 
 #[cfg(mobile)]
+#[cfg(debug_assertions)]
+const MOBILE_EDITOR_URL: &str = "http://localhost:1420/#edit";
+#[cfg(mobile)]
+#[cfg(not(debug_assertions))]
+const MOBILE_EDITOR_URL: &str = "http://tauri.localhost/#edit";
+
+#[cfg(mobile)]
 const MOBILE_INITIALIZATION_SCRIPT: &str = r#"
 try {
   Object.defineProperty(window.navigator, 'standalone', {
@@ -70,9 +77,15 @@ try {
 } catch (_) {}
 
 (() => {
+  const isPublicSite = window.location.protocol === 'https:'
+    && window.location.hostname === 'danielbrindusa.github.io'
+    && (window.location.pathname === '/ArtaGatitului'
+      || window.location.pathname.startsWith('/ArtaGatitului/'));
+  if (!isPublicSite) return;
+
   const applyNativeInsets = () => {
     const viewport = document.querySelector('meta[name="viewport"]');
-    if (!document.head || !viewport) return false;
+    if (!document.head || !document.body || !viewport) return false;
 
     if (!viewport.content.includes('viewport-fit=cover')) {
       viewport.content = `${viewport.content}, viewport-fit=cover`;
@@ -105,8 +118,36 @@ try {
           top: calc(108px + env(safe-area-inset-top, 0px));
         }
         .scroll-progress { top: env(safe-area-inset-top, 0px); }
+        #arta-native-editor-link {
+          position: fixed;
+          z-index: 2147483000;
+          left: calc(12px + env(safe-area-inset-left, 0px));
+          bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+          display: inline-flex;
+          min-height: 42px;
+          align-items: center;
+          justify-content: center;
+          padding: 0 15px;
+          border: 1px solid rgba(255, 214, 186, 0.42);
+          border-radius: 8px;
+          color: #fff3e8;
+          background: rgba(16, 16, 15, 0.96);
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+          font: 700 13px/1 system-ui, sans-serif;
+          letter-spacing: 0;
+          text-decoration: none;
+        }
       `;
       document.head.appendChild(style);
+    }
+
+    if (!document.getElementById('arta-native-editor-link')) {
+      const editorLink = document.createElement('a');
+      editorLink.id = 'arta-native-editor-link';
+      editorLink.href = '__ARTA_EDITOR_URL__';
+      editorLink.textContent = 'Editor';
+      editorLink.setAttribute('aria-label', 'Open Arta Gătitului Editor');
+      document.body.appendChild(editorLink);
     }
 
     return true;
@@ -120,6 +161,11 @@ try {
   }
 })();
 "#;
+
+#[cfg(mobile)]
+fn mobile_initialization_script() -> String {
+    MOBILE_INITIALIZATION_SCRIPT.replace("__ARTA_EDITOR_URL__", MOBILE_EDITOR_URL)
+}
 
 #[cfg(desktop)]
 #[derive(Debug, Deserialize)]
@@ -332,7 +378,7 @@ pub fn create_mobile_view(app: &mut App) -> tauri::Result<()> {
     let popup_app = app.handle().clone();
 
     WebviewWindowBuilder::from_config(app.handle(), window_config)?
-        .initialization_script(MOBILE_INITIALIZATION_SCRIPT)
+        .initialization_script(mobile_initialization_script())
         .devtools(cfg!(debug_assertions))
         .on_download(|_, _| false)
         .on_navigation(move |url| {

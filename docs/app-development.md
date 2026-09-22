@@ -1,17 +1,19 @@
 # Arta Gatitului Application Development
 
-Milestones 4 and 5 turn the same Tauri 2 project into public Windows and Android readers for the real published Arta Gătitului site. The static website remains an independent GitHub Pages build and is not frozen into either application package. Authentication, drafts, editing, and publishing remain deferred.
+Milestones 4 through 6 provide public Windows and Android readers plus Firebase-authenticated access to the local authoring shell. The static website remains an independent GitHub Pages build and is not frozen into either application package. Firestore drafts, functional editing, and publishing remain deferred.
 
 ## Project structure
 
 ```text
 .
   cms/
+    .env.example
     index.html
     vite.config.ts
     tsconfig.json
     src/
       app/useAppRoute.ts
+      auth/
       components/
       platform/viewMode.ts
       preview/demoContent.ts
@@ -35,9 +37,44 @@ Milestones 4 and 5 turn the same Tauri 2 project into public Windows and Android
     tauri.android.conf.json
 ```
 
-`cms/` is the single frontend for Windows and Android. `cms/src/platform/viewMode.ts` contains the small runtime adapter: Windows uses three narrow Rust commands, Android replaces the local launcher with the trusted public URL, and an ordinary browser uses the development iframe. The local shell still has three lightweight hash-routed areas: View, Edit, and Settings. Android intentionally enters the website-focused View surface immediately; the unfinished Edit and Settings areas remain local development surfaces. Real Edit Mode authentication starts in Milestone 6; the current `Development mode` label is not an authentication mechanism.
+`cms/` is the single frontend for Windows and Android. `cms/src/platform/viewMode.ts` contains the small runtime adapter: Windows uses three narrow Rust commands, Android replaces the local launcher with the trusted public URL, and an ordinary browser uses the development iframe. The local shell has three lightweight hash-routed areas: View, Edit, and Settings. View is always public. Edit and Settings both resolve through the same authentication guard; changing the hash directly cannot render either authoring surface without an approved session.
 
 The preview demonstration imports the framework-independent model, schema, design tokens, normalization, and renderer from `src/shared`. `src/shared/index.d.mts` describes that JavaScript API to strict TypeScript without duplicating the runtime implementation. The demo data is local and separate from production recipes.
+
+## Firebase Authentication
+
+Milestone 6 uses only the modular Firebase Web Authentication SDK. `AuthProvider` owns initialization, restored-session observation, Email/Password sign-in, UID authorization, normalized failures, and sign-out. UI code consumes one explicit state:
+
+- `initializing`
+- `unauthenticated`
+- `authenticating`
+- `authenticated-but-unauthorized`
+- `authenticated-editor`
+- `authentication-error`
+- `configuration-error`
+
+Firebase uses `browserLocalPersistence`; Firebase stores and refreshes its own session in the local WebView profile. The application never stores the password, token, or a parallel login cookie. The password exists only in the controlled password field for the current attempt and is cleared as the attempt starts. Persistence is expected across normal Windows and Android restarts while the same application profile remains, but clearing app data/profile storage signs the user out.
+
+An authenticated user reaches Edit or Settings only when the exact Firebase UID appears in `VITE_FIREBASE_EDITOR_UIDS`. The value accepts a comma-separated list so more trusted editors can be added later. Email is display metadata and is never the authorization key. An unapproved authenticated account remains isolated from authoring UI and can sign out or return to public View.
+
+This UID list is a client-side UI gate, not a tamper-proof data authorization system. It does not protect a future remote database. Milestone 7 must add and test Firestore Security Rules that require an authenticated approved UID for every draft/settings path before any Firestore data is introduced. Firebase identity also grants no GitHub publishing or broad native authority.
+
+### Firebase setup for ArtaGatitului Editor
+
+1. Create or select a Firebase project in the Firebase console and keep it on the Spark plan. Do not enable billing, Hosting, Storage, Functions, Extensions, or Firestore for this milestone.
+2. In Project settings, register a Web App for the Tauri frontend. Do not select Firebase Hosting.
+3. In Authentication > Sign-in method, enable only Email/Password. Do not enable anonymous or federated providers.
+4. In Authentication > Users, manually add the trusted editor. The application intentionally contains no Create Account flow.
+5. Open that user and copy the immutable Firebase UID. Do not use the email address as the allowlist identity.
+6. In Project settings > General > Your apps, copy the Web App configuration values for `apiKey`, `authDomain`, `projectId`, `appId`, and `messagingSenderId`.
+7. Copy `cms/.env.example` to `cms/.env.local`, replace every placeholder, and put one or more comma-separated UIDs in `VITE_FIREBASE_EDITOR_UIDS`. Never put the editor password, a service-account JSON value, an Admin private key, or a GitHub credential in this file.
+8. For local browser development, add `localhost` and `127.0.0.1` to Authentication > Settings > Authorized domains if Firebase requires them. New Firebase projects do not add `localhost` automatically. The packaged Tauri origin is `tauri.localhost`; add it if the console reports an unauthorized-domain error.
+9. Restart Vite/Tauri after changing environment values, run `npm run app:dev` or the applicable Tauri development command, open Edit, and sign in with the manually created account.
+10. Verify direct `#edit` and `#settings` navigation, restart persistence, sign-out, an unapproved test UID if one is available, and continued public View access while signed out/offline.
+
+Firebase Web App configuration and the approved UID list are compiled into the client and are therefore inspectable identifiers, not secrets. Firebase documents its Web API keys as project identifiers rather than authorization credentials; keep the key restricted to Firebase-related APIs. Passwords, refresh tokens, service-account credentials, private keys, and Admin SDK credentials remain private and must never be committed. Packaged builds must be rebuilt when the environment configuration or approved UID list changes.
+
+There is no password-reset UI in this milestone. The controlled administrator handles account recovery or password changes through the Firebase console. The app does not import or call account-creation, anonymous, OAuth, phone, or password-reset APIs.
 
 ## Windows View Mode
 
@@ -94,12 +131,13 @@ Using a remote iframe inside the privileged local WebView is intentionally forbi
 - Same-project new-window requests are redirected into `main`; every new window is denied after routing.
 - Safe external `http`, `https`, and `mailto` destinations are passed from trusted Rust code to the device handler. Unknown schemes, lookalike hosts, credentials, nonstandard ports, and paths outside the project are blocked from the app WebView.
 - Downloads initiated by remote content are denied.
+- The injected Android `Editor` command navigates to the bundled local `#edit` route. Navigation destroys the remote document first; the local authentication guard then decides whether to show login or authoring UI.
 
 ### Android startup, system UI, and lifecycle
 
 The app initially shows the repository-owned icon, product name, and a lightweight loading line. At Android widths the desktop top bar and View toolbar are omitted so the website receives the full usable viewport. The local loading/offline surface pads itself with CSS safe-area insets. The Android-only initialization script adds `viewport-fit=cover` and safe-area offsets to the public site's sticky header and fixed controls; it also marks the native container as standalone so the website does not offer to install its PWA from inside the installed app.
 
-No orientation is forced. The generated Tauri Activity handles orientation and screen-size configuration changes, so portrait, landscape, and ordinary background/foreground transitions retain the existing WebView rather than intentionally navigating home. The website service worker, local storage, checklist state, and ratings remain in the WebView profile. Android may still destroy the process under memory pressure; a later cold launch starts at the public home page. No sensitive editor state exists in this milestone.
+No orientation is forced. The generated Tauri Activity handles orientation and screen-size configuration changes, so portrait, landscape, and ordinary background/foreground transitions retain the existing WebView rather than intentionally navigating home. The website service worker, local storage, checklist state, ratings, and Firebase-managed local authentication persistence remain in the WebView profile. Android may still destroy the process under memory pressure; a later cold launch starts at the public home page and restores Firebase state when the bundled editor shell is opened. Raw passwords are never persisted by the application.
 
 Deep links are not registered. The stable package identifier and single top-level navigation policy leave room for a later verified Android App Link that maps published recipe URLs into the existing WebView, without changing the View Mode architecture.
 
@@ -191,15 +229,15 @@ Remote website content is untrusted relative to the native process:
 - `public-view` matches no capability and there is no `remote` URL grant. Its JavaScript therefore cannot invoke application, core, or plugin commands.
 - The only application permission is `view-mode-control`, containing `set_view_bounds`, `set_view_visibility`, and `navigate_view`.
 - The three desktop commands verify both the caller label and the bundled local-shell origin. Navigation accepts a fixed action enum represented by four strings, never an arbitrary URL.
-- No filesystem, shell, process, secret-store, GitHub, Firebase, or opener permission is exposed to frontend code.
+- No filesystem, shell, process, secret-store, GitHub, native Firebase, or opener permission is exposed to frontend code. Firebase Authentication is an ordinary HTTPS client dependency, not a Tauri capability.
 - The opener plugin's automatic JavaScript link handling is disabled. Rust calls it only after validating an intercepted external URL.
-- `withGlobalTauri` and the asset protocol remain disabled. The local CSP names the one public HTTPS origin needed for health checks and browser-only preview; it uses no remote wildcard.
+- `withGlobalTauri` and the asset protocol remain disabled. The local CSP names the public-site origin plus `identitytoolkit.googleapis.com` for Email/Password sign-in/account lookup and `securetoken.googleapis.com` for token refresh. It grants no HTTPS wildcard, Firebase Hosting, Firestore, Storage, or arbitrary Google origin.
 - Top-level remote navigation requires HTTPS, the exact host `danielbrindusa.github.io`, and `/ArtaGatitului` as a path boundary. Credentials and nonstandard ports are rejected.
 - Downloads initiated by the remote child are denied in this milestone.
 - Android creates no iframe and grants no remote capability. The public top-level page therefore cannot call application, core, or plugin commands even though Android reuses the `main` WebView label.
 - DevTools are enabled only in debug builds. Release builds do not enable the Tauri `devtools` feature.
 
-Automated tests inspect both platform capabilities, the custom desktop permission allowlist, command caller/origin checks, shared URL policy, CSP, new-window denial, Android top-level replacement, version strategy, adaptive icons, safe areas, loading UI, and offline recovery. Rust unit tests additionally cover allowed project URLs, local-shell origins, and insecure/lookalike rejection; running them requires the Rust toolchain.
+Automated tests inspect authentication-state transitions, direct-route guards, UID matching, Firebase API scope, environment shape, both platform capabilities, command caller/origin checks, shared URL policy, CSP, new-window denial, Android transitions, version strategy, adaptive icons, safe areas, loading UI, and offline recovery. Rust unit tests additionally cover allowed project URLs, local-shell origins, and insecure/lookalike rejection; running them requires the Rust toolchain.
 
 ## Dependencies and scope
 
@@ -209,10 +247,11 @@ Automated tests inspect both platform capabilities, the custom desktop permissio
 - `lucide-react`: accessible, consistent interface icons without a component-suite dependency.
 - `@tauri-apps/api`: typed `invoke` access from the local shell to the three scoped View Mode commands.
 - `@tauri-apps/cli`: official Tauri 2 development, build, icon, and mobile commands.
+- `firebase`: modular Web SDK usage limited to Firebase Authentication with Email/Password and local session persistence.
 - Rust `tauri` and `tauri-build`: native application runner, child-webview host, and generated build context. The pinned `unstable` Tauri feature is required for the documented multiwebview API.
 - Rust `tauri-plugin-opener`: opens validated external URLs in the system browser from trusted Rust code; no frontend opener permission is granted.
 
-Firebase, Firestore, drag-and-drop, rich-text, GitHub, and UI-suite packages remain deferred to the milestones that need them.
+Firestore, drag-and-drop, rich-text, GitHub, and UI-suite packages remain deferred to the milestones that need them. Firebase Hosting, Storage, Functions, Extensions, Admin SDK, analytics, messaging, and OAuth providers are intentionally absent.
 
 ## Milestone 4 verification
 
@@ -242,6 +281,14 @@ npm run tauri:android:build -- --debug --apk
 ```
 
 Both stopped before Android project generation at Tauri's `cargo metadata` step because `cargo` is not installed. `npm run tauri:check` reached the same missing-Cargo prerequisite on Windows. No `src-tauri/gen` directory, APK, AAB, signing material, or other generated native artifact was created. Device-only claims such as native Back/gesture behavior, external intent routing, system-bar insets, rotation, process restoration, and offline transitions remain explicitly unverified until the prerequisites below and an emulator or physical device are available.
+
+## Milestone 6 verification
+
+The local browser shell was checked with no Firebase configuration and with temporary non-secret placeholder configuration. Missing configuration fails closed on direct `#edit` access while public View remains usable. With placeholder configuration, both direct `#edit` and `#settings` routes showed the dedicated sign-in form rather than authoring UI. The form was inspected at the normal desktop viewport and `360 x 800`; it had no horizontal overflow, preserved readable labels, and kept all controls inside the viewport. No credential form was submitted to an external service during this visual check.
+
+`npm run check:all` passed content validation, the 107-route public build, all 32 Node tests, strict TypeScript, and the production CMS build. `npm audit --omit=dev` reported zero vulnerabilities. Tests cover approved and unapproved UIDs, signed-out/loading/error states, both authoring route guards, public View independence, local persistence selection, absence of registration providers, environment shape, exact Auth CSP origins, and the Android editor return path.
+
+No real Firebase project, Web App configuration, approved UID, editor password, or unapproved test account was supplied to this repository. Correct-credential login, wrong-credential responses, real UID rejection, Firebase token restoration after a native restart, and live Firebase sign-out therefore remain manual tests after completing the setup above. Windows native compilation again stopped because `cargo` is not installed. Android debug APK compilation stopped at the same `cargo metadata` prerequisite; no emulator or device is available, so Android authentication, persistence, background/foreground, and logout are not claimed as device-verified.
 
 ## Windows prerequisites and current status
 

@@ -1,4 +1,4 @@
-import { LockKeyhole, MonitorSmartphone, PackageCheck } from 'lucide-react';
+import { LockKeyhole, LogOut, MonitorSmartphone, PackageCheck, UserRoundCheck } from 'lucide-react';
 
 const settingsRows = [
   {
@@ -18,7 +18,12 @@ const settingsRows = [
   },
 ] as const;
 
-export function SettingsMode() {
+interface SettingsModeProps {
+  userEmail: string | null;
+  onSignOut: () => void;
+}
+
+export function SettingsMode({ userEmail, onSignOut }: SettingsModeProps) {
   return (
     <main className="workspace settings-workspace">
       <div className="workspace-heading">
@@ -26,8 +31,20 @@ export function SettingsMode() {
           <span className="workspace-kicker">Application</span>
           <h1>Settings</h1>
         </div>
+        <button className="secondary-command" type="button" onClick={onSignOut}>
+          <LogOut aria-hidden="true" size={17} />
+          Sign out
+        </button>
       </div>
       <section className="settings-panel" aria-label="Application settings summary">
+        <div className="settings-row">
+          <UserRoundCheck aria-hidden="true" size={20} />
+          <div>
+            <strong>Editor account</strong>
+            <span>{userEmail ?? 'Approved Firebase user'}</span>
+          </div>
+          <span className="settings-placeholder">Authenticated</span>
+        </div>
         {settingsRows.map(({ Icon, title, value }) => (
           <div className="settings-row" key={title}>
             <Icon aria-hidden="true" size={20} />

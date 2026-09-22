@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "@tauri-apps/api": "2.11.1",
+    "firebase": "12.19.0",
     "lucide-react": "1.47.0",
     "react": "19.3.0",
     "react-dom": "19.3.0"

@@ -1,17 +1,22 @@
 import {
-  CheckCircle2,
   Eye,
   Globe2,
+  LockKeyhole,
+  LogOut,
   PencilLine,
   Settings,
+  ShieldCheck,
   UploadCloud,
 } from 'lucide-react';
 import brandIcon from '../../../icon.png';
 import type { AppRoute } from '../app/useAppRoute';
+import type { AuthState } from '../auth/authState.mjs';
 
 interface AppTopBarProps {
   route: AppRoute;
+  authState: AuthState;
   onNavigate: (route: AppRoute) => void;
+  onSignOut: () => void;
 }
 
 const navigation = [
@@ -20,7 +25,16 @@ const navigation = [
   { route: 'settings', label: 'Settings', Icon: Settings },
 ] as const;
 
-export function AppTopBar({ route, onNavigate }: AppTopBarProps) {
+export function AppTopBar({ route, authState, onNavigate, onSignOut }: AppTopBarProps) {
+  const editorAuthenticated = authState.status === 'authenticated-editor';
+  const statusLabel = route === 'view'
+    ? 'Public View Mode'
+    : editorAuthenticated
+      ? authState.user.email ?? 'Approved editor'
+      : authState.status === 'initializing'
+        ? 'Checking editor session'
+        : 'Editor sign-in required';
+
   return (
     <header className="app-topbar">
       <div className="brand-lockup">
@@ -53,27 +67,40 @@ export function AppTopBar({ route, onNavigate }: AppTopBarProps) {
         <span className="save-state">
           {route === 'view' ? (
             <Globe2 aria-hidden="true" size={16} />
+          ) : editorAuthenticated ? (
+            <ShieldCheck aria-hidden="true" size={16} />
           ) : (
-            <CheckCircle2 aria-hidden="true" size={16} />
+            <LockKeyhole aria-hidden="true" size={16} />
           )}
-          {route === 'view' ? 'Public View Mode' : 'Development mode'}
+          {statusLabel}
         </span>
         {route !== 'view' && (
-          <>
-            <button
-              className="icon-command"
-              type="button"
-              title="Open View Mode"
-              aria-label="Open View Mode"
-              onClick={() => onNavigate('view')}
-            >
-              <Eye aria-hidden="true" size={18} />
-            </button>
+          <button
+            className="icon-command"
+            type="button"
+            title="Open View Mode"
+            aria-label="Open View Mode"
+            onClick={() => onNavigate('view')}
+          >
+            <Eye aria-hidden="true" size={18} />
+          </button>
+        )}
+        {editorAuthenticated && (
+          <button
+            className="icon-command"
+            type="button"
+            title="Sign out"
+            aria-label="Sign out"
+            onClick={onSignOut}
+          >
+            <LogOut aria-hidden="true" size={18} />
+          </button>
+        )}
+        {route !== 'view' && editorAuthenticated && (
             <button className="publish-button" type="button" disabled title="Publishing is not available">
               <UploadCloud aria-hidden="true" size={17} />
               <span>Publish</span>
             </button>
-          </>
         )}
       </div>
     </header>

@@ -2,6 +2,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { renderDesignTokenCss } from '../../src/shared/index.mjs';
 import App from './App';
+import { AuthProvider } from './auth/AuthProvider';
 import './App.css';
 
 const tokenStyle = document.createElement('style');
@@ -14,6 +15,8 @@ if (!root) throw new Error('Application root element was not found.');
 
 createRoot(root).render(
   <StrictMode>
-    <App />
+    <AuthProvider>
+      <App />
+    </AuthProvider>
   </StrictMode>,
 );
