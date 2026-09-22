@@ -205,11 +205,67 @@
       }
     },
     {
-      "if": {
+      "if": { "properties": { "type": { "const": "ingredients" } } },
+      "then": {
         "properties": {
-          "type": { "enum": ["ingredients", "before-starting", "equipment", "instructions", "rating"] }
+          "data": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "heading": { "$ref": "#/$defs/nonEmptyString" },
+              "listStyle": { "enum": ["checkbox", "bullet", "plain"] }
+            }
+          }
         }
-      },
+      }
+    },
+    {
+      "if": { "properties": { "type": { "const": "before-starting" } } },
+      "then": {
+        "properties": {
+          "data": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "heading": { "$ref": "#/$defs/nonEmptyString" },
+              "listStyle": { "enum": ["checklist", "bullet", "plain"] }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "type": { "const": "equipment" } } },
+      "then": {
+        "properties": {
+          "data": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "heading": { "$ref": "#/$defs/nonEmptyString" },
+              "listStyle": { "enum": ["bullet", "plain"] }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "type": { "const": "instructions" } } },
+      "then": {
+        "properties": {
+          "data": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "heading": { "$ref": "#/$defs/nonEmptyString" },
+              "listStyle": { "enum": ["numbered", "plain"] }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "type": { "const": "rating" } } },
       "then": {
         "properties": {
           "data": {

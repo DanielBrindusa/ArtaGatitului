@@ -41,7 +41,10 @@ function renderBlockContent(block, context) {
       return `<a class="btn${block.variant === 'secondary' ? ' secondary' : ''}" href="${escapeHtml(data.href)}" target="${target}"${rel}>${escapeHtml(data.label)}</a>`;
     }
     case BLOCK_TYPES.RECIPE_HERO:
-      return renderRecipeHero(requireRecipe(context, block.type), context.root || '', data);
+      return renderRecipeHero(requireRecipe(context, block.type), context.root || '', {
+        ...data,
+        localImageUrl: context.localImageUrl,
+      });
     case BLOCK_TYPES.RECIPE_METADATA:
       return renderRecipeMetadata(requireRecipe(context, block.type), context.root || '', data);
     case BLOCK_TYPES.INGREDIENTS:

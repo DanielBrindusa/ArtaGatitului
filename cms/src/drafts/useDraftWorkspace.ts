@@ -573,6 +573,7 @@ export function useDraftWorkspace(uid: string) {
   return {
     drafts,
     activeDraft: active?.draft ?? null,
+    deviceId: backup.getDeviceId(),
     saveState,
     saveLabel: saveLabel(saveState),
     conflict,

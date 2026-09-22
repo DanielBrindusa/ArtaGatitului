@@ -103,9 +103,33 @@ function validateData(block, path, errors, depth) {
       }
       break;
     case BLOCK_TYPES.INGREDIENTS:
+      requireOnlyKeys(data, ['heading', 'listStyle'], dataPath, errors);
+      requireString(data.heading, `${dataPath}.heading`, errors, { optional: true });
+      if (data.listStyle !== undefined && !['checkbox', 'bullet', 'plain'].includes(data.listStyle)) {
+        errors.push(`${dataPath}.listStyle is not supported for ingredients`);
+      }
+      break;
     case BLOCK_TYPES.BEFORE_STARTING:
+      requireOnlyKeys(data, ['heading', 'listStyle'], dataPath, errors);
+      requireString(data.heading, `${dataPath}.heading`, errors, { optional: true });
+      if (data.listStyle !== undefined && !['checklist', 'bullet', 'plain'].includes(data.listStyle)) {
+        errors.push(`${dataPath}.listStyle is not supported for before-starting`);
+      }
+      break;
     case BLOCK_TYPES.EQUIPMENT:
+      requireOnlyKeys(data, ['heading', 'listStyle'], dataPath, errors);
+      requireString(data.heading, `${dataPath}.heading`, errors, { optional: true });
+      if (data.listStyle !== undefined && !['bullet', 'plain'].includes(data.listStyle)) {
+        errors.push(`${dataPath}.listStyle is not supported for equipment`);
+      }
+      break;
     case BLOCK_TYPES.INSTRUCTIONS:
+      requireOnlyKeys(data, ['heading', 'listStyle'], dataPath, errors);
+      requireString(data.heading, `${dataPath}.heading`, errors, { optional: true });
+      if (data.listStyle !== undefined && !['numbered', 'plain'].includes(data.listStyle)) {
+        errors.push(`${dataPath}.listStyle is not supported for instructions`);
+      }
+      break;
     case BLOCK_TYPES.RATING:
       requireOnlyKeys(data, ['heading'], dataPath, errors);
       requireString(data.heading, `${dataPath}.heading`, errors, { optional: true });

@@ -1146,4 +1146,12 @@ users/<firebaseUid>/preferences/<preferenceId>
 
 Security Rules require both Firebase Authentication and an explicitly listed immutable UID. Workspace data is available only under the exact `arta-gatitului` path. Preferences additionally require `request.auth.uid == userId`. Draft creates require revision 1, updates require the previous revision plus one and immutable `createdAt`, and incoming documents have constrained keys and core types. Every unmatched path denies reads and writes.
 
+## 30. Milestone 8 Visual Recipe CMS
+
+The authenticated Edit route now hosts the visual recipe workspace described in `docs/visual-editor.md`. It keeps the Milestone 7 persistence boundary and adds pure structured editor operations, dnd-kit sorting, semantic responsive widths, a public-style shadow-root canvas, and an exact shared-renderer Preview mode.
+
+The default recipe layout contains hero, metadata, ingredients, before-starting, equipment, instructions, rating, and related-recipes blocks. Hero, ingredients, and instructions are protected layout requirements. Basic heading, text, image, divider, spacer, and button blocks use the same controlled block registry and validation path. No editor control accepts raw HTML, JavaScript, CSS, arbitrary layout coordinates, or executable URLs.
+
+Draft image files are validated and stored as IndexedDB blobs under the local WebView profile. Only attachment metadata synchronizes through the existing Firestore draft service. The architecture requests no additional Tauri command, filesystem capability, Android permission, Firebase Storage bucket, or publication credential.
+
 The committed approved UID is a non-user placeholder, leaving deployed rules safe-deny until configured. Emulator tests substitute a test UID in memory and never contact production. `firestore.indexes.json` is empty because current queries need only automatic single-field indexes. Exact console and deployment steps are in `docs/firebase-setup.md`.

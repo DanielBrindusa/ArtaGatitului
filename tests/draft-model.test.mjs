@@ -37,7 +37,7 @@ test('new recipe drafts use the shared content and block model versions', () => 
 });
 
 test('incomplete editor drafts can be stored but are not publish-ready', () => {
-  const draft = createRecipeDraft('editor-uid', { id: 'draft-incomplete' });
+  const draft = createRecipeDraft('editor-uid', { id: 'draft-incomplete', title: 'Supa test' });
 
   assert.equal(validateDraftForStorage(draft).valid, true);
   assert.equal(validateDraftForPublish(draft).valid, false);

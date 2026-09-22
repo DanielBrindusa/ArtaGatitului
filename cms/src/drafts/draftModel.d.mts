@@ -12,6 +12,10 @@ export interface DraftImageAttachment {
   localAttachmentId: string | null;
   sourceDeviceId: string | null;
   repositoryPath: string | null;
+  mimeType: 'image/jpeg' | 'image/png' | 'image/webp' | null;
+  byteSize: number | null;
+  width: number | null;
+  height: number | null;
 }
 
 export interface RecipeDraft {

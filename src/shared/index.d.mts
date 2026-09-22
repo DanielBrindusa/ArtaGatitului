@@ -103,6 +103,7 @@ export interface BlockRenderContext {
   recipe?: NormalizedRecipe;
   recipes?: NormalizedRecipe[];
   root?: string;
+  localImageUrl?: string | null;
 }
 
 export const BLOCK_MODEL_VERSION: 1;

@@ -6,6 +6,7 @@ import {
 } from '../../../src/shared/index.mjs';
 import { validateRecipeSource } from '../../../src/shared/validation/recipe.mjs';
 import { isSafeContentUrl } from '../../../src/shared/utils/html.mjs';
+import { createDefaultRecipeBlocks, isSafeDraftSlug } from '../editor/editorModel.mjs';
 
 export const DRAFT_SCHEMA_VERSION = 1;
 export const DRAFT_STATUSES = Object.freeze(['draft', 'ready', 'published']);
@@ -28,6 +29,7 @@ const RECIPE_KEYS = new Set([
 const LAYOUT_KEYS = new Set(['modelVersion', 'blocks']);
 const ATTACHMENT_KEYS = new Set([
   'id', 'fileName', 'alt', 'localAttachmentId', 'sourceDeviceId', 'repositoryPath',
+  'mimeType', 'byteSize', 'width', 'height',
 ]);
 
 function isRecord(value) {
@@ -72,6 +74,10 @@ function normalizeAttachments(value) {
     localAttachmentId: nullableString(attachment.localAttachmentId),
     sourceDeviceId: nullableString(attachment.sourceDeviceId),
     repositoryPath: nullableString(attachment.repositoryPath),
+    mimeType: nullableString(attachment.mimeType),
+    byteSize: nullableNonNegativeInteger(attachment.byteSize),
+    width: nullableNonNegativeInteger(attachment.width),
+    height: nullableNonNegativeInteger(attachment.height),
   }));
 }
 
@@ -227,12 +233,7 @@ export function createRecipeDraft(updatedByUid, options = {}) {
     },
     layout: {
       modelVersion: BLOCK_MODEL_VERSION,
-      blocks: [
-        { id: 'recipe-hero', type: 'recipe-hero', data: { showCategory: true, showDescription: true } },
-        { id: 'recipe-metadata', type: 'recipe-metadata', data: {} },
-        { id: 'ingredients', type: 'ingredients', data: { heading: 'Ingrediente' } },
-        { id: 'instructions', type: 'instructions', data: { heading: 'Mod de preparare' } },
-      ],
+      blocks: createDefaultRecipeBlocks(),
     },
     createdAt: null,
     updatedAt: null,
@@ -401,6 +402,16 @@ export function validateDraftForStorage(value) {
         && (!attachment.repositoryPath.trim() || !isSafeContentUrl(attachment.repositoryPath))) {
         errors.push(`data.attachments[${index}].repositoryPath must be a safe relative or HTTP(S) URL`);
       }
+      if (attachment.mimeType !== undefined && attachment.mimeType !== null
+        && !['image/jpeg', 'image/png', 'image/webp'].includes(attachment.mimeType)) {
+        errors.push(`data.attachments[${index}].mimeType is not a supported image type`);
+      }
+      ['byteSize', 'width', 'height'].forEach((field) => {
+        if (attachment[field] !== undefined && attachment[field] !== null
+          && (!Number.isInteger(attachment[field]) || attachment[field] < 0)) {
+          errors.push(`data.attachments[${index}].${field} must be a non-negative integer or null`);
+        }
+      });
     });
   }
 
@@ -447,8 +458,27 @@ export function draftToRecipeSource(value) {
 
 export function validateDraftForPublish(value) {
   try {
-    const recipe = draftToRecipeSource(value);
-    return validateRecipeSource(recipe);
+    const draft = migrateDraft(value);
+    const errors = [];
+    if (!draft.title.trim() || draft.title.trim() === 'Untitled recipe') {
+      errors.push('Add a recipe title.');
+    }
+    if (!isSafeDraftSlug(draft.slug)) {
+      errors.push('Use a safe slug with lowercase letters, numbers, and hyphens only.');
+    }
+    if (!draft.data.recipe.category.trim()) errors.push('Choose a category.');
+    if (!draft.data.recipe.ingredients.some((item) => item.trim())) errors.push('Add at least one ingredient.');
+    if (!draft.data.recipe.steps.some((item) => item.trim())) errors.push('Add at least one instruction.');
+    ['recipe-hero', 'ingredients', 'instructions'].forEach((type) => {
+      if (!draft.layout.blocks.some((block) => block.type === type)) {
+        errors.push(`Restore the required ${type} block.`);
+      }
+    });
+    const recipeValidation = validateRecipeSource(draftToRecipeSource(draft));
+    recipeValidation.errors.forEach((error) => {
+      if (!errors.includes(error)) errors.push(error);
+    });
+    return { valid: errors.length === 0, errors };
   } catch (error) {
     return { valid: false, errors: [error instanceof Error ? error.message : 'Draft could not be normalized.'] };
   }

@@ -1,0 +1,24 @@
+import type { BlockType, ContentBlock, LayoutWidth } from '../../../src/shared/index.mjs';
+import type { RecipeDraft } from '../drafts/draftModel.mjs';
+
+export const REQUIRED_RECIPE_BLOCK_TYPES: readonly BlockType[];
+export const SINGLETON_RECIPE_BLOCK_TYPES: readonly BlockType[];
+export const EDITOR_BLOCK_TYPES: readonly BlockType[];
+export function createBlockId(type: string): string;
+export function createEditorBlock(type: BlockType, options?: { id?: string }): ContentBlock;
+export function createDefaultRecipeBlocks(): ContentBlock[];
+export function isSafeDraftSlug(value: unknown): boolean;
+export function updateDraftTitle(draft: RecipeDraft, title: string): RecipeDraft;
+export function updateDraftSlug(draft: RecipeDraft, slug: string): RecipeDraft;
+export function updateRecipeFields(draft: RecipeDraft, changes: Partial<RecipeDraft['data']['recipe']>): RecipeDraft;
+export function updateRecipeList(draft: RecipeDraft, field: 'ingredients' | 'beforeStart' | 'equipment' | 'steps', items: string[]): RecipeDraft;
+export function insertListItem(items: string[], index: number, value?: string): string[];
+export function removeListItem(items: string[], index: number): string[];
+export function reorderItems<T>(items: T[], fromIndex: number, toIndex: number): T[];
+export function reorderDraftBlocks(draft: RecipeDraft, fromIndex: number, toIndex: number): RecipeDraft;
+export function insertDraftBlock(draft: RecipeDraft, type: BlockType, index?: number, options?: { id?: string }): RecipeDraft;
+export function removeDraftBlock(draft: RecipeDraft, blockId: string): RecipeDraft;
+export function updateDraftBlock(draft: RecipeDraft, blockId: string, update: (block: ContentBlock) => ContentBlock): RecipeDraft;
+export function setBlockWidth(draft: RecipeDraft, blockId: string, breakpoint: 'desktop' | 'tablet' | 'mobile', width: LayoutWidth): RecipeDraft;
+export function resolvedBlockWidth(block: ContentBlock, breakpoint: 'desktop' | 'tablet' | 'mobile'): LayoutWidth;
+export function setBlockVisibility(draft: RecipeDraft, blockId: string, breakpoint: 'desktop' | 'tablet' | 'mobile', visible: boolean): RecipeDraft;

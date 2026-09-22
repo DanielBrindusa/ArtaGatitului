@@ -363,3 +363,15 @@ Create an AVD in Android Studio Device Manager for emulator testing, or enable U
 Tauri's generated Android manifest requests only `android.permission.INTERNET`, which is required for the public site. This milestone adds no storage, contacts, location, camera, microphone, notification, or other runtime permission. The generated Activity does not force portrait or landscape. Android launcher PNGs for all standard densities plus the adaptive foreground/background XML are already tracked and derive from the canonical root `icon.png`.
 
 Do not create or commit a production keystore in this phase. `.gitignore` excludes generated targets, local environment files, keystores, signing certificates, and private keys.
+
+## Milestone 8 visual editor
+
+Edit Mode is now a visual block workspace rather than the Milestone 7 conventional form. New recipes start with the complete recipe block template, edit directly against normalized recipe fields, and autosave through the same local recovery and Firestore transaction path. Desktop uses persistent library/canvas/inspector columns; Windows widths below 900 px and Android use bottom sheets and floating block/property controls.
+
+The Edit canvas shares the production stylesheet inside a shadow root. Exact Preview calls the shared renderer for the entire draft, and the static build continues to call that renderer for published pages. See `docs/visual-editor.md` for block constraints, dnd-kit behavior, responsive sizing, image isolation, publish readiness, and known editor-only visual differences.
+
+Local image blobs are stored in IndexedDB and previewed with revocable object URLs. Firestore receives metadata only. The existing Tauri CSP already permits local `blob:` image previews, and Android still requests no storage permission. Publish remains disabled and no GitHub content is changed by the CMS.
+
+Milestone 8 verification completed the full content/static/CMS check, 53 regular tests with 5 emulator-only skips, all 5 Firestore Rules emulator tests, strict TypeScript, Cargo check, and a Windows release build. The NSIS installer and standalone executable were copied to the sibling `Builds` directory. An ARM64 Android debug APK was assembled and signature-verified with APK Signature Scheme v2. Tauri's Windows symlink step still requires Developer Mode, so the established Gradle fallback copies the freshly compiled ARM64 library and skips only the symlink-dependent Rust task. No Android device or AVD was attached, so install, touch behavior, lifecycle, and real WebView Firebase synchronization remain unverified on hardware.
+
+A temporary local-only visual harness was used for desktop and `390 x 844` inspection, then removed. It verified the public-style canvas, readable narrow layout, floating mobile controls, properties bottom sheet, explicit sheet close action, Enter-to-add list behavior, and mobile block insertion. The real route remained authentication-guarded throughout.

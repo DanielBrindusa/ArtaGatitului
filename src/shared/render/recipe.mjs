@@ -22,13 +22,13 @@ export function isRecipeSubheading(line) {
   return /:$/.test(line) || /^[A-ZĂÂÎȘȚ0-9\s/-]{3,}$/.test(line);
 }
 
-export function renderRecipeList(lines, ordered) {
+export function renderRecipeList(lines, ordered, listStyle = ordered ? 'numbered' : 'bullet') {
   const tag = ordered ? 'ol' : 'ul';
   const items = cleanArray(lines).map((line) => {
     const cls = isRecipeSubheading(line) ? ' class="subhead"' : '';
     return `<li${cls}>${escapeHtml(line)}</li>`;
   }).join('');
-  return `<${tag} class="clean">${items}</${tag}>`;
+  return `<${tag} class="clean recipe-list-style-${escapeHtml(listStyle)}">${items}</${tag}>`;
 }
 
 export function formatMinutes(value) {
@@ -71,9 +71,16 @@ export function renderRecipeMetadata(recipe, root, options = {}) {
         </section>`;
 }
 
-export function renderBeforeStarting(recipe, { heading = 'Înainte să începi' } = {}) {
+export function renderBeforeStarting(recipe, { heading = 'Înainte să începi', listStyle = 'checklist' } = {}) {
   const items = cleanArray(recipe.beforeStart);
   if (!items.length) return '';
+  if (listStyle !== 'checklist') {
+    return `
+        <section class="before-start box" aria-labelledby="before-start-heading">
+          <h2 id="before-start-heading">${escapeHtml(heading)}</h2>
+          ${renderRecipeList(items, false, listStyle)}
+        </section>`;
+  }
   return `
         <section class="before-start box" aria-labelledby="before-start-heading">
           <h2 id="before-start-heading">${escapeHtml(heading)}</h2>
@@ -320,10 +327,16 @@ export function renderSteakCalculator(extra, index = 0) {
         </section>`;
 }
 
-export function renderRecipeHero(recipe, root, { showCategory = true, showDescription = true } = {}) {
+export function renderRecipeHero(recipe, root, {
+  showCategory = true,
+  showDescription = true,
+  localImageUrl = null,
+} = {}) {
   const catSlug = slugify(recipe.category);
+  const imageUrl = localImageUrl || recipe.image;
   return `<header class="recipe-hero">
-            <div>
+            <div>${imageUrl ? `
+              <figure class="recipe-hero-media"><img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(recipe.name)}"></figure>` : ''}
               <p class="eyebrow">Rețetă</p>
               ${showCategory ? `<span class="pill">${escapeHtml(recipe.category)}</span>` : ''}
               <h1>${escapeHtml(recipe.name)}</h1>
@@ -335,27 +348,27 @@ export function renderRecipeHero(recipe, root, { showCategory = true, showDescri
           </header>`;
 }
 
-export function renderRecipeIngredients(recipe, { heading = 'Ingrediente' } = {}) {
+export function renderRecipeIngredients(recipe, { heading = 'Ingrediente', listStyle = 'bullet' } = {}) {
   return `<section class="box" aria-labelledby="ingredients-heading">
               <h2 id="ingredients-heading">${escapeHtml(heading)}</h2>
-              ${renderRecipeList(recipe.ingredients || [], false)}
+              ${renderRecipeList(recipe.ingredients || [], false, listStyle)}
             </section>`;
 }
 
-export function renderRecipeInstructions(recipe, { heading = 'Mod de preparare' } = {}) {
+export function renderRecipeInstructions(recipe, { heading = 'Mod de preparare', listStyle = 'numbered' } = {}) {
   return `<section class="box" aria-labelledby="steps-heading">
               <h2 id="steps-heading">${escapeHtml(heading)}</h2>
-              ${renderRecipeList(recipe.preparation || recipe.steps || [], true)}
+              ${renderRecipeList(recipe.preparation || recipe.steps || [], listStyle === 'numbered', listStyle)}
               ${recipe.closing ? `<p class="closing">${escapeHtml(recipe.closing)}</p>` : ''}
             </section>`;
 }
 
-export function renderRecipeEquipment(recipe, { heading = 'Echipament' } = {}) {
+export function renderRecipeEquipment(recipe, { heading = 'Echipament', listStyle = 'bullet' } = {}) {
   const equipment = cleanArray(recipe.equipment || recipe.tags?.equipment);
   if (!equipment.length) return '';
   return `<section class="box" aria-labelledby="equipment-heading">
               <h2 id="equipment-heading">${escapeHtml(heading)}</h2>
-              ${renderRecipeList(equipment, false)}
+              ${renderRecipeList(equipment, false, listStyle)}
             </section>`;
 }
 

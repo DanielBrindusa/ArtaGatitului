@@ -13,14 +13,15 @@ export default function App() {
   const auth = useAuth();
   const surface = resolveAppSurface(route, auth.state);
   const isAndroidView = route === 'view' && VIEW_MODE_PLATFORM === 'android';
+  const isVisualEditor = surface === 'edit' && auth.state.status === 'authenticated-editor';
 
   async function handleSignOut() {
     if (await auth.signOut()) navigate('view');
   }
 
   return (
-    <div className={`app-shell${isAndroidView ? ' app-shell-mobile-view' : ''}`}>
-      {!isAndroidView && (
+    <div className={`app-shell${isAndroidView ? ' app-shell-mobile-view' : ''}${isVisualEditor ? ' app-shell-visual-editor' : ''}`}>
+      {!isAndroidView && !isVisualEditor && (
         <AppTopBar
           route={route}
           authState={auth.state}
@@ -31,7 +32,12 @@ export default function App() {
       {surface === 'view' && <ViewMode />}
       {surface === 'auth' && <AuthGate onReturnToView={() => navigate('view')} />}
       {surface === 'edit' && auth.state.status === 'authenticated-editor' && (
-        <EditMode uid={auth.state.user.uid} />
+        <EditMode
+          uid={auth.state.user.uid}
+          email={auth.state.user.email}
+          onNavigate={navigate}
+          onSignOut={() => void handleSignOut()}
+        />
       )}
       {surface === 'settings' && (
         <SettingsMode
