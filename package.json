@@ -1,9 +1,38 @@
 {
+  "name": "arta-gatitului",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
   "scripts": {
     "validate:content": "node src/scripts/validate-content.mjs",
     "build": "node build-static-site.mjs",
     "test": "node --test",
     "import:godaddy": "node src/scripts/import/import-godaddy-audit.mjs",
-    "check": "npm run validate:content && npm run build && npm test"
+    "check": "npm run validate:content && npm run build && npm test",
+    "app:dev": "vite --config cms/vite.config.ts",
+    "app:typecheck": "tsc -p cms/tsconfig.json --noEmit",
+    "app:build": "npm run app:typecheck && vite build --config cms/vite.config.ts",
+    "app:preview": "vite preview --config cms/vite.config.ts",
+    "check:all": "npm run check && npm run app:build",
+    "tauri": "tauri",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "tauri build",
+    "tauri:check": "cargo check --manifest-path src-tauri/Cargo.toml",
+    "tauri:android:init": "tauri android init",
+    "tauri:android:dev": "tauri android dev",
+    "tauri:android:build": "tauri android build"
+  },
+  "dependencies": {
+    "lucide-react": "1.47.0",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "2.11.5",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "6.1.1",
+    "typescript": "7.0.2",
+    "vite": "8.3.0"
   }
 }

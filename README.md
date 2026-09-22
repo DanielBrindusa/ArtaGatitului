@@ -2,6 +2,8 @@
 
 Static recipe website for **Arta Gătitului**. The current public site is still generated as plain HTML, CSS, and vanilla JavaScript for GitHub Pages.
 
+Milestone 3 also provides a React, TypeScript, Vite, and Tauri 2 application foundation under `cms/` and `src-tauri/`. It is a separate local application shell; it does not replace the static public website.
+
 ## Source Of Truth
 
 The build source of truth is now:
@@ -77,6 +79,7 @@ src/
     block.schema.json
     recipe.schema.json
   shared/
+    index.d.mts
     blocks/
     content/
     design/
@@ -97,6 +100,22 @@ src/
     import/
       import-godaddy-audit.mjs
     validate-content.mjs
+cms/
+  src/
+    app/
+    components/
+    preview/
+    views/
+  index.html
+  tsconfig.json
+  vite.config.ts
+src-tauri/
+  capabilities/
+  icons/
+  src/
+  Cargo.toml
+  tauri.conf.json
+  tauri.android.conf.json
 ```
 
 ### Content Files
@@ -215,6 +234,23 @@ npm run check
 ```
 
 This validates content, rebuilds the static site, and runs the automated tests.
+
+## Application Shell
+
+Run the CMS frontend without the native host:
+
+```bash
+npm run app:dev
+```
+
+Type-check and build it with:
+
+```bash
+npm run app:typecheck
+npm run app:build
+```
+
+After installing the native prerequisites, use `npm run tauri:dev` for Windows. Android uses the same frontend and starts with the one-time `npm run tauri:android:init` command. See `docs/app-development.md` for the full command list, security model, stable application identity, and the exact Windows/Android toolchain status.
 
 ## PWA Caching
 

@@ -34,7 +34,9 @@ Focus:
 - Add Tauri 2 structure without changing the public website
 - Configure Windows and Android-capable project basics
 - Document local setup
-- Keep app shell in View Mode only
+- Add View, Edit, and Settings navigation shells without implementing editor behavior
+- Prove the shared renderer can power an isolated local application preview
+- Keep native capabilities empty until a later milestone requires specific access
 - Avoid Firebase, GitHub auth, and CMS editing in this milestone
 
 ## Milestone 4 - Windows View Mode

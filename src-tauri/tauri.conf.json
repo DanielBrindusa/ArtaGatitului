@@ -1,0 +1,48 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Arta Gătitului",
+  "version": "0.1.0",
+  "identifier": "ro.danielbrindusa.artagatitului",
+  "build": {
+    "beforeDevCommand": "npm run app:dev",
+    "devUrl": "http://localhost:1420",
+    "beforeBuildCommand": "npm run app:build",
+    "frontendDist": "../cms/dist"
+  },
+  "app": {
+    "withGlobalTauri": false,
+    "windows": [
+      {
+        "label": "main",
+        "title": "Arta Gătitului",
+        "width": 1440,
+        "height": 920,
+        "minWidth": 1040,
+        "minHeight": 700,
+        "resizable": true,
+        "fullscreen": false
+      }
+    ],
+    "security": {
+      "capabilities": ["cms-local"],
+      "csp": "default-src 'self'; connect-src ipc: http://ipc.localhost; font-src 'self' data:; frame-src 'self'; img-src 'self' data: blob:; object-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; base-uri 'none'; form-action 'none'",
+      "devCsp": "default-src 'self'; connect-src ipc: http://ipc.localhost http://localhost:1420 ws://localhost:1420; font-src 'self' data:; frame-src 'self'; img-src 'self' data: blob:; object-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; base-uri 'none'; form-action 'none'",
+      "freezePrototype": true,
+      "dangerousDisableAssetCspModification": false,
+      "assetProtocol": {
+        "enable": false,
+        "scope": []
+      }
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.ico"
+    ]
+  }
+}

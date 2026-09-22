@@ -988,3 +988,32 @@ src/content/recipes/*.json
 ### Deferred work
 
 The browser fallback renderer and current recipe-builder preview are still embedded in generated `assets/js/site.js`. Moving them to browser-consumable shared modules requires a deliberate browser module or small bundling boundary; that work should accompany the CMS preview rather than introduce a framework migration here. Page templates, persisted block trees, global blocks, navigation editing, and a theme editor remain later-milestone work.
+
+## 25. Milestone 3 Implemented Application Foundation
+
+Milestone 3 adds a native application boundary without relocating or converting the static website. The root npm project now orchestrates two outputs: the existing generated website and a Vite-built `cms/` frontend hosted by Tauri 2.
+
+### Application layers
+
+```text
+src/content + src/shared -> existing static website build
+                         -> CMS shared-renderer preview
+
+cms/ React + TypeScript -> Vite web assets
+                        -> Tauri Windows host
+                        -> Tauri Android host when generated locally
+```
+
+`cms/` owns the application shell, hash-route state, View/Edit/Settings placeholders, and local preview presentation. It imports the Milestone 2 runtime through `src/shared/index.mjs`; `src/shared/index.d.mts` supplies strict TypeScript declarations for the same implementation. The proof-of-concept normalizes a local demonstration recipe and sends its structured block tree through `renderBlockTree()`. Real site CSS and shared design-token CSS are used inside an isolated preview iframe.
+
+`src-tauri/` contains only the Tauri configuration, platform icons, a minimal Rust runner, and the `cms-local` capability. The stable package identifier is `ro.danielbrindusa.artagatitului`. `tauri.android.conf.json` establishes Android API 24 as the minimum supported level while keeping the same CMS frontend and Rust host.
+
+### Native authority
+
+The application currently has no privileged native feature surface. `cms-local` is local-only, applies to the `main` window, and declares no permissions. There are no plugins, custom commands, generic dispatchers, remote URL grants, filesystem grants, or frontend Tauri API dependency. The global Tauri bridge and asset protocol are disabled. CSP is explicit for development and production.
+
+The local shared-renderer demo runs in a scriptless sandboxed iframe. Future remote public View content must use a separate window/webview identity with no CMS capability. Remote website JavaScript must never inherit permissions later added for authenticated local editing or publishing.
+
+### Deferred work
+
+Milestones 4 and 5 remain responsible for full Windows and Android View Mode behavior. Authentication, draft synchronization, real editor controls, file operations, and GitHub publishing also remain deferred. `Development mode` is only a shell status, not an access-control implementation. See `docs/app-development.md` for commands, dependency rationale, toolchain prerequisites, and audited target status.

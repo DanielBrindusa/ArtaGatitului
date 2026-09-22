@@ -1,0 +1,8 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "cms-local",
+  "description": "Local CMS shell with no native commands or plugin permissions.",
+  "local": true,
+  "windows": ["main"],
+  "permissions": []
+}
