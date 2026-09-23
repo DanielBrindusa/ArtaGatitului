@@ -1167,3 +1167,15 @@ Connection verification requires the selected installation for repository ID `12
 Preparation captures the latest branch commit and an immutable, expiring native review plan. Confirmation rechecks `main`; any branch movement invalidates the review and requires preparation and confirmation again. The Git Data API creates all blobs, one tree, and one commit, then updates `refs/heads/main` with `force: false`. A per-process publication lock prevents duplicate confirmation. Generated HTML, search data, sitemap, build output, workflows, configuration, and unrelated sources are outside this boundary.
 
 After a successful branch update, the draft is marked `published` and records the commit SHA, repository, branch, source draft ID, slug, optional image path, and timestamp in Firestore. A Firestore failure cannot roll back an already-created Git commit, so the local published recovery copy remains dirty and the UI reports that metadata synchronization must be retried. The success state says **Committed to GitHub** rather than claiming deployment; automated deployment remains Milestone 10. Exact GitHub App setup and revocation steps are in `docs/github-app-setup.md`.
+
+## 32. Milestone 12 full-page CMS
+
+Editable website pages now use `src/content/pages/*.json`, `src/schema/page.schema.json`, and the same versioned block registry used by recipes. `home.json` is the required structured Homepage. Static generation, CMS canvas rendering, and preview all call the shared block renderer; the prior hardcoded Homepage remains only as a rollback fallback while the migration is exercised.
+
+`DraftService` now stores a discriminated `recipe | page` draft union in the same Firestore collection and revision protocol. Page drafts contain controlled SEO metadata, a nested block tree, and image metadata. Local image bytes stay in IndexedDB until explicit publication. Existing conflict, local recovery, duplicate, delete-draft, and cross-device semantics are shared rather than reimplemented.
+
+The page editor adds explicit Section, Container, Columns, Grid, content, and recipe-discovery blocks. Nesting depth and parent-child combinations are validated. Width, spacing, visibility, grid spans, and Desktop/Tablet/Mobile overrides are tokenized. Structured rich text stores safe nodes and marks rather than HTML. Recipe/category selectors read the canonical content catalogs.
+
+The native GitHub service can read and publish `src/content/pages/<slug>.json` plus validated `assets/images/pages/<slug>-<block-id>.*` assets. It independently validates page identity, block nesting, routes, paths, unsafe strings, image contents, source blob freshness, and branch state. Existing page routes are immutable in this milestone. General page deletion scans structured dependencies and creates one reviewed non-force commit; Homepage deletion is impossible.
+
+System utility pages and global header/footer/navigation remain outside editable page layouts. Those global templates and theme controls are reserved for Milestone 13. Detailed editor and publication behavior is documented in `docs/visual-page-builder.md`.

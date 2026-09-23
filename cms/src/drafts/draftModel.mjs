@@ -1,16 +1,20 @@
 import {
   BLOCK_MODEL_VERSION,
   CONTENT_MODEL_VERSION,
+  PAGE_MODEL_VERSION,
   normalizeRecipe,
+  normalizePage,
   validateBlock,
 } from '../../../src/shared/index.mjs';
 import { validateRecipeSource } from '../../../src/shared/validation/recipe.mjs';
+import { validatePageSource } from '../../../src/shared/validation/page.mjs';
 import { isSafeContentUrl } from '../../../src/shared/utils/html.mjs';
 import { createDefaultRecipeBlocks, isSafeDraftSlug } from '../editor/editorModel.mjs';
+import { createDefaultPageBlocks } from '../editor/pageEditorModel.mjs';
 
 export const DRAFT_SCHEMA_VERSION = 1;
 export const DRAFT_STATUSES = Object.freeze(['draft', 'ready', 'published', 'publishedDeleted']);
-export const DRAFT_CONTENT_TYPES = Object.freeze(['recipe']);
+export const DRAFT_CONTENT_TYPES = Object.freeze(['recipe', 'page']);
 export const MAX_DRAFT_BYTES = 750_000;
 
 const DRAFT_ID = /^[a-z0-9][a-z0-9-]{0,79}$/;
@@ -22,6 +26,8 @@ const DRAFT_KEYS = new Set([
   'publishedAt', 'sourceLink', 'deletedAt',
 ]);
 const DATA_KEYS = new Set(['modelVersion', 'recipe', 'attachments']);
+const PAGE_DATA_KEYS = new Set(['modelVersion', 'page', 'attachments']);
+const PAGE_KEYS = new Set(['id', 'pageType', 'title', 'slug', 'description', 'socialImage', 'status']);
 const RECIPE_KEYS = new Set([
   'id', 'slug', 'title', 'name', 'description', 'category', 'ingredients', 'steps',
   'preparation', 'beforeStart', 'tags', 'equipment', 'prepTimeMinutes',
@@ -130,6 +136,19 @@ function normalizeRecipeData(value) {
   };
 }
 
+function normalizePageData(value) {
+  const page = isRecord(value) ? value : {};
+  return {
+    id: string(page.id),
+    pageType: ['home', 'standard', 'landing'].includes(page.pageType) ? page.pageType : 'standard',
+    title: string(page.title),
+    slug: string(page.slug),
+    description: string(page.description),
+    socialImage: nullableString(page.socialImage),
+    status: ['published', 'draft', 'archived'].includes(page.status) ? page.status : 'draft',
+  };
+}
+
 function normalizeLayout(value) {
   const layout = isRecord(value) ? value : {};
   return {
@@ -140,14 +159,19 @@ function normalizeLayout(value) {
 
 function normalizeV1(value) {
   const data = isRecord(value.data) ? value.data : {};
+  const pageDraft = value.contentType === 'page';
   return {
     id: string(value.id),
-    contentType: 'recipe',
+    contentType: pageDraft ? 'page' : 'recipe',
     schemaVersion: DRAFT_SCHEMA_VERSION,
     title: string(value.title),
     slug: string(value.slug),
     status: DRAFT_STATUSES.includes(value.status) ? value.status : 'draft',
-    data: {
+    data: pageDraft ? {
+      modelVersion: PAGE_MODEL_VERSION,
+      page: normalizePageData(data.page),
+      attachments: normalizeAttachments(data.attachments),
+    } : {
       modelVersion: CONTENT_MODEL_VERSION,
       recipe: normalizeRecipeData(data.recipe),
       attachments: normalizeAttachments(data.attachments),
@@ -272,8 +296,53 @@ export function createRecipeDraft(updatedByUid, options = {}) {
   };
 }
 
+export function createPageDraft(updatedByUid, options = {}) {
+  const id = options.id || createDraftId();
+  const pageType = ['standard', 'landing'].includes(options.pageType) ? options.pageType : 'standard';
+  const title = string(options.title, 'Untitled page');
+  const slug = slugifyDraftTitle(title) || id;
+  return {
+    id,
+    contentType: 'page',
+    schemaVersion: DRAFT_SCHEMA_VERSION,
+    title,
+    slug,
+    status: 'draft',
+    data: {
+      modelVersion: PAGE_MODEL_VERSION,
+      page: {
+        id,
+        pageType,
+        title,
+        slug,
+        description: '',
+        socialImage: null,
+        status: 'draft',
+      },
+      attachments: [],
+    },
+    layout: {
+      modelVersion: BLOCK_MODEL_VERSION,
+      blocks: createDefaultPageBlocks(pageType, title),
+    },
+    createdAt: null,
+    updatedAt: null,
+    updatedByUid,
+    revision: 0,
+    publishedCommitSha: null,
+    publishedRepository: null,
+    publishedBranch: null,
+    publishedSourceDraftId: null,
+    publishedSlug: null,
+    publishedAt: null,
+    sourceLink: null,
+    deletedAt: null,
+  };
+}
+
 export function duplicateRecipeDraft(source, updatedByUid, options = {}) {
   const sourceDraft = migrateDraft(source);
+  if (sourceDraft.contentType !== 'recipe') throw new Error('Only recipe drafts can be duplicated as recipes.');
   const title = string(options.title, `${sourceDraft.title || 'Untitled recipe'} copy`);
   const copy = clone(sourceDraft);
   copy.id = options.id || createDraftId();
@@ -298,6 +367,43 @@ export function duplicateRecipeDraft(source, updatedByUid, options = {}) {
   copy.sourceLink = null;
   copy.deletedAt = null;
   return copy;
+}
+
+export function duplicatePageDraft(source, updatedByUid, options = {}) {
+  const sourceDraft = migrateDraft(source);
+  if (sourceDraft.contentType !== 'page') throw new Error('Only page drafts can be duplicated as pages.');
+  const title = string(options.title, `${sourceDraft.title || 'Untitled page'} copy`);
+  const copy = clone(sourceDraft);
+  copy.id = options.id || createDraftId();
+  copy.title = title;
+  copy.slug = slugifyDraftTitle(title) || copy.id;
+  copy.data.page.id = copy.id;
+  copy.data.page.title = title;
+  copy.data.page.slug = copy.slug;
+  copy.data.page.pageType = sourceDraft.data.page.pageType === 'home' ? 'standard' : sourceDraft.data.page.pageType;
+  copy.data.page.status = 'draft';
+  copy.status = 'draft';
+  copy.createdAt = null;
+  copy.updatedAt = null;
+  copy.updatedByUid = updatedByUid;
+  copy.revision = 0;
+  copy.publishedCommitSha = null;
+  copy.publishedRepository = null;
+  copy.publishedBranch = null;
+  copy.publishedSourceDraftId = null;
+  copy.publishedSlug = null;
+  copy.publishedAt = null;
+  copy.sourceLink = null;
+  copy.deletedAt = null;
+  return copy;
+}
+
+export function isRecipeDraft(value) {
+  return value?.contentType === 'recipe';
+}
+
+export function isPageDraft(value) {
+  return value?.contentType === 'page';
 }
 
 function checkPlainValue(value, path, errors, depth = 0) {
@@ -331,12 +437,138 @@ function validNullableTimestamp(value) {
   return value === null || (typeof value === 'string' && !Number.isNaN(Date.parse(value)));
 }
 
+function validateAttachments(value, errors) {
+  if (!Array.isArray(value)) {
+    errors.push('data.attachments must be an array');
+    return;
+  }
+  if (value.length > 50) {
+    errors.push('data.attachments must contain at most 50 records');
+    return;
+  }
+  value.forEach((attachment, index) => {
+    const path = `data.attachments[${index}]`;
+    if (!isRecord(attachment)) {
+      errors.push(`${path} must be an object`);
+      return;
+    }
+    checkOnlyKeys(attachment, ATTACHMENT_KEYS, path, errors);
+    if (!ATTACHMENT_ID.test(attachment.id)) errors.push(`${path}.id is invalid`);
+    if (typeof attachment.fileName !== 'string' || !attachment.fileName.trim()
+      || attachment.fileName.length > 255 || /[\\/]/.test(attachment.fileName)) errors.push(`${path}.fileName must be a safe filename`);
+    if (typeof attachment.alt !== 'string' || attachment.alt.length > 500) errors.push(`${path}.alt must be a string of at most 500 characters`);
+    ['localAttachmentId', 'sourceDeviceId', 'repositoryPath'].forEach((field) => {
+      if (attachment[field] !== null && typeof attachment[field] !== 'string') errors.push(`${path}.${field} must be a string or null`);
+    });
+    if (typeof attachment.repositoryPath === 'string'
+      && (!attachment.repositoryPath.trim() || !isSafeContentUrl(attachment.repositoryPath))) errors.push(`${path}.repositoryPath must be a safe relative or HTTP(S) URL`);
+    if (attachment.mimeType !== null && !['image/jpeg', 'image/png', 'image/webp'].includes(attachment.mimeType)) errors.push(`${path}.mimeType is not a supported image type`);
+    ['byteSize', 'width', 'height'].forEach((field) => {
+      if (attachment[field] !== null && (!Number.isInteger(attachment[field]) || attachment[field] < 0)) errors.push(`${path}.${field} must be a non-negative integer or null`);
+    });
+  });
+}
+
+function validatePageDraftForStorage(value) {
+  const errors = [];
+  checkOnlyKeys(value, DRAFT_KEYS, 'draft', errors);
+  if (!DRAFT_ID.test(value.id)) errors.push('id must be a stable lowercase identifier');
+  if (value.schemaVersion !== DRAFT_SCHEMA_VERSION) errors.push(`schemaVersion must be ${DRAFT_SCHEMA_VERSION}`);
+  if (typeof value.title !== 'string' || value.title.length > 200) errors.push('title must be a string of at most 200 characters');
+  if (typeof value.slug !== 'string' || value.slug.length > 160) errors.push('slug must be a string of at most 160 characters');
+  if (!DRAFT_STATUSES.includes(value.status)) errors.push(`status must be one of ${DRAFT_STATUSES.join(', ')}`);
+  if (!Number.isInteger(value.revision) || value.revision < 0) errors.push('revision must be a non-negative integer');
+  if (typeof value.updatedByUid !== 'string' || !value.updatedByUid) errors.push('updatedByUid is required');
+  if (!validNullableTimestamp(value.createdAt)) errors.push('createdAt must be an ISO timestamp or null');
+  if (!validNullableTimestamp(value.updatedAt)) errors.push('updatedAt must be an ISO timestamp or null');
+  if (!validNullableTimestamp(value.publishedAt)) errors.push('publishedAt must be an ISO timestamp or null');
+  if (!validNullableTimestamp(value.deletedAt ?? null)) errors.push('deletedAt must be an ISO timestamp or null');
+
+  const publicationFields = ['publishedCommitSha', 'publishedRepository', 'publishedBranch', 'publishedSourceDraftId', 'publishedSlug', 'publishedAt'];
+  publicationFields.forEach((field) => {
+    if (value[field] !== null && typeof value[field] !== 'string') errors.push(`${field} must be a string or null`);
+  });
+  const publicationComplete = /^[0-9a-f]{40}$/.test(value.publishedCommitSha ?? '')
+    && value.publishedRepository === 'DanielBrindusa/ArtaGatitului'
+    && value.publishedBranch === 'main'
+    && value.publishedSourceDraftId === value.id
+    && isSafeDraftSlug(value.publishedSlug)
+    && value.publishedAt !== null;
+  if (publicationFields.some((field) => value[field] !== null) && !publicationComplete) errors.push('publication metadata must be complete and repository-pinned');
+
+  if (value.sourceLink !== null) {
+    if (!isRecord(value.sourceLink)) errors.push('sourceLink must be an object or null');
+    else {
+      checkOnlyKeys(value.sourceLink, SOURCE_LINK_KEYS, 'sourceLink', errors);
+      if (!/^src\/content\/pages\/(?:home|[a-z0-9]+(?:-[a-z0-9]+)*)\.json$/.test(value.sourceLink.path ?? '')) errors.push('sourceLink.path must be an approved page source path');
+      if (!isSafeDraftSlug(value.sourceLink.slug)) errors.push('sourceLink.slug must be a safe page slug');
+      if (value.sourceLink.path !== `src/content/pages/${value.sourceLink.slug}.json`) errors.push('sourceLink.path must match sourceLink.slug');
+      ['commitSha', 'blobSha'].forEach((field) => {
+        if (!/^[0-9a-f]{40}$/.test(value.sourceLink[field] ?? '')) errors.push(`sourceLink.${field} must be a Git SHA`);
+      });
+      if (typeof value.sourceLink.sourceJson !== 'string' || !value.sourceLink.sourceJson.trim()) errors.push('sourceLink.sourceJson is required');
+      else {
+        try {
+          const source = JSON.parse(value.sourceLink.sourceJson);
+          const sourceValidation = validatePageSource(source);
+          sourceValidation.errors.forEach((error) => errors.push(`sourceLink.sourceJson: ${error}`));
+          if (source?.slug !== value.sourceLink.slug) errors.push('sourceLink source slug must match sourceLink.slug');
+        } catch {
+          errors.push('sourceLink.sourceJson must contain valid page JSON');
+        }
+      }
+    }
+  }
+  if (value.status === 'published' && !publicationComplete && value.sourceLink == null) errors.push('published page drafts require publication metadata or source linkage');
+  if (value.status === 'publishedDeleted' && (value.sourceLink == null || value.deletedAt == null)) errors.push('deleted page drafts require source linkage and deletedAt');
+  if (value.status !== 'publishedDeleted' && value.deletedAt != null) errors.push('deletedAt is allowed only for deleted published drafts');
+  if (value.sourceLink == null && value.status !== 'published' && publicationFields.some((field) => value[field] !== null)) errors.push('unlinked drafts cannot retain publication metadata');
+
+  if (!isRecord(value.data)) errors.push('data must be an object');
+  else {
+    checkOnlyKeys(value.data, PAGE_DATA_KEYS, 'data', errors);
+    if (value.data.modelVersion !== PAGE_MODEL_VERSION) errors.push(`data.modelVersion must be ${PAGE_MODEL_VERSION}`);
+    const page = value.data.page;
+    if (!isRecord(page)) errors.push('data.page must be an object');
+    else {
+      checkOnlyKeys(page, PAGE_KEYS, 'data.page', errors);
+      ['id', 'title', 'slug', 'description'].forEach((field) => { if (typeof page[field] !== 'string') errors.push(`data.page.${field} must be a string`); });
+      if (!['home', 'standard', 'landing'].includes(page.pageType)) errors.push('data.page.pageType is not supported');
+      if (page.title !== value.title) errors.push('data.page.title must match draft title');
+      if (page.slug !== value.slug) errors.push('data.page.slug must match draft slug');
+      if (page.pageType === 'home' && (page.id !== 'home' || page.slug !== 'home')) errors.push('Homepage id and slug must remain home');
+      if (page.socialImage !== null && (typeof page.socialImage !== 'string' || !isSafeContentUrl(page.socialImage))) errors.push('data.page.socialImage must be a safe relative or HTTP(S) URL');
+      const expectedStatus = value.status === 'published' ? 'published' : value.status === 'publishedDeleted' ? 'archived' : 'draft';
+      if (page.status !== expectedStatus) errors.push('data.page.status must match the draft workflow state');
+    }
+    validateAttachments(value.data.attachments, errors);
+  }
+  if (!isRecord(value.layout)) errors.push('layout must be an object');
+  else {
+    checkOnlyKeys(value.layout, LAYOUT_KEYS, 'layout', errors);
+    if (value.layout.modelVersion !== BLOCK_MODEL_VERSION) errors.push(`layout.modelVersion must be ${BLOCK_MODEL_VERSION}`);
+    if (!Array.isArray(value.layout.blocks) || value.layout.blocks.length === 0) errors.push('layout.blocks must contain at least one section');
+    else value.layout.blocks.forEach((block, index) => {
+      if (block?.type !== 'section') errors.push(`layout.blocks[${index}] must be a section`);
+      validateBlock(block).errors.forEach((error) => errors.push(`layout.blocks[${index}]: ${error}`));
+    });
+  }
+  checkPlainValue(value, 'draft', errors);
+  try {
+    if (new TextEncoder().encode(JSON.stringify(value)).byteLength > MAX_DRAFT_BYTES) errors.push(`draft exceeds the ${MAX_DRAFT_BYTES} byte application limit`);
+  } catch {
+    errors.push('draft must be JSON serializable');
+  }
+  return { valid: errors.length === 0, errors };
+}
+
 export function validateDraftForStorage(value) {
   const errors = [];
   if (!isRecord(value)) return { valid: false, errors: ['draft must be an object'] };
+  if (value.contentType === 'page') return validatePageDraftForStorage(value);
   checkOnlyKeys(value, DRAFT_KEYS, 'draft', errors);
   if (!DRAFT_ID.test(value.id)) errors.push('id must be a stable lowercase identifier');
-  if (!DRAFT_CONTENT_TYPES.includes(value.contentType)) errors.push('contentType must be recipe');
+  if (!DRAFT_CONTENT_TYPES.includes(value.contentType)) errors.push(`contentType must be one of ${DRAFT_CONTENT_TYPES.join(', ')}`);
   if (value.schemaVersion !== DRAFT_SCHEMA_VERSION) errors.push(`schemaVersion must be ${DRAFT_SCHEMA_VERSION}`);
   if (typeof value.title !== 'string' || value.title.length > 200) errors.push('title must be a string of at most 200 characters');
   if (typeof value.slug !== 'string' || value.slug.length > 160) errors.push('slug must be a string of at most 160 characters');
@@ -559,6 +791,7 @@ export function assertDraftForStorage(value) {
 
 export function draftToRecipeSource(value) {
   const draft = migrateDraft(value);
+  if (draft.contentType !== 'recipe') throw new Error('Draft is not a recipe.');
   return normalizeRecipe({
     ...draft.data.recipe,
     id: draft.id,
@@ -572,10 +805,31 @@ export function draftToRecipeSource(value) {
   }, `${draft.id}.json`);
 }
 
-export function validateDraftForPublish(value) {
+export function draftToPageSource(value) {
+  const draft = migrateDraft(value);
+  if (draft.contentType !== 'page') throw new Error('Draft is not a page.');
+  return normalizePage({
+    ...draft.data.page,
+    title: draft.title,
+    slug: draft.slug,
+    status: draft.status === 'published' ? 'published' : draft.status === 'publishedDeleted' ? 'archived' : 'draft',
+    layout: draft.layout,
+  });
+}
+
+export function validateDraftForPublish(value, options = {}) {
   try {
     const draft = migrateDraft(value);
     const errors = [];
+    if (draft.contentType === 'page') {
+      if (draft.status === 'publishedDeleted') errors.push('Use Create as new page before publishing a deleted page draft.');
+      if (!draft.title.trim() || draft.title.trim() === 'Untitled page') errors.push('Add a page title.');
+      if (!isSafeDraftSlug(draft.slug)) errors.push('Use a safe page slug with lowercase letters, numbers, and hyphens only.');
+      const source = { ...draftToPageSource(draft), status: 'published' };
+      const pageValidation = validatePageSource(source, options);
+      pageValidation.errors.forEach((error) => { if (!errors.includes(error)) errors.push(error); });
+      return { valid: errors.length === 0, errors };
+    }
     if (draft.status === 'publishedDeleted') {
       errors.push('Use Create as new recipe before publishing a deleted recipe draft.');
     }

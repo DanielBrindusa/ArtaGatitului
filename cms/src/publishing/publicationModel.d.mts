@@ -9,3 +9,4 @@ export function buildRecipePublicationSource(value: unknown): NormalizedRecipe &
   layout: { modelVersion: 1; blocks: import('../../../src/shared/index.mjs').ContentBlock[] };
 };
 export function publicationMetadataFromResult(value: unknown): DraftPublicationMetadata;
+export function pagePublicationMetadataFromResult(value: unknown): DraftPublicationMetadata;

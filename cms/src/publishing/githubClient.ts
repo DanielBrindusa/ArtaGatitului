@@ -57,6 +57,43 @@ export interface PublishedRecipe extends PublishedRecipeSummary {
   sourceJson: string;
 }
 
+export interface PublishedPageSummary extends PublishedSourceIdentity {
+  id: string;
+  title: string;
+  pageType: 'home' | 'standard' | 'landing';
+}
+
+export interface PublishedPage extends PublishedPageSummary {
+  sourceJson: string;
+}
+
+export interface PublishPageImageInput extends PublishImageInput {
+  blockId: string;
+}
+
+export interface PreparePagePublishInput {
+  sourceDraftId: string;
+  slug: string;
+  title: string;
+  pageJson: string;
+  images: PublishPageImageInput[];
+  source: PublishedSourceIdentity | null;
+  occupiedRoutes: string[];
+}
+
+export interface PageDeleteAnalysis extends PublishedSourceIdentity {
+  id: string;
+  title: string;
+  pageType: 'home' | 'standard' | 'landing';
+  dependencies: RecipeDependency[];
+}
+
+export interface PreparePageDeleteInput extends PublishedSourceIdentity {
+  sourceDraftId: string;
+  title: string;
+  confirmation: string;
+}
+
 export interface PublicationFileChange {
   operation: 'add' | 'modify' | 'delete';
   path: string;
@@ -172,6 +209,31 @@ export async function listPublishedRecipes() {
 export async function loadPublishedRecipe(slug: string) {
   requireNativeApp();
   return invoke<PublishedRecipe>('github_load_published_recipe', { slug });
+}
+
+export async function listPublishedPages() {
+  requireNativeApp();
+  return invoke<PublishedPageSummary[]>('github_list_published_pages');
+}
+
+export async function loadPublishedPage(slug: string) {
+  requireNativeApp();
+  return invoke<PublishedPage>('github_load_published_page', { slug });
+}
+
+export async function preparePagePublish(input: PreparePagePublishInput) {
+  requireNativeApp();
+  return invoke<PublishReview>('github_prepare_page_publish', { input });
+}
+
+export async function analyzePageDelete(source: PublishedSourceIdentity) {
+  requireNativeApp();
+  return invoke<PageDeleteAnalysis>('github_analyze_page_delete', { source });
+}
+
+export async function preparePageDelete(input: PreparePageDeleteInput) {
+  requireNativeApp();
+  return invoke<PublishReview>('github_prepare_page_delete', { input });
 }
 
 export async function analyzeRecipeDelete(source: PublishedSourceIdentity) {

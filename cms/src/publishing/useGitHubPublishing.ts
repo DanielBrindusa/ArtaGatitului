@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { DraftPublicationMetadata, RecipeDraft } from '../drafts/draftModel.mjs';
-import { validateDraftForPublish } from '../drafts/draftModel.mjs';
+import { isRecipeDraft, validateDraftForPublish } from '../drafts/draftModel.mjs';
 import type { DraftListItem } from '../drafts/useDraftWorkspace';
 import { validateDraftImage } from '../editor/imageValidation.mjs';
 import { loadDraftImage } from '../editor/localImageStore';
@@ -410,8 +410,9 @@ export function useGitHubPublishing({
   }, []);
 
   const recipeState = useCallback((summary: PublishedRecipeSummary): PublishedRecipeState => {
-    const record = drafts.find(({ draft: candidate }) => draftMatchesPublishedRecipe(candidate, summary));
+    const record = drafts.find(({ draft: candidate }) => isRecipeDraft(candidate) && draftMatchesPublishedRecipe(candidate, summary));
     if (!record) return 'published';
+    if (!isRecipeDraft(record.draft)) return 'published';
     if (record.draft.sourceLink && record.draft.sourceLink.blobSha !== summary.blobSha) return 'remoteChanged';
     return record.draft.status === 'published' ? 'published' : 'draft';
   }, [drafts]);

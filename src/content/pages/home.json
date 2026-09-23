@@ -1,0 +1,87 @@
+{
+  "id": "home",
+  "pageType": "home",
+  "title": "Arta Gătitului",
+  "slug": "home",
+  "description": "Viață ocupată, mâncare sănătoasă. Rețete organizate pe categorii și căutare după ingrediente.",
+  "socialImage": "https://img1.wsimg.com/isteam/stock/19687/:/rs=w:1800,m",
+  "status": "published",
+  "layout": {
+    "modelVersion": 1,
+    "blocks": [
+      {
+        "id": "home-hero-section",
+        "type": "section",
+        "variant": "home-hero",
+        "data": {
+          "blocks": [
+            {
+              "id": "home-hero",
+              "type": "hero",
+              "variant": "home",
+              "data": {
+                "eyebrow": "Ce gătim azi?",
+                "title": "Arta Gătitului",
+                "body": "Rețetele tale într-o aplicație statică rapidă, cu căutare vie, categorii clare și idei bune pentru orice masă.",
+                "showSearch": true,
+                "searchPlaceholder": "Caută după ingredient, rețetă sau etichetă",
+                "showRandomRecipe": true,
+                "secondaryAction": {
+                  "label": "Ce pot găti?",
+                  "href": "ce-pot-gati.html"
+                },
+                "quickLinks": [
+                  { "label": "Mic dejun", "href": "mic-dejun/" },
+                  { "label": "Fel principal", "href": "fel-principal/" },
+                  { "label": "Desert", "href": "desert/" },
+                  { "label": "Rapid", "href": "cauta.html?q=rapid" },
+                  { "label": "Cremos", "href": "cauta.html?q=cremos" }
+                ]
+              },
+              "layout": { "width": "wide", "paddingBlock": "none" },
+              "responsive": { "mobile": { "width": "full" } }
+            }
+          ]
+        },
+        "layout": { "width": "full", "paddingBlock": "none" }
+      },
+      {
+        "id": "home-categories-section",
+        "type": "section",
+        "variant": "compact",
+        "data": {
+          "blocks": [
+            {
+              "id": "home-categories",
+              "type": "category-grid",
+              "data": { "eyebrow": "Categorii", "heading": "Alege după poftă" },
+              "layout": { "width": "wide", "paddingBlock": "none" }
+            }
+          ]
+        },
+        "layout": { "width": "wide", "paddingBlock": "none" }
+      },
+      {
+        "id": "home-recipes-section",
+        "type": "section",
+        "variant": "default",
+        "data": {
+          "blocks": [
+            {
+              "id": "home-featured-recipes",
+              "type": "featured-recipes",
+              "data": {
+                "eyebrow": "Rețete",
+                "heading": "Rețete pentru acasă",
+                "slugs": [],
+                "limit": 12
+              },
+              "layout": { "width": "wide", "paddingBlock": "none" }
+            }
+          ]
+        },
+        "layout": { "width": "wide", "paddingBlock": "none" }
+      }
+    ]
+  }
+}

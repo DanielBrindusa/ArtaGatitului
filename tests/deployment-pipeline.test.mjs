@@ -65,12 +65,26 @@ function recipe(overrides = {}) {
 
 const tagGroups = { taste: { label: 'Gust', options: ['Sarat'] } };
 
+function homepage() {
+  return {
+    id: 'home',
+    pageType: 'home',
+    title: 'Arta Gatitului',
+    slug: 'home',
+    description: 'Retete testate.',
+    socialImage: null,
+    status: 'published',
+    layout: { modelVersion: 1, blocks: [{ id: 'home-main', type: 'section', data: { blocks: [{ id: 'home-title', type: 'heading', data: { text: 'Arta Gatitului', level: 1 } }] } }] },
+  };
+}
+
 test('valid source content feeds search, randomizer, categories, routes, and sitemap', async () => {
   const sourceRecipe = recipe();
   const result = await validateContentEntries({
     root: process.cwd(),
     categories: [category()],
     recipes: [{ fileName: 'reteta-ci.json', recipe: sourceRecipe }],
+    pages: [{ fileName: 'home.json', page: homepage() }],
     tagGroups,
   });
   assert.deepEqual(result.issues, []);
@@ -81,6 +95,7 @@ test('valid source content feeds search, randomizer, categories, routes, and sit
     aliases: {},
     tagGroups,
     ingredientAliases: { aliases: [] },
+    pages: [homepage()],
   };
   const indexes = buildDataIndexes(content);
   assert.equal(indexes['search-index.json'][0].slug, sourceRecipe.slug);
@@ -119,6 +134,7 @@ test('invalid recipes, duplicate slugs, and missing local assets fail validation
       { fileName: 'first.json', recipe: recipe({ title: '', image: 'assets/images/missing.webp' }) },
       { fileName: 'second.json', recipe: recipe() },
     ],
+    pages: [{ fileName: 'home.json', page: homepage() }],
     tagGroups,
   });
 

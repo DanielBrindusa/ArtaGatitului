@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { normalizeCategory, normalizeRecipe } from '../../shared/content/normalize.mjs';
+import { normalizePage } from '../../shared/content/page.mjs';
 import { HERO_IMAGE, PATHS } from './config.mjs';
 
 async function readJson(filePath, label) {
@@ -52,6 +53,16 @@ export async function loadContent() {
     return categoryDiff || a.name.localeCompare(b.name, 'ro');
   });
 
+  const pageFileNames = (await fs.readdir(PATHS.pagesDir))
+    .filter((fileName) => fileName.endsWith('.json'))
+    .sort((a, b) => a.localeCompare(b, 'ro'));
+  const pages = [];
+  for (const fileName of pageFileNames) {
+    const rawPage = await readJson(path.join(PATHS.pagesDir, fileName), `src/content/pages/${fileName}`);
+    const page = normalizePage(rawPage);
+    if (page.status !== 'archived') pages.push(page);
+  }
+
   const aliases = await readOptionalJson(PATHS.aliasesFile, 'src/content/aliases.json', {});
   const tagGroups = await readJson(PATHS.tagGroupsFile, 'src/data/tag-groups.json');
   const ingredientAliases = await readJson(PATHS.ingredientAliasesFile, 'src/data/ingredient-aliases.json');
@@ -59,6 +70,7 @@ export async function loadContent() {
   return {
     categories: categoryEntries,
     recipes,
+    pages,
     aliases,
     tagGroups,
     ingredientAliases,

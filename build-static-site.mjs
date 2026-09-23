@@ -1,7 +1,7 @@
 import { deflateSync, inflateSync } from 'node:zlib';
 import { BUILD_VERSION, HERO_IMAGE, SITE_CONFIG, SITE_NAME } from './src/scripts/build/config.mjs';
 import { runBuild } from './src/scripts/build/index.mjs';
-import { renderDesignTokenCss } from './src/shared/design/tokens.mjs';
+import { renderDesignTokenCss, renderLayoutTokenCss } from './src/shared/design/tokens.mjs';
 import { renderBlockTree } from './src/shared/render/blocks.mjs';
 import {
   cleanArray,
@@ -330,7 +330,22 @@ ${footer(root)}
 `;
 }
 
-function homePage() {
+function homePage(home, content = {}) {
+  if (home) {
+    return page({
+      title: home.title,
+      description: home.description,
+      canonicalPath: SITE_CONFIG.routes.home,
+      image: home.socialImage || SITE_CONFIG.defaultImage,
+      bodyAttrs: 'data-page="home"',
+      main: `<main id="main-content" class="page-builder-output">${renderBlockTree(home.layout.blocks, {
+        page: home,
+        recipes: content.recipes || [],
+        categories: content.categories || [],
+        root: '',
+      })}</main>`,
+    });
+  }
   return page({
     title: SITE_NAME,
     description: 'Viață ocupată, mâncare sănătoasă. Rețete organizate pe categorii și căutare după ingrediente.',
@@ -526,6 +541,23 @@ function recipePage(recipe, root = '../../', slugOverride = recipe.slug, buildCo
       <main class="section" id="main-content">
         ${detail}
       </main>`,
+  });
+}
+
+function contentPage(contentPageSource, content = {}) {
+  return page({
+    title: contentPageSource.title,
+    description: contentPageSource.description,
+    canonicalPath: `${contentPageSource.slug}/`,
+    image: contentPageSource.socialImage || SITE_CONFIG.defaultImage,
+    root: '../',
+    bodyAttrs: `data-page="${escapeHtml(contentPageSource.slug)}"`,
+    main: `<main id="main-content" class="page-builder-output">${renderBlockTree(contentPageSource.layout.blocks, {
+      page: contentPageSource,
+      recipes: content.recipes || [],
+      categories: content.categories || [],
+      root: '../',
+    })}</main>`,
   });
 }
 
@@ -955,6 +987,7 @@ function offlinePage() {
 
 function cssFile() {
   return `${renderDesignTokenCss()}
+${renderLayoutTokenCss()}
 
 :root[data-theme="cream"] {
   --color-bg: #18120f;
@@ -1754,6 +1787,98 @@ p {
 
 .section.compact {
   padding-top: var(--space-6);
+}
+
+.content-block {
+  min-width: 0;
+}
+
+.content-block-section.content-block-variant-inset {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.page-container {
+  width: min(var(--container), 100%);
+  margin-inline: auto;
+}
+
+.page-columns {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: var(--space-5);
+}
+
+.page-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.page-column-desktop-3 { grid-column: span 3; }
+.page-column-desktop-4 { grid-column: span 4; }
+.page-column-desktop-6 { grid-column: span 6; }
+.page-column-desktop-8 { grid-column: span 8; }
+.page-column-desktop-9 { grid-column: span 9; }
+.page-column-desktop-12 { grid-column: span 12; }
+
+.content-block-rich-text > :first-child,
+.content-block-image figure {
+  margin-top: 0;
+}
+
+.content-block-image img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-md);
+}
+
+.content-block-variant-cover img {
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+
+.page-search {
+  display: flex;
+  align-items: end;
+  gap: var(--space-3);
+}
+
+.page-search label {
+  display: grid;
+  gap: var(--space-2);
+  flex: 1;
+}
+
+.page-search input {
+  width: 100%;
+}
+
+.page-recipe-grid-1 { grid-template-columns: 1fr; }
+.page-recipe-grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.page-recipe-grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.page-recipe-grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+@media (min-width: 641px) and (max-width: 1024px) {
+  .page-column { grid-column: span 12; }
+  .page-column-tablet-3 { grid-column: span 3; }
+  .page-column-tablet-4 { grid-column: span 4; }
+  .page-column-tablet-6 { grid-column: span 6; }
+  .page-column-tablet-8 { grid-column: span 8; }
+  .page-column-tablet-9 { grid-column: span 9; }
+  .page-column-tablet-12 { grid-column: span 12; }
+  .page-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 640px) {
+  .page-column { grid-column: span 12; }
+  .page-grid,
+  .page-recipe-grid-2,
+  .page-recipe-grid-3,
+  .page-recipe-grid-4 { grid-template-columns: 1fr; }
+  .page-search { align-items: stretch; flex-direction: column; }
 }
 
 .subsection {
@@ -4177,6 +4302,10 @@ function jsFile() {
   }
 
   async function loadDataForCurrentPage() {
+    if (document.querySelector("[data-random-recipe]")) {
+      await ensureRecipeIndexData();
+      return;
+    }
     if (hasPageNeed(["ingredientMatcherForm"])) {
       await ensureIngredientData();
       return;
@@ -6929,13 +7058,12 @@ function jsFile() {
   }
 
   function setupHeroSurprise() {
-    const button = document.getElementById("surpriseRecipeButton");
-    if (!button) return;
-    button.addEventListener("click", async () => {
+    const buttons = document.querySelectorAll("#surpriseRecipeButton, [data-random-recipe]");
+    buttons.forEach((button) => button.addEventListener("click", async () => {
       await ensureRecipeIndexData();
       const recipe = pickRandom(data.recipes);
       if (recipe) window.location.href = recipeUrl(recipe.slug);
-    });
+    }));
   }
 
   function commandRecords() {
@@ -7663,6 +7791,7 @@ async function main() {
     serviceWorkerFile,
     resizePng,
     homePage,
+    contentPage,
     recipeBuilderPage,
     categoriesIndexPage,
     searchPage,

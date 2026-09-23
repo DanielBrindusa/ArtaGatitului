@@ -67,6 +67,52 @@ const RECIPE_SOURCE_KEYS: &[&str] = &[
     "keywords",
     "layout",
 ];
+const PAGE_SOURCE_KEYS: &[&str] = &[
+    "id",
+    "pageType",
+    "title",
+    "slug",
+    "description",
+    "socialImage",
+    "status",
+    "layout",
+];
+const PAGE_BLOCK_KEYS: &[&str] = &["id", "type", "data", "layout", "responsive", "variant", "style"];
+const PAGE_BLOCK_TYPES: &[&str] = &[
+    "section",
+    "container",
+    "columns",
+    "column",
+    "grid",
+    "hero",
+    "heading",
+    "text",
+    "rich-text",
+    "image",
+    "divider",
+    "spacer",
+    "button",
+    "search",
+    "recipe-grid",
+    "featured-recipes",
+    "latest-recipes",
+    "category-grid",
+    "random-recipe",
+];
+const RESERVED_PAGE_ROUTES: &[&str] = &[
+    "assets",
+    "categorie",
+    "retete",
+    "randomizer",
+    "portofoliu",
+    "soon-to-come",
+    "categorii",
+    "cauta",
+    "ce-pot-gati",
+    "adauga-reteta",
+    "offline",
+    "index",
+];
 
 #[derive(Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -118,6 +164,26 @@ pub struct PreparePublishInput {
     source: Option<PublishedSourceIdentity>,
 }
 
+#[derive(Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PublishPageImageInput {
+    block_id: String,
+    bytes_base64: String,
+    mime_type: String,
+}
+
+#[derive(Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PreparePagePublishInput {
+    source_draft_id: String,
+    slug: String,
+    title: String,
+    page_json: String,
+    images: Vec<PublishPageImageInput>,
+    source: Option<PublishedSourceIdentity>,
+    occupied_routes: Vec<String>,
+}
+
 #[derive(Clone, Copy, Deserialize, PartialEq)]
 #[serde(rename_all = "lowercase")]
 enum ImageAction {
@@ -155,6 +221,31 @@ pub struct PublishedRecipe {
     title: String,
     category: String,
     image_path: Option<String>,
+    commit_sha: String,
+    blob_sha: String,
+    source_json: String,
+}
+
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PublishedPageSummary {
+    path: String,
+    slug: String,
+    id: String,
+    title: String,
+    page_type: String,
+    commit_sha: String,
+    blob_sha: String,
+}
+
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PublishedPage {
+    path: String,
+    slug: String,
+    id: String,
+    title: String,
+    page_type: String,
     commit_sha: String,
     blob_sha: String,
     source_json: String,
@@ -238,6 +329,31 @@ pub struct PrepareDeleteInput {
     title: String,
     confirmation: String,
     delete_unique_image: bool,
+}
+
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PageDeleteAnalysis {
+    path: String,
+    slug: String,
+    id: String,
+    title: String,
+    page_type: String,
+    commit_sha: String,
+    blob_sha: String,
+    dependencies: Vec<RecipeDependency>,
+}
+
+#[derive(Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PreparePageDeleteInput {
+    source_draft_id: String,
+    path: String,
+    slug: String,
+    commit_sha: String,
+    blob_sha: String,
+    title: String,
+    confirmation: String,
 }
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -1063,6 +1179,139 @@ pub async fn github_load_published_recipe(
 }
 
 #[tauri::command]
+pub async fn github_list_published_pages(
+    caller: Webview,
+    state: State<'_, GithubState>,
+) -> Result<Vec<PublishedPageSummary>, String> {
+    require_local_shell(&caller)?;
+    let bundle = state.ready_access_token().await?;
+    state.verify_repository(&bundle.access_token).await?;
+    let snapshot = state.repository_snapshot(&bundle.access_token).await?;
+    let mut entries: Vec<_> = snapshot
+        .entries
+        .values()
+        .filter(|entry| page_slug_from_path(&entry.path).is_some())
+        .cloned()
+        .collect();
+    entries.sort_by(|left, right| left.path.cmp(&right.path));
+    let mut pages = Vec::new();
+    for entry in entries {
+        let page = published_page_from_entry(&state, &bundle.access_token, &snapshot, &entry).await?;
+        pages.push(PublishedPageSummary {
+            path: page.path,
+            slug: page.slug,
+            id: page.id,
+            title: page.title,
+            page_type: page.page_type,
+            commit_sha: page.commit_sha,
+            blob_sha: page.blob_sha,
+        });
+    }
+    pages.sort_by(|left, right| {
+        (left.page_type != "home", left.title.to_lowercase())
+            .cmp(&(right.page_type != "home", right.title.to_lowercase()))
+    });
+    Ok(pages)
+}
+
+#[tauri::command]
+pub async fn github_load_published_page(
+    caller: Webview,
+    state: State<'_, GithubState>,
+    slug: String,
+) -> Result<PublishedPage, String> {
+    require_local_shell(&caller)?;
+    if !valid_slug(&slug) {
+        return Err("The published page slug is invalid.".to_string());
+    }
+    let bundle = state.ready_access_token().await?;
+    state.verify_repository(&bundle.access_token).await?;
+    let snapshot = state.repository_snapshot(&bundle.access_token).await?;
+    let path = page_path(&slug);
+    let entry = snapshot
+        .entries
+        .get(&path)
+        .ok_or_else(|| "The published page no longer exists.".to_string())?;
+    published_page_from_entry(&state, &bundle.access_token, &snapshot, entry).await
+}
+
+#[tauri::command]
+pub async fn github_analyze_page_delete(
+    caller: Webview,
+    state: State<'_, GithubState>,
+    source: PublishedSourceIdentity,
+) -> Result<PageDeleteAnalysis, String> {
+    require_local_shell(&caller)?;
+    validate_page_source_identity(&source)?;
+    let bundle = state.ready_access_token().await?;
+    state.verify_repository(&bundle.access_token).await?;
+    let snapshot = state.repository_snapshot(&bundle.access_token).await?;
+    analyze_page_delete(&state, &bundle.access_token, &snapshot, &source).await
+}
+
+#[tauri::command]
+pub async fn github_prepare_page_delete(
+    caller: Webview,
+    state: State<'_, GithubState>,
+    input: PreparePageDeleteInput,
+) -> Result<PublishReview, String> {
+    require_local_shell(&caller)?;
+    if state.publishing.load(Ordering::Acquire) {
+        return Err("A publication is already in progress.".to_string());
+    }
+    if !valid_draft_id(&input.source_draft_id) {
+        return Err("The source draft identifier is invalid.".to_string());
+    }
+    let source = PublishedSourceIdentity {
+        path: input.path.clone(),
+        slug: input.slug.clone(),
+        commit_sha: input.commit_sha.clone(),
+        blob_sha: input.blob_sha.clone(),
+    };
+    validate_page_source_identity(&source)?;
+    if source.slug == "home" {
+        return Err("Homepage cannot be deleted.".to_string());
+    }
+    let bundle = state.ready_access_token().await?;
+    let repository = state.verify_repository(&bundle.access_token).await?;
+    let snapshot = state.repository_snapshot(&bundle.access_token).await?;
+    let analysis = analyze_page_delete(&state, &bundle.access_token, &snapshot, &source).await?;
+    if input.title != analysis.title || input.confirmation != analysis.title {
+        return Err("Type the exact published page title to confirm deletion.".to_string());
+    }
+    let blocking: Vec<_> = analysis.dependencies.iter().filter(|item| !item.auto_removable).collect();
+    if !blocking.is_empty() {
+        return Err(format!(
+            "Deletion is blocked by structured references in: {}",
+            blocking.iter().map(|item| item.path.as_str()).collect::<Vec<_>>().join(", ")
+        ));
+    }
+    let plan = build_page_delete_plan(&snapshot, &analysis, &input.source_draft_id)?;
+    let review = review_from_plan(&plan, &repository.branch);
+    *state.pending_publish.lock().map_err(|_| "The deletion review could not be stored.".to_string())? = Some(plan);
+    Ok(review)
+}
+
+#[tauri::command]
+pub async fn github_prepare_page_publish(
+    caller: Webview,
+    state: State<'_, GithubState>,
+    input: PreparePagePublishInput,
+) -> Result<PublishReview, String> {
+    require_local_shell(&caller)?;
+    if state.publishing.load(Ordering::Acquire) {
+        return Err("A publication is already in progress.".to_string());
+    }
+    let bundle = state.ready_access_token().await?;
+    let repository = state.verify_repository(&bundle.access_token).await?;
+    let snapshot = state.repository_snapshot(&bundle.access_token).await?;
+    let plan = build_page_publication_plan(&state, &bundle.access_token, input, &snapshot).await?;
+    let review = review_from_plan(&plan, &repository.branch);
+    *state.pending_publish.lock().map_err(|_| "The publication review could not be stored.".to_string())? = Some(plan);
+    Ok(review)
+}
+
+#[tauri::command]
 pub async fn github_analyze_recipe_delete(
     caller: Webview,
     state: State<'_, GithubState>,
@@ -1562,6 +1811,242 @@ fn recipe_path(slug: &str) -> String {
     format!("src/content/recipes/{slug}.json")
 }
 
+fn page_path(slug: &str) -> String {
+    format!("src/content/pages/{slug}.json")
+}
+
+fn page_slug_from_path(path: &str) -> Option<&str> {
+    path.strip_prefix("src/content/pages/")
+        .and_then(|value| value.strip_suffix(".json"))
+        .filter(|slug| valid_slug(slug))
+}
+
+fn valid_block_id(value: &str) -> bool {
+    !value.is_empty()
+        && value.len() <= 80
+        && value.as_bytes()[0].is_ascii_lowercase()
+        && value
+            .bytes()
+            .all(|byte| byte.is_ascii_lowercase() || byte.is_ascii_digit() || byte == b'-')
+}
+
+fn allowed_page_child(parent: &str, child: &str) -> bool {
+    let content = matches!(
+        child,
+        "hero" | "heading" | "text" | "rich-text" | "image" | "divider" | "spacer"
+            | "button" | "search" | "recipe-grid" | "featured-recipes" | "latest-recipes"
+            | "category-grid" | "random-recipe"
+    );
+    match parent {
+        "section" => content || matches!(child, "container" | "columns" | "grid"),
+        "container" => content || matches!(child, "columns" | "grid"),
+        "columns" => child == "column",
+        "column" | "grid" => content,
+        _ => false,
+    }
+}
+
+fn allowed_page_data_key(block_type: &str, key: &str) -> bool {
+    match block_type {
+        "section" | "container" | "columns" | "grid" => key == "blocks",
+        "column" => matches!(key, "blocks" | "span"),
+        "hero" => matches!(key, "eyebrow" | "title" | "body" | "showSearch" | "searchPlaceholder" | "showRandomRecipe" | "secondaryAction" | "quickLinks"),
+        "heading" => matches!(key, "text" | "level"),
+        "text" => key == "text",
+        "rich-text" => key == "nodes",
+        "image" => matches!(key, "src" | "alt" | "caption" | "loading" | "attachmentId"),
+        "divider" => false,
+        "spacer" => key == "size",
+        "button" => matches!(key, "label" | "href" | "target"),
+        "search" => matches!(key, "label" | "placeholder" | "buttonLabel"),
+        "recipe-grid" => matches!(key, "eyebrow" | "heading" | "source" | "slugs" | "category" | "tag" | "limit" | "columns"),
+        "featured-recipes" => matches!(key, "eyebrow" | "heading" | "slugs" | "limit"),
+        "latest-recipes" => matches!(key, "eyebrow" | "heading" | "limit"),
+        "category-grid" => matches!(key, "eyebrow" | "heading" | "slugs"),
+        "random-recipe" => key == "label",
+        _ => false,
+    }
+}
+
+fn validate_page_layout_map(value: &Map<String, Value>, responsive: bool) -> Result<(), String> {
+    for key in value.keys() {
+        if !matches!(key.as_str(), "width" | "columns" | "gap" | "paddingBlock" | "align" | "visible")
+            || (!responsive && key == "visible")
+        {
+            return Err("A page block contains unsupported layout settings.".to_string());
+        }
+    }
+    if value.get("width").and_then(Value::as_str).is_some_and(|item| !matches!(item, "narrow" | "medium" | "wide" | "full")) {
+        return Err("A page block contains an invalid width.".to_string());
+    }
+    if value.get("columns").and_then(Value::as_u64).is_some_and(|item| !(1..=4).contains(&item)) {
+        return Err("A page grid contains an invalid column count.".to_string());
+    }
+    for key in ["gap", "paddingBlock"] {
+        if value.get(key).and_then(Value::as_str).is_some_and(|item| !matches!(item, "none" | "xs" | "sm" | "md" | "lg" | "xl")) {
+            return Err("A page block contains invalid spacing.".to_string());
+        }
+    }
+    if value.get("align").and_then(Value::as_str).is_some_and(|item| !matches!(item, "start" | "center" | "end" | "stretch")) {
+        return Err("A page block contains invalid alignment.".to_string());
+    }
+    if value.get("visible").is_some_and(|item| !item.is_boolean()) {
+        return Err("Page visibility settings must be boolean.".to_string());
+    }
+    Ok(())
+}
+
+fn validate_page_block(
+    value: &Value,
+    parent: Option<&str>,
+    depth: usize,
+    ids: &mut HashSet<String>,
+) -> Result<(), String> {
+    if depth > 5 {
+        return Err("Page block nesting exceeds the supported depth.".to_string());
+    }
+    let block = value.as_object().ok_or_else(|| "Every page block must be an object.".to_string())?;
+    if block.keys().any(|key| !PAGE_BLOCK_KEYS.contains(&key.as_str())) {
+        return Err("A page block contains unsupported fields.".to_string());
+    }
+    let id = string_field(block, "id").filter(|id| valid_block_id(id)).ok_or_else(|| "A page block identifier is invalid.".to_string())?;
+    if !ids.insert(id.to_string()) {
+        return Err("Page block identifiers must be unique.".to_string());
+    }
+    let block_type = string_field(block, "type").filter(|kind| PAGE_BLOCK_TYPES.contains(kind)).ok_or_else(|| "A page block type is not approved.".to_string())?;
+    if let Some(parent) = parent {
+        if !allowed_page_child(parent, block_type) {
+            return Err(format!("A {block_type} block cannot be nested inside {parent}."));
+        }
+    }
+    let data = block.get("data").and_then(Value::as_object).ok_or_else(|| "Every page block requires structured data.".to_string())?;
+    if data.keys().any(|key| !allowed_page_data_key(block_type, key)) {
+        return Err(format!("A {block_type} block contains unsupported data."));
+    }
+    if let Some(layout) = block.get("layout") {
+        validate_page_layout_map(layout.as_object().ok_or_else(|| "Page block layout must be an object.".to_string())?, false)?;
+    }
+    if let Some(responsive) = block.get("responsive") {
+        let responsive = responsive.as_object().ok_or_else(|| "Page responsive settings must be an object.".to_string())?;
+        for (breakpoint, settings) in responsive {
+            if !matches!(breakpoint.as_str(), "desktop" | "tablet" | "mobile") {
+                return Err("A page uses an unsupported breakpoint.".to_string());
+            }
+            validate_page_layout_map(settings.as_object().ok_or_else(|| "Breakpoint settings must be an object.".to_string())?, true)?;
+        }
+    }
+    if let Some(style) = block.get("style") {
+        let style = style.as_object().ok_or_else(|| "Page block style must be an object.".to_string())?;
+        if style.keys().any(|key| !matches!(key.as_str(), "tone" | "surface" | "radius")) {
+            return Err("A page block contains unsupported style controls.".to_string());
+        }
+    }
+    let layout_block = matches!(block_type, "section" | "container" | "columns" | "column" | "grid");
+    if layout_block {
+        let children = data.get("blocks").and_then(Value::as_array).ok_or_else(|| format!("A {block_type} block requires child blocks."))?;
+        if block_type == "columns" && !(2..=4).contains(&children.len()) {
+            return Err("Columns must contain two to four columns.".to_string());
+        }
+        for child in children {
+            validate_page_block(child, Some(block_type), depth + 1, ids)?;
+        }
+        if block_type == "columns" {
+            for breakpoint in ["desktop", "tablet"] {
+                let total: u64 = children.iter().filter_map(|child| child.get("data")?.get("span")?.get(breakpoint)?.as_u64()).sum();
+                if total != 12 { return Err(format!("Column spans at {breakpoint} must total 12.")); }
+            }
+            if children.iter().any(|child| child.get("data").and_then(|data| data.get("span")).and_then(|span| span.get("mobile")).and_then(Value::as_u64) != Some(12)) {
+                return Err("Columns must stack at full width on mobile.".to_string());
+            }
+        }
+    }
+    Ok(())
+}
+
+fn page_has_primary_heading(value: &Value) -> bool {
+    let Some(block) = value.as_object() else { return false; };
+    let block_type = string_field(block, "type").unwrap_or_default();
+    let data = block.get("data").and_then(Value::as_object);
+    if block_type == "hero" && data.and_then(|item| item.get("title")).and_then(Value::as_str).is_some_and(|text| !text.trim().is_empty()) { return true; }
+    if block_type == "heading" && data.and_then(|item| item.get("level")).and_then(Value::as_u64) == Some(1) { return true; }
+    data.and_then(|item| item.get("blocks")).and_then(Value::as_array).is_some_and(|children| children.iter().any(page_has_primary_heading))
+}
+
+fn validate_repository_page(value: &Value, expected_slug: &str) -> Result<(), String> {
+    if value_contains_unsafe_string(value) {
+        return Err("The page contains an unsafe URL or control value.".to_string());
+    }
+    let page = value.as_object().ok_or_else(|| "The page source must be a JSON object.".to_string())?;
+    if page.keys().any(|key| !PAGE_SOURCE_KEYS.contains(&key.as_str())) {
+        return Err("The page contains unsupported source fields.".to_string());
+    }
+    let id = string_field(page, "id").filter(|value| valid_block_id(value)).ok_or_else(|| "The page identifier is invalid.".to_string())?;
+    let slug = string_field(page, "slug").filter(|value| valid_slug(value)).ok_or_else(|| "The page slug is invalid.".to_string())?;
+    if slug != expected_slug { return Err("The page slug does not match its source path.".to_string()); }
+    let page_type = string_field(page, "pageType").filter(|value| matches!(*value, "home" | "standard" | "landing")).ok_or_else(|| "The page type is invalid.".to_string())?;
+    if (page_type == "home") != (slug == "home" && id == "home") {
+        return Err("Homepage identity is invalid.".to_string());
+    }
+    if string_field(page, "title").is_none_or(|value| value.trim().is_empty() || value.len() > 200) {
+        return Err("The page title is invalid.".to_string());
+    }
+    if string_field(page, "description").is_none_or(|value| value.len() > 320) {
+        return Err("The page description is invalid.".to_string());
+    }
+    if string_field(page, "status") != Some("published") {
+        return Err("Only published page sources may be committed.".to_string());
+    }
+    let layout = page.get("layout").and_then(Value::as_object).ok_or_else(|| "The page layout is required.".to_string())?;
+    if layout.len() != 2 || layout.get("modelVersion").and_then(Value::as_u64) != Some(1) {
+        return Err("The page layout must use model version 1.".to_string());
+    }
+    let blocks = layout.get("blocks").and_then(Value::as_array).filter(|items| !items.is_empty()).ok_or_else(|| "The page layout must contain at least one section.".to_string())?;
+    let mut ids = HashSet::new();
+    for block in blocks {
+        if block.get("type").and_then(Value::as_str) != Some("section") { return Err("Page root blocks must be sections.".to_string()); }
+        validate_page_block(block, None, 0, &mut ids)?;
+    }
+    if page_type == "home" && !blocks.iter().any(page_has_primary_heading) {
+        return Err("Homepage requires a visible primary heading.".to_string());
+    }
+    Ok(())
+}
+
+async fn published_page_from_entry(
+    state: &GithubState,
+    token: &str,
+    snapshot: &RepositorySnapshot,
+    entry: &GitTreeEntry,
+) -> Result<PublishedPage, String> {
+    let slug = page_slug_from_path(&entry.path).ok_or_else(|| "The repository page path is invalid.".to_string())?;
+    let value = repository_json_value(state, token, entry).await?;
+    validate_repository_page(&value, slug)?;
+    let page = value.as_object().ok_or_else(|| "The page source must be an object.".to_string())?;
+    let mut source_json = serde_json::to_string_pretty(&value).map_err(|_| "The published page source could not be normalized.".to_string())?;
+    source_json.push('\n');
+    Ok(PublishedPage {
+        path: entry.path.clone(),
+        slug: slug.to_string(),
+        id: string_field(page, "id").unwrap_or(slug).to_string(),
+        title: string_field(page, "title").unwrap_or(slug).to_string(),
+        page_type: string_field(page, "pageType").unwrap_or("standard").to_string(),
+        commit_sha: snapshot.commit_sha.clone(),
+        blob_sha: entry.sha.clone(),
+        source_json,
+    })
+}
+
+fn validate_page_source_identity(source: &PublishedSourceIdentity) -> Result<(), String> {
+    if !valid_slug(&source.slug)
+        || source.path != page_path(&source.slug)
+        || !valid_sha(&source.commit_sha)
+        || !valid_sha(&source.blob_sha)
+    {
+        return Err("The published page source identity is invalid.".to_string());
+    }
+    Ok(())
+}
+
 fn recipe_slug_from_path(path: &str) -> Option<&str> {
     path.strip_prefix("src/content/recipes/")
         .and_then(|value| value.strip_suffix(".json"))
@@ -1870,6 +2355,91 @@ async fn build_delete_plan(
     })
 }
 
+fn value_references_page(value: &Value, slug: &str, source_path: &str) -> bool {
+    match value {
+        Value::String(text) => {
+            let normalized = text.trim().trim_start_matches('/').trim_end_matches('/');
+            normalized == source_path
+                || (slug == "home" && (normalized.is_empty() || normalized == "index.html"))
+                || (slug != "home" && normalized == slug)
+        }
+        Value::Array(items) => items.iter().any(|item| value_references_page(item, slug, source_path)),
+        Value::Object(map) => map.values().any(|item| value_references_page(item, slug, source_path)),
+        _ => false,
+    }
+}
+
+async fn analyze_page_delete(
+    state: &GithubState,
+    token: &str,
+    snapshot: &RepositorySnapshot,
+    source: &PublishedSourceIdentity,
+) -> Result<PageDeleteAnalysis, String> {
+    validate_page_source_identity(source)?;
+    if source.slug == "home" {
+        return Err("Homepage cannot be deleted.".to_string());
+    }
+    let current = snapshot_blob(snapshot, &source.path).ok_or_else(|| "This published page no longer exists.".to_string())?;
+    if current.sha != source.blob_sha {
+        return Err("This page changed in GitHub after it was loaded. Reload it before deleting.".to_string());
+    }
+    let published = published_page_from_entry(state, token, snapshot, current).await?;
+    let mut dependencies = Vec::new();
+    let mut entries: Vec<_> = snapshot.entries.values().filter(|entry| {
+        entry.path.starts_with("src/content/")
+            && entry.path.ends_with(".json")
+            && entry.path != source.path
+            && entry.kind == "blob"
+            && entry.mode == "100644"
+    }).cloned().collect();
+    entries.sort_by(|left, right| left.path.cmp(&right.path));
+    for entry in entries {
+        let value = repository_json_value(state, token, &entry).await?;
+        if value_references_page(&value, &source.slug, &source.path) {
+            dependencies.push(RecipeDependency {
+                path: entry.path,
+                reason: "Structured content links to this page.".to_string(),
+                auto_removable: false,
+            });
+        }
+    }
+    Ok(PageDeleteAnalysis {
+        path: published.path,
+        slug: published.slug,
+        id: published.id,
+        title: published.title,
+        page_type: published.page_type,
+        commit_sha: snapshot.commit_sha.clone(),
+        blob_sha: current.sha.clone(),
+        dependencies,
+    })
+}
+
+fn build_page_delete_plan(
+    snapshot: &RepositorySnapshot,
+    analysis: &PageDeleteAnalysis,
+    source_draft_id: &str,
+) -> Result<PendingPublishPlan, String> {
+    if analysis.slug == "home" || analysis.page_type == "home" {
+        return Err("Homepage cannot be deleted.".to_string());
+    }
+    Ok(PendingPublishPlan {
+        id: Uuid::new_v4().to_string(),
+        source_draft_id: source_draft_id.to_string(),
+        recipe_title: analysis.title.clone(),
+        recipe_slug: analysis.slug.clone(),
+        base_commit_sha: snapshot.commit_sha.clone(),
+        operation: "delete".to_string(),
+        changes: vec![PublicationChange { operation: ChangeOperation::Delete, path: analysis.path.clone(), file: None }],
+        expectations: vec![PathExpectation { path: analysis.path.clone(), sha: Some(analysis.blob_sha.clone()) }],
+        image_path: None,
+        recipe_path: None,
+        recipe_json: None,
+        commit_message: format!("cms: delete page {}", analysis.slug),
+        created_at: now_seconds(),
+    })
+}
+
 fn json_file(path: String, value: &Value) -> Result<PublicationFile, String> {
     let mut bytes = serde_json::to_string_pretty(value)
         .map_err(|_| "Repository JSON could not be serialized.".to_string())?
@@ -1899,6 +2469,169 @@ fn image_file(input: &PublishImageInput, slug: &str) -> Result<(String, Publicat
             encoding: BlobEncoding::Base64,
         },
     ))
+}
+
+fn page_image_file(input: &PublishPageImageInput, slug: &str) -> Result<(String, PublicationFile), String> {
+    if !valid_block_id(&input.block_id) {
+        return Err("The page image block identifier is invalid.".to_string());
+    }
+    let bytes = BASE64.decode(&input.bytes_base64).map_err(|_| "A local page image could not be decoded.".to_string())?;
+    let extension = validate_image(&bytes, &input.mime_type)?;
+    let path = format!("assets/images/pages/{slug}-{}.{}", input.block_id, extension);
+    if !allowed_publication_path(&path) {
+        return Err("The generated page image path is not allowed.".to_string());
+    }
+    Ok((path.clone(), PublicationFile { path, bytes, encoding: BlobEncoding::Base64 }))
+}
+
+fn value_contains_exact_string(value: &Value, expected: &str) -> bool {
+    match value {
+        Value::String(text) => text == expected,
+        Value::Array(items) => items.iter().any(|item| value_contains_exact_string(item, expected)),
+        Value::Object(map) => map.values().any(|item| value_contains_exact_string(item, expected)),
+        _ => false,
+    }
+}
+
+fn rewrite_page_image_blocks(
+    value: &mut Value,
+    replacements: &HashMap<String, String>,
+    seen: &mut HashSet<String>,
+) -> Result<(), String> {
+    let Some(block) = value.as_object_mut() else { return Err("A page block must be an object.".to_string()); };
+    let block_id = block.get("id").and_then(Value::as_str).unwrap_or_default().to_string();
+    let block_type = block.get("type").and_then(Value::as_str).unwrap_or_default().to_string();
+    let data = block.get_mut("data").and_then(Value::as_object_mut).ok_or_else(|| "A page block requires data.".to_string())?;
+    if block_type == "image" {
+        if let Some(path) = replacements.get(&block_id) {
+            if data.get("attachmentId").and_then(Value::as_str) != Some(block_id.as_str()) {
+                return Err("A selected page image does not match its image block.".to_string());
+            }
+            data.insert("src".to_string(), Value::String(path.clone()));
+            data.remove("attachmentId");
+            seen.insert(block_id.clone());
+        } else if data.get("attachmentId").is_some() {
+            return Err(format!("Select the local image for block {block_id} on this device."));
+        }
+    }
+    if let Some(children) = data.get_mut("blocks").and_then(Value::as_array_mut) {
+        for child in children { rewrite_page_image_blocks(child, replacements, seen)?; }
+    }
+    Ok(())
+}
+
+fn repository_route_uses_slug(value: &Value, slug: &str) -> bool {
+    value.as_array().is_some_and(|items| items.iter().any(|item| {
+        item.get("slug").and_then(Value::as_str) == Some(slug)
+    }))
+}
+
+async fn build_page_publication_plan(
+    state: &GithubState,
+    token: &str,
+    input: PreparePagePublishInput,
+    snapshot: &RepositorySnapshot,
+) -> Result<PendingPublishPlan, String> {
+    if !valid_draft_id(&input.source_draft_id) { return Err("The source draft identifier is invalid.".to_string()); }
+    if !valid_slug(&input.slug) { return Err("Use a safe page slug with lowercase letters, numbers, and hyphens only.".to_string()); }
+    if input.title.trim().is_empty() || input.title.len() > 200 { return Err("Add a valid page title before publishing.".to_string()); }
+    if input.page_json.len() > MAX_RECIPE_JSON_BYTES { return Err("The page source is too large to publish.".to_string()); }
+    if input.images.len() > 24 { return Err("A page may publish at most 24 local images at once.".to_string()); }
+    if input.occupied_routes.iter().any(|route| !valid_slug(route)) { return Err("The route collision list contains an invalid value.".to_string()); }
+
+    let target_path = page_path(&input.slug);
+    if !allowed_publication_path(&target_path) { return Err("The generated page source path is not allowed.".to_string()); }
+    let mut page: Value = serde_json::from_str(&input.page_json).map_err(|_| "The page source is not valid JSON.".to_string())?;
+    let page_type = page.get("pageType").and_then(Value::as_str).unwrap_or_default();
+    if (page_type == "home") != (input.slug == "home") { return Err("Homepage identity must remain home.".to_string()); }
+    if page.get("slug").and_then(Value::as_str) != Some(input.slug.as_str())
+        || page.get("title").and_then(Value::as_str) != Some(input.title.as_str())
+    {
+        return Err("The reviewed page identity does not match the active draft.".to_string());
+    }
+
+    let mut expectations = BTreeMap::<String, Option<String>>::new();
+    let existing_page;
+    let operation;
+    if let Some(source) = &input.source {
+        validate_page_source_identity(source)?;
+        if source.slug != input.slug || source.path != target_path {
+            return Err("Published page routes cannot be renamed yet. Create a new page to use a different slug.".to_string());
+        }
+        let current = snapshot_blob(snapshot, &source.path).ok_or_else(|| "This page was removed from GitHub after the draft was created.".to_string())?;
+        if current.sha != source.blob_sha { return Err("This page changed in GitHub after the draft was created. Reload it or keep the draft as a copy.".to_string()); }
+        let value = repository_json_value(state, token, current).await?;
+        validate_repository_page(&value, &source.slug)?;
+        existing_page = Some(value);
+        expectations.insert(source.path.clone(), Some(source.blob_sha.clone()));
+        operation = "update".to_string();
+    } else {
+        if snapshot_blob(snapshot, &target_path).is_some() { return Err("A published page with this slug already exists.".to_string()); }
+        if input.slug != "home" && (RESERVED_PAGE_ROUTES.contains(&input.slug.as_str()) || input.occupied_routes.iter().any(|route| route == &input.slug)) {
+            return Err("This page slug is reserved by an existing website route.".to_string());
+        }
+        if snapshot.entries.keys().any(|path| recipe_slug_from_path(path) == Some(input.slug.as_str())) {
+            return Err("This page slug is already used by a recipe.".to_string());
+        }
+        let (aliases, _) = read_aliases(state, token, snapshot).await?;
+        if aliases.contains_key(&input.slug) { return Err("This page slug is reserved by a recipe alias.".to_string()); }
+        if let Some(categories) = snapshot_blob(snapshot, "src/content/categories.json") {
+            let value = repository_json_value(state, token, categories).await?;
+            if repository_route_uses_slug(&value, &input.slug) { return Err("This page slug is already used by a category.".to_string()); }
+        }
+        existing_page = None;
+        expectations.insert(target_path.clone(), None);
+        operation = "create".to_string();
+    }
+
+    let mut replacements = HashMap::new();
+    let mut page_images = Vec::new();
+    for image in &input.images {
+        if replacements.contains_key(&image.block_id) { return Err("A page image block was submitted more than once.".to_string()); }
+        let (path, file) = page_image_file(image, &input.slug)?;
+        replacements.insert(image.block_id.clone(), path);
+        page_images.push(file);
+    }
+    let mut seen = HashSet::new();
+    let blocks = page.get_mut("layout").and_then(Value::as_object_mut).and_then(|layout| layout.get_mut("blocks")).and_then(Value::as_array_mut).ok_or_else(|| "The page layout is required.".to_string())?;
+    for block in blocks { rewrite_page_image_blocks(block, &replacements, &mut seen)?; }
+    if seen.len() != replacements.len() { return Err("A selected page image no longer has a matching image block.".to_string()); }
+    validate_repository_page(&page, &input.slug)?;
+
+    let page_file = json_file(target_path.clone(), &page)?;
+    let page_json = String::from_utf8(page_file.bytes.clone()).map_err(|_| "The page source is not valid UTF-8.".to_string())?;
+    let mut changes = vec![PublicationChange {
+        operation: if input.source.is_some() { ChangeOperation::Modify } else { ChangeOperation::Add },
+        path: target_path.clone(),
+        file: Some(page_file),
+    }];
+    for file in page_images {
+        let current = snapshot_blob(snapshot, &file.path).map(|entry| entry.sha.clone());
+        if current.is_some() && !existing_page.as_ref().is_some_and(|value| value_contains_exact_string(value, &file.path)) {
+            return Err("A generated page image path already belongs to another repository asset.".to_string());
+        }
+        expectations.insert(file.path.clone(), current.clone());
+        changes.push(PublicationChange {
+            operation: if current.is_some() { ChangeOperation::Modify } else { ChangeOperation::Add },
+            path: file.path.clone(),
+            file: Some(file),
+        });
+    }
+    Ok(PendingPublishPlan {
+        id: Uuid::new_v4().to_string(),
+        source_draft_id: input.source_draft_id,
+        recipe_title: input.title,
+        recipe_slug: input.slug.clone(),
+        base_commit_sha: snapshot.commit_sha.clone(),
+        operation,
+        changes,
+        expectations: expectations.into_iter().map(|(path, sha)| PathExpectation { path, sha }).collect(),
+        image_path: None,
+        recipe_path: Some(target_path),
+        recipe_json: Some(page_json),
+        commit_message: if input.source.is_some() { format!("cms: update page {}", input.slug) } else { format!("cms: add page {}", input.slug) },
+        created_at: now_seconds(),
+    })
 }
 
 async fn build_publication_plan(
@@ -2256,13 +2989,16 @@ fn validate_image(bytes: &[u8], declared_mime: &str) -> Result<&'static str, Str
 }
 
 fn review_from_plan(plan: &PendingPublishPlan, branch: &str) -> PublishReview {
+    let is_page = plan.commit_message.contains(" page ");
     let mut checks = vec![
-        "Recipe valid".to_string(),
+        if is_page { "Page valid".to_string() } else { "Recipe valid".to_string() },
         "Affected repository paths verified".to_string(),
         "GitHub connected".to_string(),
     ];
     if plan.operation == "delete" {
         checks.push("Deletion dependencies checked".to_string());
+    } else if is_page && plan.changes.iter().any(|change| change.path.starts_with("assets/images/pages/")) {
+        checks.push("Page images reviewed".to_string());
     } else if plan.image_path.is_some() {
         checks.push("Recipe image reviewed".to_string());
     }
@@ -2296,6 +3032,19 @@ fn allowed_recipe_image_path(path: &str) -> bool {
     })
 }
 
+fn allowed_page_image_path(path: &str) -> bool {
+    let Some(file) = path.strip_prefix("assets/images/pages/") else { return false; };
+    [".jpg", ".png", ".webp"].iter().any(|extension| {
+        file.strip_suffix(extension).is_some_and(|stem| {
+            !stem.is_empty()
+                && stem.len() <= 205
+                && stem.bytes().all(|byte| byte.is_ascii_lowercase() || byte.is_ascii_digit() || byte == b'-')
+                && !stem.starts_with('-')
+                && !stem.ends_with('-')
+        })
+    })
+}
+
 fn allowed_publication_path(path: &str) -> bool {
     if path.starts_with('/')
         || path.contains('\\')
@@ -2312,7 +3061,12 @@ fn allowed_publication_path(path: &str) -> bool {
             .strip_suffix(".json")
             .is_some_and(|slug| valid_slug(slug) && !slug.contains('.'));
     }
-    path == "src/content/aliases.json" || allowed_recipe_image_path(path)
+    if let Some(file) = path.strip_prefix("src/content/pages/") {
+        return file
+            .strip_suffix(".json")
+            .is_some_and(|slug| valid_slug(slug) && !slug.contains('.'));
+    }
+    path == "src/content/aliases.json" || allowed_recipe_image_path(path) || allowed_page_image_path(path)
 }
 
 fn valid_slug(value: &str) -> bool {
@@ -2498,12 +3252,44 @@ mod tests {
         assert!(allowed_publication_path(
             "assets/images/recipes/paste-carbonara.webp"
         ));
+        assert!(allowed_publication_path("src/content/pages/despre-noi.json"));
+        assert!(allowed_publication_path("assets/images/pages/despre-noi-page-image.png"));
         assert!(allowed_publication_path("src/content/aliases.json"));
         assert!(!allowed_publication_path(
             "src/content/recipes/../package.json"
         ));
         assert!(!allowed_publication_path(".github/workflows/deploy.yml"));
         assert!(!allowed_publication_path("src/content/recipes/%2e%2e.json"));
+        assert!(!allowed_publication_path("src/content/pages/../tauri.conf.json"));
+    }
+
+    #[test]
+    fn structured_pages_enforce_safe_layout_and_homepage_identity() {
+        let page = json!({
+            "id": "home",
+            "pageType": "home",
+            "title": "Arta Gatitului",
+            "slug": "home",
+            "description": "Retete testate.",
+            "socialImage": null,
+            "status": "published",
+            "layout": { "modelVersion": 1, "blocks": [{
+                "id": "home-main",
+                "type": "section",
+                "data": { "blocks": [{
+                    "id": "home-title",
+                    "type": "heading",
+                    "data": { "text": "Arta Gatitului", "level": 1 }
+                }] }
+            }] }
+        });
+        assert!(validate_repository_page(&page, "home").is_ok());
+        let mut unsafe_page = page.clone();
+        unsafe_page["layout"]["blocks"][0]["data"]["blocks"][0]["data"]["text"] = json!("javascript:alert(1)");
+        assert!(validate_repository_page(&unsafe_page, "home").is_err());
+        assert!(build_page_delete_plan(&RepositorySnapshot { commit_sha: "a".repeat(40), tree_sha: "b".repeat(40), entries: HashMap::new() }, &PageDeleteAnalysis {
+            path: page_path("home"), slug: "home".to_string(), id: "home".to_string(), title: "Arta Gatitului".to_string(), page_type: "home".to_string(), commit_sha: "a".repeat(40), blob_sha: "c".repeat(40), dependencies: vec![],
+        }, "draft-home-test").is_err());
     }
 
     #[test]

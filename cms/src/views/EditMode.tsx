@@ -8,6 +8,7 @@ import {
   CloudOff,
   Copy,
   Eye,
+  FilePlus2,
   FileText,
   GitFork,
   HardDrive,
@@ -25,12 +26,12 @@ import {
   UploadCloud,
   X,
 } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { BlockType } from '../../../src/shared/index.mjs';
 import brandIcon from '../../../icon.png';
 import type { AppRoute } from '../app/useAppRoute';
 import { SharedRecipePreview } from '../components/SharedRecipePreview';
-import { type RecipeDraft } from '../drafts/draftModel.mjs';
+import { isPageDraft, isRecipeDraft, type AnyDraft, type RecipeDraft } from '../drafts/draftModel.mjs';
 import { useDraftWorkspace, type DraftSaveState } from '../drafts/useDraftWorkspace';
 import { BlockInspector } from '../editor/BlockInspector';
 import { BlockLibrary } from '../editor/BlockLibrary';
@@ -44,6 +45,7 @@ import {
   type EditorViewport,
   type LocalImageStatus,
 } from '../editor/VisualRecipeCanvas';
+import { PageEditor } from './PageEditor';
 
 type EditorMode = 'edit' | 'preview';
 type MobileSheet = 'blocks' | 'inspector' | null;
@@ -117,6 +119,7 @@ function EditorTopBar({
 
       <div className="editor-topbar-actions">
         <button className="new-recipe-button" type="button" onClick={() => void workspace.newDraft()}><Plus aria-hidden="true" size={16} /><span>New recipe</span></button>
+        <button className="secondary-command" type="button" onClick={() => void workspace.newPageDraft('standard')}><FilePlus2 aria-hidden="true" size={16} /><span>New page</span></button>
         <button className="secondary-command published-recipes-command" type="button" disabled={publishing.busy} onClick={publishing.openRecipes}><BookOpen aria-hidden="true" size={16} /><span>Recipes</span></button>
         {draft && <button className="icon-command desktop-draft-action" type="button" title="Duplicate draft" aria-label="Duplicate draft" onClick={() => void workspace.duplicateDraft(draft.id)}><Copy aria-hidden="true" size={16} /></button>}
         {draft && <button className="icon-command desktop-draft-action" type="button" title="Delete draft" aria-label="Delete draft" onClick={() => workspace.requestDelete(draft)}><Trash2 aria-hidden="true" size={16} /></button>}
@@ -148,19 +151,23 @@ function EditorTopBar({
   );
 }
 
-export function EditMode({
+function RecipeEditor({
   uid,
   email,
   onNavigate,
   onSignOut,
+  workspace,
 }: {
   uid: string;
   email: string | null;
   onNavigate: (route: AppRoute) => void;
   onSignOut: () => void;
+  workspace: ReturnType<typeof useDraftWorkspace>;
 }) {
-  const workspace = useDraftWorkspace(uid);
-  const draft = workspace.activeDraft;
+  const draft = isRecipeDraft(workspace.activeDraft) ? workspace.activeDraft : null;
+  const updateRecipeDraft = useCallback((update: (value: RecipeDraft) => RecipeDraft) => {
+    workspace.updateDraft((current: AnyDraft) => isRecipeDraft(current) ? update(current) : current);
+  }, [workspace]);
   const [mode, setMode] = useState<EditorMode>('edit');
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
   const [mobileSheet, setMobileSheet] = useState<MobileSheet>(null);
@@ -241,7 +248,7 @@ export function EditMode({
     const attachmentId = existing?.id ?? createBlockId('image');
     try {
       await storeDraftImage(uid, draft.id, attachmentId, file);
-      workspace.updateDraft((current) => ({
+      updateRecipeDraft((current) => ({
         ...current,
         data: {
           ...current.data,
@@ -270,7 +277,7 @@ export function EditMode({
     if (attachment?.localAttachmentId) {
       await removeDraftImage(uid, draft.id, attachment.localAttachmentId).catch(() => undefined);
     }
-    workspace.updateDraft((current) => ({
+    updateRecipeDraft((current) => ({
       ...current,
       data: { ...current.data, attachments: [] },
     }));
@@ -279,7 +286,7 @@ export function EditMode({
   function addBlock(type: BlockType) {
     if (!draft) return;
     const id = createBlockId(type);
-    workspace.updateDraft((current) => insertDraftBlock(current, type, current.layout.blocks.length, { id }));
+    updateRecipeDraft((current) => insertDraftBlock(current, type, current.layout.blocks.length, { id }));
     setSelectedBlockId(id);
     setMobileSheet(null);
   }
@@ -301,8 +308,8 @@ export function EditMode({
       ) : (
         <div className="visual-editor-body">
           <aside className={`visual-side-panel block-library-panel${mobileSheet === 'blocks' ? ' mobile-open' : ''}`}><button className="mobile-sheet-close" type="button" title="Close block library" aria-label="Close block library" onClick={() => setMobileSheet(null)}><X aria-hidden="true" size={18} /></button><BlockLibrary draft={draft} onAdd={addBlock} /></aside>
-          <section className="visual-editor-canvas"><VisualRecipeCanvas draft={draft} viewport={viewport} selectedBlockId={selectedBlockId} localImageUrl={localImageUrl} localImageStatus={localImageStatus} onSelectBlock={setSelectedBlockId} updateDraft={workspace.updateDraft} onPickImage={(file) => void handleImage(file)} onRemoveImage={() => void handleRemoveImage()} /></section>
-          <aside className={`visual-side-panel inspector-panel${mobileSheet === 'inspector' ? ' mobile-open' : ''}`}><button className="mobile-sheet-close" type="button" title="Close properties" aria-label="Close properties" onClick={() => setMobileSheet(null)}><X aria-hidden="true" size={18} /></button><BlockInspector draft={draft} block={selectedBlock} viewport={viewport} updateDraft={workspace.updateDraft} /></aside>
+          <section className="visual-editor-canvas"><VisualRecipeCanvas draft={draft} viewport={viewport} selectedBlockId={selectedBlockId} localImageUrl={localImageUrl} localImageStatus={localImageStatus} onSelectBlock={setSelectedBlockId} updateDraft={updateRecipeDraft} onPickImage={(file) => void handleImage(file)} onRemoveImage={() => void handleRemoveImage()} /></section>
+          <aside className={`visual-side-panel inspector-panel${mobileSheet === 'inspector' ? ' mobile-open' : ''}`}><button className="mobile-sheet-close" type="button" title="Close properties" aria-label="Close properties" onClick={() => setMobileSheet(null)}><X aria-hidden="true" size={18} /></button><BlockInspector draft={draft} block={selectedBlock} viewport={viewport} updateDraft={updateRecipeDraft} /></aside>
           <div className="mobile-editor-actions"><button type="button" title="Add block" aria-label="Add block" onClick={() => setMobileSheet('blocks')}><Plus aria-hidden="true" size={21} /></button><button type="button" title="Block properties" aria-label="Block properties" onClick={() => setMobileSheet('inspector')}><SlidersHorizontal aria-hidden="true" size={20} /></button></div>
           {mobileSheet && <button className="mobile-sheet-backdrop" type="button" aria-label="Close panel" onClick={() => setMobileSheet(null)} />}
         </div>
@@ -323,4 +330,17 @@ export function EditMode({
       <GitHubPublishingDialogs publishing={publishing} />
     </main>
   );
+}
+
+export function EditMode(props: {
+  uid: string;
+  email: string | null;
+  onNavigate: (route: AppRoute) => void;
+  onSignOut: () => void;
+}) {
+  const workspace = useDraftWorkspace(props.uid);
+  if (isPageDraft(workspace.activeDraft)) {
+    return <PageEditor {...props} workspace={workspace} draft={workspace.activeDraft} />;
+  }
+  return <RecipeEditor {...props} workspace={workspace} />;
 }

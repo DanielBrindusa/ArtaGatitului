@@ -1,6 +1,9 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { validateRecipeSource } from '../../shared/validation/recipe.mjs';
+import { collectPageReferences } from '../../shared/content/page.mjs';
+import { validatePageSource } from '../../shared/validation/page.mjs';
+import { validatePageSlug } from '../../shared/routing/page-routes.mjs';
 
 const SAFE_SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const NULLABLE_TRACKING_FIELDS = [
@@ -53,6 +56,7 @@ export async function validateContentEntries({
   root,
   categories,
   recipes,
+  pages = [],
   aliases = {},
   tagGroups = {},
 }) {
@@ -140,12 +144,54 @@ export async function validateContentEntries({
     if (seenSlugs.has(alias)) issues.push(`src/content/aliases.json: alias "${alias}" collides with a recipe slug`);
   }
 
+  const recipeSlugs = [...seenSlugs.keys()];
+  const pageSlugs = [];
+  let homepageCount = 0;
+  for (const entry of pages) {
+    const { fileName, page } = entry;
+    const label = `src/content/pages/${fileName}`;
+    const validation = validatePageSource(page, {
+      recipeSlugs,
+      categorySlugs: [...categorySlugs.keys()],
+    });
+    validation.errors.forEach((message) => issues.push(`${label}: ${message}`));
+    if (!page || typeof page !== 'object' || Array.isArray(page)) continue;
+    if (page.pageType === 'home') homepageCount += 1;
+    const expectedFile = page.pageType === 'home' ? 'home.json' : `${page.slug}.json`;
+    if (fileName !== expectedFile) issues.push(`${label}: filename must be ${expectedFile}`);
+    const route = validatePageSlug(page.slug, {
+      pageType: page.pageType,
+      recipeSlugs,
+      categorySlugs: [...categorySlugs.keys()],
+      aliasSlugs: Object.keys(aliases),
+      pageSlugs,
+      currentSlug: null,
+    });
+    route.errors.forEach((message) => issues.push(`${label}: ${message}`));
+    if (page.pageType !== 'home') pageSlugs.push(page.slug);
+    const assets = [page.socialImage, ...collectPageReferences(page).images];
+    for (const asset of assets) {
+      const assetPath = localAssetPath(asset);
+      if (assetPath === false) issues.push(`${label}: image must be a safe site-root asset path or HTTP(S) URL`);
+      else if (assetPath) {
+        try {
+          const stat = await fs.stat(path.join(root, ...assetPath.split('/')));
+          if (!stat.isFile()) issues.push(`${label}: image asset does not reference a file: ${assetPath}`);
+        } catch {
+          issues.push(`${label}: image asset does not exist: ${assetPath}`);
+        }
+      }
+    }
+  }
+  if (homepageCount !== 1) issues.push(`src/content/pages must contain exactly one Homepage; found ${homepageCount}`);
+
   return {
     issues,
     warnings,
     recipesWithNulls,
     categoryCount: Array.isArray(categories) ? categories.length : 0,
     recipeFileCount: recipes.length,
+    pageFileCount: pages.length,
     parsedRecipeCount,
     duplicateSlugCount: Math.max(0, recipes.length - seenSlugs.size),
   };
@@ -155,6 +201,7 @@ export async function validateContentRepository({ root = process.cwd() } = {}) {
   const issues = [];
   const contentDir = path.join(root, 'src', 'content');
   const recipesDir = path.join(contentDir, 'recipes');
+  const pagesDir = path.join(contentDir, 'pages');
   const categories = await readJson(
     path.join(contentDir, 'categories.json'),
     'src/content/categories.json',
@@ -177,6 +224,12 @@ export async function validateContentRepository({ root = process.cwd() } = {}) {
     issues,
   );
   if (!schema || schema.type !== 'object') issues.push('Recipe schema could not be loaded.');
+  const pageSchema = await readJson(
+    path.join(root, 'src', 'schema', 'page.schema.json'),
+    'src/schema/page.schema.json',
+    issues,
+  );
+  if (!pageSchema || pageSchema.type !== 'object') issues.push('Page schema could not be loaded.');
 
   let recipeFiles = [];
   try {
@@ -192,6 +245,19 @@ export async function validateContentRepository({ root = process.cwd() } = {}) {
     if (recipe) recipes.push({ fileName, recipe });
   }
 
-  const result = await validateContentEntries({ root, categories, recipes, aliases, tagGroups });
-  return { ...result, issues: [...issues, ...result.issues], recipeFileCount: recipeFiles.length };
+  let pageFiles = [];
+  try {
+    pageFiles = (await fs.readdir(pagesDir)).filter((file) => file.endsWith('.json')).sort();
+  } catch (error) {
+    issues.push(`src/content/pages: could not read page directory (${error.message})`);
+  }
+  const pages = [];
+  for (const fileName of pageFiles) {
+    const filePath = path.join(pagesDir, fileName);
+    const page = await readJson(filePath, relative(root, filePath), issues);
+    if (page) pages.push({ fileName, page });
+  }
+
+  const result = await validateContentEntries({ root, categories, recipes, pages, aliases, tagGroups });
+  return { ...result, issues: [...issues, ...result.issues], recipeFileCount: recipeFiles.length, pageFileCount: pageFiles.length };
 }

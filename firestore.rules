@@ -13,7 +13,7 @@ service cloud.firestore {
       return value == null || value is string;
     }
 
-    function validDraftContent(data) {
+    function validRecipeDraftContent(data) {
       return data is map
         && data.keys().hasOnly(['modelVersion', 'recipe', 'attachments'])
         && data.modelVersion == 1
@@ -61,6 +61,26 @@ service cloud.firestore {
         && data.attachments.size() <= 50;
     }
 
+    function validPageDraftContent(data) {
+      return data is map
+        && data.keys().hasOnly(['modelVersion', 'page', 'attachments'])
+        && data.modelVersion == 1
+        && data.page is map
+        && data.page.keys().hasOnly([
+          'id', 'pageType', 'title', 'slug', 'description', 'socialImage', 'status'
+        ])
+        && data.page.id is string
+        && data.page.pageType in ['home', 'standard', 'landing']
+        && data.page.title is string
+        && data.page.slug is string
+        && data.page.description is string
+        && data.page.description.size() <= 320
+        && (data.page.socialImage == null || data.page.socialImage is string)
+        && data.page.status in ['published', 'draft', 'archived']
+        && data.attachments is list
+        && data.attachments.size() <= 50;
+    }
+
     function validDraftLayout(layout) {
       return layout is map
         && layout.keys().hasOnly(['modelVersion', 'blocks'])
@@ -68,15 +88,17 @@ service cloud.firestore {
         && layout.blocks is list;
     }
 
-    function validSourceLink(link) {
+    function validSourceLink(link, contentType) {
       return link == null || (
         link is map
         && link.keys().hasOnly(['path', 'slug', 'commitSha', 'blobSha', 'sourceJson'])
         && link.path is string
-        && link.path.matches('^src/content/recipes/[a-z0-9]+(-[a-z0-9]+)*[.]json$')
         && link.slug is string
         && link.slug.matches('^[a-z0-9]+(-[a-z0-9]+)*$')
-        && link.path == 'src/content/recipes/' + link.slug + '.json'
+        && ((contentType == 'recipe'
+            && link.path == 'src/content/recipes/' + link.slug + '.json')
+          || (contentType == 'page'
+            && link.path == 'src/content/pages/' + link.slug + '.json'))
         && link.commitSha is string
         && link.commitSha.matches('^[0-9a-f]{40}$')
         && link.blobSha is string
@@ -115,21 +137,31 @@ service cloud.firestore {
           'sourceLink', 'deletedAt'
         ])
         && draft.id == draftId
-        && draft.contentType == 'recipe'
+        && draft.contentType in ['recipe', 'page']
         && draft.schemaVersion == 1
         && draft.title is string
         && draft.title.size() <= 200
         && draft.slug is string
         && draft.slug.size() <= 160
         && draft.status in ['draft', 'ready', 'published', 'publishedDeleted']
-        && validDraftContent(draft.data)
-        && draft.data.recipe.id == draft.id
-        && draft.data.recipe.title == draft.title
-        && draft.data.recipe.name == draft.title
-        && draft.data.recipe.slug == draft.slug
-        && ((draft.status == 'published' && draft.data.recipe.status == 'published')
-          || (draft.status in ['draft', 'ready'] && draft.data.recipe.status == 'draft')
-          || (draft.status == 'publishedDeleted' && draft.data.recipe.status == 'archived'))
+        && ((draft.contentType == 'recipe'
+            && validRecipeDraftContent(draft.data)
+            && draft.data.recipe.id == draft.id
+            && draft.data.recipe.title == draft.title
+            && draft.data.recipe.name == draft.title
+            && draft.data.recipe.slug == draft.slug
+            && ((draft.status == 'published' && draft.data.recipe.status == 'published')
+              || (draft.status in ['draft', 'ready'] && draft.data.recipe.status == 'draft')
+              || (draft.status == 'publishedDeleted' && draft.data.recipe.status == 'archived')))
+          || (draft.contentType == 'page'
+            && validPageDraftContent(draft.data)
+            && draft.data.page.title == draft.title
+            && draft.data.page.slug == draft.slug
+            && (draft.data.page.pageType != 'home'
+              || (draft.data.page.id == 'home' && draft.slug == 'home'))
+            && ((draft.status == 'published' && draft.data.page.status == 'published')
+              || (draft.status in ['draft', 'ready'] && draft.data.page.status == 'draft')
+              || (draft.status == 'publishedDeleted' && draft.data.page.status == 'archived'))))
         && validDraftLayout(draft.layout)
         && draft.createdAt is timestamp
         && draft.updatedAt is timestamp
@@ -143,7 +175,7 @@ service cloud.firestore {
         && validNullableString(draft.publishedSourceDraftId)
         && validNullableString(draft.publishedSlug)
         && (draft.publishedAt == null || draft.publishedAt is timestamp)
-        && validSourceLink(draft.sourceLink)
+        && validSourceLink(draft.sourceLink, draft.contentType)
         && (draft.deletedAt == null || draft.deletedAt is timestamp)
         && (hasNoPublication(draft) || hasCompletePublication(draft, draftId))
         && (draft.status != 'published' || draft.sourceLink != null || hasCompletePublication(draft, draftId))

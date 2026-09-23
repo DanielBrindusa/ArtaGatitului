@@ -1,7 +1,7 @@
-import type { RecipeDraft } from './draftModel.mjs';
+import type { AnyDraft } from './draftModel.mjs';
 
 export interface DraftBackupRecord {
-  draft: RecipeDraft;
+  draft: AnyDraft;
   dirty: boolean;
   baseRevision: number;
   backedUpAt: string;

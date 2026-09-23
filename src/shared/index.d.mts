@@ -1,6 +1,11 @@
 export type RecipeStatus = 'published' | 'draft' | 'archived';
 export type BlockType =
   | 'section'
+  | 'container'
+  | 'columns'
+  | 'column'
+  | 'grid'
+  | 'hero'
   | 'heading'
   | 'text'
   | 'rich-text'
@@ -8,6 +13,12 @@ export type BlockType =
   | 'divider'
   | 'spacer'
   | 'button'
+  | 'search'
+  | 'recipe-grid'
+  | 'featured-recipes'
+  | 'latest-recipes'
+  | 'category-grid'
+  | 'random-recipe'
   | 'recipe-hero'
   | 'recipe-metadata'
   | 'ingredients'
@@ -21,6 +32,8 @@ export type LayoutColumns = 1 | 2 | 3 | 4;
 export type SpacingToken = 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 export type AlignmentToken = 'start' | 'center' | 'end' | 'stretch';
 export type Breakpoint = 'desktop' | 'tablet' | 'mobile';
+export type PageType = 'home' | 'standard' | 'landing';
+export type PageStatus = 'published' | 'draft' | 'archived';
 
 export interface RecipeSource {
   id?: string;
@@ -99,6 +112,17 @@ export interface ContentBlock {
   };
 }
 
+export interface PageSource {
+  id: string;
+  pageType: PageType;
+  title: string;
+  slug: string;
+  description: string;
+  socialImage: string | null;
+  status: PageStatus;
+  layout: { modelVersion: 1; blocks: ContentBlock[] };
+}
+
 export interface BlockValidationResult {
   valid: boolean;
   errors: string[];
@@ -109,12 +133,20 @@ export interface BlockRenderContext {
   recipes?: NormalizedRecipe[];
   root?: string;
   localImageUrl?: string | null;
+  localImageUrls?: Record<string, string>;
+  page?: PageSource;
+  categories?: Array<Record<string, unknown>>;
 }
 
 export const BLOCK_MODEL_VERSION: 1;
 export const CONTENT_MODEL_VERSION: 1;
 export const BLOCK_TYPES: Readonly<{
   SECTION: 'section';
+  CONTAINER: 'container';
+  COLUMNS: 'columns';
+  COLUMN: 'column';
+  GRID: 'grid';
+  HERO: 'hero';
   HEADING: 'heading';
   TEXT: 'text';
   RICH_TEXT: 'rich-text';
@@ -122,6 +154,12 @@ export const BLOCK_TYPES: Readonly<{
   DIVIDER: 'divider';
   SPACER: 'spacer';
   BUTTON: 'button';
+  SEARCH: 'search';
+  RECIPE_GRID: 'recipe-grid';
+  FEATURED_RECIPES: 'featured-recipes';
+  LATEST_RECIPES: 'latest-recipes';
+  CATEGORY_GRID: 'category-grid';
+  RANDOM_RECIPE: 'random-recipe';
   RECIPE_HERO: 'recipe-hero';
   RECIPE_METADATA: 'recipe-metadata';
   INGREDIENTS: 'ingredients';
@@ -134,7 +172,12 @@ export const BLOCK_TYPES: Readonly<{
 export const BLOCK_TYPE_VALUES: readonly BlockType[];
 export const LAYOUT_WIDTHS: readonly LayoutWidth[];
 export const LAYOUT_COLUMNS: readonly LayoutColumns[];
+export const COLUMN_SPANS: readonly (3 | 4 | 6 | 8 | 9 | 12)[];
 export const SPACING_TOKENS: readonly SpacingToken[];
+export const PAGE_MODEL_VERSION: 1;
+export const PAGE_TYPES: readonly PageType[];
+export const PAGE_STATUSES: readonly PageStatus[];
+export const SYSTEM_PAGE_ROUTES: readonly string[];
 
 export const DESIGN_TOKENS: Readonly<{
   widths: Readonly<Record<LayoutWidth, string>>;
@@ -149,3 +192,9 @@ export function renderBlock(block: ContentBlock, context?: BlockRenderContext): 
 export function renderBlockTree(blocks: ContentBlock[], context?: BlockRenderContext): string;
 export function renderDesignTokenCss(): string;
 export function renderLayoutTokenCss(): string;
+export function normalizePage(value: unknown): PageSource;
+export function pageSourcePath(page: PageSource): string;
+export function collectPageReferences(page: PageSource): { recipes: string[]; links: string[]; images: string[] };
+export function validatePageSource(value: unknown, options?: { recipeSlugs?: string[]; categorySlugs?: string[] }): BlockValidationResult & { page?: PageSource | null };
+export function validatePageSlug(value: unknown, options?: { pageType?: PageType; recipeSlugs?: string[]; categorySlugs?: string[]; aliasSlugs?: string[]; pageSlugs?: string[]; currentSlug?: string | null }): BlockValidationResult;
+export function pageOutputPath(page: PageSource): string;

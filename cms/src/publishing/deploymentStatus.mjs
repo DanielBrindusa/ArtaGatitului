@@ -8,6 +8,11 @@ export function publishedRecipeUrl(slug) {
   return new URL(`retete/${slug}/`, PUBLIC_SITE_URL).toString();
 }
 
+export function publishedPageUrl(slug) {
+  if (!SAFE_SLUG.test(slug ?? '')) throw new Error('Published page slug is invalid.');
+  return new URL(slug === 'home' ? '' : `${slug}/`, PUBLIC_SITE_URL).toString();
+}
+
 export function deploymentStatusForHttp(status) {
   if (status >= 200 && status < 400) return 'building';
   if (status === 404 || status >= 500) return 'building';
@@ -57,4 +62,19 @@ export async function pollRecipeDeployment({
 
   if (shouldContinue()) onStatus('unknown');
   return 'unknown';
+}
+
+export async function pollPageDeployment(options) {
+  const { slug, ...rest } = options;
+  const pageUrl = publishedPageUrl(slug);
+  return pollRecipeDeployment({
+    ...rest,
+    slug: null,
+    fetcher: async (probeUrl, init) => {
+      const target = new URL(pageUrl);
+      const deployment = new URL(probeUrl).searchParams.get('deployment');
+      if (deployment) target.searchParams.set('deployment', deployment);
+      return (rest.fetcher ?? globalThis.fetch)(target.toString(), init);
+    },
+  });
 }

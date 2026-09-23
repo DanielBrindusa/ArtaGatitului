@@ -75,6 +75,30 @@ function draftDocument(id, revision = 1) {
   };
 }
 
+function pageDraftDocument(id, revision = 1) {
+  const draft = draftDocument(id, revision);
+  return {
+    ...draft,
+    contentType: 'page',
+    title: 'Despre noi',
+    slug: 'despre-noi',
+    data: {
+      modelVersion: 1,
+      page: {
+        id,
+        pageType: 'standard',
+        title: 'Despre noi',
+        slug: 'despre-noi',
+        description: 'Pagina echipei.',
+        socialImage: null,
+        status: 'draft',
+      },
+      attachments: [],
+    },
+    layout: { modelVersion: 1, blocks: [{ id: 'page-main', type: 'section', data: { blocks: [] } }] },
+  };
+}
+
 test.before(async () => {
   if (!emulatorAvailable) return;
   const rulesTemplate = await readFile(new URL('../firestore.rules', import.meta.url), 'utf8');
@@ -127,6 +151,23 @@ test('approved editors can access only the intended workspace paths', { skip: !e
   }));
   await assertFails(getDoc(doc(database, 'workspaces/another-workspace/drafts/draft-one')));
   await assertFails(setDoc(doc(database, 'unrelated/document'), { value: true }));
+});
+
+test('page drafts use the same revision-protected workspace collection', { skip: !emulatorAvailable }, async () => {
+  const database = environment.authenticatedContext(approvedUid).firestore();
+  const reference = doc(database, 'workspaces/arta-gatitului/drafts/draft-page-one');
+  await assertSucceeds(setDoc(reference, pageDraftDocument('draft-page-one')));
+  await assertSucceeds(updateDoc(reference, {
+    revision: 2,
+    updatedAt: serverTimestamp(),
+    updatedByUid: approvedUid,
+  }));
+  await assertFails(updateDoc(reference, {
+    revision: 3,
+    contentType: 'script',
+    updatedAt: serverTimestamp(),
+    updatedByUid: approvedUid,
+  }));
 });
 
 test('draft rules require a monotonic revision and immutable creation time', { skip: !emulatorAvailable }, async () => {

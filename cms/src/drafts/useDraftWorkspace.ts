@@ -7,9 +7,15 @@ import {
   type EditorPreferences,
 } from './DraftService';
 import {
+  createPageDraft,
   createRecipeDraft,
+  duplicatePageDraft,
   duplicateRecipeDraft,
+  isPageDraft,
+  isRecipeDraft,
+  type AnyDraft,
   type DraftPublicationMetadata,
+  type PageDraft,
   type RecipeDraft,
 } from './draftModel.mjs';
 import {
@@ -17,7 +23,7 @@ import {
   type DraftBackupRecord,
 } from './localDraftBackup.mjs';
 import { shouldConflictOnMissingRemote } from './draftSyncPolicy.mjs';
-import type { PublishedRecipe } from '../publishing/githubClient';
+import type { PublishedPage, PublishedRecipe } from '../publishing/githubClient';
 import {
   attachPublishedSourceToDraft,
   createLinkedRecipeDraft,
@@ -25,6 +31,14 @@ import {
   publishedDraftId,
   synchronizeLinkedDraftStatus,
 } from '../publishing/publishedRecipeModel.mjs';
+import {
+  attachPublishedSourceToPageDraft,
+  createLinkedPageDraft,
+  draftMatchesPublishedPage,
+  publishedPageDraftId,
+  synchronizeLinkedPageDraftStatus,
+} from '../publishing/publishedPageModel.mjs';
+import { normalizePage } from '../../../src/shared/index.mjs';
 
 const AUTOSAVE_DELAY_MS = 1_000;
 
@@ -38,12 +52,17 @@ export interface DraftListItem extends DraftBackupRecord {
 }
 
 export interface DraftConflict {
-  localDraft: RecipeDraft;
-  remoteDraft: RecipeDraft | null;
+  localDraft: AnyDraft;
+  remoteDraft: AnyDraft | null;
 }
 
 export interface PublishedDraftChoice {
   published: PublishedRecipe;
+  existing: DraftBackupRecord;
+}
+
+export interface PublishedPageDraftChoice {
+  published: PublishedPage;
   existing: DraftBackupRecord;
 }
 
@@ -80,8 +99,9 @@ export function useDraftWorkspace(uid: string) {
   const [conflict, setConflict] = useState<DraftConflict | null>(null);
   const [conflictIds, setConflictIds] = useState<Set<string>>(() => new Set());
   const [previewBreakpoint, setPreviewBreakpointState] = useState<EditorPreferences['previewBreakpoint']>('desktop');
-  const [deleteCandidate, setDeleteCandidate] = useState<RecipeDraft | null>(null);
+  const [deleteCandidate, setDeleteCandidate] = useState<AnyDraft | null>(null);
   const [publishedDraftChoice, setPublishedDraftChoice] = useState<PublishedDraftChoice | null>(null);
+  const [publishedPageDraftChoice, setPublishedPageDraftChoice] = useState<PublishedPageDraftChoice | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const activeRef = useRef<ActiveDraft | null>(null);
@@ -367,10 +387,13 @@ export function useDraftWorkspace(uid: string) {
     };
   }, [flush]);
 
-  const updateDraft = useCallback((update: (draft: RecipeDraft) => RecipeDraft) => {
+  const updateDraft = useCallback((update: (draft: AnyDraft) => AnyDraft) => {
     const current = activeRef.current;
     if (!current) return;
-    const nextDraft = synchronizeLinkedDraftStatus(update(current.draft));
+    const updatedDraft = update(current.draft);
+    const nextDraft = isRecipeDraft(updatedDraft)
+      ? synchronizeLinkedDraftStatus(updatedDraft)
+      : synchronizeLinkedPageDraftStatus(updatedDraft);
     editGenerationRef.current += 1;
     const next = {
       draft: nextDraft,
@@ -434,6 +457,29 @@ export function useDraftWorkspace(uid: string) {
     scheduleSave();
   }, [backup, flush, previewBreakpoint, scheduleSave, service, setActive, storeRecord, uid]);
 
+  const newPageDraft = useCallback(async (pageType: 'standard' | 'landing' = 'standard') => {
+    if (await flush() === 'conflict') return;
+    const draft = createPageDraft(uid, { pageType });
+    const record = {
+      draft,
+      dirty: true,
+      baseRevision: 0,
+      backedUpAt: new Date().toISOString(),
+    };
+    setActive(record);
+    setSaveState(online() ? 'local' : 'offline');
+    storeRecord(record);
+    backup.setLastOpenedDraftId(draft.id);
+    preferredDraftIdRef.current = draft.id;
+    editGenerationRef.current += 1;
+    void service.savePreferences(uid, {
+      schemaVersion: 1,
+      lastOpenedDraftId: draft.id,
+      previewBreakpoint,
+    }).catch(() => undefined);
+    scheduleSave();
+  }, [backup, flush, previewBreakpoint, scheduleSave, service, setActive, storeRecord, uid]);
+
   const duplicateDraft = useCallback(async (id: string) => {
     if (await flush() === 'conflict') return;
     let source = backup.load(id)?.draft ?? null;
@@ -447,7 +493,7 @@ export function useDraftWorkspace(uid: string) {
       }
     }
     if (!source) return;
-    const draft = duplicateRecipeDraft(source, uid);
+    const draft = isPageDraft(source) ? duplicatePageDraft(source, uid) : duplicateRecipeDraft(source, uid);
     const record = {
       draft,
       dirty: true,
@@ -545,7 +591,9 @@ export function useDraftWorkspace(uid: string) {
     } else {
       backup.remove(currentConflict.localDraft.id);
     }
-    const copy = duplicateRecipeDraft(currentConflict.localDraft, uid);
+    const copy = isPageDraft(currentConflict.localDraft)
+      ? duplicatePageDraft(currentConflict.localDraft, uid)
+      : duplicateRecipeDraft(currentConflict.localDraft, uid);
     const record = {
       draft: copy,
       dirty: true,
@@ -595,7 +643,7 @@ export function useDraftWorkspace(uid: string) {
   }, [backup, previewBreakpoint, scheduleSave, service, setActive, storeRecord, uid]);
 
   const findPublishedRecord = useCallback(async (published: PublishedRecipe) => {
-    const local = backup.list().find((record) => draftMatchesPublishedRecipe(record.draft, published));
+    const local = backup.list().find((record) => isRecipeDraft(record.draft) && draftMatchesPublishedRecipe(record.draft, published));
     if (local) return local;
     if (!online()) return null;
     const deterministicId = publishedDraftId(published.slug);
@@ -605,7 +653,7 @@ export function useDraftWorkspace(uid: string) {
         return backup.save(deterministic, { dirty: false, baseRevision: deterministic.revision });
       }
       const remote = (await service.listDrafts())
-        .find((candidate) => draftMatchesPublishedRecipe(candidate, published));
+        .find((candidate) => isRecipeDraft(candidate) && draftMatchesPublishedRecipe(candidate, published));
       return remote
         ? backup.save(remote, { dirty: false, baseRevision: remote.revision })
         : null;
@@ -674,13 +722,75 @@ export function useDraftWorkspace(uid: string) {
     activatePublishedRecord(record);
   }, [activatePublishedRecord, backup, publishedDraftChoice, service, setActive, uid]);
 
+  const findPublishedPageRecord = useCallback(async (published: PublishedPage) => {
+    const local = backup.list().find((record) => isPageDraft(record.draft) && draftMatchesPublishedPage(record.draft, published));
+    if (local) return local;
+    if (!online()) return null;
+    const deterministicId = publishedPageDraftId(published.slug);
+    try {
+      const deterministic = await service.loadDraft(deterministicId);
+      if (deterministic && isPageDraft(deterministic)) {
+        return backup.save(deterministic, { dirty: false, baseRevision: deterministic.revision });
+      }
+      const remote = (await service.listDrafts())
+        .find((candidate) => isPageDraft(candidate) && draftMatchesPublishedPage(candidate, published));
+      return remote && isPageDraft(remote)
+        ? backup.save(remote, { dirty: false, baseRevision: remote.revision })
+        : null;
+    } catch {
+      setErrorMessage('Existing Firestore page drafts could not be checked. Local recovery copies remain available.');
+      return null;
+    }
+  }, [backup, service]);
+
+  const openPublishedPage = useCallback(async (published: PublishedPage) => {
+    if (await flush() !== 'saved') throw new Error('Finish synchronizing the current draft before opening a published page.');
+    const existing = await findPublishedPageRecord(published);
+    if (existing) {
+      setPublishedPageDraftChoice({ published, existing });
+      return;
+    }
+    const draft = createLinkedPageDraft(published, uid);
+    editGenerationRef.current += 1;
+    activatePublishedRecord({ draft, dirty: true, baseRevision: 0, backedUpAt: new Date().toISOString() });
+  }, [activatePublishedRecord, findPublishedPageRecord, flush, uid]);
+
+  const continuePublishedPageDraft = useCallback(() => {
+    if (!publishedPageDraftChoice || !isPageDraft(publishedPageDraftChoice.existing.draft)) return;
+    const { existing, published } = publishedPageDraftChoice;
+    const pageDraft = existing.draft as PageDraft;
+    const draft = pageDraft.sourceLink
+      ? pageDraft
+      : attachPublishedSourceToPageDraft(pageDraft, published);
+    setPublishedPageDraftChoice(null);
+    activatePublishedRecord({
+      ...existing,
+      draft,
+      dirty: existing.dirty || draft !== existing.draft,
+      backedUpAt: new Date().toISOString(),
+    });
+  }, [activatePublishedRecord, publishedPageDraftChoice]);
+
+  const discardPublishedPageDraft = useCallback(async () => {
+    if (!publishedPageDraftChoice) return;
+    const { existing, published } = publishedPageDraftChoice;
+    if (existing.draft.revision > 0 && !online()) throw new Error('Reconnect before discarding a synchronized page draft.');
+    if (activeRef.current?.draft.id === existing.draft.id) setActive(null);
+    if (existing.draft.revision > 0) await service.deleteDraft(existing.draft.id, existing.draft.revision);
+    backup.remove(existing.draft.id);
+    const draft = createLinkedPageDraft(published, uid);
+    setPublishedPageDraftChoice(null);
+    editGenerationRef.current += 1;
+    activatePublishedRecord({ draft, dirty: true, baseRevision: 0, backedUpAt: new Date().toISOString() });
+  }, [activatePublishedRecord, backup, publishedPageDraftChoice, service, setActive, uid]);
+
   const recreateDeletedDraft = useCallback(async () => {
     const current = activeRef.current;
     if (!current || current.draft.status !== 'publishedDeleted') return;
     if (await flush() !== 'saved') return;
-    const draft = duplicateRecipeDraft(current.draft, uid, {
-      title: `${current.draft.title} (new)`,
-    });
+    const draft = isPageDraft(current.draft)
+      ? duplicatePageDraft(current.draft, uid, { title: `${current.draft.title} (new)` })
+      : duplicateRecipeDraft(current.draft, uid, { title: `${current.draft.title} (new)` });
     const record = {
       draft,
       dirty: true,
@@ -696,7 +806,7 @@ export function useDraftWorkspace(uid: string) {
       throw new Error('Save the current draft before recording publication.');
     }
     const current = activeRef.current;
-    if (!current
+    if (!current || !isRecipeDraft(current.draft)
       || current.draft.id !== metadata.sourceDraftId
       || current.draft.slug !== metadata.recipeSlug
       || metadata.operation === 'delete') {
@@ -781,7 +891,9 @@ export function useDraftWorkspace(uid: string) {
   ) => {
     if (metadata.operation !== 'delete') throw new Error('Deletion metadata is invalid.');
     const existing = await findPublishedRecord(published);
-    const base = existing?.draft ?? createLinkedRecipeDraft(published, uid);
+    const base = existing?.draft && isRecipeDraft(existing.draft)
+      ? existing.draft
+      : createLinkedRecipeDraft(published, uid);
     const deletedDraft: RecipeDraft = {
       ...base,
       status: 'publishedDeleted',
@@ -826,6 +938,146 @@ export function useDraftWorkspace(uid: string) {
     }
   }, [findPublishedRecord, service, setActive, storeRecord, uid]);
 
+  const markPagePublished = useCallback(async (metadata: DraftPublicationMetadata) => {
+    if (await flush() !== 'saved') throw new Error('Save the current page draft before recording publication.');
+    const current = activeRef.current;
+    if (!current || !isPageDraft(current.draft)
+      || current.draft.id !== metadata.sourceDraftId
+      || current.draft.slug !== metadata.recipeSlug
+      || metadata.operation === 'delete') {
+      throw new Error('The published page no longer matches the active draft.');
+    }
+    if (!metadata.recipePath || !metadata.recipeBlobSha || !metadata.recipeJson) {
+      throw new Error('GitHub did not return the published page source identity.');
+    }
+    let publishedSource;
+    try {
+      publishedSource = normalizePage(JSON.parse(metadata.recipeJson));
+    } catch {
+      throw new Error('GitHub returned invalid published page source.');
+    }
+    const repositoryImages = new Map<string, string>();
+    const visitImages = (blocks: typeof publishedSource.layout.blocks) => {
+      blocks.forEach((block) => {
+        if (block.type === 'image' && typeof block.data?.src === 'string') repositoryImages.set(block.id, block.data.src);
+        if (Array.isArray(block.data?.blocks)) visitImages(block.data.blocks);
+      });
+    };
+    visitImages(publishedSource.layout.blocks);
+    const pageDraft: PageDraft = synchronizeLinkedPageDraftStatus({
+      ...current.draft,
+      title: publishedSource.title,
+      slug: publishedSource.slug,
+      status: 'published',
+      data: {
+        ...current.draft.data,
+        page: {
+          id: publishedSource.id,
+          pageType: publishedSource.pageType,
+          title: publishedSource.title,
+          slug: publishedSource.slug,
+          description: publishedSource.description,
+          socialImage: publishedSource.socialImage,
+          status: 'published',
+        },
+        attachments: current.draft.data.attachments.map((attachment) => ({
+          ...attachment,
+          repositoryPath: repositoryImages.get(attachment.id) ?? attachment.repositoryPath,
+          localAttachmentId: null,
+          sourceDeviceId: null,
+        })),
+      },
+      layout: publishedSource.layout,
+      publishedCommitSha: metadata.commitSha,
+      publishedRepository: metadata.repository,
+      publishedBranch: metadata.branch,
+      publishedSourceDraftId: metadata.sourceDraftId,
+      publishedSlug: metadata.recipeSlug,
+      publishedAt: metadata.publishedAt,
+      sourceLink: {
+        path: metadata.recipePath,
+        slug: metadata.recipeSlug,
+        commitSha: metadata.commitSha,
+        blobSha: metadata.recipeBlobSha,
+        sourceJson: metadata.recipeJson,
+      },
+      deletedAt: null,
+    }) as PageDraft;
+    const localRecord = {
+      draft: pageDraft,
+      dirty: true,
+      baseRevision: current.baseRevision,
+      backedUpAt: new Date().toISOString(),
+    };
+    setActive(localRecord);
+    storeRecord(localRecord);
+    setSaveState('saving');
+    savingRef.current = { id: pageDraft.id, targetRevision: current.baseRevision + 1 };
+    try {
+      const savedDraft = await service.saveDraft(pageDraft, current.baseRevision, uid);
+      if (!isPageDraft(savedDraft)) throw new Error('Firestore returned the wrong draft type.');
+      const savedRecord = { draft: savedDraft, dirty: false, baseRevision: savedDraft.revision, backedUpAt: new Date().toISOString() };
+      setActive(savedRecord);
+      storeRecord(savedRecord);
+      setSaveState('saved');
+      return savedDraft;
+    } catch (error) {
+      if (error instanceof DraftConflictError) {
+        setWorkspaceConflict({ localDraft: pageDraft, remoteDraft: error.remoteDraft });
+        setConflictIds((ids) => new Set(ids).add(pageDraft.id));
+        setSaveState('conflict');
+      } else {
+        setSaveState(online() ? 'error' : 'offline');
+        setErrorMessage('The GitHub commit succeeded, but page publication metadata is still saved only on this device.');
+      }
+      throw error;
+    } finally {
+      savingRef.current = null;
+    }
+  }, [flush, service, setActive, setWorkspaceConflict, storeRecord, uid]);
+
+  const markPagePublishedDeleted = useCallback(async (
+    published: PublishedPage,
+    metadata: DraftPublicationMetadata,
+  ) => {
+    if (published.pageType === 'home' || published.slug === 'home') throw new Error('Homepage cannot be deleted.');
+    if (metadata.operation !== 'delete') throw new Error('Page deletion metadata is invalid.');
+    const existing = await findPublishedPageRecord(published);
+    const base = existing?.draft && isPageDraft(existing.draft)
+      ? existing.draft
+      : createLinkedPageDraft(published, uid);
+    const deletedDraft: PageDraft = {
+      ...base,
+      status: 'publishedDeleted',
+      data: { ...base.data, page: { ...base.data.page, status: 'archived' } },
+      publishedCommitSha: metadata.commitSha,
+      publishedRepository: metadata.repository,
+      publishedBranch: metadata.branch,
+      publishedSourceDraftId: base.id,
+      publishedSlug: metadata.recipeSlug,
+      publishedAt: metadata.publishedAt,
+      deletedAt: metadata.publishedAt,
+    };
+    const baseRevision = existing?.baseRevision ?? 0;
+    const localRecord = { draft: deletedDraft, dirty: true, baseRevision, backedUpAt: new Date().toISOString() };
+    setActive(localRecord);
+    storeRecord(localRecord);
+    setSaveState('saving');
+    try {
+      const savedDraft = await service.saveDraft(deletedDraft, baseRevision, uid);
+      if (!isPageDraft(savedDraft)) throw new Error('Firestore returned the wrong draft type.');
+      const savedRecord = { draft: savedDraft, dirty: false, baseRevision: savedDraft.revision, backedUpAt: new Date().toISOString() };
+      setActive(savedRecord);
+      storeRecord(savedRecord);
+      setSaveState('saved');
+      return savedDraft;
+    } catch (error) {
+      setSaveState(online() ? 'error' : 'offline');
+      setErrorMessage('The GitHub deletion succeeded, but the deleted page state is still saved only on this device.');
+      throw error;
+    }
+  }, [findPublishedPageRecord, service, setActive, storeRecord, uid]);
+
   const drafts = useMemo<DraftListItem[]>(() => records.map((record) => ({
     ...record,
     hasConflict: conflictIds.has(record.draft.id),
@@ -845,6 +1097,7 @@ export function useDraftWorkspace(uid: string) {
     updateDraft,
     selectDraft,
     newDraft,
+    newPageDraft,
     duplicateDraft,
     requestDelete: setDeleteCandidate,
     cancelDelete: () => setDeleteCandidate(null),
@@ -854,10 +1107,17 @@ export function useDraftWorkspace(uid: string) {
     setPreviewBreakpoint,
     markPublished,
     markPublishedDeleted,
+    markPagePublished,
+    markPagePublishedDeleted,
     openPublishedRecipe,
     continuePublishedDraft,
     discardPublishedDraft,
     cancelPublishedDraftChoice: () => setPublishedDraftChoice(null),
+    publishedPageDraftChoice,
+    openPublishedPage,
+    continuePublishedPageDraft,
+    discardPublishedPageDraft,
+    cancelPublishedPageDraftChoice: () => setPublishedPageDraftChoice(null),
     recreateDeletedDraft,
     flush,
     dismissError: () => setErrorMessage(null),
