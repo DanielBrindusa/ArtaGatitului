@@ -263,7 +263,7 @@ function renderRatingScale(recipe, name, label, help = '') {
 
 export function renderRecipeRating(recipe, { heading = 'Evaluează rețeta' } = {}) {
   return `
-        <section class="recipe-rating box" data-rating-panel data-recipe-slug="${escapeHtml(recipe.slug)}" aria-labelledby="recipe-rating-heading">
+        <section class="recipe-rating box" data-rating-panel data-recipe-slug="${escapeHtml(recipe.id || recipe.slug)}" aria-labelledby="recipe-rating-heading">
           <h2 id="recipe-rating-heading">${escapeHtml(heading)}</h2>
           <p class="rating-note">Evaluarea ta este salvată doar în acest browser. Pentru evaluări publice de la toți utilizatorii, site-ul ar avea nevoie de o bază de date.</p>
           ${renderPublicRatingSummary(recipe.ratingSummary)}
@@ -336,7 +336,7 @@ export function renderRecipeHero(recipe, root, {
   const imageUrl = localImageUrl || recipe.image;
   return `<header class="recipe-hero">
             <div>${imageUrl ? `
-              <figure class="recipe-hero-media"><img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(recipe.name)}"></figure>` : ''}
+              <figure class="recipe-hero-media"><img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(recipe.imageAlt || recipe.name)}"></figure>` : ''}
               <p class="eyebrow">Rețetă</p>
               ${showCategory ? `<span class="pill">${escapeHtml(recipe.category)}</span>` : ''}
               <h1>${escapeHtml(recipe.name)}</h1>

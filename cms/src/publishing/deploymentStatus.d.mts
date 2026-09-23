@@ -9,7 +9,7 @@ export function deploymentStatusForResponse(
   commitSha?: string,
 ): Promise<Exclude<DeploymentStatus, 'committed'>>;
 export function pollRecipeDeployment(options: {
-  slug: string;
+  slug?: string | null;
   commitSha?: string;
   fetcher?: typeof fetch;
   waitFor?: (milliseconds: number) => Promise<unknown>;

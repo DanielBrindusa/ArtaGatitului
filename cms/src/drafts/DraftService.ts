@@ -99,6 +99,7 @@ function draftFromSnapshot(snapshot: DocumentSnapshot<DocumentData> | QueryDocum
     createdAt: timestampToIso(raw.createdAt),
     updatedAt: timestampToIso(raw.updatedAt),
     publishedAt: timestampToIso(raw.publishedAt),
+    deletedAt: timestampToIso(raw.deletedAt),
   });
 }
 
@@ -112,6 +113,7 @@ function draftPayload(draft: RecipeDraft, uid: string, revision: number, created
     createdAt,
     updatedAt: serverTimestamp(),
     publishedAt: draft.publishedAt ? Timestamp.fromDate(new Date(draft.publishedAt)) : null,
+    deletedAt: draft.deletedAt ? Timestamp.fromDate(new Date(draft.deletedAt)) : null,
   };
 }
 

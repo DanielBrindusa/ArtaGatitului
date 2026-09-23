@@ -2,7 +2,13 @@ import { deflateSync, inflateSync } from 'node:zlib';
 import { BUILD_VERSION, HERO_IMAGE, SITE_CONFIG, SITE_NAME } from './src/scripts/build/config.mjs';
 import { runBuild } from './src/scripts/build/index.mjs';
 import { renderDesignTokenCss } from './src/shared/design/tokens.mjs';
-import { cleanArray, renderRecipeDetail } from './src/shared/render/recipe.mjs';
+import { renderBlockTree } from './src/shared/render/blocks.mjs';
+import {
+  cleanArray,
+  renderRecipeDetail,
+  renderRecipeTags,
+  renderSteakCalculator,
+} from './src/shared/render/recipe.mjs';
 import { escapeHtml, slugify } from './src/shared/utils/html.mjs';
 
 function safeDescription(value, fallback = SITE_CONFIG.defaultDescription, maxLength = 180) {
@@ -500,6 +506,13 @@ function categoryPage(category, root = '../../') {
 }
 
 function recipePage(recipe, root = '../../', slugOverride = recipe.slug, buildContext = {}) {
+  const detail = recipe.layout?.modelVersion === 1 && Array.isArray(recipe.layout.blocks)
+    ? `<article class="recipe-detail-card recipe-block-layout" data-static-recipe data-recipe-slug="${escapeHtml(recipe.slug)}">
+        ${renderBlockTree(recipe.layout.blocks, { recipe, recipes: buildContext.recipes || [], root })}
+        ${renderRecipeTags(recipe, root, buildContext.tagGroups)}
+        ${(recipe.extras || []).map(renderSteakCalculator).join('')}
+      </article>`
+    : renderRecipeDetail(recipe, root, slugOverride, buildContext);
   return page({
     title: recipe.name,
     description: recipe.description,
@@ -511,9 +524,29 @@ function recipePage(recipe, root = '../../', slugOverride = recipe.slug, buildCo
     bodyAttrs: `data-recipe-slug="${escapeHtml(slugOverride)}"`,
     main: `
       <main class="section" id="main-content">
-        ${renderRecipeDetail(recipe, root, slugOverride, buildContext)}
+        ${detail}
       </main>`,
   });
+}
+
+function recipeRedirectPage(targetSlug, root = '../../') {
+  const targetPath = `${root}retete/${targetSlug}/`;
+  const canonicalUrl = absoluteUrl(`retete/${targetSlug}/`);
+  return `<!doctype html>
+<html lang="${SITE_CONFIG.defaultLanguage}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, follow">
+  <meta http-equiv="refresh" content="0; url=${escapeHtml(targetPath)}">
+  <link rel="canonical" href="${escapeHtml(canonicalUrl)}">
+  <title>Rețetă mutată | ${SITE_NAME}</title>
+  <script>window.location.replace(${JSON.stringify(targetPath)} + window.location.search + window.location.hash);</script>
+</head>
+<body>
+  <main><p>Rețeta s-a mutat. <a href="${escapeHtml(targetPath)}">Deschide pagina actuală</a>.</p></main>
+</body>
+</html>`;
 }
 
 function portfolioPage() {
@@ -7640,6 +7673,7 @@ async function main() {
     soonPage,
     categoryPage,
     recipePage,
+    recipeRedirectPage,
   });
 }
 

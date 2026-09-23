@@ -17,6 +17,14 @@ import {
   type DraftBackupRecord,
 } from './localDraftBackup.mjs';
 import { shouldConflictOnMissingRemote } from './draftSyncPolicy.mjs';
+import type { PublishedRecipe } from '../publishing/githubClient';
+import {
+  attachPublishedSourceToDraft,
+  createLinkedRecipeDraft,
+  draftMatchesPublishedRecipe,
+  publishedDraftId,
+  synchronizeLinkedDraftStatus,
+} from '../publishing/publishedRecipeModel.mjs';
 
 const AUTOSAVE_DELAY_MS = 1_000;
 
@@ -32,6 +40,11 @@ export interface DraftListItem extends DraftBackupRecord {
 export interface DraftConflict {
   localDraft: RecipeDraft;
   remoteDraft: RecipeDraft | null;
+}
+
+export interface PublishedDraftChoice {
+  published: PublishedRecipe;
+  existing: DraftBackupRecord;
 }
 
 function online() {
@@ -68,6 +81,7 @@ export function useDraftWorkspace(uid: string) {
   const [conflictIds, setConflictIds] = useState<Set<string>>(() => new Set());
   const [previewBreakpoint, setPreviewBreakpointState] = useState<EditorPreferences['previewBreakpoint']>('desktop');
   const [deleteCandidate, setDeleteCandidate] = useState<RecipeDraft | null>(null);
+  const [publishedDraftChoice, setPublishedDraftChoice] = useState<PublishedDraftChoice | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const activeRef = useRef<ActiveDraft | null>(null);
@@ -356,7 +370,7 @@ export function useDraftWorkspace(uid: string) {
   const updateDraft = useCallback((update: (draft: RecipeDraft) => RecipeDraft) => {
     const current = activeRef.current;
     if (!current) return;
-    const nextDraft = update(current.draft);
+    const nextDraft = synchronizeLinkedDraftStatus(update(current.draft));
     editGenerationRef.current += 1;
     const next = {
       draft: nextDraft,
@@ -566,19 +580,136 @@ export function useDraftWorkspace(uid: string) {
     }).catch(() => undefined);
   }, [service, uid]);
 
+  const activatePublishedRecord = useCallback((record: DraftBackupRecord) => {
+    setActive(record);
+    storeRecord(record);
+    backup.setLastOpenedDraftId(record.draft.id);
+    preferredDraftIdRef.current = record.draft.id;
+    setSaveState(record.dirty ? (online() ? 'local' : 'offline') : 'saved');
+    void service.savePreferences(uid, {
+      schemaVersion: 1,
+      lastOpenedDraftId: record.draft.id,
+      previewBreakpoint,
+    }).catch(() => undefined);
+    if (record.dirty) scheduleSave();
+  }, [backup, previewBreakpoint, scheduleSave, service, setActive, storeRecord, uid]);
+
+  const findPublishedRecord = useCallback(async (published: PublishedRecipe) => {
+    const local = backup.list().find((record) => draftMatchesPublishedRecipe(record.draft, published));
+    if (local) return local;
+    if (!online()) return null;
+    const deterministicId = publishedDraftId(published.slug);
+    try {
+      const deterministic = await service.loadDraft(deterministicId);
+      if (deterministic) {
+        return backup.save(deterministic, { dirty: false, baseRevision: deterministic.revision });
+      }
+      const remote = (await service.listDrafts())
+        .find((candidate) => draftMatchesPublishedRecipe(candidate, published));
+      return remote
+        ? backup.save(remote, { dirty: false, baseRevision: remote.revision })
+        : null;
+    } catch {
+      setErrorMessage('Existing Firestore drafts could not be checked. Local recovery copies remain available.');
+      return null;
+    }
+  }, [backup, service]);
+
+  const openPublishedRecipe = useCallback(async (published: PublishedRecipe) => {
+    if (await flush() !== 'saved') {
+      throw new Error('Finish synchronizing the current draft before opening a published recipe.');
+    }
+    const existing = await findPublishedRecord(published);
+    if (existing) {
+      setPublishedDraftChoice({ published, existing });
+      return;
+    }
+    const draft = createLinkedRecipeDraft(published, uid);
+    const record = {
+      draft,
+      dirty: true,
+      baseRevision: 0,
+      backedUpAt: new Date().toISOString(),
+    };
+    editGenerationRef.current += 1;
+    activatePublishedRecord(record);
+  }, [activatePublishedRecord, findPublishedRecord, flush, uid]);
+
+  const continuePublishedDraft = useCallback(() => {
+    if (!publishedDraftChoice) return;
+    const { existing, published } = publishedDraftChoice;
+    const draft = existing.draft.sourceLink
+      ? existing.draft
+      : attachPublishedSourceToDraft(existing.draft, published);
+    const changed = draft !== existing.draft;
+    setPublishedDraftChoice(null);
+    activatePublishedRecord({
+      ...existing,
+      draft,
+      dirty: existing.dirty || changed,
+      backedUpAt: new Date().toISOString(),
+    });
+  }, [activatePublishedRecord, publishedDraftChoice]);
+
+  const discardPublishedDraft = useCallback(async () => {
+    if (!publishedDraftChoice) return;
+    const { existing, published } = publishedDraftChoice;
+    if (existing.draft.revision > 0 && !online()) {
+      throw new Error('Reconnect before discarding a synchronized edit draft.');
+    }
+    if (activeRef.current?.draft.id === existing.draft.id) setActive(null);
+    if (existing.draft.revision > 0) {
+      await service.deleteDraft(existing.draft.id, existing.draft.revision);
+    }
+    backup.remove(existing.draft.id);
+    const draft = createLinkedRecipeDraft(published, uid);
+    const record = {
+      draft,
+      dirty: true,
+      baseRevision: 0,
+      backedUpAt: new Date().toISOString(),
+    };
+    setPublishedDraftChoice(null);
+    editGenerationRef.current += 1;
+    activatePublishedRecord(record);
+  }, [activatePublishedRecord, backup, publishedDraftChoice, service, setActive, uid]);
+
+  const recreateDeletedDraft = useCallback(async () => {
+    const current = activeRef.current;
+    if (!current || current.draft.status !== 'publishedDeleted') return;
+    if (await flush() !== 'saved') return;
+    const draft = duplicateRecipeDraft(current.draft, uid, {
+      title: `${current.draft.title} (new)`,
+    });
+    const record = {
+      draft,
+      dirty: true,
+      baseRevision: 0,
+      backedUpAt: new Date().toISOString(),
+    };
+    editGenerationRef.current += 1;
+    activatePublishedRecord(record);
+  }, [activatePublishedRecord, flush, uid]);
+
   const markPublished = useCallback(async (metadata: DraftPublicationMetadata) => {
     if (await flush() !== 'saved') {
       throw new Error('Save the current draft before recording publication.');
     }
     const current = activeRef.current;
-    if (!current || current.draft.id !== metadata.sourceDraftId || current.draft.slug !== metadata.recipeSlug) {
+    if (!current
+      || current.draft.id !== metadata.sourceDraftId
+      || current.draft.slug !== metadata.recipeSlug
+      || metadata.operation === 'delete') {
       throw new Error('The published recipe no longer matches the active draft.');
+    }
+    if (!metadata.recipePath || !metadata.recipeBlobSha || !metadata.recipeJson) {
+      throw new Error('GitHub did not return the published recipe source identity.');
     }
     if (autosaveTimerRef.current !== undefined) {
       window.clearTimeout(autosaveTimerRef.current);
       autosaveTimerRef.current = undefined;
     }
-    const publishedDraft: RecipeDraft = {
+    const publishedDraft = synchronizeLinkedDraftStatus({
       ...current.draft,
       status: 'published',
       data: {
@@ -598,7 +729,15 @@ export function useDraftWorkspace(uid: string) {
       publishedSourceDraftId: metadata.sourceDraftId,
       publishedSlug: metadata.recipeSlug,
       publishedAt: metadata.publishedAt,
-    };
+      sourceLink: {
+        path: metadata.recipePath,
+        slug: metadata.recipeSlug,
+        commitSha: metadata.commitSha,
+        blobSha: metadata.recipeBlobSha,
+        sourceJson: metadata.recipeJson,
+      },
+      deletedAt: null,
+    });
     const localRecord = {
       draft: publishedDraft,
       dirty: true,
@@ -636,6 +775,57 @@ export function useDraftWorkspace(uid: string) {
     }
   }, [flush, service, setActive, setWorkspaceConflict, storeRecord, uid]);
 
+  const markPublishedDeleted = useCallback(async (
+    published: PublishedRecipe,
+    metadata: DraftPublicationMetadata,
+  ) => {
+    if (metadata.operation !== 'delete') throw new Error('Deletion metadata is invalid.');
+    const existing = await findPublishedRecord(published);
+    const base = existing?.draft ?? createLinkedRecipeDraft(published, uid);
+    const deletedDraft: RecipeDraft = {
+      ...base,
+      status: 'publishedDeleted',
+      data: {
+        ...base.data,
+        recipe: { ...base.data.recipe, status: 'archived' },
+      },
+      publishedCommitSha: metadata.commitSha,
+      publishedRepository: metadata.repository,
+      publishedBranch: metadata.branch,
+      publishedSourceDraftId: base.id,
+      publishedSlug: metadata.recipeSlug,
+      publishedAt: metadata.publishedAt,
+      deletedAt: metadata.publishedAt,
+    };
+    const baseRevision = existing?.baseRevision ?? 0;
+    const localRecord = {
+      draft: deletedDraft,
+      dirty: true,
+      baseRevision,
+      backedUpAt: new Date().toISOString(),
+    };
+    setActive(localRecord);
+    storeRecord(localRecord);
+    setSaveState('saving');
+    try {
+      const savedDraft = await service.saveDraft(deletedDraft, baseRevision, uid);
+      const savedRecord = {
+        draft: savedDraft,
+        dirty: false,
+        baseRevision: savedDraft.revision,
+        backedUpAt: new Date().toISOString(),
+      };
+      setActive(savedRecord);
+      storeRecord(savedRecord);
+      setSaveState('saved');
+      return savedDraft;
+    } catch (error) {
+      setSaveState(online() ? 'error' : 'offline');
+      setErrorMessage('The GitHub deletion succeeded, but the deleted draft state is still saved only on this device.');
+      throw error;
+    }
+  }, [findPublishedRecord, service, setActive, storeRecord, uid]);
+
   const drafts = useMemo<DraftListItem[]>(() => records.map((record) => ({
     ...record,
     hasConflict: conflictIds.has(record.draft.id),
@@ -650,6 +840,7 @@ export function useDraftWorkspace(uid: string) {
     conflict,
     previewBreakpoint,
     deleteCandidate,
+    publishedDraftChoice,
     errorMessage,
     updateDraft,
     selectDraft,
@@ -662,6 +853,12 @@ export function useDraftWorkspace(uid: string) {
     saveConflictAsCopy,
     setPreviewBreakpoint,
     markPublished,
+    markPublishedDeleted,
+    openPublishedRecipe,
+    continuePublishedDraft,
+    discardPublishedDraft,
+    cancelPublishedDraftChoice: () => setPublishedDraftChoice(null),
+    recreateDeletedDraft,
     flush,
     dismissError: () => setErrorMessage(null),
   };

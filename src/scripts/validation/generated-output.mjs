@@ -123,8 +123,11 @@ export async function validateGeneratedOutput({ outputRoot, content }) {
   ];
   for (const [label, index] of indexes) {
     if (!Array.isArray(index)) continue;
-    const missing = setDifference(recipeSlugs, new Set(index.map((entry) => entry.slug)));
+    const indexedSlugs = new Set(index.map((entry) => entry.slug));
+    const missing = setDifference(recipeSlugs, indexedSlugs);
+    const stale = setDifference(indexedSlugs, recipeSlugs);
     if (missing.length) issues.push(`The ${label} is missing recipes: ${missing.join(', ')}`);
+    if (stale.length) issues.push(`The ${label} contains stale recipes: ${stale.join(', ')}`);
   }
   if (Array.isArray(categoryIndex)) {
     const missing = setDifference(categorySlugs, new Set(categoryIndex.map((entry) => entry.slug)));
@@ -159,6 +162,22 @@ export async function validateGeneratedOutput({ outputRoot, content }) {
       }
     } catch {
       // The missing route is already reported above.
+    }
+  }
+
+  for (const [alias, target] of Object.entries(content.aliases || {})) {
+    const canonical = `${SITE_CONFIG.siteUrl}retete/${target}/`;
+    for (const aliasPath of [`retete/${alias}/index.html`, `${alias}/index.html`]) {
+      try {
+        const html = await fs.readFile(path.join(outputRoot, ...aliasPath.split('/')), 'utf8');
+        if (!html.includes('<meta name="robots" content="noindex, follow">')
+          || !html.includes(`<link rel="canonical" href="${canonical}">`)
+          || !html.includes('window.location.replace(')) {
+          issues.push(`${aliasPath} is not a structured redirect to ${target}.`);
+        }
+      } catch {
+        // The missing route is already reported above.
+      }
     }
   }
 

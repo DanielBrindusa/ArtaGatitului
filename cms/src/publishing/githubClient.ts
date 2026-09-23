@@ -36,6 +36,30 @@ export interface PreparePublishInput {
   title: string;
   recipeJson: string;
   image: PublishImageInput | null;
+  imageAction: 'retain' | 'replace' | 'remove';
+  source: PublishedSourceIdentity | null;
+}
+
+export interface PublishedSourceIdentity {
+  path: string;
+  slug: string;
+  commitSha: string;
+  blobSha: string;
+}
+
+export interface PublishedRecipeSummary extends PublishedSourceIdentity {
+  title: string;
+  category: string;
+  imagePath: string | null;
+}
+
+export interface PublishedRecipe extends PublishedRecipeSummary {
+  sourceJson: string;
+}
+
+export interface PublicationFileChange {
+  operation: 'add' | 'modify' | 'delete';
+  path: string;
 }
 
 export interface PublishReview {
@@ -45,7 +69,8 @@ export interface PublishReview {
   repository: string;
   branch: string;
   baseCommitSha: string;
-  files: string[];
+  operation: 'create' | 'update' | 'delete';
+  fileChanges: PublicationFileChange[];
   checks: string[];
 }
 
@@ -58,6 +83,30 @@ export interface PublishResult {
   imagePath: string | null;
   publishedAt: string;
   deploymentStatus: 'committed';
+  operation: 'create' | 'update' | 'delete';
+  recipePath: string | null;
+  recipeBlobSha: string | null;
+  recipeJson: string | null;
+}
+
+export interface RecipeDependency {
+  path: string;
+  reason: string;
+  autoRemovable: boolean;
+}
+
+export interface DeleteAnalysis extends PublishedSourceIdentity {
+  title: string;
+  imagePath: string | null;
+  imageUnique: boolean;
+  dependencies: RecipeDependency[];
+}
+
+export interface PrepareDeleteInput extends PublishedSourceIdentity {
+  sourceDraftId: string;
+  title: string;
+  confirmation: string;
+  deleteUniqueImage: boolean;
 }
 
 const browserStatus: GitHubConnectionStatus = {
@@ -113,6 +162,26 @@ export async function disconnectGitHub() {
 export async function prepareRecipePublish(input: PreparePublishInput) {
   requireNativeApp();
   return invoke<PublishReview>('github_prepare_recipe_publish', { input });
+}
+
+export async function listPublishedRecipes() {
+  requireNativeApp();
+  return invoke<PublishedRecipeSummary[]>('github_list_published_recipes');
+}
+
+export async function loadPublishedRecipe(slug: string) {
+  requireNativeApp();
+  return invoke<PublishedRecipe>('github_load_published_recipe', { slug });
+}
+
+export async function analyzeRecipeDelete(source: PublishedSourceIdentity) {
+  requireNativeApp();
+  return invoke<DeleteAnalysis>('github_analyze_recipe_delete', { source });
+}
+
+export async function prepareRecipeDelete(input: PrepareDeleteInput) {
+  requireNativeApp();
+  return invoke<PublishReview>('github_prepare_recipe_delete', { input });
 }
 
 export async function publishRecipe(planId: string) {

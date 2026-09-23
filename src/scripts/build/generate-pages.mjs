@@ -20,15 +20,13 @@ export async function generatePages(content, renderers) {
     await writeTextFile(path.join(OUTPUT_ROOT, category.slug, 'index.html'), renderers.categoryPage(category, '../'));
   }
 
-  const recipeBySlug = new Map(recipes.map((recipe) => [recipe.slug, recipe]));
   for (const recipe of recipes) {
     await writeTextFile(path.join(OUTPUT_ROOT, 'retete', recipe.slug, 'index.html'), renderers.recipePage(recipe, '../../', recipe.slug, content));
     await writeTextFile(path.join(OUTPUT_ROOT, recipe.slug, 'index.html'), renderers.recipePage(recipe, '../', recipe.slug, content));
   }
 
   for (const [alias, target] of Object.entries(aliases || {})) {
-    const recipe = recipeBySlug.get(target);
-    await writeTextFile(path.join(OUTPUT_ROOT, 'retete', alias, 'index.html'), renderers.recipePage(recipe, '../../', alias, content));
-    await writeTextFile(path.join(OUTPUT_ROOT, alias, 'index.html'), renderers.recipePage(recipe, '../', alias, content));
+    await writeTextFile(path.join(OUTPUT_ROOT, 'retete', alias, 'index.html'), renderers.recipeRedirectPage(target, '../../'));
+    await writeTextFile(path.join(OUTPUT_ROOT, alias, 'index.html'), renderers.recipeRedirectPage(target, '../'));
   }
 }

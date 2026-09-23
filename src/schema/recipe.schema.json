@@ -38,6 +38,7 @@
     "totalTimeMinutes": { "type": ["integer", "null"], "minimum": 0 },
     "servings": { "type": ["integer", "string", "null"] },
     "image": { "type": ["string", "null"] },
+    "imageAlt": { "type": ["string", "null"], "maxLength": 500 },
     "sourceUrl": { "type": ["string", "null"] },
     "createdAt": { "type": ["string", "null"] },
     "updatedAt": { "type": ["string", "null"] },
@@ -45,6 +46,15 @@
     "keywords": {
       "type": "array",
       "items": { "type": "string", "minLength": 1 }
+    },
+    "layout": {
+      "type": "object",
+      "required": ["modelVersion", "blocks"],
+      "properties": {
+        "modelVersion": { "const": 1 },
+        "blocks": { "type": "array" }
+      },
+      "additionalProperties": false
     },
     "extras": {
       "type": "array",

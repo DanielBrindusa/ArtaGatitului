@@ -1,6 +1,6 @@
 # GitHub App setup
 
-Milestone 9 publishes a new recipe through a repository-scoped GitHub App. Firebase login still decides who may enter Edit Mode; the GitHub connection separately decides whether this device may publish. The app never asks for a GitHub password or personal access token.
+The repository-scoped GitHub App publishes new recipes and reviewed updates/deletions. Firebase login still decides who may enter Edit Mode; the GitHub connection separately decides whether this device may publish. The app never asks for a GitHub password or personal access token.
 
 ## Create and install the app
 
@@ -29,12 +29,13 @@ The Client ID is public application configuration. Access and refresh tokens are
 
 ## Publishing boundary
 
-The publisher verifies repository ID `1256031473`, repository name `DanielBrindusa/ArtaGatitului`, selected-repository installation access, `Contents: write`, `Metadata: read`, and target branch `main`. It may create only:
+The publisher verifies repository ID `1256031473`, repository name `DanielBrindusa/ArtaGatitului`, selected-repository installation access, `Contents: write`, `Metadata: read`, and target branch `main`. It may read repository metadata and recipe source, and may modify only:
 
 - `src/content/recipes/<slug>.json`
+- `src/content/aliases.json`
 - `assets/images/recipes/<slug>.jpg`, `.png`, or `.webp`
 
-The review is based on the current `main` HEAD. Confirmation fails if that HEAD moved, if either destination already exists, or if the local review expired. Recipe JSON and its optional image are written through the Git Data API as blobs, one tree, and one commit; the branch reference update uses non-force behavior. The editor records the resulting commit metadata in Firestore, but **Committed to GitHub** does not mean **Deployed to website**. Deployment is Milestone 10.
+The review stores expected blob identities for affected paths. Unrelated `main` changes can be incorporated into a new tree, but a changed recipe, alias file, or destination stops confirmation. Recipe JSON, approved alias changes, and reviewed image changes are written through the Git Data API as one tree and one commit; the branch reference update uses non-force behavior. See `docs/published-recipe-editing.md` for rename, conflict, asset, and deletion safeguards. The editor records the resulting commit metadata in Firestore, but **Committed to GitHub** does not mean **Deployed to website**.
 
 ## Disconnect and revoke
 

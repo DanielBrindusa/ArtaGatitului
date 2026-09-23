@@ -47,6 +47,7 @@ function draftDocument(id, revision = 1) {
         totalTimeMinutes: null,
         servings: null,
         image: null,
+        imageAlt: null,
         sourceUrl: null,
         createdAt: null,
         updatedAt: null,
@@ -69,6 +70,8 @@ function draftDocument(id, revision = 1) {
     publishedSourceDraftId: null,
     publishedSlug: null,
     publishedAt: null,
+    sourceLink: null,
+    deletedAt: null,
   };
 }
 
@@ -164,6 +167,72 @@ test('publication metadata is complete, repository-pinned, and retained on the d
   await assertFails(updateDoc(reference, {
     revision: 3,
     publishedBranch: 'app-development',
+    updatedAt: serverTimestamp(),
+    updatedByUid: approvedUid,
+  }));
+});
+
+test('linked published drafts can become edits and explicit deletion tombstones', { skip: !emulatorAvailable }, async () => {
+  const database = environment.authenticatedContext(approvedUid).firestore();
+  const reference = doc(database, 'workspaces/arta-gatitului/drafts/draft-linked');
+  const source = {
+    id: 'stable-recipe-id',
+    slug: 'test-draft',
+    title: 'Test draft',
+    name: 'Test draft',
+    description: '',
+    category: 'Test',
+    ingredients: ['Ingredient'],
+    steps: ['Step'],
+    preparation: ['Step'],
+    beforeStart: [],
+    tags: {},
+    equipment: [],
+    prepTimeMinutes: null,
+    cookTimeMinutes: null,
+    totalTimeMinutes: null,
+    servings: null,
+    image: null,
+    imageAlt: null,
+    sourceUrl: null,
+    createdAt: null,
+    updatedAt: null,
+    status: 'published',
+    closing: '',
+    extras: [],
+    ratingSummary: null,
+    keywords: [],
+  };
+  const linked = draftDocument('draft-linked');
+  linked.status = 'published';
+  linked.data.recipe.status = 'published';
+  linked.sourceLink = {
+    path: 'src/content/recipes/test-draft.json',
+    slug: 'test-draft',
+    commitSha: 'a'.repeat(40),
+    blobSha: 'b'.repeat(40),
+    sourceJson: JSON.stringify(source),
+  };
+  await assertSucceeds(setDoc(reference, linked));
+
+  const createdAt = (await getDoc(reference)).data().createdAt;
+  const edited = { ...linked, status: 'draft', revision: 2, createdAt };
+  edited.data = { ...linked.data, recipe: { ...linked.data.recipe, status: 'draft' } };
+  await assertSucceeds(setDoc(reference, edited));
+
+  const deleted = { ...edited, status: 'publishedDeleted', revision: 3, deletedAt: serverTimestamp() };
+  deleted.data = { ...edited.data, recipe: { ...edited.data.recipe, status: 'archived' } };
+  deleted.publishedCommitSha = 'c'.repeat(40);
+  deleted.publishedRepository = 'DanielBrindusa/ArtaGatitului';
+  deleted.publishedBranch = 'main';
+  deleted.publishedSourceDraftId = 'draft-linked';
+  deleted.publishedSlug = 'test-draft';
+  deleted.publishedAt = serverTimestamp();
+  await assertSucceeds(setDoc(reference, deleted));
+
+  await assertFails(updateDoc(reference, {
+    revision: 4,
+    deletedAt: null,
     updatedAt: serverTimestamp(),
     updatedByUid: approvedUid,
   }));

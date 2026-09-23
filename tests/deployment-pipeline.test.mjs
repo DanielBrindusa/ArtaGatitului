@@ -92,6 +92,16 @@ test('valid source content feeds search, randomizer, categories, routes, and sit
   assert.ok(routePlan.routes.some((route) => route.filePath === 'retete/reteta-ci/index.html'));
   assert.ok(routePlan.routes.some((route) => route.filePath === 'categorie/fel-principal/index.html'));
   assert.ok(buildSitemapUrls(routePlan).includes(`${SITE_CONFIG.siteUrl}retete/reteta-ci/`));
+
+  const renamedPlan = validateRoutePlan(buildRoutePlan({
+    ...content,
+    aliases: { 'reteta-ci-veche': 'reteta-ci' },
+  }));
+  assert.ok(renamedPlan.routes.some((route) => route.filePath === 'retete/reteta-ci-veche/index.html'));
+  assert.equal(
+    buildSitemapUrls(renamedPlan).includes(`${SITE_CONFIG.siteUrl}retete/reteta-ci-veche/`),
+    false,
+  );
 });
 
 test('invalid recipes, duplicate slugs, and missing local assets fail validation', async (t) => {
@@ -149,6 +159,18 @@ test('deployment polling reports building, deployed, and unknown without reposit
     await deploymentStatusForResponse({ status: 200, text: async () => '<html>older build</html>' }, commitSha),
     'building',
   );
+
+  let deletionCheckUrl = '';
+  await pollRecipeDeployment({
+    slug: null,
+    commitSha,
+    attempts: 1,
+    fetcher: async (url) => {
+      deletionCheckUrl = url;
+      return { status: 200, text: async () => `<meta name="arta-build-version" content="${commitSha}">` };
+    },
+  });
+  assert.match(deletionCheckUrl, /^https:\/\/danielbrindusa\.github\.io\/ArtaGatitului\/\?deployment=/);
 });
 
 test('workflow validates both branches and deploys only main with least privilege', async () => {

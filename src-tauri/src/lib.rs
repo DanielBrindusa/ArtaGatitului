@@ -29,6 +29,10 @@ pub fn run() {
             github::github_open_device_page,
             github::github_open_actions_page,
             github::github_disconnect,
+            github::github_list_published_recipes,
+            github::github_load_published_recipe,
+            github::github_analyze_recipe_delete,
+            github::github_prepare_recipe_delete,
             github::github_prepare_recipe_publish,
             github::github_publish_recipe
         ]);
@@ -47,6 +51,10 @@ pub fn run() {
             github::github_open_device_page,
             github::github_open_actions_page,
             github::github_disconnect,
+            github::github_list_published_recipes,
+            github::github_load_published_recipe,
+            github::github_analyze_recipe_delete,
+            github::github_prepare_recipe_delete,
             github::github_prepare_recipe_publish,
             github::github_publish_recipe
         ]);

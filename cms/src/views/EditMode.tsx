@@ -1,5 +1,7 @@
 import {
   AlertTriangle,
+  ArchiveRestore,
+  BookOpen,
   Check,
   ChevronDown,
   Cloud,
@@ -101,6 +103,7 @@ function EditorTopBar({
       </div>
 
       <span className={`draft-save-state draft-save-${workspace.saveState}`} aria-live="polite"><SaveIcon state={workspace.saveState} />{workspace.saveLabel}</span>
+      {draft?.sourceLink && <span className={`active-publication-state publication-${draft.status}`}>{draft.status === 'publishedDeleted' ? 'Deleted' : draft.status === 'published' ? 'Published' : 'Draft changes'}</span>}
 
       <div className="editor-topbar-center">
         <div className="editor-segments" aria-label="Editor mode">
@@ -114,6 +117,7 @@ function EditorTopBar({
 
       <div className="editor-topbar-actions">
         <button className="new-recipe-button" type="button" onClick={() => void workspace.newDraft()}><Plus aria-hidden="true" size={16} /><span>New recipe</span></button>
+        <button className="secondary-command published-recipes-command" type="button" disabled={publishing.busy} onClick={publishing.openRecipes}><BookOpen aria-hidden="true" size={16} /><span>Recipes</span></button>
         {draft && <button className="icon-command desktop-draft-action" type="button" title="Duplicate draft" aria-label="Duplicate draft" onClick={() => void workspace.duplicateDraft(draft.id)}><Copy aria-hidden="true" size={16} /></button>}
         {draft && <button className="icon-command desktop-draft-action" type="button" title="Delete draft" aria-label="Delete draft" onClick={() => workspace.requestDelete(draft)}><Trash2 aria-hidden="true" size={16} /></button>}
         {draft && <details className="account-menu draft-actions-menu"><summary title="Draft actions" aria-label="Draft actions"><FileText aria-hidden="true" size={17} /></summary><div><button type="button" onClick={() => void workspace.duplicateDraft(draft.id)}><Copy aria-hidden="true" size={15} />Duplicate draft</button><button type="button" onClick={() => workspace.requestDelete(draft)}><Trash2 aria-hidden="true" size={15} />Delete draft</button></div></details>}
@@ -126,16 +130,18 @@ function EditorTopBar({
         <button
           className="publish-button"
           type="button"
-          disabled={!draft || draft.status === 'published' || !publishing.connection?.repositoryVerified || publishing.busy}
-          title={draft?.status === 'published'
-            ? 'This draft is already published'
+          disabled={!draft || draft.status === 'published' || draft.status === 'publishedDeleted' || !publishing.connection?.repositoryVerified || publishing.busy}
+          title={draft?.status === 'publishedDeleted'
+            ? 'Create this deleted draft as a new recipe before publishing'
+            : draft?.status === 'published'
+              ? 'This draft already matches the published recipe'
             : publishing.connection?.repositoryVerified
               ? 'Review and publish this recipe'
               : 'Connect and verify GitHub before publishing'}
           onClick={() => void publishing.prepare()}
         >
           {publishing.busy ? <LoaderCircle className="draft-spinner" aria-hidden="true" size={16} /> : <UploadCloud aria-hidden="true" size={16} />}
-          <span>{publishing.stage === 'validating' ? 'Validating' : publishing.stage === 'preparing' ? 'Preparing' : publishing.stage === 'publishing' ? 'Publishing' : draft?.status === 'published' ? 'Published' : 'Publish'}</span>
+          <span>{publishing.stage === 'validating' ? 'Validating' : publishing.stage === 'preparing' ? 'Preparing' : publishing.stage === 'publishing' ? 'Publishing' : draft?.status === 'publishedDeleted' ? 'Deleted' : draft?.status === 'published' ? 'Published' : draft?.sourceLink ? 'Publish update' : 'Publish'}</span>
         </button>
       </div>
     </header>
@@ -161,12 +167,16 @@ export function EditMode({
   const [localImageUrl, setLocalImageUrl] = useState<string | null>(null);
   const [localImageStatus, setLocalImageStatus] = useState<LocalImageStatus>('none');
   const [imageError, setImageError] = useState<string | null>(null);
+  const [discardPublishedArmed, setDiscardPublishedArmed] = useState(false);
   const publishing = useGitHubPublishing({
     draft,
+    drafts: workspace.drafts,
     uid,
     deviceId: workspace.deviceId,
     flush: workspace.flush,
     markPublished: workspace.markPublished,
+    markPublishedDeleted: workspace.markPublishedDeleted,
+    openPublishedRecipe: workspace.openPublishedRecipe,
   });
 
   const viewport = workspace.previewBreakpoint;
@@ -184,6 +194,10 @@ export function EditMode({
       setSelectedBlockId(draft.layout.blocks[0]?.id ?? null);
     }
   }, [draft, selectedBlockId]);
+
+  useEffect(() => {
+    setDiscardPublishedArmed(false);
+  }, [workspace.publishedDraftChoice]);
 
   useEffect(() => {
     let cancelled = false;
@@ -280,6 +294,8 @@ export function EditMode({
 
       {!draft ? (
         <section className="editor-empty-state"><FileText aria-hidden="true" size={30} /><h1>Create a visual recipe</h1><p>Start with the complete Arta Gătitului recipe layout and autosave it as a Firestore draft.</p><button className="primary-command" type="button" onClick={() => void workspace.newDraft()}><Plus aria-hidden="true" size={17} />New recipe</button></section>
+      ) : draft.status === 'publishedDeleted' ? (
+        <section className="editor-empty-state"><ArchiveRestore aria-hidden="true" size={30} /><h1>Published recipe deleted</h1><p>This recovery record cannot republish the deleted production recipe. Create a new unlinked draft to use its content again.</p><button className="primary-command" type="button" onClick={() => void workspace.recreateDeletedDraft()}><Plus aria-hidden="true" size={17} />Create as new recipe</button></section>
       ) : mode === 'preview' ? (
         <section className="editor-preview-only"><SharedRecipePreview viewport={viewport} draft={draft} localImageUrl={localImageUrl} compact /></section>
       ) : (
@@ -298,6 +314,10 @@ export function EditMode({
 
       {workspace.conflict && (
         <div className="draft-dialog-backdrop" role="presentation"><div className="draft-dialog" role="alertdialog" aria-modal="true" aria-labelledby="conflict-title"><RefreshCw aria-hidden="true" size={22} /><h2 id="conflict-title">This draft changed on another device</h2><p>Your local edits are still in the recovery copy. Choose the cloud version, or preserve your edits as a new draft.</p><div className="draft-dialog-actions conflict-actions"><button className="secondary-command" type="button" onClick={workspace.useCloudVersion}><Cloud aria-hidden="true" size={16} />Use cloud version</button><button className="primary-command" type="button" onClick={workspace.saveConflictAsCopy}><Copy aria-hidden="true" size={16} />Save mine as copy</button></div></div></div>
+      )}
+
+      {workspace.publishedDraftChoice && (
+        <div className="draft-dialog-backdrop" role="presentation"><div className="draft-dialog" role="alertdialog" aria-modal="true" aria-labelledby="published-draft-choice-title"><BookOpen aria-hidden="true" size={22} /><h2 id="published-draft-choice-title">An edit draft already exists</h2><p>Continue the existing Firestore draft for "{workspace.publishedDraftChoice.published.title}", or discard it and reload the current GitHub source.</p>{discardPublishedArmed && <div className="publish-error" role="alert"><AlertTriangle aria-hidden="true" size={16} /><span>This permanently deletes the existing edit draft and its local recovery copy. Click discard again to confirm.</span></div>}<div className="draft-dialog-actions"><button className="secondary-command" type="button" onClick={workspace.cancelPublishedDraftChoice}>Cancel</button><button className="secondary-command" type="button" onClick={workspace.continuePublishedDraft}><PencilLine aria-hidden="true" size={16} />Continue draft</button><button className="danger-command" type="button" onClick={() => { if (!discardPublishedArmed) { setDiscardPublishedArmed(true); return; } void workspace.discardPublishedDraft().catch((error: unknown) => setImageError(error instanceof Error ? error.message : 'The edit draft could not be discarded.')); }}><Trash2 aria-hidden="true" size={16} />{discardPublishedArmed ? 'Confirm discard' : 'Discard draft'}</button></div></div></div>
       )}
 
       <GitHubPublishingDialogs publishing={publishing} />

@@ -9,7 +9,7 @@ import { isSafeContentUrl } from '../../../src/shared/utils/html.mjs';
 import { createDefaultRecipeBlocks, isSafeDraftSlug } from '../editor/editorModel.mjs';
 
 export const DRAFT_SCHEMA_VERSION = 1;
-export const DRAFT_STATUSES = Object.freeze(['draft', 'ready', 'published']);
+export const DRAFT_STATUSES = Object.freeze(['draft', 'ready', 'published', 'publishedDeleted']);
 export const DRAFT_CONTENT_TYPES = Object.freeze(['recipe']);
 export const MAX_DRAFT_BYTES = 750_000;
 
@@ -19,16 +19,17 @@ const DRAFT_KEYS = new Set([
   'id', 'contentType', 'schemaVersion', 'title', 'slug', 'status', 'data', 'layout',
   'createdAt', 'updatedAt', 'updatedByUid', 'revision', 'publishedCommitSha',
   'publishedRepository', 'publishedBranch', 'publishedSourceDraftId', 'publishedSlug',
-  'publishedAt',
+  'publishedAt', 'sourceLink', 'deletedAt',
 ]);
 const DATA_KEYS = new Set(['modelVersion', 'recipe', 'attachments']);
 const RECIPE_KEYS = new Set([
   'id', 'slug', 'title', 'name', 'description', 'category', 'ingredients', 'steps',
   'preparation', 'beforeStart', 'tags', 'equipment', 'prepTimeMinutes',
   'cookTimeMinutes', 'totalTimeMinutes', 'servings', 'image', 'sourceUrl',
-  'createdAt', 'updatedAt', 'status', 'closing', 'extras', 'ratingSummary', 'keywords',
+  'imageAlt', 'createdAt', 'updatedAt', 'status', 'closing', 'extras', 'ratingSummary', 'keywords',
 ]);
 const LAYOUT_KEYS = new Set(['modelVersion', 'blocks']);
+const SOURCE_LINK_KEYS = new Set(['path', 'slug', 'commitSha', 'blobSha', 'sourceJson']);
 const ATTACHMENT_KEYS = new Set([
   'id', 'fileName', 'alt', 'localAttachmentId', 'sourceDeviceId', 'repositoryPath',
   'mimeType', 'byteSize', 'width', 'height',
@@ -83,6 +84,17 @@ function normalizeAttachments(value) {
   }));
 }
 
+function normalizeSourceLink(value) {
+  if (!isRecord(value)) return null;
+  return {
+    path: string(value.path),
+    slug: string(value.slug),
+    commitSha: string(value.commitSha),
+    blobSha: string(value.blobSha),
+    sourceJson: string(value.sourceJson),
+  };
+}
+
 function normalizeRecipeData(value) {
   const recipe = isRecord(value) ? value : {};
   const steps = stringArray(recipe.steps);
@@ -106,6 +118,7 @@ function normalizeRecipeData(value) {
       ? recipe.servings
       : null,
     image: nullableString(recipe.image),
+    imageAlt: nullableString(recipe.imageAlt),
     sourceUrl: nullableString(recipe.sourceUrl),
     createdAt: nullableString(recipe.createdAt),
     updatedAt: nullableString(recipe.updatedAt),
@@ -150,6 +163,8 @@ function normalizeV1(value) {
     publishedSourceDraftId: nullableString(value.publishedSourceDraftId),
     publishedSlug: nullableString(value.publishedSlug),
     publishedAt: nullableString(value.publishedAt),
+    sourceLink: normalizeSourceLink(value.sourceLink),
+    deletedAt: nullableString(value.deletedAt),
   };
 }
 
@@ -226,6 +241,7 @@ export function createRecipeDraft(updatedByUid, options = {}) {
         totalTimeMinutes: null,
         servings: null,
         image: null,
+        imageAlt: null,
         sourceUrl: null,
         createdAt: null,
         updatedAt: null,
@@ -251,6 +267,8 @@ export function createRecipeDraft(updatedByUid, options = {}) {
     publishedSourceDraftId: null,
     publishedSlug: null,
     publishedAt: null,
+    sourceLink: null,
+    deletedAt: null,
   };
 }
 
@@ -277,6 +295,8 @@ export function duplicateRecipeDraft(source, updatedByUid, options = {}) {
   copy.publishedSourceDraftId = null;
   copy.publishedSlug = null;
   copy.publishedAt = null;
+  copy.sourceLink = null;
+  copy.deletedAt = null;
   return copy;
 }
 
@@ -336,6 +356,38 @@ export function validateDraftForStorage(value) {
     }
   });
   if (!validNullableTimestamp(value.publishedAt)) errors.push('publishedAt must be an ISO timestamp or null');
+  if (!validNullableTimestamp(value.deletedAt ?? null)) errors.push('deletedAt must be an ISO timestamp or null');
+  if (value.sourceLink != null) {
+    if (!isRecord(value.sourceLink)) {
+      errors.push('sourceLink must be an object or null');
+    } else {
+      checkOnlyKeys(value.sourceLink, SOURCE_LINK_KEYS, 'sourceLink', errors);
+      if (!/^src\/content\/recipes\/[a-z0-9]+(?:-[a-z0-9]+)*\.json$/.test(value.sourceLink.path ?? '')) {
+        errors.push('sourceLink.path must be an approved recipe source path');
+      }
+      if (!isSafeDraftSlug(value.sourceLink.slug)
+        || value.sourceLink.path !== `src/content/recipes/${value.sourceLink.slug}.json`) {
+        errors.push('sourceLink.slug must match the recipe source path');
+      }
+      ['commitSha', 'blobSha'].forEach((field) => {
+        if (!/^[0-9a-f]{40}$/.test(value.sourceLink[field] ?? '')) {
+          errors.push(`sourceLink.${field} must be a Git SHA`);
+        }
+      });
+      if (typeof value.sourceLink.sourceJson !== 'string' || !value.sourceLink.sourceJson.trim()) {
+        errors.push('sourceLink.sourceJson is required');
+      } else {
+        try {
+          const source = JSON.parse(value.sourceLink.sourceJson);
+          const sourceValidation = validateRecipeSource(source);
+          sourceValidation.errors.forEach((error) => errors.push(`sourceLink.sourceJson: ${error}`));
+          if (source?.slug !== value.sourceLink.slug) errors.push('sourceLink source slug must match sourceLink.slug');
+        } catch {
+          errors.push('sourceLink.sourceJson must contain valid recipe JSON');
+        }
+      }
+    }
+  }
   const publicationFields = [
     value.publishedCommitSha ?? null,
     value.publishedRepository ?? null,
@@ -344,15 +396,33 @@ export function validateDraftForStorage(value) {
     value.publishedSlug ?? null,
     value.publishedAt ?? null,
   ];
+  const publicationComplete = /^[0-9a-f]{40}$/.test(value.publishedCommitSha ?? '')
+    && value.publishedRepository === 'DanielBrindusa/ArtaGatitului'
+    && value.publishedBranch === 'main'
+    && value.publishedSourceDraftId === value.id
+    && isSafeDraftSlug(value.publishedSlug)
+    && value.publishedAt !== null;
+  if (publicationFields.some((field) => field !== null) && !publicationComplete) {
+    errors.push('publication metadata must be complete and repository-pinned');
+  }
   if (value.status === 'published') {
+    if (!publicationComplete && value.sourceLink == null) errors.push('published drafts require publication metadata or source linkage');
+  } else if (value.status === 'publishedDeleted') {
+    if (value.sourceLink == null) errors.push('deleted published drafts require source linkage');
+    if (value.deletedAt == null) errors.push('deletedAt is required for deleted published drafts');
+  } else if (value.sourceLink == null && publicationFields.some((field) => field !== null)) {
+    errors.push('unlinked drafts cannot retain publication metadata');
+  }
+  if (value.status !== 'publishedDeleted' && value.deletedAt != null) {
+    errors.push('deletedAt is allowed only for deleted published drafts');
+  }
+  /* Legacy field-level messages remain useful for existing persisted drafts. */
+  if (value.status === 'published' && publicationComplete) {
     if (!/^[0-9a-f]{40}$/.test(value.publishedCommitSha ?? '')) errors.push('publishedCommitSha must be a Git commit SHA');
     if (value.publishedRepository !== 'DanielBrindusa/ArtaGatitului') errors.push('publishedRepository must be the configured repository');
     if (value.publishedBranch !== 'main') errors.push('publishedBranch must be main');
     if (value.publishedSourceDraftId !== value.id) errors.push('publishedSourceDraftId must match the draft id');
-    if (value.publishedSlug !== value.slug) errors.push('publishedSlug must match the draft slug');
     if (value.publishedAt === null) errors.push('publishedAt is required for published drafts');
-  } else if (publicationFields.some((field) => field !== null)) {
-    errors.push('publication metadata is allowed only for published drafts');
   }
 
   if (isRecord(value.data)) {
@@ -369,7 +439,12 @@ export function validateDraftForStorage(value) {
       if (recipe.title !== value.title) errors.push('data.recipe.title must match draft title');
       if (recipe.name !== value.title) errors.push('data.recipe.name must match draft title');
       if (recipe.slug !== value.slug) errors.push('data.recipe.slug must match draft slug');
-      if (recipe.status !== (value.status === 'published' ? 'published' : 'draft')) {
+      const expectedRecipeStatus = value.status === 'published'
+        ? 'published'
+        : value.status === 'publishedDeleted'
+          ? 'archived'
+          : 'draft';
+      if (recipe.status !== expectedRecipeStatus) {
         errors.push('data.recipe.status must match the draft workflow state');
       }
       ['ingredients', 'steps', 'preparation', 'beforeStart', 'equipment', 'keywords'].forEach((field) => {
@@ -401,6 +476,9 @@ export function validateDraftForStorage(value) {
           errors.push(`data.recipe.${field} must be a safe relative or HTTP(S) URL`);
         }
       });
+      if (recipe.imageAlt !== null && (typeof recipe.imageAlt !== 'string' || recipe.imageAlt.length > 500)) {
+        errors.push('data.recipe.imageAlt must be a string of at most 500 characters or null');
+      }
       ['createdAt', 'updatedAt'].forEach((field) => {
         if (!validNullableTimestamp(recipe[field])) errors.push(`data.recipe.${field} must be an ISO timestamp or null`);
       });
@@ -490,6 +568,7 @@ export function draftToRecipeSource(value) {
     status: draft.status === 'published' ? 'published' : 'draft',
     preparation: draft.data.recipe.steps,
     image: draft.data.attachments[0]?.repositoryPath ?? null,
+    imageAlt: draft.data.attachments[0]?.alt || draft.data.recipe.imageAlt || draft.title,
   }, `${draft.id}.json`);
 }
 
@@ -497,6 +576,9 @@ export function validateDraftForPublish(value) {
   try {
     const draft = migrateDraft(value);
     const errors = [];
+    if (draft.status === 'publishedDeleted') {
+      errors.push('Use Create as new recipe before publishing a deleted recipe draft.');
+    }
     if (!draft.title.trim() || draft.title.trim() === 'Untitled recipe') {
       errors.push('Add a recipe title.');
     }

@@ -1,6 +1,6 @@
 import type { ContentBlock, NormalizedRecipe } from '../../../src/shared/index.mjs';
 
-export type DraftStatus = 'draft' | 'ready' | 'published';
+export type DraftStatus = 'draft' | 'ready' | 'published' | 'publishedDeleted';
 export type DraftContentType = 'recipe';
 
 export type RecipeDraftContent = NormalizedRecipe;
@@ -44,6 +44,16 @@ export interface RecipeDraft {
   publishedSourceDraftId: string | null;
   publishedSlug: string | null;
   publishedAt: string | null;
+  sourceLink: PublishedSourceLink | null;
+  deletedAt: string | null;
+}
+
+export interface PublishedSourceLink {
+  path: string;
+  slug: string;
+  commitSha: string;
+  blobSha: string;
+  sourceJson: string;
 }
 
 export interface DraftPublicationMetadata {
@@ -54,6 +64,10 @@ export interface DraftPublicationMetadata {
   recipeSlug: string;
   imagePath: string | null;
   publishedAt: string;
+  operation: 'create' | 'update' | 'delete';
+  recipePath: string | null;
+  recipeBlobSha: string | null;
+  recipeJson: string | null;
 }
 
 export interface DraftValidationResult { valid: boolean; errors: string[] }

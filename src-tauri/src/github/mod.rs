@@ -1,7 +1,7 @@
 mod storage;
 
 use std::{
-    collections::HashMap,
+    collections::{BTreeMap, HashMap, HashSet},
     sync::{
         atomic::{AtomicBool, Ordering},
         Arc, Mutex,
@@ -56,6 +56,7 @@ const RECIPE_SOURCE_KEYS: &[&str] = &[
     "totalTimeMinutes",
     "servings",
     "image",
+    "imageAlt",
     "sourceUrl",
     "createdAt",
     "updatedAt",
@@ -64,6 +65,7 @@ const RECIPE_SOURCE_KEYS: &[&str] = &[
     "extras",
     "ratingSummary",
     "keywords",
+    "layout",
 ];
 
 #[derive(Clone, Serialize)]
@@ -112,6 +114,65 @@ pub struct PreparePublishInput {
     title: String,
     recipe_json: String,
     image: Option<PublishImageInput>,
+    image_action: ImageAction,
+    source: Option<PublishedSourceIdentity>,
+}
+
+#[derive(Clone, Copy, Deserialize, PartialEq)]
+#[serde(rename_all = "lowercase")]
+enum ImageAction {
+    Retain,
+    Replace,
+    Remove,
+}
+
+#[derive(Clone, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PublishedSourceIdentity {
+    path: String,
+    slug: String,
+    commit_sha: String,
+    blob_sha: String,
+}
+
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PublishedRecipeSummary {
+    path: String,
+    slug: String,
+    title: String,
+    category: String,
+    image_path: Option<String>,
+    commit_sha: String,
+    blob_sha: String,
+}
+
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PublishedRecipe {
+    path: String,
+    slug: String,
+    title: String,
+    category: String,
+    image_path: Option<String>,
+    commit_sha: String,
+    blob_sha: String,
+    source_json: String,
+}
+
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PublicationFileChange {
+    operation: ChangeOperation,
+    path: String,
+}
+
+#[derive(Clone, Copy, Serialize, PartialEq)]
+#[serde(rename_all = "lowercase")]
+enum ChangeOperation {
+    Add,
+    Modify,
+    Delete,
 }
 
 #[derive(Clone, Serialize)]
@@ -123,7 +184,8 @@ pub struct PublishReview {
     repository: String,
     branch: String,
     base_commit_sha: String,
-    files: Vec<String>,
+    operation: String,
+    file_changes: Vec<PublicationFileChange>,
     checks: Vec<String>,
 }
 
@@ -138,6 +200,44 @@ pub struct PublishResult {
     image_path: Option<String>,
     published_at: String,
     deployment_status: String,
+    operation: String,
+    recipe_path: Option<String>,
+    recipe_blob_sha: Option<String>,
+    recipe_json: Option<String>,
+}
+
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RecipeDependency {
+    path: String,
+    reason: String,
+    auto_removable: bool,
+}
+
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DeleteAnalysis {
+    path: String,
+    slug: String,
+    title: String,
+    image_path: Option<String>,
+    image_unique: bool,
+    commit_sha: String,
+    blob_sha: String,
+    dependencies: Vec<RecipeDependency>,
+}
+
+#[derive(Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PrepareDeleteInput {
+    source_draft_id: String,
+    path: String,
+    slug: String,
+    commit_sha: String,
+    blob_sha: String,
+    title: String,
+    confirmation: String,
+    delete_unique_image: bool,
 }
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -165,6 +265,19 @@ struct PublicationFile {
     encoding: BlobEncoding,
 }
 
+#[derive(Clone)]
+struct PublicationChange {
+    operation: ChangeOperation,
+    path: String,
+    file: Option<PublicationFile>,
+}
+
+#[derive(Clone)]
+struct PathExpectation {
+    path: String,
+    sha: Option<String>,
+}
+
 #[derive(Clone, Copy)]
 enum BlobEncoding {
     Utf8,
@@ -178,9 +291,13 @@ struct PendingPublishPlan {
     recipe_title: String,
     recipe_slug: String,
     base_commit_sha: String,
-    base_tree_sha: String,
-    files: Vec<PublicationFile>,
+    operation: String,
+    changes: Vec<PublicationChange>,
+    expectations: Vec<PathExpectation>,
     image_path: Option<String>,
+    recipe_path: Option<String>,
+    recipe_json: Option<String>,
+    commit_message: String,
     created_at: i64,
 }
 
@@ -292,6 +409,34 @@ struct GitCommit {
 #[derive(Deserialize)]
 struct CreatedGitObject {
     sha: String,
+}
+
+#[derive(Deserialize)]
+struct RecursiveTree {
+    truncated: bool,
+    tree: Vec<GitTreeEntry>,
+}
+
+#[derive(Clone, Deserialize)]
+struct GitTreeEntry {
+    path: String,
+    mode: String,
+    #[serde(rename = "type")]
+    kind: String,
+    sha: String,
+}
+
+#[derive(Deserialize)]
+struct GitBlob {
+    content: String,
+    encoding: String,
+    size: usize,
+}
+
+struct RepositorySnapshot {
+    commit_sha: String,
+    tree_sha: String,
+    entries: HashMap<String, GitTreeEntry>,
 }
 
 impl GithubState {
@@ -551,26 +696,69 @@ impl GithubState {
         Ok(commit.tree.sha)
     }
 
-    async fn path_exists(&self, token: &str, path: &str, reference: &str) -> Result<bool, String> {
-        let response = self
-            .api_request(
+    async fn repository_snapshot(&self, token: &str) -> Result<RepositorySnapshot, String> {
+        let commit_sha = self.current_ref(token).await?;
+        let tree_sha = self.commit_tree(token, &commit_sha).await?;
+        let tree: RecursiveTree = read_api_json(
+            self.api_request(
                 Method::GET,
                 &format!(
-                    "/repos/{REPOSITORY_OWNER}/{REPOSITORY_NAME}/contents/{path}?ref={reference}"
+                    "/repos/{REPOSITORY_OWNER}/{REPOSITORY_NAME}/git/trees/{tree_sha}?recursive=1"
                 ),
                 token,
             )
             .send()
             .await
-            .map_err(|_| "Repository paths could not be checked.".to_string())?;
-        match response.status() {
-            StatusCode::OK => Ok(true),
-            StatusCode::NOT_FOUND => Ok(false),
-            _ => Err(api_status_message(
-                response.status(),
-                "Repository paths could not be checked.",
-            )),
+            .map_err(|_| "The repository source tree could not be fetched.".to_string())?,
+            "The repository source tree could not be read.",
+        )
+        .await?;
+        if tree.truncated {
+            return Err("The repository source tree is too large to inspect safely.".to_string());
         }
+        let entries = tree
+            .tree
+            .into_iter()
+            .map(|entry| (entry.path.clone(), entry))
+            .collect();
+        Ok(RepositorySnapshot {
+            commit_sha,
+            tree_sha,
+            entries,
+        })
+    }
+
+    async fn read_blob(&self, token: &str, sha: &str, limit: usize) -> Result<Vec<u8>, String> {
+        if !valid_sha(sha) {
+            return Err("The repository blob identity is invalid.".to_string());
+        }
+        let blob: GitBlob = read_api_json(
+            self.api_request(
+                Method::GET,
+                &format!("/repos/{REPOSITORY_OWNER}/{REPOSITORY_NAME}/git/blobs/{sha}"),
+                token,
+            )
+            .send()
+            .await
+            .map_err(|_| "Repository content could not be fetched.".to_string())?,
+            "Repository content could not be read.",
+        )
+        .await?;
+        if blob.encoding != "base64" || blob.size > limit {
+            return Err("Repository content has an unsupported encoding or size.".to_string());
+        }
+        let compact: String = blob
+            .content
+            .chars()
+            .filter(|character| !character.is_whitespace())
+            .collect();
+        let bytes = BASE64
+            .decode(compact)
+            .map_err(|_| "Repository content could not be decoded.".to_string())?;
+        if bytes.len() > limit {
+            return Err("Repository content exceeds the allowed size.".to_string());
+        }
+        Ok(bytes)
     }
 
     async fn create_blob(&self, token: &str, file: &PublicationFile) -> Result<String, String> {
@@ -820,6 +1008,140 @@ pub fn github_disconnect(caller: Webview, state: State<'_, GithubState>) -> Resu
 }
 
 #[tauri::command]
+pub async fn github_list_published_recipes(
+    caller: Webview,
+    state: State<'_, GithubState>,
+) -> Result<Vec<PublishedRecipeSummary>, String> {
+    require_local_shell(&caller)?;
+    let bundle = state.ready_access_token().await?;
+    state.verify_repository(&bundle.access_token).await?;
+    let snapshot = state.repository_snapshot(&bundle.access_token).await?;
+    let mut recipes = Vec::new();
+    let mut entries: Vec<_> = snapshot
+        .entries
+        .values()
+        .filter(|entry| recipe_slug_from_path(&entry.path).is_some())
+        .cloned()
+        .collect();
+    entries.sort_by(|left, right| left.path.cmp(&right.path));
+    for entry in entries {
+        let published =
+            published_recipe_from_entry(&state, &bundle.access_token, &snapshot, &entry).await?;
+        recipes.push(PublishedRecipeSummary {
+            path: published.path,
+            slug: published.slug,
+            title: published.title,
+            category: published.category,
+            image_path: published.image_path,
+            commit_sha: published.commit_sha,
+            blob_sha: published.blob_sha,
+        });
+    }
+    recipes.sort_by(|left, right| left.title.to_lowercase().cmp(&right.title.to_lowercase()));
+    Ok(recipes)
+}
+
+#[tauri::command]
+pub async fn github_load_published_recipe(
+    caller: Webview,
+    state: State<'_, GithubState>,
+    slug: String,
+) -> Result<PublishedRecipe, String> {
+    require_local_shell(&caller)?;
+    if !valid_slug(&slug) {
+        return Err("The published recipe slug is invalid.".to_string());
+    }
+    let bundle = state.ready_access_token().await?;
+    state.verify_repository(&bundle.access_token).await?;
+    let snapshot = state.repository_snapshot(&bundle.access_token).await?;
+    let path = recipe_path(&slug);
+    let entry = snapshot
+        .entries
+        .get(&path)
+        .ok_or_else(|| "The published recipe no longer exists.".to_string())?;
+    published_recipe_from_entry(&state, &bundle.access_token, &snapshot, entry).await
+}
+
+#[tauri::command]
+pub async fn github_analyze_recipe_delete(
+    caller: Webview,
+    state: State<'_, GithubState>,
+    source: PublishedSourceIdentity,
+) -> Result<DeleteAnalysis, String> {
+    require_local_shell(&caller)?;
+    validate_source_identity(&source)?;
+    let bundle = state.ready_access_token().await?;
+    state.verify_repository(&bundle.access_token).await?;
+    let snapshot = state.repository_snapshot(&bundle.access_token).await?;
+    analyze_recipe_delete(&state, &bundle.access_token, &snapshot, &source).await
+}
+
+#[tauri::command]
+pub async fn github_prepare_recipe_delete(
+    caller: Webview,
+    state: State<'_, GithubState>,
+    input: PrepareDeleteInput,
+) -> Result<PublishReview, String> {
+    require_local_shell(&caller)?;
+    if state.publishing.load(Ordering::Acquire) {
+        return Err("A recipe publication is already in progress.".to_string());
+    }
+    let source = PublishedSourceIdentity {
+        path: input.path.clone(),
+        slug: input.slug.clone(),
+        commit_sha: input.commit_sha.clone(),
+        blob_sha: input.blob_sha.clone(),
+    };
+    if !valid_draft_id(&input.source_draft_id) {
+        return Err("The source draft identifier is invalid.".to_string());
+    }
+    validate_source_identity(&source)?;
+    let bundle = state.ready_access_token().await?;
+    let repository = state.verify_repository(&bundle.access_token).await?;
+    let snapshot = state.repository_snapshot(&bundle.access_token).await?;
+    let analysis = analyze_recipe_delete(&state, &bundle.access_token, &snapshot, &source).await?;
+    if input.title != analysis.title || input.confirmation != analysis.title {
+        return Err("Type the exact published recipe title to confirm deletion.".to_string());
+    }
+    let blocking: Vec<_> = analysis
+        .dependencies
+        .iter()
+        .filter(|dependency| !dependency.auto_removable)
+        .collect();
+    if !blocking.is_empty() {
+        return Err(format!(
+            "Deletion is blocked by structured references in: {}",
+            blocking
+                .iter()
+                .map(|dependency| dependency.path.as_str())
+                .collect::<Vec<_>>()
+                .join(", ")
+        ));
+    }
+    if input.delete_unique_image && (!analysis.image_unique || analysis.image_path.is_none()) {
+        return Err(
+            "The recipe image is shared, remote, missing, or otherwise unsafe to delete."
+                .to_string(),
+        );
+    }
+    let plan = build_delete_plan(
+        &state,
+        &bundle.access_token,
+        &snapshot,
+        &analysis,
+        &input.source_draft_id,
+        input.delete_unique_image,
+    )
+    .await?;
+    let review = review_from_plan(&plan, &repository.branch);
+    *state
+        .pending_publish
+        .lock()
+        .map_err(|_| "The deletion review could not be stored.".to_string())? = Some(plan);
+    Ok(review)
+}
+
+#[tauri::command]
 pub async fn github_prepare_recipe_publish(
     caller: Webview,
     state: State<'_, GithubState>,
@@ -831,34 +1153,8 @@ pub async fn github_prepare_recipe_publish(
     }
     let bundle = state.ready_access_token().await?;
     let repository = state.verify_repository(&bundle.access_token).await?;
-    let (files, image_path) = build_publication_files(&input)?;
-    let base_commit_sha = state.current_ref(&bundle.access_token).await?;
-    let base_tree_sha = state
-        .commit_tree(&bundle.access_token, &base_commit_sha)
-        .await?;
-    for file in &files {
-        if state
-            .path_exists(&bundle.access_token, &file.path, &base_commit_sha)
-            .await?
-        {
-            if file.path.starts_with("src/content/recipes/") {
-                return Err("A published recipe with this slug already exists.".to_string());
-            }
-            return Err(format!("The repository path {} already exists.", file.path));
-        }
-    }
-
-    let plan = PendingPublishPlan {
-        id: Uuid::new_v4().to_string(),
-        source_draft_id: input.source_draft_id,
-        recipe_title: input.title,
-        recipe_slug: input.slug,
-        base_commit_sha,
-        base_tree_sha,
-        files,
-        image_path,
-        created_at: now_seconds(),
-    };
+    let snapshot = state.repository_snapshot(&bundle.access_token).await?;
+    let plan = build_publication_plan(&state, &bundle.access_token, input, &snapshot).await?;
     let review = review_from_plan(&plan, &repository.branch);
     *state
         .pending_publish
@@ -900,26 +1196,33 @@ pub async fn github_publish_recipe(
     }
     let bundle = state.ready_access_token().await?;
     state.verify_repository(&bundle.access_token).await?;
-    let latest_ref = state.current_ref(&bundle.access_token).await?;
-    if latest_ref != plan.base_commit_sha {
-        clear_publish_plan(&state)?;
-        return Err("The repository changed while you were publishing. Refresh the review and confirm again.".to_string());
-    }
-    for file in &plan.files {
-        if state
-            .path_exists(&bundle.access_token, &file.path, &latest_ref)
-            .await?
-        {
+    let latest = state.repository_snapshot(&bundle.access_token).await?;
+    for expectation in &plan.expectations {
+        let actual = latest
+            .entries
+            .get(&expectation.path)
+            .filter(|entry| entry.kind == "blob" && entry.mode == "100644")
+            .map(|entry| entry.sha.clone());
+        if actual != expectation.sha {
             clear_publish_plan(&state)?;
-            return Err("A published recipe with this slug already exists.".to_string());
+            return Err("This recipe changed in GitHub after the draft or review was created. Reload the published version or keep the draft as a copy.".to_string());
         }
     }
 
-    let mut tree_entries = Vec::with_capacity(plan.files.len());
-    for file in &plan.files {
-        let sha = state.create_blob(&bundle.access_token, file).await?;
+    let mut tree_entries = Vec::with_capacity(plan.changes.len());
+    let mut recipe_blob_sha = None;
+    for change in &plan.changes {
+        let sha = match &change.file {
+            Some(file) => Some(state.create_blob(&bundle.access_token, file).await?),
+            None => None,
+        };
+        if plan.recipe_path.as_deref() == Some(change.path.as_str())
+            && change.operation != ChangeOperation::Delete
+        {
+            recipe_blob_sha = sha.clone();
+        }
         tree_entries.push(json!({
-            "path": file.path,
+            "path": change.path,
             "mode": "100644",
             "type": "blob",
             "sha": sha,
@@ -932,7 +1235,7 @@ pub async fn github_publish_recipe(
                 &format!("/repos/{REPOSITORY_OWNER}/{REPOSITORY_NAME}/git/trees"),
                 &bundle.access_token,
             )
-            .json(&json!({ "base_tree": plan.base_tree_sha, "tree": tree_entries }))
+            .json(&json!({ "base_tree": latest.tree_sha, "tree": tree_entries }))
             .send()
             .await
             .map_err(|_| "The publication tree could not be created.".to_string())?,
@@ -947,9 +1250,9 @@ pub async fn github_publish_recipe(
                 &bundle.access_token,
             )
             .json(&json!({
-                "message": format!("cms: add recipe {}", plan.recipe_slug),
+                "message": plan.commit_message.clone(),
                 "tree": tree.sha,
-                "parents": [plan.base_commit_sha],
+                "parents": [latest.commit_sha.clone()],
             }))
             .send()
             .await
@@ -989,6 +1292,10 @@ pub async fn github_publish_recipe(
         image_path: plan.image_path,
         published_at: Utc::now().to_rfc3339_opts(SecondsFormat::Millis, true),
         deployment_status: "committed".to_string(),
+        operation: plan.operation,
+        recipe_path: plan.recipe_path,
+        recipe_blob_sha,
+        recipe_json: plan.recipe_json,
     })
 }
 
@@ -1251,9 +1558,355 @@ fn verify_repository_details(value: &RepositoryDetails) -> Result<(), String> {
     Ok(())
 }
 
-fn build_publication_files(
-    input: &PreparePublishInput,
-) -> Result<(Vec<PublicationFile>, Option<String>), String> {
+fn recipe_path(slug: &str) -> String {
+    format!("src/content/recipes/{slug}.json")
+}
+
+fn recipe_slug_from_path(path: &str) -> Option<&str> {
+    path.strip_prefix("src/content/recipes/")
+        .and_then(|value| value.strip_suffix(".json"))
+        .filter(|slug| valid_slug(slug))
+}
+
+fn snapshot_blob<'a>(snapshot: &'a RepositorySnapshot, path: &str) -> Option<&'a GitTreeEntry> {
+    snapshot
+        .entries
+        .get(path)
+        .filter(|entry| entry.kind == "blob" && entry.mode == "100644")
+}
+
+async fn repository_json_value(
+    state: &GithubState,
+    token: &str,
+    entry: &GitTreeEntry,
+) -> Result<Value, String> {
+    let bytes = state
+        .read_blob(token, &entry.sha, MAX_RECIPE_JSON_BYTES)
+        .await?;
+    serde_json::from_slice(&bytes).map_err(|_| format!("{} is not valid JSON.", entry.path))
+}
+
+fn validate_repository_recipe(value: &Value, expected_slug: &str) -> Result<(), String> {
+    if value_contains_unsafe_string(value) {
+        return Err("The published recipe contains an unsafe URL or control value.".to_string());
+    }
+    let recipe = value
+        .as_object()
+        .ok_or_else(|| "The published recipe source must be a JSON object.".to_string())?;
+    if recipe
+        .keys()
+        .any(|key| !RECIPE_SOURCE_KEYS.contains(&key.as_str()))
+    {
+        return Err("The published recipe contains unsupported source fields.".to_string());
+    }
+    if string_field(recipe, "slug") != Some(expected_slug) {
+        return Err("The published recipe slug does not match its source path.".to_string());
+    }
+    if string_field(recipe, "title").is_none_or(|value| value.trim().is_empty())
+        && string_field(recipe, "name").is_none_or(|value| value.trim().is_empty())
+    {
+        return Err("The published recipe has no title.".to_string());
+    }
+    if string_field(recipe, "category").is_none_or(|value| value.trim().is_empty()) {
+        return Err("The published recipe has no category.".to_string());
+    }
+    validate_non_empty_string_array(recipe.get("ingredients"), "ingredients")?;
+    if recipe.get("steps").is_some() {
+        validate_non_empty_string_array(recipe.get("steps"), "steps")?;
+    } else {
+        validate_non_empty_string_array(recipe.get("preparation"), "preparation")?;
+    }
+    Ok(())
+}
+
+async fn published_recipe_from_entry(
+    state: &GithubState,
+    token: &str,
+    snapshot: &RepositorySnapshot,
+    entry: &GitTreeEntry,
+) -> Result<PublishedRecipe, String> {
+    let slug = recipe_slug_from_path(&entry.path)
+        .ok_or_else(|| "The repository recipe path is invalid.".to_string())?;
+    let value = repository_json_value(state, token, entry).await?;
+    validate_repository_recipe(&value, slug)?;
+    let recipe = value
+        .as_object()
+        .ok_or_else(|| "The published recipe source must be an object.".to_string())?;
+    let title = string_field(recipe, "title")
+        .or_else(|| string_field(recipe, "name"))
+        .unwrap_or(slug)
+        .to_string();
+    let category = string_field(recipe, "category")
+        .unwrap_or_default()
+        .to_string();
+    let image_path = string_field(recipe, "image").map(ToOwned::to_owned);
+    let mut source_json = serde_json::to_string_pretty(&value)
+        .map_err(|_| "The published recipe source could not be normalized.".to_string())?;
+    source_json.push('\n');
+    Ok(PublishedRecipe {
+        path: entry.path.clone(),
+        slug: slug.to_string(),
+        title,
+        category,
+        image_path,
+        commit_sha: snapshot.commit_sha.clone(),
+        blob_sha: entry.sha.clone(),
+        source_json,
+    })
+}
+
+fn validate_source_identity(source: &PublishedSourceIdentity) -> Result<(), String> {
+    if !valid_slug(&source.slug)
+        || source.path != recipe_path(&source.slug)
+        || !valid_sha(&source.commit_sha)
+        || !valid_sha(&source.blob_sha)
+    {
+        return Err("The published recipe source identity is invalid.".to_string());
+    }
+    Ok(())
+}
+
+async fn read_aliases(
+    state: &GithubState,
+    token: &str,
+    snapshot: &RepositorySnapshot,
+) -> Result<(BTreeMap<String, String>, Option<String>), String> {
+    let Some(entry) = snapshot_blob(snapshot, "src/content/aliases.json") else {
+        return Ok((BTreeMap::new(), None));
+    };
+    let value = repository_json_value(state, token, entry).await?;
+    let object = value
+        .as_object()
+        .ok_or_else(|| "src/content/aliases.json must contain an object.".to_string())?;
+    let mut aliases = BTreeMap::new();
+    for (alias, target) in object {
+        let target = target
+            .as_str()
+            .filter(|value| valid_slug(value))
+            .ok_or_else(|| "src/content/aliases.json contains an invalid target.".to_string())?;
+        if !valid_slug(alias) {
+            return Err("src/content/aliases.json contains an invalid alias.".to_string());
+        }
+        aliases.insert(alias.clone(), target.to_string());
+    }
+    Ok((aliases, Some(entry.sha.clone())))
+}
+
+fn value_references_recipe(value: &Value, slug: &str, source_path: &str) -> bool {
+    match value {
+        Value::String(text) => {
+            let normalized = text.trim().trim_start_matches('/').trim_end_matches('/');
+            normalized == slug
+                || normalized == source_path
+                || normalized == format!("retete/{slug}")
+                || normalized == format!("recipes/{slug}")
+                || normalized.ends_with(&format!("/retete/{slug}"))
+                || normalized.ends_with(&format!("/recipes/{slug}"))
+        }
+        Value::Array(items) => items
+            .iter()
+            .any(|item| value_references_recipe(item, slug, source_path)),
+        Value::Object(map) => map
+            .values()
+            .any(|item| value_references_recipe(item, slug, source_path)),
+        _ => false,
+    }
+}
+
+async fn analyze_recipe_delete(
+    state: &GithubState,
+    token: &str,
+    snapshot: &RepositorySnapshot,
+    source: &PublishedSourceIdentity,
+) -> Result<DeleteAnalysis, String> {
+    validate_source_identity(source)?;
+    let current = snapshot_blob(snapshot, &source.path)
+        .ok_or_else(|| "This published recipe no longer exists.".to_string())?;
+    if current.sha != source.blob_sha {
+        return Err("This recipe changed in GitHub after it was loaded. Reload the published version before deleting it.".to_string());
+    }
+    let published = published_recipe_from_entry(state, token, snapshot, current).await?;
+    let mut dependencies = Vec::new();
+    let (aliases, _) = read_aliases(state, token, snapshot).await?;
+    let matching_aliases: Vec<_> = aliases
+        .iter()
+        .filter(|(_, target)| *target == &source.slug)
+        .map(|(alias, _)| alias.clone())
+        .collect();
+    if !matching_aliases.is_empty() {
+        dependencies.push(RecipeDependency {
+            path: "src/content/aliases.json".to_string(),
+            reason: format!(
+                "Aliases removed automatically: {}",
+                matching_aliases.join(", ")
+            ),
+            auto_removable: true,
+        });
+    }
+
+    let mut json_entries: Vec<_> = snapshot
+        .entries
+        .values()
+        .filter(|entry| {
+            entry.path.starts_with("src/content/")
+                && entry.path.ends_with(".json")
+                && entry.path != source.path
+                && entry.path != "src/content/aliases.json"
+                && entry.kind == "blob"
+                && entry.mode == "100644"
+        })
+        .cloned()
+        .collect();
+    json_entries.sort_by(|left, right| left.path.cmp(&right.path));
+    for entry in json_entries {
+        let value = repository_json_value(state, token, &entry).await?;
+        if value_references_recipe(&value, &source.slug, &source.path) {
+            dependencies.push(RecipeDependency {
+                path: entry.path,
+                reason: "Structured content references this recipe.".to_string(),
+                auto_removable: false,
+            });
+        }
+    }
+
+    let image_path = published.image_path.clone();
+    let mut image_references = HashSet::new();
+    if let Some(path) = &image_path {
+        for entry in snapshot.entries.values().filter(|entry| {
+            recipe_slug_from_path(&entry.path).is_some()
+                && entry.kind == "blob"
+                && entry.mode == "100644"
+        }) {
+            let value = repository_json_value(state, token, entry).await?;
+            if value
+                .as_object()
+                .and_then(|recipe| string_field(recipe, "image"))
+                == Some(path.as_str())
+            {
+                image_references.insert(entry.path.clone());
+            }
+        }
+    }
+    let image_unique = image_path.as_ref().is_some_and(|path| {
+        allowed_recipe_image_path(path)
+            && snapshot_blob(snapshot, path).is_some()
+            && image_references.len() == 1
+            && image_references.contains(&source.path)
+    });
+
+    Ok(DeleteAnalysis {
+        path: published.path,
+        slug: published.slug,
+        title: published.title,
+        image_path,
+        image_unique,
+        commit_sha: snapshot.commit_sha.clone(),
+        blob_sha: current.sha.clone(),
+        dependencies,
+    })
+}
+
+async fn build_delete_plan(
+    state: &GithubState,
+    token: &str,
+    snapshot: &RepositorySnapshot,
+    analysis: &DeleteAnalysis,
+    source_draft_id: &str,
+    delete_unique_image: bool,
+) -> Result<PendingPublishPlan, String> {
+    let mut changes = vec![PublicationChange {
+        operation: ChangeOperation::Delete,
+        path: analysis.path.clone(),
+        file: None,
+    }];
+    let mut expectations =
+        BTreeMap::from([(analysis.path.clone(), Some(analysis.blob_sha.clone()))]);
+    let (mut aliases, alias_sha) = read_aliases(state, token, snapshot).await?;
+    let alias_count = aliases.len();
+    aliases.retain(|_, target| target != &analysis.slug);
+    if aliases.len() != alias_count {
+        let path = "src/content/aliases.json".to_string();
+        expectations.insert(path.clone(), alias_sha.clone());
+        let value = serde_json::to_value(aliases)
+            .map_err(|_| "Recipe aliases could not be serialized.".to_string())?;
+        changes.push(PublicationChange {
+            operation: ChangeOperation::Modify,
+            path: path.clone(),
+            file: Some(json_file(path, &value)?),
+        });
+    }
+    if delete_unique_image {
+        let image_path = analysis
+            .image_path
+            .as_ref()
+            .filter(|_| analysis.image_unique)
+            .ok_or_else(|| "The recipe image is not safe to delete.".to_string())?;
+        let image = snapshot_blob(snapshot, image_path)
+            .ok_or_else(|| "The recipe image no longer exists.".to_string())?;
+        expectations.insert(image_path.clone(), Some(image.sha.clone()));
+        changes.push(PublicationChange {
+            operation: ChangeOperation::Delete,
+            path: image_path.clone(),
+            file: None,
+        });
+    }
+    Ok(PendingPublishPlan {
+        id: Uuid::new_v4().to_string(),
+        source_draft_id: source_draft_id.to_string(),
+        recipe_title: analysis.title.clone(),
+        recipe_slug: analysis.slug.clone(),
+        base_commit_sha: snapshot.commit_sha.clone(),
+        operation: "delete".to_string(),
+        changes,
+        expectations: expectations
+            .into_iter()
+            .map(|(path, sha)| PathExpectation { path, sha })
+            .collect(),
+        image_path: analysis.image_path.clone(),
+        recipe_path: None,
+        recipe_json: None,
+        commit_message: format!("cms: delete recipe {}", analysis.slug),
+        created_at: now_seconds(),
+    })
+}
+
+fn json_file(path: String, value: &Value) -> Result<PublicationFile, String> {
+    let mut bytes = serde_json::to_string_pretty(value)
+        .map_err(|_| "Repository JSON could not be serialized.".to_string())?
+        .into_bytes();
+    bytes.push(b'\n');
+    Ok(PublicationFile {
+        path,
+        bytes,
+        encoding: BlobEncoding::Utf8,
+    })
+}
+
+fn image_file(input: &PublishImageInput, slug: &str) -> Result<(String, PublicationFile), String> {
+    let bytes = BASE64
+        .decode(&input.bytes_base64)
+        .map_err(|_| "The local recipe image could not be decoded.".to_string())?;
+    let extension = validate_image(&bytes, &input.mime_type)?;
+    let path = format!("assets/images/recipes/{slug}.{extension}");
+    if !allowed_publication_path(&path) {
+        return Err("The generated recipe image path is not allowed.".to_string());
+    }
+    Ok((
+        path.clone(),
+        PublicationFile {
+            path,
+            bytes,
+            encoding: BlobEncoding::Base64,
+        },
+    ))
+}
+
+async fn build_publication_plan(
+    state: &GithubState,
+    token: &str,
+    input: PreparePublishInput,
+    snapshot: &RepositorySnapshot,
+) -> Result<PendingPublishPlan, String> {
     if !valid_draft_id(&input.source_draft_id) {
         return Err("The source draft identifier is invalid.".to_string());
     }
@@ -1269,50 +1922,188 @@ fn build_publication_files(
         return Err("The recipe source is too large to publish.".to_string());
     }
 
-    let (image_path, image_file) = match &input.image {
-        Some(image) => {
-            let bytes = BASE64
-                .decode(&image.bytes_base64)
-                .map_err(|_| "The local recipe image could not be decoded.".to_string())?;
-            let extension = validate_image(&bytes, &image.mime_type)?;
-            let path = format!("assets/images/recipes/{}.{}", input.slug, extension);
-            if !allowed_publication_path(&path) {
-                return Err("The generated recipe image path is not allowed.".to_string());
-            }
-            let file = PublicationFile {
-                path: path.clone(),
-                bytes,
-                encoding: BlobEncoding::Base64,
-            };
-            (Some(path), Some(file))
-        }
-        None => (None, None),
-    };
-
-    let recipe = parse_and_validate_recipe_json(input, image_path.as_deref())?;
-    let recipe_path = format!("src/content/recipes/{}.json", input.slug);
-    if !allowed_publication_path(&recipe_path) {
+    let target_path = recipe_path(&input.slug);
+    if !allowed_publication_path(&target_path) {
         return Err("The generated recipe source path is not allowed.".to_string());
     }
-    let mut recipe_bytes = serde_json::to_string_pretty(&recipe)
-        .map_err(|_| "The recipe source could not be serialized.".to_string())?
-        .into_bytes();
-    recipe_bytes.push(b'\n');
-
-    let mut files = vec![PublicationFile {
-        path: recipe_path,
-        bytes: recipe_bytes,
-        encoding: BlobEncoding::Utf8,
-    }];
-    if let Some(file) = image_file {
-        files.push(file);
+    let mut expectations = BTreeMap::<String, Option<String>>::new();
+    let mut changes = Vec::new();
+    let mut existing_recipe = None;
+    let operation;
+    if let Some(source) = &input.source {
+        validate_source_identity(source)?;
+        let current = snapshot_blob(snapshot, &source.path).ok_or_else(|| {
+            "This recipe was removed from GitHub after the draft was created.".to_string()
+        })?;
+        if current.sha != source.blob_sha {
+            return Err("This recipe changed in GitHub after your draft was created. Reload the published version or keep the draft as a copy.".to_string());
+        }
+        existing_recipe = Some(repository_json_value(state, token, current).await?);
+        validate_repository_recipe(existing_recipe.as_ref().expect("recipe set"), &source.slug)?;
+        expectations.insert(source.path.clone(), Some(source.blob_sha.clone()));
+        if target_path != source.path {
+            if snapshot_blob(snapshot, &target_path).is_some() {
+                return Err("A published recipe with the new slug already exists.".to_string());
+            }
+            expectations.insert(target_path.clone(), None);
+        }
+        operation = "update".to_string();
+    } else {
+        if snapshot_blob(snapshot, &target_path).is_some() {
+            return Err("A published recipe with this slug already exists.".to_string());
+        }
+        let (aliases, _) = read_aliases(state, token, snapshot).await?;
+        if aliases.contains_key(&input.slug) {
+            return Err("This slug is reserved by an existing recipe alias.".to_string());
+        }
+        expectations.insert(target_path.clone(), None);
+        operation = "create".to_string();
     }
-    Ok((files, image_path))
+
+    let existing_image_path = existing_recipe
+        .as_ref()
+        .and_then(Value::as_object)
+        .and_then(|recipe| string_field(recipe, "image"))
+        .map(ToOwned::to_owned);
+    let (image_path, replacement_image) = match input.image_action {
+        ImageAction::Retain => {
+            if input.source.is_none() || input.image.is_some() {
+                return Err(
+                    "Retaining an image is valid only for an existing published recipe."
+                        .to_string(),
+                );
+            }
+            (existing_image_path.clone(), None)
+        }
+        ImageAction::Replace => {
+            let image = input
+                .image
+                .as_ref()
+                .ok_or_else(|| "Select the replacement image on this device.".to_string())?;
+            let (path, file) = image_file(image, &input.slug)?;
+            (Some(path), Some(file))
+        }
+        ImageAction::Remove => {
+            if input.image.is_some() {
+                return Err("Unexpected image bytes were provided for image removal.".to_string());
+            }
+            (None, None)
+        }
+    };
+
+    let recipe =
+        parse_and_validate_recipe_json(&input, image_path.as_deref(), existing_recipe.as_ref())?;
+    let recipe_file = json_file(target_path.clone(), &recipe)?;
+    let recipe_json = String::from_utf8(recipe_file.bytes.clone())
+        .map_err(|_| "The recipe source is not valid UTF-8.".to_string())?;
+    let recipe_operation = if input
+        .source
+        .as_ref()
+        .is_some_and(|source| source.path == target_path)
+    {
+        ChangeOperation::Modify
+    } else {
+        ChangeOperation::Add
+    };
+    changes.push(PublicationChange {
+        operation: recipe_operation,
+        path: target_path.clone(),
+        file: Some(recipe_file),
+    });
+
+    if let Some(source) = &input.source {
+        if source.path != target_path {
+            changes.push(PublicationChange {
+                operation: ChangeOperation::Delete,
+                path: source.path.clone(),
+                file: None,
+            });
+            let (mut aliases, alias_sha) = read_aliases(state, token, snapshot).await?;
+            if aliases.contains_key(&input.slug) {
+                return Err("The new slug is already reserved as a recipe alias.".to_string());
+            }
+            aliases.values_mut().for_each(|target| {
+                if target == &source.slug {
+                    *target = input.slug.clone();
+                }
+            });
+            aliases.insert(source.slug.clone(), input.slug.clone());
+            let alias_path = "src/content/aliases.json".to_string();
+            expectations.insert(alias_path.clone(), alias_sha.clone());
+            let alias_value = serde_json::to_value(aliases)
+                .map_err(|_| "Recipe aliases could not be serialized.".to_string())?;
+            changes.push(PublicationChange {
+                operation: if alias_sha.is_some() {
+                    ChangeOperation::Modify
+                } else {
+                    ChangeOperation::Add
+                },
+                path: alias_path.clone(),
+                file: Some(json_file(alias_path, &alias_value)?),
+            });
+        }
+    }
+
+    if let Some(file) = replacement_image {
+        let current = snapshot_blob(snapshot, &file.path).map(|entry| entry.sha.clone());
+        let owned_existing_image = existing_image_path.as_deref() == Some(file.path.as_str());
+        if current.is_some() && !owned_existing_image {
+            return Err(
+                "The replacement image path already belongs to another repository asset."
+                    .to_string(),
+            );
+        }
+        expectations.insert(file.path.clone(), current.clone());
+        changes.push(PublicationChange {
+            operation: if current.is_some() {
+                ChangeOperation::Modify
+            } else {
+                ChangeOperation::Add
+            },
+            path: file.path.clone(),
+            file: Some(file),
+        });
+    }
+
+    let commit_message = if input.source.is_none() {
+        format!("cms: add recipe {}", input.slug)
+    } else if input
+        .source
+        .as_ref()
+        .is_some_and(|source| source.slug != input.slug)
+    {
+        format!(
+            "cms: rename recipe {} to {}",
+            input.source.as_ref().expect("source set").slug,
+            input.slug
+        )
+    } else {
+        format!("cms: update recipe {}", input.slug)
+    };
+    Ok(PendingPublishPlan {
+        id: Uuid::new_v4().to_string(),
+        source_draft_id: input.source_draft_id,
+        recipe_title: input.title,
+        recipe_slug: input.slug,
+        base_commit_sha: snapshot.commit_sha.clone(),
+        operation,
+        changes,
+        expectations: expectations
+            .into_iter()
+            .map(|(path, sha)| PathExpectation { path, sha })
+            .collect(),
+        image_path,
+        recipe_path: Some(target_path),
+        recipe_json: Some(recipe_json),
+        commit_message,
+        created_at: now_seconds(),
+    })
 }
 
 fn parse_and_validate_recipe_json(
     input: &PreparePublishInput,
     image_path: Option<&str>,
+    existing: Option<&Value>,
 ) -> Result<Value, String> {
     let mut value: Value = serde_json::from_str(&input.recipe_json)
         .map_err(|_| "The recipe source is not valid JSON.".to_string())?;
@@ -1341,8 +2132,32 @@ fn parse_and_validate_recipe_json(
     for field in ["beforeStart", "equipment", "keywords"] {
         validate_optional_string_array(recipe.get(field), field)?;
     }
+    if recipe
+        .get("imageAlt")
+        .is_some_and(|value| !value.is_null() && value.as_str().is_none_or(|text| text.len() > 500))
+    {
+        return Err("Image alt text must be at most 500 characters.".to_string());
+    }
+    let layout = recipe
+        .get("layout")
+        .and_then(Value::as_object)
+        .ok_or_else(|| "The recipe layout is required.".to_string())?;
+    if layout.len() != 2
+        || layout.get("modelVersion").and_then(Value::as_u64) != Some(1)
+        || !layout.get("blocks").is_some_and(Value::is_array)
+    {
+        return Err(
+            "The recipe layout must use model version 1 and contain only blocks.".to_string(),
+        );
+    }
     let now = Utc::now().to_rfc3339_opts(SecondsFormat::Millis, true);
-    recipe.insert("id".to_string(), Value::String(input.slug.clone()));
+    let stable_id = existing
+        .and_then(Value::as_object)
+        .and_then(|source| string_field(source, "id"))
+        .filter(|value| valid_slug(value))
+        .unwrap_or(&input.slug)
+        .to_string();
+    recipe.insert("id".to_string(), Value::String(stable_id));
     recipe.insert("name".to_string(), Value::String(input.title.clone()));
     recipe.insert("status".to_string(), Value::String("published".to_string()));
     recipe.insert("preparation".to_string(), Value::Array(steps));
@@ -1350,9 +2165,13 @@ fn parse_and_validate_recipe_json(
         "image".to_string(),
         image_path.map_or(Value::Null, |path| Value::String(path.to_string())),
     );
-    if recipe.get("createdAt").is_none_or(Value::is_null) {
-        recipe.insert("createdAt".to_string(), Value::String(now.clone()));
-    }
+    let created_at = existing
+        .and_then(Value::as_object)
+        .and_then(|source| source.get("createdAt"))
+        .filter(|value| !value.is_null())
+        .cloned()
+        .unwrap_or_else(|| Value::String(now.clone()));
+    recipe.insert("createdAt".to_string(), created_at);
     recipe.insert("updatedAt".to_string(), Value::String(now));
     Ok(value)
 }
@@ -1439,11 +2258,13 @@ fn validate_image(bytes: &[u8], declared_mime: &str) -> Result<&'static str, Str
 fn review_from_plan(plan: &PendingPublishPlan, branch: &str) -> PublishReview {
     let mut checks = vec![
         "Recipe valid".to_string(),
-        "Slug available".to_string(),
+        "Affected repository paths verified".to_string(),
         "GitHub connected".to_string(),
     ];
-    if plan.image_path.is_some() {
-        checks.push("Image valid and available locally".to_string());
+    if plan.operation == "delete" {
+        checks.push("Deletion dependencies checked".to_string());
+    } else if plan.image_path.is_some() {
+        checks.push("Recipe image reviewed".to_string());
     }
     PublishReview {
         plan_id: plan.id.clone(),
@@ -1452,9 +2273,27 @@ fn review_from_plan(plan: &PendingPublishPlan, branch: &str) -> PublishReview {
         repository: REPOSITORY_FULL_NAME.to_string(),
         branch: branch.to_string(),
         base_commit_sha: plan.base_commit_sha.clone(),
-        files: plan.files.iter().map(|file| file.path.clone()).collect(),
+        operation: plan.operation.clone(),
+        file_changes: plan
+            .changes
+            .iter()
+            .map(|change| PublicationFileChange {
+                operation: change.operation,
+                path: change.path.clone(),
+            })
+            .collect(),
         checks,
     }
+}
+
+fn allowed_recipe_image_path(path: &str) -> bool {
+    let Some(file) = path.strip_prefix("assets/images/recipes/") else {
+        return false;
+    };
+    [".jpg", ".png", ".webp"].iter().any(|extension| {
+        file.strip_suffix(extension)
+            .is_some_and(|slug| valid_slug(slug) && !slug.contains('.'))
+    })
 }
 
 fn allowed_publication_path(path: &str) -> bool {
@@ -1473,13 +2312,7 @@ fn allowed_publication_path(path: &str) -> bool {
             .strip_suffix(".json")
             .is_some_and(|slug| valid_slug(slug) && !slug.contains('.'));
     }
-    if let Some(file) = path.strip_prefix("assets/images/recipes/") {
-        return [".jpg", ".png", ".webp"].iter().any(|extension| {
-            file.strip_suffix(extension)
-                .is_some_and(|slug| valid_slug(slug) && !slug.contains('.'))
-        });
-    }
-    false
+    path == "src/content/aliases.json" || allowed_recipe_image_path(path)
 }
 
 fn valid_slug(value: &str) -> bool {
@@ -1499,6 +2332,10 @@ fn valid_draft_id(value: &str) -> bool {
         && value
             .bytes()
             .all(|byte| byte.is_ascii_lowercase() || byte.is_ascii_digit() || byte == b'-')
+}
+
+fn valid_sha(value: &str) -> bool {
+    value.len() == 40 && value.bytes().all(|byte| byte.is_ascii_hexdigit())
 }
 
 fn valid_client_id(value: &str) -> bool {
@@ -1549,6 +2386,7 @@ mod tests {
                 "totalTimeMinutes": 25,
                 "servings": 2,
                 "image": null,
+                "imageAlt": "Paste Carbonara",
                 "sourceUrl": null,
                 "createdAt": null,
                 "updatedAt": null,
@@ -1556,10 +2394,20 @@ mod tests {
                 "closing": "Pofta buna!",
                 "extras": [],
                 "ratingSummary": null,
-                "keywords": ["paste", "carbonara"]
+                "keywords": ["paste", "carbonara"],
+                "layout": {
+                    "modelVersion": 1,
+                    "blocks": []
+                }
             }))
             .unwrap(),
+            image_action: if image.is_some() {
+                ImageAction::Replace
+            } else {
+                ImageAction::Remove
+            },
             image,
+            source: None,
         }
     }
 
@@ -1650,6 +2498,7 @@ mod tests {
         assert!(allowed_publication_path(
             "assets/images/recipes/paste-carbonara.webp"
         ));
+        assert!(allowed_publication_path("src/content/aliases.json"));
         assert!(!allowed_publication_path(
             "src/content/recipes/../package.json"
         ));
@@ -1658,12 +2507,9 @@ mod tests {
     }
 
     #[test]
-    fn recipe_plan_builds_source_and_image_without_generated_output() {
-        let (files, image_path) = build_publication_files(&recipe_input(None)).unwrap();
-        assert_eq!(files.len(), 1);
-        assert_eq!(files[0].path, "src/content/recipes/paste-carbonara.json");
-        assert!(image_path.is_none());
-        let source: Value = serde_json::from_slice(&files[0].bytes).unwrap();
+    fn recipe_source_and_image_are_validated_without_generated_output() {
+        let input = recipe_input(None);
+        let source = parse_and_validate_recipe_json(&input, None, None).unwrap();
         assert_eq!(source["id"], "paste-carbonara");
         assert_eq!(source["status"], "published");
         assert!(source["image"].is_null());
@@ -1672,13 +2518,13 @@ mod tests {
             bytes_base64: BASE64.encode(include_bytes!("../../../icon.png")),
             mime_type: "image/png".to_string(),
         };
-        let (files, image_path) = build_publication_files(&recipe_input(Some(image))).unwrap();
-        assert_eq!(files.len(), 2);
-        assert_eq!(files[0].path, "src/content/recipes/paste-carbonara.json");
-        assert_eq!(files[1].path, "assets/images/recipes/paste-carbonara.png");
-        assert_eq!(image_path.as_deref(), Some(files[1].path.as_str()));
-        let source: Value = serde_json::from_slice(&files[0].bytes).unwrap();
-        assert_eq!(source["image"], files[1].path);
+        let input = recipe_input(Some(image));
+        let (image_path, image_file) =
+            image_file(input.image.as_ref().unwrap(), &input.slug).unwrap();
+        assert_eq!(image_path, "assets/images/recipes/paste-carbonara.png");
+        assert_eq!(image_file.path, image_path);
+        let source = parse_and_validate_recipe_json(&input, Some(&image_path), None).unwrap();
+        assert_eq!(source["image"], image_path);
     }
 
     #[test]
@@ -1689,14 +2535,92 @@ mod tests {
             recipe_title: "Paste Carbonara".to_string(),
             recipe_slug: "paste-carbonara".to_string(),
             base_commit_sha: "a".repeat(40),
-            base_tree_sha: "b".repeat(40),
-            files: vec![],
+            operation: "update".to_string(),
+            changes: vec![],
+            expectations: vec![],
             image_path: None,
+            recipe_path: Some("src/content/recipes/paste-carbonara.json".to_string()),
+            recipe_json: Some("{}\n".to_string()),
+            commit_message: "cms: update recipe paste-carbonara".to_string(),
             created_at: now_seconds(),
         };
         assert_ne!(plan.base_commit_sha, "c".repeat(40));
         let update_body = json!({ "sha": "d".repeat(40), "force": false });
         assert_eq!(update_body["force"], false);
+    }
+
+    #[test]
+    fn structured_recipe_references_are_detected_without_substring_matches() {
+        let source_path = "src/content/recipes/paste-carbonara.json";
+        assert!(value_references_recipe(
+            &json!({ "featured": "paste-carbonara" }),
+            "paste-carbonara",
+            source_path,
+        ));
+        assert!(value_references_recipe(
+            &json!(["/retete/paste-carbonara/"]),
+            "paste-carbonara",
+            source_path,
+        ));
+        assert!(value_references_recipe(
+            &json!("https://danielbrindusa.github.io/ArtaGatitului/retete/paste-carbonara/"),
+            "paste-carbonara",
+            source_path,
+        ));
+        assert!(!value_references_recipe(
+            &json!({ "description": "Try paste-carbonara tonight" }),
+            "paste-carbonara",
+            source_path,
+        ));
+    }
+
+    #[test]
+    fn publication_review_exposes_add_modify_and_delete_paths() {
+        let plan = PendingPublishPlan {
+            id: "plan".to_string(),
+            source_draft_id: "draft-test-123".to_string(),
+            recipe_title: "Paste Carbonara".to_string(),
+            recipe_slug: "carbonara-clasica".to_string(),
+            base_commit_sha: "a".repeat(40),
+            operation: "update".to_string(),
+            changes: vec![
+                PublicationChange {
+                    operation: ChangeOperation::Add,
+                    path: "src/content/recipes/carbonara-clasica.json".to_string(),
+                    file: None,
+                },
+                PublicationChange {
+                    operation: ChangeOperation::Delete,
+                    path: "src/content/recipes/paste-carbonara.json".to_string(),
+                    file: None,
+                },
+                PublicationChange {
+                    operation: ChangeOperation::Modify,
+                    path: "src/content/aliases.json".to_string(),
+                    file: None,
+                },
+            ],
+            expectations: vec![],
+            image_path: None,
+            recipe_path: Some("src/content/recipes/carbonara-clasica.json".to_string()),
+            recipe_json: Some("{}\n".to_string()),
+            commit_message: "cms: rename recipe paste-carbonara to carbonara-clasica".to_string(),
+            created_at: now_seconds(),
+        };
+        let review = review_from_plan(&plan, "main");
+        assert_eq!(review.file_changes.len(), 3);
+        assert!(matches!(
+            review.file_changes[0].operation,
+            ChangeOperation::Add
+        ));
+        assert!(matches!(
+            review.file_changes[1].operation,
+            ChangeOperation::Delete
+        ));
+        assert!(matches!(
+            review.file_changes[2].operation,
+            ChangeOperation::Modify
+        ));
     }
 
     #[test]

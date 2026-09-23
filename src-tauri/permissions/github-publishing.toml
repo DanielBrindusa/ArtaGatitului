@@ -9,6 +9,10 @@ commands.allow = [
   "github_open_device_page",
   "github_open_actions_page",
   "github_disconnect",
+  "github_list_published_recipes",
+  "github_load_published_recipe",
+  "github_analyze_recipe_delete",
+  "github_prepare_recipe_delete",
   "github_prepare_recipe_publish",
   "github_publish_recipe"
 ]

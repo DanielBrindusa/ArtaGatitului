@@ -37,7 +37,7 @@ export async function pollRecipeDeployment({
   shouldContinue = () => true,
   onStatus = () => undefined,
 }) {
-  const url = new URL(publishedRecipeUrl(slug));
+  const url = new URL(slug ? publishedRecipeUrl(slug) : PUBLIC_SITE_URL);
   if (/^[0-9a-f]{40}$/.test(commitSha ?? '')) url.searchParams.set('deployment', commitSha);
   onStatus('building');
 

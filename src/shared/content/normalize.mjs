@@ -67,6 +67,7 @@ export function normalizeRecipe(recipe, fileName = 'recipe') {
     totalTimeMinutes: recipe.totalTimeMinutes ?? null,
     servings: recipe.servings ?? null,
     image: recipe.image ?? null,
+    imageAlt: recipe.imageAlt == null ? null : String(recipe.imageAlt),
     sourceUrl: recipe.sourceUrl ?? null,
     createdAt: recipe.createdAt ?? null,
     updatedAt: recipe.updatedAt ?? null,

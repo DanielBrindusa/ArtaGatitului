@@ -57,6 +57,7 @@ export interface NormalizedRecipe {
   totalTimeMinutes: number | null;
   servings: number | string | null;
   image: string | null;
+  imageAlt: string | null;
   sourceUrl: string | null;
   createdAt: string | null;
   updatedAt: string | null;
@@ -65,6 +66,10 @@ export interface NormalizedRecipe {
   extras: Array<Record<string, unknown>>;
   ratingSummary: Record<string, number> | null;
   keywords: string[];
+  layout?: {
+    modelVersion: 1;
+    blocks: ContentBlock[];
+  };
   [key: string]: unknown;
 }
 
