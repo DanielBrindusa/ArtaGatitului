@@ -1,0 +1,14 @@
+[[permission]]
+identifier = "github-publishing"
+description = "Allows only the bundled local CMS to authorize the configured GitHub App and publish a reviewed recipe plan."
+commands.allow = [
+  "github_get_connection_status",
+  "github_begin_device_flow",
+  "github_poll_device_flow",
+  "github_cancel_device_flow",
+  "github_open_device_page",
+  "github_open_actions_page",
+  "github_disconnect",
+  "github_prepare_recipe_publish",
+  "github_publish_recipe"
+]

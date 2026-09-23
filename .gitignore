@@ -1,0 +1,29 @@
+# JavaScript and frontend output
+node_modules/
+cms/dist/
+/dist/
+*.tsbuildinfo
+
+# Rust and Tauri output
+src-tauri/target/
+src-tauri/gen/
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+*.local
+
+# Signing material must never be committed
+*.jks
+*.keystore
+*.p12
+*.pfx
+*.pem
+*.key
+
+# Editor and OS files
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

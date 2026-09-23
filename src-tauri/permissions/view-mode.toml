@@ -1,0 +1,8 @@
+[[permission]]
+identifier = "view-mode-control"
+description = "Allows the local main webview to size, show, hide, and navigate the capability-free public website webview."
+commands.allow = [
+  "set_view_bounds",
+  "set_view_visibility",
+  "navigate_view"
+]

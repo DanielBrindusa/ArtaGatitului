@@ -1,8 +1,8 @@
 import path from 'node:path';
-import { ROOT, SITE_CONFIG, SITE_URL } from './config.mjs';
+import { OUTPUT_ROOT, SITE_CONFIG, SITE_URL } from './config.mjs';
 import { escapeHtml, writeTextFile } from './html-utils.mjs';
 
-function publicUrl(baseUrl, filePath) {
+export function publicUrl(baseUrl, filePath) {
   const clean = filePath
     .replace(/\\/g, '/')
     .replace(/(^|\/)index\.html$/, '$1')
@@ -20,6 +20,13 @@ function isCanonicalSitemapRoute(route) {
   if (route.kind === 'recipe' || route.kind === 'category') return true;
   if (route.kind !== 'static') return false;
   return !NOINDEX_STATIC_ROUTES.has(route.filePath.replace(/\\/g, '/'));
+}
+
+export function buildSitemapUrls(routePlan, siteUrl = SITE_URL) {
+  return Array.from(new Set(routePlan.routes
+    .filter(isCanonicalSitemapRoute)
+    .filter((route) => route.filePath.endsWith('index.html') || route.filePath.endsWith('.html'))
+    .map((route) => publicUrl(siteUrl, route.filePath))));
 }
 
 function sitemapXml(urls) {
@@ -41,16 +48,12 @@ Sitemap: ${publicUrl(siteUrl, 'sitemap.xml')}
 export async function generateSitemap(routePlan, siteUrl = SITE_URL) {
   // Keep this centralized so it can grow into sitemap-index.xml and split sitemaps
   // when the route count approaches SITEMAP_SPLIT_THRESHOLD.
-  const canonicalRoutes = routePlan.routes.filter(isCanonicalSitemapRoute);
-  if (canonicalRoutes.length > SITEMAP_SPLIT_THRESHOLD) {
+  const urls = buildSitemapUrls(routePlan, siteUrl);
+  if (urls.length > SITEMAP_SPLIT_THRESHOLD) {
     throw new Error('Sitemap route count exceeds the single-file threshold. Split sitemap generation should be enabled before continuing.');
   }
 
-  const urls = canonicalRoutes
-    .filter((route) => route.filePath.endsWith('index.html') || route.filePath.endsWith('.html'))
-    .map((route) => publicUrl(siteUrl, route.filePath));
-
-  await writeTextFile(path.join(ROOT, 'sitemap.xml'), sitemapXml(Array.from(new Set(urls))));
-  await writeTextFile(path.join(ROOT, 'robots.txt'), robotsTxt(siteUrl));
+  await writeTextFile(path.join(OUTPUT_ROOT, 'sitemap.xml'), sitemapXml(urls));
+  await writeTextFile(path.join(OUTPUT_ROOT, 'robots.txt'), robotsTxt(siteUrl));
   return { generated: true, count: urls.length };
 }

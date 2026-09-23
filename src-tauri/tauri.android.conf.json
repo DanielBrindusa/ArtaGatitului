@@ -1,0 +1,21 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "Arta Gătitului",
+        "url": "index.html",
+        "create": false,
+        "fullscreen": false
+      }
+    ]
+  },
+  "bundle": {
+    "android": {
+      "autoIncrementVersionCode": false,
+      "minSdkVersion": 24,
+      "versionCode": 1000
+    }
+  }
+}

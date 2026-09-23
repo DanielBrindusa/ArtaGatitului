@@ -2,6 +2,8 @@
 
 Static recipe website for **Arta Gătitului**. The current public site is still generated as plain HTML, CSS, and vanilla JavaScript for GitHub Pages.
 
+Milestone 3 also provides a React, TypeScript, Vite, and Tauri 2 application foundation under `cms/` and `src-tauri/`. It is a separate local application shell; it does not replace the static public website.
+
 ## Source Of Truth
 
 The build source of truth is now:
@@ -74,7 +76,16 @@ src/
     tag-groups.json
     ingredient-aliases.json
   schema/
+    block.schema.json
     recipe.schema.json
+  shared/
+    index.d.mts
+    blocks/
+    content/
+    design/
+    render/
+    utils/
+    validation/
   scripts/
     build/
       config.mjs
@@ -89,6 +100,22 @@ src/
     import/
       import-godaddy-audit.mjs
     validate-content.mjs
+cms/
+  src/
+    app/
+    components/
+    preview/
+    views/
+  index.html
+  tsconfig.json
+  vite.config.ts
+src-tauri/
+  capabilities/
+  icons/
+  src/
+  Cargo.toml
+  tauri.conf.json
+  tauri.android.conf.json
 ```
 
 ### Content Files
@@ -99,6 +126,8 @@ src/
 - `src/data/tag-groups.json` contains the categorized tag groups used by recipes and the Recipe Builder.
 - `src/data/ingredient-aliases.json` contains starter Romanian ingredient aliases for future ingredient matching improvements.
 - `src/schema/recipe.schema.json` documents the recipe content shape.
+- `src/schema/block.schema.json` documents the constrained reusable block and responsive layout shape.
+- `src/shared/` contains normalization, validation, design tokens, block models, and shared recipe rendering primitives.
 - `src/scripts/build/` contains the modular static build pipeline.
 
 ## Recipe Shape
@@ -152,6 +181,16 @@ npm run validate:content
 
 This checks recipe JSON files, category names, duplicate slugs, required fields, empty ingredients, empty steps, and invalid JSON.
 
+## Tests
+
+Run:
+
+```bash
+npm test
+```
+
+Tests use Node's built-in test runner and cover shared normalization, schemas, block/layout validation, safe rendering, and representative generated recipe pages.
+
 ## Build
 
 Run:
@@ -194,7 +233,24 @@ Run:
 npm run check
 ```
 
-This validates content and then rebuilds the static site.
+This validates content, rebuilds the static site, and runs the automated tests.
+
+## Application Shell
+
+Run the CMS frontend without the native host:
+
+```bash
+npm run app:dev
+```
+
+Type-check and build it with:
+
+```bash
+npm run app:typecheck
+npm run app:build
+```
+
+After installing the native prerequisites, use `npm run tauri:dev` for Windows. Android uses the same frontend and starts with the one-time `npm run tauri:android:init` command. See `docs/app-development.md` for the full command list, security model, stable application identity, and the exact Windows/Android toolchain status.
 
 ## PWA Caching
 
