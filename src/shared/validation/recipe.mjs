@@ -1,5 +1,8 @@
+import { BLOCK_MODEL_VERSION } from '../blocks/model.mjs';
 import { RECIPE_STATUSES } from '../content/types.mjs';
 import { isSafeContentUrl } from '../utils/html.mjs';
+import { validateBlock } from './blocks.mjs';
+import { validateTemplateAssignment } from '../site/model.mjs';
 
 const SAFE_SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
@@ -79,6 +82,10 @@ export function validateRecipeSource(recipe, { categoryNames, tagGroups } = {}) 
     && (!nonEmptyString(recipe.image) || !isSafeContentUrl(recipe.image))) {
     errors.push('image must be a safe relative or HTTP(S) URL');
   }
+  if (recipe.imageAlt !== undefined && recipe.imageAlt !== null
+    && (typeof recipe.imageAlt !== 'string' || recipe.imageAlt.length > 500)) {
+    errors.push('imageAlt must be a string of at most 500 characters or null');
+  }
   if (recipe.sourceUrl !== undefined && recipe.sourceUrl !== null
     && (!nonEmptyString(recipe.sourceUrl) || !isSafeContentUrl(recipe.sourceUrl))) {
     errors.push('sourceUrl must be a safe relative or HTTP(S) URL');
@@ -120,6 +127,21 @@ export function validateRecipeSource(recipe, { categoryNames, tagGroups } = {}) 
       }
     });
   }
+
+  if (recipe.layout !== undefined) {
+    if (!isRecord(recipe.layout)
+      || recipe.layout.modelVersion !== BLOCK_MODEL_VERSION
+      || !Array.isArray(recipe.layout.blocks)) {
+      errors.push(`layout must use block model version ${BLOCK_MODEL_VERSION} and contain a blocks array`);
+    } else {
+      recipe.layout.blocks.forEach((block, index) => {
+        const validation = validateBlock(block);
+        validation.errors.forEach((error) => errors.push(`layout.blocks[${index}]: ${error}`));
+      });
+    }
+  }
+  const templateValidation = validateTemplateAssignment(recipe.template, [], 'recipe');
+  templateValidation.errors.forEach((error) => errors.push(error));
 
   return { valid: errors.length === 0, errors };
 }

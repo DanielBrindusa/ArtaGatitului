@@ -17,7 +17,7 @@ const NOINDEX_STATIC_ROUTES = new Set([
 ]);
 
 function isCanonicalSitemapRoute(route) {
-  if (route.kind === 'recipe' || route.kind === 'category') return true;
+  if (route.kind === 'recipe' || route.kind === 'category' || route.kind === 'page') return true;
   if (route.kind !== 'static') return false;
   return !NOINDEX_STATIC_ROUTES.has(route.filePath.replace(/\\/g, '/'));
 }

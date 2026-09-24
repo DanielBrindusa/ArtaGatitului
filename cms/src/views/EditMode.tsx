@@ -1,20 +1,22 @@
 import {
   AlertTriangle,
+  ArchiveRestore,
+  BookOpen,
   Check,
   ChevronDown,
-  Cloud,
   CloudOff,
   Copy,
   Eye,
+  FilePlus2,
   FileText,
   GitFork,
+  Globe2,
   HardDrive,
   LoaderCircle,
   LogOut,
   Monitor,
   PencilLine,
   Plus,
-  RefreshCw,
   Settings2,
   SlidersHorizontal,
   Smartphone,
@@ -23,17 +25,20 @@ import {
   UploadCloud,
   X,
 } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
-import type { BlockType } from '../../../src/shared/index.mjs';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { resolveTemplateLayout, type BlockType } from '../../../src/shared/index.mjs';
 import brandIcon from '../../../icon.png';
 import type { AppRoute } from '../app/useAppRoute';
 import { SharedRecipePreview } from '../components/SharedRecipePreview';
-import { type RecipeDraft } from '../drafts/draftModel.mjs';
+import { ConflictResolutionDialog, ExportDraftButton, LocalRecoveryDialog, UndoRedoControls } from '../components/EditorSafetyControls';
+import { PublicationHistory } from '../components/PublicationHistory';
+import { isPageDraft, isRecipeDraft, isSiteDraft, type AnyDraft, type RecipeDraft, type SiteBundle } from '../drafts/draftModel.mjs';
 import { useDraftWorkspace, type DraftSaveState } from '../drafts/useDraftWorkspace';
 import { BlockInspector } from '../editor/BlockInspector';
 import { BlockLibrary } from '../editor/BlockLibrary';
+import { siteSourceBundle } from '../editor/contentCatalog';
 import { createBlockId, insertDraftBlock } from '../editor/editorModel.mjs';
-import { validateDraftImage } from '../editor/imageValidation.mjs';
+import { prepareDraftImage } from '../editor/imageValidation.mjs';
 import { loadDraftImage, removeDraftImage, storeDraftImage } from '../editor/localImageStore';
 import { GitHubPublishingDialogs } from '../publishing/GitHubPublishingDialogs';
 import { useGitHubPublishing, type GitHubPublishingController } from '../publishing/useGitHubPublishing';
@@ -42,6 +47,8 @@ import {
   type EditorViewport,
   type LocalImageStatus,
 } from '../editor/VisualRecipeCanvas';
+import { PageEditor } from './PageEditor';
+import { SiteEditor } from './SiteEditor';
 
 type EditorMode = 'edit' | 'preview';
 type MobileSheet = 'blocks' | 'inspector' | null;
@@ -101,6 +108,7 @@ function EditorTopBar({
       </div>
 
       <span className={`draft-save-state draft-save-${workspace.saveState}`} aria-live="polite"><SaveIcon state={workspace.saveState} />{workspace.saveLabel}</span>
+      {draft?.sourceLink && <span className={`active-publication-state publication-${draft.status}`}>{draft.status === 'publishedDeleted' ? 'Deleted' : draft.status === 'published' ? 'Published' : 'Draft changes'}</span>}
 
       <div className="editor-topbar-center">
         <div className="editor-segments" aria-label="Editor mode">
@@ -113,7 +121,13 @@ function EditorTopBar({
       </div>
 
       <div className="editor-topbar-actions">
+      <UndoRedoControls workspace={workspace} />
+      <PublicationHistory workspace={workspace} />
+      <ExportDraftButton workspace={workspace} />
         <button className="new-recipe-button" type="button" onClick={() => void workspace.newDraft()}><Plus aria-hidden="true" size={16} /><span>New recipe</span></button>
+        <button className="secondary-command" type="button" onClick={() => void workspace.newPageDraft('standard')}><FilePlus2 aria-hidden="true" size={16} /><span>New page</span></button>
+        <button className="secondary-command" type="button" onClick={() => void workspace.openSiteDraft(siteSourceBundle as unknown as SiteBundle)}><Globe2 aria-hidden="true" size={16} /><span>Site</span></button>
+        <button className="secondary-command published-recipes-command" type="button" disabled={publishing.busy} onClick={publishing.openRecipes}><BookOpen aria-hidden="true" size={16} /><span>Recipes</span></button>
         {draft && <button className="icon-command desktop-draft-action" type="button" title="Duplicate draft" aria-label="Duplicate draft" onClick={() => void workspace.duplicateDraft(draft.id)}><Copy aria-hidden="true" size={16} /></button>}
         {draft && <button className="icon-command desktop-draft-action" type="button" title="Delete draft" aria-label="Delete draft" onClick={() => workspace.requestDelete(draft)}><Trash2 aria-hidden="true" size={16} /></button>}
         {draft && <details className="account-menu draft-actions-menu"><summary title="Draft actions" aria-label="Draft actions"><FileText aria-hidden="true" size={17} /></summary><div><button type="button" onClick={() => void workspace.duplicateDraft(draft.id)}><Copy aria-hidden="true" size={15} />Duplicate draft</button><button type="button" onClick={() => workspace.requestDelete(draft)}><Trash2 aria-hidden="true" size={15} />Delete draft</button></div></details>}
@@ -126,53 +140,66 @@ function EditorTopBar({
         <button
           className="publish-button"
           type="button"
-          disabled={!draft || draft.status === 'published' || !publishing.connection?.repositoryVerified || publishing.busy}
-          title={draft?.status === 'published'
-            ? 'This draft is already published'
+          disabled={!draft || draft.status === 'published' || draft.status === 'publishedDeleted' || !publishing.connection?.repositoryVerified || publishing.busy}
+          title={draft?.status === 'publishedDeleted'
+            ? 'Create this deleted draft as a new recipe before publishing'
+            : draft?.status === 'published'
+              ? 'This draft already matches the published recipe'
             : publishing.connection?.repositoryVerified
               ? 'Review and publish this recipe'
               : 'Connect and verify GitHub before publishing'}
           onClick={() => void publishing.prepare()}
         >
           {publishing.busy ? <LoaderCircle className="draft-spinner" aria-hidden="true" size={16} /> : <UploadCloud aria-hidden="true" size={16} />}
-          <span>{publishing.stage === 'validating' ? 'Validating' : publishing.stage === 'preparing' ? 'Preparing' : publishing.stage === 'publishing' ? 'Publishing' : draft?.status === 'published' ? 'Published' : 'Publish'}</span>
+          <span>{publishing.stage === 'validating' ? 'Validating' : publishing.stage === 'preparing' ? 'Preparing' : publishing.stage === 'publishing' ? 'Publishing' : draft?.status === 'publishedDeleted' ? 'Deleted' : draft?.status === 'published' ? 'Published' : draft?.sourceLink ? 'Publish update' : 'Publish'}</span>
         </button>
       </div>
     </header>
   );
 }
 
-export function EditMode({
+function RecipeEditor({
   uid,
   email,
   onNavigate,
   onSignOut,
+  workspace,
 }: {
   uid: string;
   email: string | null;
   onNavigate: (route: AppRoute) => void;
   onSignOut: () => void;
+  workspace: ReturnType<typeof useDraftWorkspace>;
 }) {
-  const workspace = useDraftWorkspace(uid);
-  const draft = workspace.activeDraft;
+  const draft = isRecipeDraft(workspace.activeDraft) ? workspace.activeDraft : null;
+  const updateRecipeDraft = useCallback((update: (value: RecipeDraft) => RecipeDraft) => {
+    workspace.updateDraft((current: AnyDraft) => isRecipeDraft(current) ? update(current) : current);
+  }, [workspace]);
   const [mode, setMode] = useState<EditorMode>('edit');
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
   const [mobileSheet, setMobileSheet] = useState<MobileSheet>(null);
   const [localImageUrl, setLocalImageUrl] = useState<string | null>(null);
   const [localImageStatus, setLocalImageStatus] = useState<LocalImageStatus>('none');
   const [imageError, setImageError] = useState<string | null>(null);
+  const [discardPublishedArmed, setDiscardPublishedArmed] = useState(false);
   const publishing = useGitHubPublishing({
     draft,
+    drafts: workspace.drafts,
     uid,
     deviceId: workspace.deviceId,
     flush: workspace.flush,
     markPublished: workspace.markPublished,
+    markPublishedDeleted: workspace.markPublishedDeleted,
+    openPublishedRecipe: workspace.openPublishedRecipe,
+    recordPublicationAudit: workspace.recordPublicationAudit,
+    updatePublicationDeployment: workspace.updatePublicationDeployment,
   });
 
   const viewport = workspace.previewBreakpoint;
+  const effectiveDraft = useMemo(() => draft ? ({ ...draft, layout: resolveTemplateLayout(draft.layout, draft.data.recipe.template, siteSourceBundle.templates.templates) }) : null, [draft]);
   const selectedBlock = useMemo(
-    () => draft?.layout.blocks.find((block) => block.id === selectedBlockId) ?? null,
-    [draft, selectedBlockId],
+    () => effectiveDraft?.layout.blocks.find((block) => block.id === selectedBlockId) ?? null,
+    [effectiveDraft, selectedBlockId],
   );
 
   useEffect(() => {
@@ -184,6 +211,10 @@ export function EditMode({
       setSelectedBlockId(draft.layout.blocks[0]?.id ?? null);
     }
   }, [draft, selectedBlockId]);
+
+  useEffect(() => {
+    setDiscardPublishedArmed(false);
+  }, [workspace.publishedDraftChoice]);
 
   useEffect(() => {
     let cancelled = false;
@@ -218,30 +249,32 @@ export function EditMode({
   async function handleImage(file: File) {
     if (!draft) return;
     setImageError(null);
-    const validation = await validateDraftImage(file);
-    if (!validation.valid || !validation.metadata) {
-      setImageError(validation.errors.join(' '));
+    const prepared = await prepareDraftImage(file);
+    if (!prepared.valid || !prepared.metadata || !prepared.file) {
+      setImageError(prepared.errors.join(' '));
       return;
     }
+    const workingFile = prepared.file;
+    const metadata = prepared.metadata;
     const existing = draft.data.attachments[0];
     const attachmentId = existing?.id ?? createBlockId('image');
     try {
-      await storeDraftImage(uid, draft.id, attachmentId, file);
-      workspace.updateDraft((current) => ({
+      await storeDraftImage(uid, draft.id, attachmentId, workingFile);
+      updateRecipeDraft((current) => ({
         ...current,
         data: {
           ...current.data,
           attachments: [{
             id: attachmentId,
-            fileName: file.name.replace(/[\\/]/g, '-').slice(0, 255) || 'recipe-image',
+            fileName: workingFile.name,
             alt: existing?.alt || current.title,
             localAttachmentId: attachmentId,
             sourceDeviceId: workspace.deviceId,
             repositoryPath: existing?.repositoryPath ?? null,
-            mimeType: validation.metadata?.mimeType as 'image/jpeg' | 'image/png' | 'image/webp',
-            byteSize: validation.metadata?.byteSize ?? null,
-            width: validation.metadata?.width ?? null,
-            height: validation.metadata?.height ?? null,
+            mimeType: metadata.mimeType as 'image/jpeg' | 'image/png' | 'image/webp',
+            byteSize: metadata.byteSize,
+            width: metadata.width,
+            height: metadata.height,
           }],
         },
       }));
@@ -256,7 +289,7 @@ export function EditMode({
     if (attachment?.localAttachmentId) {
       await removeDraftImage(uid, draft.id, attachment.localAttachmentId).catch(() => undefined);
     }
-    workspace.updateDraft((current) => ({
+    updateRecipeDraft((current) => ({
       ...current,
       data: { ...current.data, attachments: [] },
     }));
@@ -265,7 +298,7 @@ export function EditMode({
   function addBlock(type: BlockType) {
     if (!draft) return;
     const id = createBlockId(type);
-    workspace.updateDraft((current) => insertDraftBlock(current, type, current.layout.blocks.length, { id }));
+    updateRecipeDraft((current) => insertDraftBlock(current, type, current.layout.blocks.length, { id }));
     setSelectedBlockId(id);
     setMobileSheet(null);
   }
@@ -280,13 +313,15 @@ export function EditMode({
 
       {!draft ? (
         <section className="editor-empty-state"><FileText aria-hidden="true" size={30} /><h1>Create a visual recipe</h1><p>Start with the complete Arta Gătitului recipe layout and autosave it as a Firestore draft.</p><button className="primary-command" type="button" onClick={() => void workspace.newDraft()}><Plus aria-hidden="true" size={17} />New recipe</button></section>
+      ) : draft.status === 'publishedDeleted' ? (
+        <section className="editor-empty-state"><ArchiveRestore aria-hidden="true" size={30} /><h1>Published recipe deleted</h1><p>This recovery record cannot republish the deleted production recipe. Create a new unlinked draft to use its content again.</p><button className="primary-command" type="button" onClick={() => void workspace.recreateDeletedDraft()}><Plus aria-hidden="true" size={17} />Create as new recipe</button></section>
       ) : mode === 'preview' ? (
-        <section className="editor-preview-only"><SharedRecipePreview viewport={viewport} draft={draft} localImageUrl={localImageUrl} compact /></section>
+        <section className="editor-preview-only">{effectiveDraft && <SharedRecipePreview viewport={viewport} draft={effectiveDraft} localImageUrl={localImageUrl} compact />}</section>
       ) : (
         <div className="visual-editor-body">
           <aside className={`visual-side-panel block-library-panel${mobileSheet === 'blocks' ? ' mobile-open' : ''}`}><button className="mobile-sheet-close" type="button" title="Close block library" aria-label="Close block library" onClick={() => setMobileSheet(null)}><X aria-hidden="true" size={18} /></button><BlockLibrary draft={draft} onAdd={addBlock} /></aside>
-          <section className="visual-editor-canvas"><VisualRecipeCanvas draft={draft} viewport={viewport} selectedBlockId={selectedBlockId} localImageUrl={localImageUrl} localImageStatus={localImageStatus} onSelectBlock={setSelectedBlockId} updateDraft={workspace.updateDraft} onPickImage={(file) => void handleImage(file)} onRemoveImage={() => void handleRemoveImage()} /></section>
-          <aside className={`visual-side-panel inspector-panel${mobileSheet === 'inspector' ? ' mobile-open' : ''}`}><button className="mobile-sheet-close" type="button" title="Close properties" aria-label="Close properties" onClick={() => setMobileSheet(null)}><X aria-hidden="true" size={18} /></button><BlockInspector draft={draft} block={selectedBlock} viewport={viewport} updateDraft={workspace.updateDraft} /></aside>
+          <section className="visual-editor-canvas">{effectiveDraft && <VisualRecipeCanvas draft={effectiveDraft} viewport={viewport} selectedBlockId={selectedBlockId} localImageUrl={localImageUrl} localImageStatus={localImageStatus} onSelectBlock={setSelectedBlockId} updateDraft={updateRecipeDraft} onPickImage={(file) => void handleImage(file)} onRemoveImage={() => void handleRemoveImage()} />}</section>
+          <aside className={`visual-side-panel inspector-panel${mobileSheet === 'inspector' ? ' mobile-open' : ''}`}><button className="mobile-sheet-close" type="button" title="Close properties" aria-label="Close properties" onClick={() => setMobileSheet(null)}><X aria-hidden="true" size={18} /></button><BlockInspector draft={draft} block={selectedBlock} viewport={viewport} updateDraft={updateRecipeDraft} /></aside>
           <div className="mobile-editor-actions"><button type="button" title="Add block" aria-label="Add block" onClick={() => setMobileSheet('blocks')}><Plus aria-hidden="true" size={21} /></button><button type="button" title="Block properties" aria-label="Block properties" onClick={() => setMobileSheet('inspector')}><SlidersHorizontal aria-hidden="true" size={20} /></button></div>
           {mobileSheet && <button className="mobile-sheet-backdrop" type="button" aria-label="Close panel" onClick={() => setMobileSheet(null)} />}
         </div>
@@ -296,11 +331,26 @@ export function EditMode({
         <div className="draft-dialog-backdrop" role="presentation"><div className="draft-dialog" role="alertdialog" aria-modal="true" aria-labelledby="delete-draft-title"><Trash2 aria-hidden="true" size={22} /><h2 id="delete-draft-title">Delete this draft?</h2><p>"{workspace.deleteCandidate.title || 'Untitled recipe'}" will be removed from Firestore and this device. Published GitHub content is not affected.</p><div className="draft-dialog-actions"><button className="secondary-command" type="button" onClick={workspace.cancelDelete}>Cancel</button><button className="danger-command" type="button" onClick={() => void workspace.confirmDelete()}><Trash2 aria-hidden="true" size={16} />Delete draft</button></div></div></div>
       )}
 
-      {workspace.conflict && (
-        <div className="draft-dialog-backdrop" role="presentation"><div className="draft-dialog" role="alertdialog" aria-modal="true" aria-labelledby="conflict-title"><RefreshCw aria-hidden="true" size={22} /><h2 id="conflict-title">This draft changed on another device</h2><p>Your local edits are still in the recovery copy. Choose the cloud version, or preserve your edits as a new draft.</p><div className="draft-dialog-actions conflict-actions"><button className="secondary-command" type="button" onClick={workspace.useCloudVersion}><Cloud aria-hidden="true" size={16} />Use cloud version</button><button className="primary-command" type="button" onClick={workspace.saveConflictAsCopy}><Copy aria-hidden="true" size={16} />Save mine as copy</button></div></div></div>
+      {workspace.publishedDraftChoice && (
+        <div className="draft-dialog-backdrop" role="presentation"><div className="draft-dialog" role="alertdialog" aria-modal="true" aria-labelledby="published-draft-choice-title"><BookOpen aria-hidden="true" size={22} /><h2 id="published-draft-choice-title">An edit draft already exists</h2><p>Continue the existing Firestore draft for "{workspace.publishedDraftChoice.published.title}", or discard it and reload the current GitHub source.</p>{discardPublishedArmed && <div className="publish-error" role="alert"><AlertTriangle aria-hidden="true" size={16} /><span>This permanently deletes the existing edit draft and its local recovery copy. Click discard again to confirm.</span></div>}<div className="draft-dialog-actions"><button className="secondary-command" type="button" onClick={workspace.cancelPublishedDraftChoice}>Cancel</button><button className="secondary-command" type="button" onClick={workspace.continuePublishedDraft}><PencilLine aria-hidden="true" size={16} />Continue draft</button><button className="danger-command" type="button" onClick={() => { if (!discardPublishedArmed) { setDiscardPublishedArmed(true); return; } void workspace.discardPublishedDraft().catch((error: unknown) => setImageError(error instanceof Error ? error.message : 'The edit draft could not be discarded.')); }}><Trash2 aria-hidden="true" size={16} />{discardPublishedArmed ? 'Confirm discard' : 'Discard draft'}</button></div></div></div>
       )}
 
       <GitHubPublishingDialogs publishing={publishing} />
     </main>
   );
+}
+
+export function EditMode(props: {
+  uid: string;
+  email: string | null;
+  onNavigate: (route: AppRoute) => void;
+  onSignOut: () => void;
+}) {
+  const workspace = useDraftWorkspace(props.uid);
+  const editor = isSiteDraft(workspace.activeDraft)
+    ? <SiteEditor {...props} workspace={workspace} draft={workspace.activeDraft} />
+    : isPageDraft(workspace.activeDraft)
+      ? <PageEditor {...props} workspace={workspace} draft={workspace.activeDraft} />
+      : <RecipeEditor {...props} workspace={workspace} />;
+  return <>{editor}<LocalRecoveryDialog workspace={workspace} /><ConflictResolutionDialog workspace={workspace} /></>;
 }

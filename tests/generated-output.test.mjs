@@ -21,3 +21,10 @@ test('representative generated recipe pages use the shared renderer output', asy
     assert.ok(generatedPage.includes(renderedDetail), `${slug} does not contain the shared renderer output`);
   }
 });
+
+test('full recipe articles are never hidden behind viewport reveal thresholds', async () => {
+  const script = await fs.readFile('assets/js/site.js', 'utf8');
+  const revealSelector = /rootEl\.querySelectorAll\("([^"]+)"\)/.exec(script)?.[1];
+  assert.ok(revealSelector, 'missing scroll reveal selector');
+  assert.doesNotMatch(revealSelector, /recipe-detail-card/);
+});

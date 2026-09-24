@@ -1,39 +1,66 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { DraftPublicationMetadata, RecipeDraft } from '../drafts/draftModel.mjs';
-import { validateDraftForPublish } from '../drafts/draftModel.mjs';
-import { validateDraftImage } from '../editor/imageValidation.mjs';
+import type { PublicationAuditInput } from '../drafts/DraftService';
+import { isRecipeDraft, validateDraftForPublish } from '../drafts/draftModel.mjs';
+import type { DraftListItem } from '../drafts/useDraftWorkspace';
+import { validateWebsiteImage } from '../editor/imageValidation.mjs';
 import { loadDraftImage } from '../editor/localImageStore';
 import {
+  analyzeRecipeDelete,
   beginGitHubDeviceFlow,
   blobToBase64,
   cancelGitHubDeviceFlow,
   disconnectGitHub,
   getGitHubConnectionStatus,
+  listPublishedRecipes,
+  loadPublishedRecipe,
   openGitHubActionsPage,
   openGitHubDevicePage,
   pollGitHubDeviceFlow,
+  prepareRecipeDelete,
   prepareRecipePublish,
   publishRecipe,
+  type DeleteAnalysis,
   type DeviceFlowStart,
   type GitHubConnectionStatus,
+  type PublishedRecipe,
+  type PublishedRecipeSummary,
   type PublishResult,
   type PublishReview,
 } from './githubClient';
-import {
-  pollRecipeDeployment,
-  type DeploymentStatus,
-} from './deploymentStatus.mjs';
+import { pollRecipeDeployment, type DeploymentStatus } from './deploymentStatus.mjs';
 import { buildRecipePublicationSource, publicationMetadataFromResult } from './publicationModel.mjs';
+import {
+  draftMatchesPublishedRecipe,
+  imageActionForDraft,
+  publishedDraftId,
+  semanticRecipeChanges,
+  sourceIdentityFromDraft,
+  type SemanticChange,
+} from './publishedRecipeModel.mjs';
 
 type FlushResult = 'saved' | 'offline' | 'conflict' | 'error';
 export type PublishingStage = 'idle' | 'validating' | 'preparing' | 'publishing' | 'published';
+export type PublishedRecipeState = 'published' | 'draft' | 'remoteChanged';
 
 interface Options {
   draft: RecipeDraft | null;
+  drafts: DraftListItem[];
   uid: string;
   deviceId: string;
   flush: () => Promise<FlushResult>;
   markPublished: (metadata: DraftPublicationMetadata) => Promise<RecipeDraft>;
+  markPublishedDeleted: (published: PublishedRecipe, metadata: DraftPublicationMetadata) => Promise<RecipeDraft>;
+  openPublishedRecipe: (published: PublishedRecipe) => Promise<void>;
+  recordPublicationAudit: (input: Omit<PublicationAuditInput, 'editorUid'>) => Promise<void>;
+  updatePublicationDeployment: (commitSha: string, status: PublicationAuditInput['deploymentStatus']) => Promise<void>;
+}
+
+export interface DeleteRequest {
+  published: PublishedRecipe;
+  analysis: DeleteAnalysis;
+  confirmation: string;
+  deleteUniqueImage: boolean;
 }
 
 function messageFromError(error: unknown) {
@@ -46,17 +73,34 @@ function delay(milliseconds: number) {
   return new Promise<void>((resolve) => window.setTimeout(resolve, milliseconds));
 }
 
-export function useGitHubPublishing({ draft, uid, deviceId, flush, markPublished }: Options) {
+export function useGitHubPublishing({
+  draft,
+  drafts,
+  uid,
+  deviceId,
+  flush,
+  markPublished,
+  markPublishedDeleted,
+  openPublishedRecipe,
+  recordPublicationAudit,
+  updatePublicationDeployment,
+}: Options) {
   const [connection, setConnection] = useState<GitHubConnectionStatus | null>(null);
   const [connectionOpen, setConnectionOpen] = useState(false);
   const [deviceFlow, setDeviceFlow] = useState<DeviceFlowStart | null>(null);
   const [waitingLabel, setWaitingLabel] = useState('Waiting for authorization...');
   const [review, setReview] = useState<PublishReview | null>(null);
+  const [reviewChanges, setReviewChanges] = useState<SemanticChange[]>([]);
   const [result, setResult] = useState<PublishResult | null>(null);
   const [metadataRecorded, setMetadataRecorded] = useState(true);
   const [stage, setStage] = useState<PublishingStage>('idle');
   const [deploymentStatus, setDeploymentStatus] = useState<DeploymentStatus>('committed');
   const [error, setError] = useState<string | null>(null);
+  const [recipesOpen, setRecipesOpen] = useState(false);
+  const [recipesLoading, setRecipesLoading] = useState(false);
+  const [publishedRecipes, setPublishedRecipes] = useState<PublishedRecipeSummary[]>([]);
+  const [deleteRequest, setDeleteRequest] = useState<DeleteRequest | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<PublishedRecipe | null>(null);
   const pollingGeneration = useRef(0);
   const busy = stage === 'validating' || stage === 'preparing' || stage === 'publishing';
 
@@ -69,6 +113,18 @@ export function useGitHubPublishing({ draft, uid, deviceId, flush, markPublished
     }
   }, []);
 
+  const refreshPublishedRecipes = useCallback(async () => {
+    setRecipesLoading(true);
+    setError(null);
+    try {
+      setPublishedRecipes(await listPublishedRecipes());
+    } catch (listError) {
+      setError(messageFromError(listError));
+    } finally {
+      setRecipesLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     void refreshConnection();
     return () => {
@@ -78,13 +134,15 @@ export function useGitHubPublishing({ draft, uid, deviceId, flush, markPublished
 
   useEffect(() => {
     setReview(null);
-  }, [draft]);
+    setReviewChanges([]);
+    setPendingDelete(null);
+  }, [draft?.id]);
 
   useEffect(() => {
     if (!result) return undefined;
     let active = true;
     void pollRecipeDeployment({
-      slug: result.recipeSlug,
+      slug: result.operation === 'delete' ? null : result.recipeSlug,
       commitSha: result.commitSha,
       shouldContinue: () => active,
       onStatus: (status) => setDeploymentStatus(status),
@@ -93,6 +151,12 @@ export function useGitHubPublishing({ draft, uid, deviceId, flush, markPublished
       active = false;
     };
   }, [result]);
+
+  useEffect(() => {
+    if (!result) return;
+    const status = deploymentStatus === 'deployed' ? 'live' : deploymentStatus === 'unknown' ? 'unknown' : deploymentStatus;
+    void updatePublicationDeployment(result.commitSha, status).catch(() => undefined);
+  }, [deploymentStatus, result, updatePublicationDeployment]);
 
   const pollUntilComplete = useCallback(async (generation: number, initialDelaySeconds: number) => {
     let waitSeconds = initialDelaySeconds;
@@ -176,6 +240,12 @@ export function useGitHubPublishing({ draft, uid, deviceId, flush, markPublished
       setStage('idle');
       return;
     }
+    const changes = semanticRecipeChanges(draft);
+    if (draft.sourceLink && changes.length === 0) {
+      setError('This draft already matches the published recipe. Make a change before publishing.');
+      setStage('idle');
+      return;
+    }
     if (await flush() !== 'saved') {
       setError('The draft must finish saving before publication can begin.');
       setStage('idle');
@@ -183,24 +253,21 @@ export function useGitHubPublishing({ draft, uid, deviceId, flush, markPublished
     }
 
     try {
+      const imageAction = imageActionForDraft(draft);
       let image: { bytesBase64: string; mimeType: string } | null = null;
       const attachment = draft.data.attachments[0];
-      if (attachment) {
-        if (!attachment.localAttachmentId) {
-          throw new Error('This image was selected on another device and is not available locally. Select the image on this device before publishing.');
+      if (imageAction === 'replace') {
+        if (!attachment?.localAttachmentId) {
+          throw new Error('Select the replacement image on this device before publishing.');
         }
         const blob = await loadDraftImage(uid, draft.id, attachment.localAttachmentId);
         if (!blob) {
           const location = attachment.sourceDeviceId !== deviceId ? 'another device' : 'this device';
-          throw new Error(`This image was selected on ${location} and is not available locally. Select the image on this device before publishing.`);
+          throw new Error(`This image was selected on ${location} and is not available locally. Select it again on this device.`);
         }
-        const file = new File([blob], attachment.fileName, {
-          type: attachment.mimeType ?? blob.type,
-        });
-        const validation = await validateDraftImage(file);
-        if (!validation.valid || !validation.metadata) {
-          throw new Error(validation.errors.join(' '));
-        }
+        const file = new File([blob], attachment.fileName, { type: attachment.mimeType ?? blob.type });
+        const validation = await validateWebsiteImage(file);
+        if (!validation.valid || !validation.metadata) throw new Error(validation.errors.join(' '));
         image = {
           bytesBase64: await blobToBase64(file),
           mimeType: validation.metadata.mimeType,
@@ -215,7 +282,10 @@ export function useGitHubPublishing({ draft, uid, deviceId, flush, markPublished
         title: draft.title,
         recipeJson: JSON.stringify(recipe),
         image,
+        imageAction,
+        source: sourceIdentityFromDraft(draft),
       });
+      setReviewChanges(changes);
       setReview(nextReview);
       setStage('idle');
     } catch (prepareError) {
@@ -224,31 +294,125 @@ export function useGitHubPublishing({ draft, uid, deviceId, flush, markPublished
     }
   }, [busy, connection, deviceId, draft, flush, uid]);
 
+  const openRecipes = useCallback(() => {
+    setRecipesOpen(true);
+    if (connection?.repositoryVerified) void refreshPublishedRecipes();
+  }, [connection?.repositoryVerified, refreshPublishedRecipes]);
+
+  const editPublished = useCallback(async (summary: PublishedRecipeSummary) => {
+    if (busy) return;
+    setStage('preparing');
+    setError(null);
+    try {
+      const published = await loadPublishedRecipe(summary.slug);
+      await openPublishedRecipe(published);
+      setRecipesOpen(false);
+    } catch (openError) {
+      setError(messageFromError(openError));
+    } finally {
+      setStage('idle');
+    }
+  }, [busy, openPublishedRecipe]);
+
+  const requestDelete = useCallback(async (summary: PublishedRecipeSummary) => {
+    if (busy) return;
+    setStage('preparing');
+    setError(null);
+    try {
+      const published = await loadPublishedRecipe(summary.slug);
+      const analysis = await analyzeRecipeDelete({
+        path: published.path,
+        slug: published.slug,
+        commitSha: published.commitSha,
+        blobSha: published.blobSha,
+      });
+      setDeleteRequest({ published, analysis, confirmation: '', deleteUniqueImage: false });
+      setRecipesOpen(false);
+    } catch (deleteError) {
+      setError(messageFromError(deleteError));
+    } finally {
+      setStage('idle');
+    }
+  }, [busy]);
+
+  const reviewDelete = useCallback(async () => {
+    if (!deleteRequest || busy) return;
+    const { analysis, published, confirmation, deleteUniqueImage } = deleteRequest;
+    if (confirmation !== analysis.title) {
+      setError('Type the exact published recipe title to confirm deletion.');
+      return;
+    }
+    setStage('preparing');
+    setError(null);
+    try {
+      const nextReview = await prepareRecipeDelete({
+        sourceDraftId: publishedDraftId(published.slug),
+        path: analysis.path,
+        slug: analysis.slug,
+        commitSha: analysis.commitSha,
+        blobSha: analysis.blobSha,
+        title: analysis.title,
+        confirmation,
+        deleteUniqueImage,
+      });
+      setPendingDelete(published);
+      setReviewChanges([{ kind: 'delete', label: 'Published recipe will be deleted' }]);
+      setReview(nextReview);
+      setDeleteRequest(null);
+    } catch (deleteError) {
+      setError(messageFromError(deleteError));
+    } finally {
+      setStage('idle');
+    }
+  }, [busy, deleteRequest]);
+
   const confirm = useCallback(async () => {
     if (!review || busy) return;
     setError(null);
     setStage('publishing');
     try {
       const published = await publishRecipe(review.planId);
+      const metadata = publicationMetadataFromResult(published);
+      await recordPublicationAudit({
+        operation: published.operation,
+        contentType: 'recipe',
+        contentId: published.recipeSlug,
+        draftId: published.sourceDraftId,
+        previousCommitSha: review.baseCommitSha,
+        newCommitSha: published.commitSha,
+        deploymentStatus: 'building',
+      }).catch(() => undefined);
       setDeploymentStatus('building');
       setResult(published);
       setReview(null);
       try {
-        await markPublished(publicationMetadataFromResult(published));
+        if (published.operation === 'delete') {
+          if (!pendingDelete) throw new Error('The deleted recipe recovery source is unavailable.');
+          await markPublishedDeleted(pendingDelete, metadata);
+        } else {
+          await markPublished(metadata);
+        }
         setMetadataRecorded(true);
       } catch {
         setMetadataRecorded(false);
       }
+      setPendingDelete(null);
       setStage('published');
+      void refreshPublishedRecipes();
     } catch (publishError) {
       setError(messageFromError(publishError));
       setReview(null);
+      setPendingDelete(null);
       setStage('idle');
     }
-  }, [busy, markPublished, review]);
+  }, [busy, markPublished, markPublishedDeleted, pendingDelete, recordPublicationAudit, refreshPublishedRecipes, review]);
 
   const closeReview = useCallback(() => {
-    if (!busy) setReview(null);
+    if (!busy) {
+      setReview(null);
+      setReviewChanges([]);
+      setPendingDelete(null);
+    }
   }, [busy]);
 
   const closeResult = useCallback(() => {
@@ -265,18 +429,31 @@ export function useGitHubPublishing({ draft, uid, deviceId, flush, markPublished
     }
   }, []);
 
+  const recipeState = useCallback((summary: PublishedRecipeSummary): PublishedRecipeState => {
+    const record = drafts.find(({ draft: candidate }) => isRecipeDraft(candidate) && draftMatchesPublishedRecipe(candidate, summary));
+    if (!record) return 'published';
+    if (!isRecipeDraft(record.draft)) return 'published';
+    if (record.draft.sourceLink && record.draft.sourceLink.blobSha !== summary.blobSha) return 'remoteChanged';
+    return record.draft.status === 'published' ? 'published' : 'draft';
+  }, [drafts]);
+
   return {
     connection,
     connectionOpen,
     deviceFlow,
     waitingLabel,
     review,
+    reviewChanges,
     result,
     metadataRecorded,
     deploymentStatus,
     stage,
     busy,
     error,
+    recipesOpen,
+    recipesLoading,
+    publishedRecipes,
+    deleteRequest,
     setError,
     openConnection: () => setConnectionOpen(true),
     startConnection,
@@ -285,6 +462,17 @@ export function useGitHubPublishing({ draft, uid, deviceId, flush, markPublished
     openActionsPage,
     disconnect,
     refreshConnection,
+    openRecipes,
+    closeRecipes: () => setRecipesOpen(false),
+    refreshPublishedRecipes,
+    editPublished,
+    requestDelete,
+    recipeState,
+    updateDeleteRequest: (update: Partial<Pick<DeleteRequest, 'confirmation' | 'deleteUniqueImage'>>) => {
+      setDeleteRequest((current) => current ? { ...current, ...update } : null);
+    },
+    closeDeleteRequest: () => setDeleteRequest(null),
+    reviewDelete,
     prepare,
     confirm,
     closeReview,

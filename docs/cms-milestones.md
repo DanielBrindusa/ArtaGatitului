@@ -173,6 +173,8 @@ Focus:
 
 Finalize the product for the intended personal/small-family use case.
 
+Status: implemented for version `1.0.0`; automated and local build results are recorded in `docs/release-readiness.md`, while account/device acceptance items remain in `docs/final-setup-checklist.md`.
+
 Focus:
 
 - Security review for authentication, Firestore rules, GitHub publishing, and content sanitization

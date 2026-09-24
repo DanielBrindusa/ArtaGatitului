@@ -14,7 +14,7 @@ function routePath(value) {
   return String(value || '').replace(/\\/g, '/').replace(/^\/+/, '');
 }
 
-export function buildRoutePlan({ categories, recipes, aliases }) {
+export function buildRoutePlan({ categories, recipes, pages = [], aliases }) {
   const routes = [];
   const recipeSlugs = new Set();
   const categorySlugs = new Set();
@@ -26,6 +26,15 @@ export function buildRoutePlan({ categories, recipes, aliases }) {
 
   for (const filePath of STATIC_ROUTES) {
     add('static', filePath, filePath);
+  }
+
+  for (const page of pages) {
+    const filePath = page.pageType === 'home' ? 'index.html' : `${page.slug}/index.html`;
+    if (page.pageType === 'home') {
+      const staticIndex = routes.findIndex((route) => route.filePath === 'index.html');
+      if (staticIndex >= 0) routes.splice(staticIndex, 1);
+    }
+    add('page', page.id, filePath);
   }
 
   for (const category of categories) {

@@ -3,6 +3,7 @@ node_modules/
 cms/dist/
 /dist/
 *.tsbuildinfo
+firestore-debug.log
 
 # Rust and Tauri output
 src-tauri/target/

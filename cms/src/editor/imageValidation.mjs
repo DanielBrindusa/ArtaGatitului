@@ -1,7 +1,38 @@
 export const MAX_DRAFT_IMAGE_BYTES = 12 * 1024 * 1024;
 export const MAX_DRAFT_IMAGE_DIMENSION = 8_000;
 export const MIN_DRAFT_IMAGE_DIMENSION = 320;
+export const MAX_WEBSITE_IMAGE_BYTES = 4 * 1024 * 1024;
+export const MAX_WEBSITE_IMAGE_DIMENSION = 2_400;
 export const SUPPORTED_DRAFT_IMAGE_TYPES = Object.freeze(['image/jpeg', 'image/png', 'image/webp']);
+
+const IMAGE_EXTENSIONS = Object.freeze({
+  'image/jpeg': 'jpg',
+  'image/png': 'png',
+  'image/webp': 'webp',
+});
+
+export function safeImageFileName(value, mimeType = 'image/webp') {
+  const base = String(value || 'image')
+    .replace(/\.[a-z0-9]{1,8}$/i, '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '')
+    .slice(0, 80) || 'image';
+  return `${base}.${IMAGE_EXTENSIONS[mimeType] ?? 'webp'}`;
+}
+
+export function imageResizeDimensions(width, height, maximum = MAX_WEBSITE_IMAGE_DIMENSION) {
+  if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) {
+    throw new Error('Image dimensions are invalid.');
+  }
+  const scale = Math.min(1, maximum / Math.max(width, height));
+  return {
+    width: Math.max(1, Math.round(width * scale)),
+    height: Math.max(1, Math.round(height * scale)),
+  };
+}
 
 export function detectImageType(bytes) {
   const value = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes || []);
@@ -84,5 +115,77 @@ export async function validateDraftImage(file) {
       valid: false,
       errors: [error instanceof Error ? error.message : 'The selected image is malformed.'],
     };
+  }
+}
+
+export async function validateWebsiteImage(file) {
+  const validation = await validateDraftImage(file);
+  if (!validation.valid || !validation.metadata) return validation;
+  const errors = [];
+  if (validation.metadata.byteSize > MAX_WEBSITE_IMAGE_BYTES) {
+    errors.push('This image is too large for the website. Select it again so the editor can optimize it.');
+  }
+  if (Math.max(validation.metadata.width, validation.metadata.height) > MAX_WEBSITE_IMAGE_DIMENSION) {
+    errors.push(`Website images must not exceed ${MAX_WEBSITE_IMAGE_DIMENSION} pixels on their longest side.`);
+  }
+  return { valid: errors.length === 0, errors, metadata: errors.length ? undefined : validation.metadata };
+}
+
+function canvasBlob(canvas, type, quality) {
+  return new Promise((resolve, reject) => canvas.toBlob(
+    (blob) => blob ? resolve(blob) : reject(new Error('The optimized image could not be encoded.')),
+    type,
+    quality,
+  ));
+}
+
+export async function prepareDraftImage(file) {
+  const validation = await validateDraftImage(file);
+  if (!validation.valid || !validation.metadata) return { ...validation, file: null, optimized: false };
+
+  const needsOptimization = validation.metadata.byteSize > MAX_WEBSITE_IMAGE_BYTES
+    || Math.max(validation.metadata.width, validation.metadata.height) > MAX_WEBSITE_IMAGE_DIMENSION;
+  if (!needsOptimization) {
+    const safeName = safeImageFileName(file.name, validation.metadata.mimeType);
+    const safeFile = safeName === file.name
+      ? file
+      : new File([file], safeName, { type: validation.metadata.mimeType, lastModified: file.lastModified });
+    return { valid: true, errors: [], metadata: validation.metadata, file: safeFile, optimized: false };
+  }
+
+  if (typeof createImageBitmap !== 'function' || typeof document === 'undefined') {
+    return { valid: false, errors: ['This image must be resized before it can be used on the website.'], file: null, optimized: false };
+  }
+
+  let bitmap = null;
+  try {
+    bitmap = await createImageBitmap(file);
+    const dimensions = imageResizeDimensions(bitmap.width, bitmap.height);
+    const canvas = document.createElement('canvas');
+    canvas.width = dimensions.width;
+    canvas.height = dimensions.height;
+    const context = canvas.getContext('2d', { alpha: true });
+    if (!context) throw new Error('Image optimization is unavailable on this device.');
+    context.drawImage(bitmap, 0, 0, dimensions.width, dimensions.height);
+    const blob = await canvasBlob(canvas, 'image/webp', 0.84);
+    const optimized = new File([blob], safeImageFileName(file.name, 'image/webp'), {
+      type: 'image/webp',
+      lastModified: Date.now(),
+    });
+    const optimizedValidation = await validateWebsiteImage(optimized);
+    return {
+      ...optimizedValidation,
+      file: optimizedValidation.valid ? optimized : null,
+      optimized: optimizedValidation.valid,
+    };
+  } catch (error) {
+    return {
+      valid: false,
+      errors: [error instanceof Error ? error.message : 'The image could not be optimized.'],
+      file: null,
+      optimized: false,
+    };
+  } finally {
+    bitmap?.close();
   }
 }

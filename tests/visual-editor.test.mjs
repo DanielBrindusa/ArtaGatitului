@@ -18,7 +18,8 @@ import {
   updateDraftTitle,
   updateRecipeList,
 } from '../cms/src/editor/editorModel.mjs';
-import { detectImageType } from '../cms/src/editor/imageValidation.mjs';
+import { createDraftExport, draftExportFileName, serializeDraftExport } from '../cms/src/drafts/draftExport.mjs';
+import { detectImageType, imageResizeDimensions, safeImageFileName } from '../cms/src/editor/imageValidation.mjs';
 
 test('new recipe drafts start with the complete visual recipe template', () => {
   const draft = createRecipeDraft('editor-uid', { id: 'draft-visual', title: 'Ciorba' });
@@ -133,4 +134,47 @@ test('image validation inspects actual signatures instead of extensions', () => 
   assert.equal(detectImageType(Uint8Array.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])), 'image/png');
   assert.equal(detectImageType(new TextEncoder().encode('RIFF1234WEBP')), 'image/webp');
   assert.equal(detectImageType(new TextEncoder().encode('not an image')), null);
+});
+
+test('image publication names and dimensions stay web-safe', () => {
+  assert.equal(safeImageFileName('../../<script>.JPG', 'image/jpeg'), 'script.jpg');
+  assert.equal(safeImageFileName('Mamaliga cu branza.png', 'image/webp'), 'mamaliga-cu-branza.webp');
+  assert.deepEqual(imageResizeDimensions(8000, 4000), { width: 2400, height: 1200 });
+  assert.throws(() => imageResizeDimensions(0, 400), /invalid/);
+});
+
+test('portable draft export contains content but omits sync identity and local image handles', () => {
+  const draft = createRecipeDraft('private-editor-uid', { id: 'draft-export', title: 'Supa crema' });
+  draft.data.attachments = [{
+    id: 'image-local',
+    fileName: 'supa.webp',
+    alt: 'Supa crema',
+    localAttachmentId: 'device-private-handle',
+    sourceDeviceId: 'private-device-id',
+    repositoryPath: null,
+    mimeType: 'image/webp',
+    byteSize: 120_000,
+    width: 1600,
+    height: 900,
+  }];
+
+  const exported = createDraftExport(draft, '2026-09-24T00:00:00.000Z');
+  const serialized = serializeDraftExport(draft, '2026-09-24T00:00:00.000Z');
+  assert.equal(exported.format, 'arta-gatitului-cms-export');
+  assert.equal(exported.content.data.attachments[0].needsImageReselection, true);
+  assert.equal(draftExportFileName(draft, exported.exportedAt), 'arta-gatitului-recipe-supa-crema-2026-09-24.json');
+  assert.doesNotMatch(serialized, /private-editor-uid|device-private-handle|private-device-id|updatedByUid/);
+});
+
+test('large recipe content remains valid and renderable without production fixtures', () => {
+  let draft = createRecipeDraft('editor-uid', { id: 'draft-stress', title: 'Reteta mare' });
+  draft.data.recipe.category = 'Test';
+  draft = updateRecipeList(draft, 'ingredients', Array.from({ length: 100 }, (_, index) => `Ingredient ${index + 1}`));
+  draft = updateRecipeList(draft, 'steps', Array.from({ length: 100 }, (_, index) => `Pasul ${index + 1}`));
+
+  const validation = validateDraftForPublish(draft);
+  const html = renderBlockTree(draft.layout.blocks, { recipe: draft.data.recipe, recipes: [draft.data.recipe], root: '#' });
+  assert.equal(validation.valid, true, validation.errors.join('\n'));
+  assert.match(html, /Ingredient 100/);
+  assert.match(html, /Pasul 100/);
 });

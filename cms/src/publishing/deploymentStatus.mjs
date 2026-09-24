@@ -8,9 +8,15 @@ export function publishedRecipeUrl(slug) {
   return new URL(`retete/${slug}/`, PUBLIC_SITE_URL).toString();
 }
 
+export function publishedPageUrl(slug) {
+  if (!SAFE_SLUG.test(slug ?? '')) throw new Error('Published page slug is invalid.');
+  return new URL(slug === 'home' ? '' : `${slug}/`, PUBLIC_SITE_URL).toString();
+}
+
 export function deploymentStatusForHttp(status) {
   if (status >= 200 && status < 400) return 'building';
   if (status === 404 || status >= 500) return 'building';
+  if (status >= 400) return 'unknown';
   return 'unknown';
 }
 
@@ -37,7 +43,7 @@ export async function pollRecipeDeployment({
   shouldContinue = () => true,
   onStatus = () => undefined,
 }) {
-  const url = new URL(publishedRecipeUrl(slug));
+  const url = new URL(slug ? publishedRecipeUrl(slug) : PUBLIC_SITE_URL);
   if (/^[0-9a-f]{40}$/.test(commitSha ?? '')) url.searchParams.set('deployment', commitSha);
   onStatus('building');
 
@@ -45,7 +51,7 @@ export async function pollRecipeDeployment({
     try {
       const response = await fetcher(url.toString(), { cache: 'no-store', redirect: 'follow' });
       const status = await deploymentStatusForResponse(response, commitSha);
-      if (status === 'deployed' || status === 'unknown') {
+      if (status === 'deployed' || status === 'buildFailed' || status === 'unknown') {
         if (shouldContinue()) onStatus(status);
         return status;
       }
@@ -57,4 +63,23 @@ export async function pollRecipeDeployment({
 
   if (shouldContinue()) onStatus('unknown');
   return 'unknown';
+}
+
+export function deploymentStatusLabel(status) {
+  return ({ committed: 'Committed', building: 'Building', deployed: 'Live', buildFailed: 'Deployment failed', unknown: 'Could not verify deployment' })[status] ?? 'Could not verify deployment';
+}
+
+export async function pollPageDeployment(options) {
+  const { slug, ...rest } = options;
+  const pageUrl = publishedPageUrl(slug);
+  return pollRecipeDeployment({
+    ...rest,
+    slug: null,
+    fetcher: async (probeUrl, init) => {
+      const target = new URL(pageUrl);
+      const deployment = new URL(probeUrl).searchParams.get('deployment');
+      if (deployment) target.searchParams.set('deployment', deployment);
+      return (rest.fetcher ?? globalThis.fetch)(target.toString(), init);
+    },
+  });
 }

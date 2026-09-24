@@ -12,6 +12,7 @@ export default function App() {
   const { route, navigate } = useAppRoute();
   const auth = useAuth();
   const surface = resolveAppSurface(route, auth.state);
+  const isAndroidPlatform = VIEW_MODE_PLATFORM === 'android';
   const isAndroidView = route === 'view' && VIEW_MODE_PLATFORM === 'android';
   const isVisualEditor = surface === 'edit' && auth.state.status === 'authenticated-editor';
 
@@ -20,7 +21,7 @@ export default function App() {
   }
 
   return (
-    <div className={`app-shell${isAndroidView ? ' app-shell-mobile-view' : ''}${isVisualEditor ? ' app-shell-visual-editor' : ''}`}>
+    <div className={`app-shell${isAndroidPlatform ? ' app-shell-android' : ''}${isAndroidView ? ' app-shell-mobile-view' : ''}${isVisualEditor ? ' app-shell-visual-editor' : ''}`}>
       {!isAndroidView && !isVisualEditor && (
         <AppTopBar
           route={route}

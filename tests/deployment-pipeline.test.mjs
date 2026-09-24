@@ -65,12 +65,26 @@ function recipe(overrides = {}) {
 
 const tagGroups = { taste: { label: 'Gust', options: ['Sarat'] } };
 
+function homepage() {
+  return {
+    id: 'home',
+    pageType: 'home',
+    title: 'Arta Gatitului',
+    slug: 'home',
+    description: 'Retete testate.',
+    socialImage: null,
+    status: 'published',
+    layout: { modelVersion: 1, blocks: [{ id: 'home-main', type: 'section', data: { blocks: [{ id: 'home-title', type: 'heading', data: { text: 'Arta Gatitului', level: 1 } }] } }] },
+  };
+}
+
 test('valid source content feeds search, randomizer, categories, routes, and sitemap', async () => {
   const sourceRecipe = recipe();
   const result = await validateContentEntries({
     root: process.cwd(),
     categories: [category()],
     recipes: [{ fileName: 'reteta-ci.json', recipe: sourceRecipe }],
+    pages: [{ fileName: 'home.json', page: homepage() }],
     tagGroups,
   });
   assert.deepEqual(result.issues, []);
@@ -81,6 +95,7 @@ test('valid source content feeds search, randomizer, categories, routes, and sit
     aliases: {},
     tagGroups,
     ingredientAliases: { aliases: [] },
+    pages: [homepage()],
   };
   const indexes = buildDataIndexes(content);
   assert.equal(indexes['search-index.json'][0].slug, sourceRecipe.slug);
@@ -92,6 +107,16 @@ test('valid source content feeds search, randomizer, categories, routes, and sit
   assert.ok(routePlan.routes.some((route) => route.filePath === 'retete/reteta-ci/index.html'));
   assert.ok(routePlan.routes.some((route) => route.filePath === 'categorie/fel-principal/index.html'));
   assert.ok(buildSitemapUrls(routePlan).includes(`${SITE_CONFIG.siteUrl}retete/reteta-ci/`));
+
+  const renamedPlan = validateRoutePlan(buildRoutePlan({
+    ...content,
+    aliases: { 'reteta-ci-veche': 'reteta-ci' },
+  }));
+  assert.ok(renamedPlan.routes.some((route) => route.filePath === 'retete/reteta-ci-veche/index.html'));
+  assert.equal(
+    buildSitemapUrls(renamedPlan).includes(`${SITE_CONFIG.siteUrl}retete/reteta-ci-veche/`),
+    false,
+  );
 });
 
 test('invalid recipes, duplicate slugs, and missing local assets fail validation', async (t) => {
@@ -109,6 +134,7 @@ test('invalid recipes, duplicate slugs, and missing local assets fail validation
       { fileName: 'first.json', recipe: recipe({ title: '', image: 'assets/images/missing.webp' }) },
       { fileName: 'second.json', recipe: recipe() },
     ],
+    pages: [{ fileName: 'home.json', page: homepage() }],
     tagGroups,
   });
 
@@ -126,7 +152,7 @@ test('production URLs retain the GitHub Pages project base path', () => {
   assert.throws(() => publishedRecipeUrl('../unsafe'), /slug/);
 });
 
-test('deployment polling reports building, deployed, and unknown without repository permissions', async () => {
+test('deployment polling reports building, deployed, and failed without workflow-write permissions', async () => {
   const statuses = [];
   const commitSha = 'a'.repeat(40);
   const responses = [
@@ -149,6 +175,18 @@ test('deployment polling reports building, deployed, and unknown without reposit
     await deploymentStatusForResponse({ status: 200, text: async () => '<html>older build</html>' }, commitSha),
     'building',
   );
+
+  let deletionCheckUrl = '';
+  await pollRecipeDeployment({
+    slug: null,
+    commitSha,
+    attempts: 1,
+    fetcher: async (url) => {
+      deletionCheckUrl = url;
+      return { status: 200, text: async () => `<meta name="arta-build-version" content="${commitSha}">` };
+    },
+  });
+  assert.match(deletionCheckUrl, /^https:\/\/danielbrindusa\.github\.io\/ArtaGatitului\/\?deployment=/);
 });
 
 test('workflow validates both branches and deploys only main with least privilege', async () => {

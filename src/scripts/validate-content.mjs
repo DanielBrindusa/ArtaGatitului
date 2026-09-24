@@ -5,6 +5,7 @@ const result = await validateContentRepository();
 console.log('Content validation summary');
 console.log(`- Categories: ${result.categoryCount}`);
 console.log(`- Recipe files: ${result.recipeFileCount}`);
+console.log(`- Page files: ${result.pageFileCount}`);
 console.log(`- Parsed recipes: ${result.parsedRecipeCount}`);
 console.log(`- Duplicate slugs: ${result.duplicateSlugCount}`);
 console.log(`- Recipes with optional null fields: ${result.recipesWithNulls.length}`);

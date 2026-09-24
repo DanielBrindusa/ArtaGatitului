@@ -43,9 +43,9 @@ Only official GitHub actions are used. The validation job has `contents: read`. 
 
 ## CMS publication and status
 
-The CMS still commits only `src/content/recipes/<slug>.json` and an optional `assets/images/recipes/<slug>.<ext>` source asset. It cannot modify `.github/workflows` or generated output.
+The CMS commits only approved recipe sources, `src/content/aliases.json` when a rename/delete requires it, and reviewed `assets/images/recipes/<slug>.<ext>` assets. It cannot modify `.github/workflows` or generated output. Updates and deletions use the same validation/build pipeline, so search, randomizer, category output, related-recipe input, routes, redirects, and sitemap are regenerated from the resulting source tree.
 
-After GitHub accepts the commit, the CMS reports `Building website...` and polls the public recipe URL. Generated HTML contains the source commit SHA, so only a page carrying that exact marker changes the state to `Website deployed`; an older page at the same slug cannot produce a false success. A timeout or non-public response becomes `Deployment not confirmed` and offers the fixed repository Actions page. The current GitHub App keeps only `Contents: read/write` and `Metadata: read`; it does not gain Actions permission, so the CMS does not claim to distinguish a failed workflow from a delayed or unreachable deployment. The commit SHA remains visible and no automatic rollback occurs.
+After GitHub accepts the commit, the CMS reports `Building` and polls the public URL. Generated HTML contains the source commit SHA, so only a page carrying that exact marker changes the state to `Live`; an older page at the same slug cannot produce a false success. A known workflow/deployment failure becomes `Deployment failed`. A network error, denied status check, or bounded verification timeout becomes `Could not verify deployment` because the CMS lacks Actions permission and cannot prove failure. Inspect the fixed Actions link before changing content. The GitHub App keeps only `Contents: read/write` and `Metadata: read` and does not gain workflow-write permission for retries. No automatic rollback occurs; use a fix-forward commit or the content-level History restore flow.
 
 ## Manual GitHub configuration
 

@@ -1,0 +1,36 @@
+{
+  "modelVersion": 1,
+  "header": {
+    "logoMark": "AG",
+    "siteTitle": "Arta Gătitului",
+    "logoHref": "home",
+    "searchVisible": true,
+    "themeSwitcherVisible": true,
+    "menuPlacement": "inline",
+    "primaryItems": [
+      { "id": "portfolio", "label": "Portofoliu", "type": "system", "target": "portfolio", "children": [] },
+      { "id": "ingredient-matcher", "label": "Ce pot găti?", "type": "system", "target": "ingredient-matcher", "children": [] },
+      { "id": "randomizer", "label": "Randomizer", "type": "system", "target": "randomizer", "children": [] },
+      { "id": "search", "label": "Caută", "type": "system", "target": "search", "children": [] }
+    ],
+    "menuItems": [
+      { "id": "categories", "label": "Categorii", "type": "system", "target": "categories", "children": [] },
+      { "id": "category-fel-principal", "label": "Fel principal", "type": "category", "target": "fel-principal", "children": [] },
+      { "id": "category-fel-secundar", "label": "Fel secundar", "type": "category", "target": "fel-secundar", "children": [] },
+      { "id": "category-desert", "label": "Desert", "type": "category", "target": "desert", "children": [] },
+      { "id": "category-rontaieli", "label": "Rontaieli", "type": "category", "target": "rontaieli", "children": [] },
+      { "id": "category-salate", "label": "Salate", "type": "category", "target": "salate", "children": [] },
+      { "id": "category-bauturi", "label": "Băuturi", "type": "category", "target": "bauturi", "children": [] },
+      { "id": "category-mic-dejun", "label": "Mic dejun", "type": "category", "target": "mic-dejun", "children": [] }
+    ]
+  },
+  "footer": {
+    "copyright": "{year} Arta Gătitului - Toate drepturile rezervate.",
+    "showLogo": false,
+    "text": "",
+    "links": [
+      { "id": "recipe-builder", "label": "Creator rețetă", "type": "system", "target": "recipe-builder", "children": [] }
+    ],
+    "socialLinks": []
+  }
+}

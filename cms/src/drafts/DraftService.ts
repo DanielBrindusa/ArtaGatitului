@@ -23,17 +23,25 @@ import {
 import { getFirebaseApp } from '../firebase/firebaseClient';
 import {
   assertDraftForStorage,
+  createPageDraft,
   createRecipeDraft,
+  duplicatePageDraft,
   duplicateRecipeDraft,
+  duplicateSiteDraft,
+  isPageDraft,
+  isSiteDraft,
   migrateDraft,
+  type AnyDraft,
+  type PageDraft,
   type RecipeDraft,
 } from './draftModel.mjs';
+import { sanitizePublicationAudit } from '../history/historyModel.mjs';
 
 const WORKSPACE_ID = 'arta-gatitului';
 let firestoreInstance: Firestore | undefined;
 
 export interface DraftSnapshot {
-  draft: RecipeDraft;
+  draft: AnyDraft;
   hasPendingWrites: boolean;
 }
 
@@ -43,23 +51,37 @@ export interface EditorPreferences {
   previewBreakpoint: 'desktop' | 'tablet' | 'mobile';
 }
 
+export interface PublicationAuditInput {
+  operation: 'create' | 'update' | 'delete' | 'restore';
+  contentType: 'recipe' | 'page' | 'site';
+  contentId: string;
+  draftId: string;
+  editorUid: string;
+  previousCommitSha: string | null;
+  newCommitSha: string;
+  deploymentStatus: 'committed' | 'building' | 'live' | 'buildFailed' | 'unknown';
+}
+
 export interface DraftService {
   createDraft(uid: string, title?: string): Promise<RecipeDraft>;
-  loadDraft(id: string): Promise<RecipeDraft | null>;
-  listDrafts(): Promise<RecipeDraft[]>;
-  saveDraft(draft: RecipeDraft, expectedRevision: number, uid: string): Promise<RecipeDraft>;
+  createPageDraft(uid: string, pageType?: 'standard' | 'landing', title?: string): Promise<PageDraft>;
+  loadDraft(id: string): Promise<AnyDraft | null>;
+  listDrafts(): Promise<AnyDraft[]>;
+  saveDraft<T extends AnyDraft>(draft: T, expectedRevision: number, uid: string): Promise<T>;
   deleteDraft(id: string, expectedRevision: number): Promise<void>;
-  duplicateDraft(draft: RecipeDraft, uid: string): Promise<RecipeDraft>;
+  duplicateDraft(draft: AnyDraft, uid: string): Promise<AnyDraft>;
   subscribeToDraft(id: string, onValue: (snapshot: DraftSnapshot | null, fromCache: boolean) => void, onError: (error: unknown) => void): Unsubscribe;
   subscribeToDraftList(onValue: (drafts: DraftSnapshot[], fromCache: boolean) => void, onError: (error: unknown) => void): Unsubscribe;
   savePreferences(uid: string, preferences: EditorPreferences): Promise<void>;
   subscribeToPreferences(uid: string, onValue: (preferences: EditorPreferences | null) => void, onError: (error: unknown) => void): Unsubscribe;
+  recordPublicationAudit(uid: string, input: PublicationAuditInput): Promise<void>;
+  updatePublicationDeployment(uid: string, commitSha: string, deploymentStatus: PublicationAuditInput['deploymentStatus']): Promise<void>;
 }
 
 export class DraftConflictError extends Error {
-  readonly remoteDraft: RecipeDraft | null;
+  readonly remoteDraft: AnyDraft | null;
 
-  constructor(remoteDraft: RecipeDraft | null) {
+  constructor(remoteDraft: AnyDraft | null) {
     super('This draft was changed on another device.');
     this.name = 'DraftConflictError';
     this.remoteDraft = remoteDraft;
@@ -99,10 +121,11 @@ function draftFromSnapshot(snapshot: DocumentSnapshot<DocumentData> | QueryDocum
     createdAt: timestampToIso(raw.createdAt),
     updatedAt: timestampToIso(raw.updatedAt),
     publishedAt: timestampToIso(raw.publishedAt),
+    deletedAt: timestampToIso(raw.deletedAt),
   });
 }
 
-function draftPayload(draft: RecipeDraft, uid: string, revision: number, createdAt: unknown) {
+function draftPayload(draft: AnyDraft, uid: string, revision: number, createdAt: unknown) {
   assertDraftForStorage(draft);
   return {
     ...draft,
@@ -112,6 +135,7 @@ function draftPayload(draft: RecipeDraft, uid: string, revision: number, created
     createdAt,
     updatedAt: serverTimestamp(),
     publishedAt: draft.publishedAt ? Timestamp.fromDate(new Date(draft.publishedAt)) : null,
+    deletedAt: draft.deletedAt ? Timestamp.fromDate(new Date(draft.deletedAt)) : null,
   };
 }
 
@@ -137,6 +161,11 @@ export function createFirestoreDraftService(options: FirebaseOptions): DraftServ
       return service.saveDraft(draft, 0, uid);
     },
 
+    async createPageDraft(uid, pageType = 'standard', title) {
+      const draft = createPageDraft(uid, { pageType, ...(title ? { title } : {}) });
+      return service.saveDraft(draft, 0, uid);
+    },
+
     async loadDraft(id) {
       const snapshot = await getDoc(doc(drafts, id));
       return draftFromSnapshot(snapshot);
@@ -144,10 +173,10 @@ export function createFirestoreDraftService(options: FirebaseOptions): DraftServ
 
     async listDrafts() {
       const snapshot = await getDocs(query(drafts, orderBy('updatedAt', 'desc')));
-      return snapshot.docs.map(draftFromSnapshot).filter((draft): draft is RecipeDraft => draft !== null);
+      return snapshot.docs.map(draftFromSnapshot).filter((draft): draft is AnyDraft => draft !== null);
     },
 
-    async saveDraft(draft, expectedRevision, uid) {
+    async saveDraft<T extends AnyDraft>(draft: T, expectedRevision: number, uid: string): Promise<T> {
       assertDraftForStorage(draft);
       const reference = doc(drafts, draft.id);
       const savedRevision = await runTransaction(database, async (transaction) => {
@@ -175,7 +204,7 @@ export function createFirestoreDraftService(options: FirebaseOptions): DraftServ
         updatedByUid: uid,
         createdAt: draft.createdAt ?? committedAt,
         updatedAt: committedAt,
-      });
+      }) as T;
     },
 
     async deleteDraft(id, expectedRevision) {
@@ -190,7 +219,11 @@ export function createFirestoreDraftService(options: FirebaseOptions): DraftServ
     },
 
     async duplicateDraft(source, uid) {
-      const duplicate = duplicateRecipeDraft(source, uid);
+      const duplicate = isPageDraft(source)
+        ? duplicatePageDraft(source, uid)
+        : isSiteDraft(source)
+          ? duplicateSiteDraft(source, uid)
+          : duplicateRecipeDraft(source, uid);
       return service.saveDraft(duplicate, 0, uid);
     },
 
@@ -250,6 +283,26 @@ export function createFirestoreDraftService(options: FirebaseOptions): DraftServ
         (snapshot) => onValue(snapshot.exists() ? normalizePreferences(snapshot.data()) : null),
         onError,
       );
+    },
+
+    async recordPublicationAudit(uid, input) {
+      const audit = sanitizePublicationAudit({ ...input, editorUid: uid });
+      await setDoc(doc(database, 'users', uid, 'publicationAudit', audit.newCommitSha), {
+        ...audit,
+        editorUid: uid,
+        timestamp: serverTimestamp(),
+      });
+    },
+
+    async updatePublicationDeployment(uid, commitSha, deploymentStatus) {
+      if (!/^[0-9a-f]{40}$/.test(commitSha)) throw new Error('Publication audit commit is invalid.');
+      if (!['committed', 'building', 'live', 'buildFailed', 'unknown'].includes(deploymentStatus)) {
+        throw new Error('Publication deployment status is invalid.');
+      }
+      await setDoc(doc(database, 'users', uid, 'publicationAudit', commitSha), {
+        deploymentStatus,
+        updatedAt: serverTimestamp(),
+      }, { merge: true });
     },
   };
   return service;

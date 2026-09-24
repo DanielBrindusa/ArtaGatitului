@@ -69,6 +69,16 @@ Important files:
 - `src/content` and `src/data` are the current content source of truth.
 - Root HTML files, `retete/`, `categorie/`, root-level recipe/category aliases, `assets/`, `manifest*.json`, `service-worker.js`, `sitemap.xml`, and `robots.txt` are generated public output.
 
+## Milestone 13 Site-Management Layer
+
+The CMS now treats templates, reusable blocks, navigation, header/footer settings, taxonomies, theme tokens, and site metadata as one versioned site configuration. Canonical JSON lives under `src/content/site` plus the existing category and tag-group files. `src/shared/site/model.mjs` owns validation, inheritance, dependency migration, and token-to-CSS rendering; the CMS preview and static build consume the same model.
+
+Site edits use a single Firestore `contentType: "site"` draft. Its GitHub baseline stores text JSON and blob identities only. The native Tauri service can load and prepare commits for the seven exact site paths and existing slug-constrained recipe/page sources needed for dependency migrations. It compares the complete managed baseline before publishing and never exposes a generic repository-write command.
+
+Template inheritance is one level: template defaults, then explicit item overrides. Detaching preserves the resolved layout. Referenced templates and global blocks cannot be removed without replacement or detachment. Category deletion requires recipe migration, tag merges update all affected recipes, and navigation is limited to two levels with controlled internal targets and safe HTTP(S) external links.
+
+See `docs/templates-and-globals.md` and `docs/site-settings-and-theme.md` for the operational contracts.
+
 There is no framework dependency, no bundler, no external test dependency, no lockfile, and no checked-in GitHub Actions workflow. Tests use the built-in Node test runner. The site remains suitable for GitHub Pages because all runtime output is static.
 
 ## 2. Current Content Flow
@@ -1167,3 +1177,43 @@ Connection verification requires the selected installation for repository ID `12
 Preparation captures the latest branch commit and an immutable, expiring native review plan. Confirmation rechecks `main`; any branch movement invalidates the review and requires preparation and confirmation again. The Git Data API creates all blobs, one tree, and one commit, then updates `refs/heads/main` with `force: false`. A per-process publication lock prevents duplicate confirmation. Generated HTML, search data, sitemap, build output, workflows, configuration, and unrelated sources are outside this boundary.
 
 After a successful branch update, the draft is marked `published` and records the commit SHA, repository, branch, source draft ID, slug, optional image path, and timestamp in Firestore. A Firestore failure cannot roll back an already-created Git commit, so the local published recovery copy remains dirty and the UI reports that metadata synchronization must be retried. The success state says **Committed to GitHub** rather than claiming deployment; automated deployment remains Milestone 10. Exact GitHub App setup and revocation steps are in `docs/github-app-setup.md`.
+
+## 32. Milestone 12 full-page CMS
+
+Editable website pages now use `src/content/pages/*.json`, `src/schema/page.schema.json`, and the same versioned block registry used by recipes. `home.json` is the required structured Homepage. Static generation, CMS canvas rendering, and preview all call the shared block renderer; the prior hardcoded Homepage remains only as a rollback fallback while the migration is exercised.
+
+`DraftService` now stores a discriminated `recipe | page` draft union in the same Firestore collection and revision protocol. Page drafts contain controlled SEO metadata, a nested block tree, and image metadata. Local image bytes stay in IndexedDB until explicit publication. Existing conflict, local recovery, duplicate, delete-draft, and cross-device semantics are shared rather than reimplemented.
+
+The page editor adds explicit Section, Container, Columns, Grid, content, and recipe-discovery blocks. Nesting depth and parent-child combinations are validated. Width, spacing, visibility, grid spans, and Desktop/Tablet/Mobile overrides are tokenized. Structured rich text stores safe nodes and marks rather than HTML. Recipe/category selectors read the canonical content catalogs.
+
+The native GitHub service can read and publish `src/content/pages/<slug>.json` plus validated `assets/images/pages/<slug>-<block-id>.*` assets. It independently validates page identity, block nesting, routes, paths, unsafe strings, image contents, source blob freshness, and branch state. Existing page routes are immutable in this milestone. General page deletion scans structured dependencies and creates one reviewed non-force commit; Homepage deletion is impossible.
+
+System utility pages remain outside editable page layouts. Global templates, blocks, navigation, and theme controls are managed separately through the site-management draft described below. Detailed page editor and publication behavior is documented in `docs/visual-page-builder.md`.
+
+## 33. Milestone 13 site-wide management
+
+One revision-protected `site-management` draft owns templates, global blocks, navigation, categories, tags, controlled theme tokens, and general site settings. Published recipes/pages are loaded as dependency inputs but remain separate content documents. Pure domain operations calculate usage, replacement, detachment, rename, merge, route, and global-impact consequences before mutation. The native publisher accepts only the seven fixed site source paths and validates every source independently before one non-force commit.
+
+Template inheritance has one level: a content item resolves template defaults plus explicit overrides, or detaches to a local snapshot. Global references remain typed block references and never become executable includes. Navigation targets are constrained to known internal destinations or safe HTTPS URLs, submenu depth is bounded, and theme values come from approved token sets rather than arbitrary CSS.
+
+## 34. Milestone 14 history and recovery
+
+Each editor uses a bounded in-memory undo/redo history of logical draft states. It does not store credentials, remote snapshots, or image bytes. Local recovery and Firestore revision history continue to protect crashes and cross-device changes independently.
+
+Published history is read from Git commits through narrow native commands. Historical content is normalized and validated before review. Restore creates a fresh review plan against the current `main` state and, after confirmation, a new non-force commit. It never resets or rewrites Git history. Publication audit documents contain allowlisted identity, operation, commit, and deployment status fields only.
+
+## 35. Milestone 15 release boundary
+
+Version `1.0.0` adds content-only JSON draft export, image filename normalization and web optimization, safer deployment status reporting, a non-destructive environment doctor, release version consistency, and explicit security/regression documentation. Export intentionally omits editor UID, device identity, local attachment handles, Git source baselines, and credentials. Import remains out of scope until a schema-validating draft-only flow is designed.
+
+The final authority map is:
+
+```text
+remote public website -> no native capability
+local authenticated CMS -> Firestore through Firebase client rules
+local main webview -> narrow typed Tauri commands
+native GitHub service -> pinned repository + branch + allowlisted paths
+validated main source -> least-privilege GitHub Actions -> GitHub Pages
+```
+
+Security invariants and residual risks are maintained in `docs/threat-model.md`. Release gates, measured bundle/site sizes, test boundaries, and zero-cost service limits are maintained in `docs/release-readiness.md`.

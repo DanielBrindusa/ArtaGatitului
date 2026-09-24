@@ -392,7 +392,7 @@
   function markRevealTargets(scope) {
     if (prefersReducedMotion) return;
     const rootEl = scope || document;
-    rootEl.querySelectorAll(".section, .page-title, .search-panel, .ingredient-panel, .randomizer-panel, .builder-card, .box, .card, .category-card, .recipe-detail-card, .related, .meal-slot").forEach((el) => {
+    rootEl.querySelectorAll(".section, .page-title, .search-panel, .ingredient-panel, .randomizer-panel, .builder-card, .box, .card, .category-card, .related, .meal-slot").forEach((el) => {
       if (!el.hasAttribute("data-reveal")) el.setAttribute("data-reveal", "");
       if (revealObserver) revealObserver.observe(el);
       else if (document.documentElement.classList.contains("reveal-ready")) el.classList.add("is-revealed");

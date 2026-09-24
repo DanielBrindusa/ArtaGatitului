@@ -21,6 +21,7 @@ async function prepareOutputDirectory() {
 export async function runBuild(renderers) {
   await prepareOutputDirectory();
   const content = await loadContent();
+  renderers.configureSiteSources?.(content.site);
   const routePlan = validateRoutePlan(buildRoutePlan(content));
 
   await generateDataAssets(content, renderers);
@@ -33,7 +34,7 @@ export async function runBuild(renderers) {
     : ` Sitemap skipped: ${sitemapResult.reason}`;
 
   console.log(
-    `Generated ${content.recipes.length} recipes, ${content.categories.length} categories, `
+    `Generated ${content.recipes.length} recipes, ${content.categories.length} categories, ${content.pages.length} pages, `
     + `${Object.keys(content.aliases || {}).length} aliases, and ${routePlan.routes.length} validated routes.${sitemapNote}`,
   );
 }

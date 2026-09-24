@@ -12,6 +12,32 @@ pub trait SecretStore: Send + Sync {
 #[derive(Default)]
 pub struct NativeSecretStore;
 
+#[cfg(target_os = "android")]
+fn initialize_android_context() -> Result<(), String> {
+    use std::{
+        thread,
+        time::{Duration, Instant},
+    };
+
+    let deadline = Instant::now() + Duration::from_secs(5);
+    let context = loop {
+        if let Some(context) = tauri::tao::platform::android::prelude::main_android_context() {
+            break context;
+        }
+        if Instant::now() >= deadline {
+            return Err(
+                "Android secure storage could not access the application context.".to_string(),
+            );
+        }
+        thread::sleep(Duration::from_millis(10));
+    };
+
+    unsafe {
+        ndk_context::initialize_android_context(context.java_vm, context.context_jobject);
+    }
+    Ok(())
+}
+
 impl NativeSecretStore {
     fn entry() -> Result<Entry, String> {
         Entry::new(CREDENTIAL_SERVICE, CREDENTIAL_ACCOUNT)
@@ -53,6 +79,7 @@ pub fn initialize_native_store() -> Result<(), String> {
 
     #[cfg(target_os = "android")]
     {
+        initialize_android_context()?;
         let store = android_native_keyring_store::Store::new().map_err(|_| {
             "Android Keystore credential storage could not be initialized.".to_string()
         })?;

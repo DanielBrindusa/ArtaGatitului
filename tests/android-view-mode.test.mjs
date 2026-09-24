@@ -58,17 +58,37 @@ test('Android capability grants only local GitHub publishing commands', async ()
 
 test('Android startup has safe-area treatment and stable versioning', async () => {
   const css = await read('cms/src/App.css');
+  const app = await read('cms/src/App.tsx');
+  const index = await read('cms/index.html');
   const androidConfig = await readJson('src-tauri/tauri.android.conf.json');
   const gitignore = await read('.gitignore');
 
+  assert.match(index, /viewport-fit=cover/);
+  assert.match(app, /app-shell-android/);
+  assert.match(css, /--app-safe-top: max\(env\(safe-area-inset-top, 0px\), 24px\)/);
   assert.match(css, /env\(safe-area-inset-top, 0px\)/);
   assert.match(css, /env\(safe-area-inset-bottom, 0px\)/);
+  assert.match(css, /@media \(min-width: 901px\) and \(max-width: 1700px\)/);
+  assert.match(css, /grid-template-rows: 52px 52px 52px/);
   assert.equal(androidConfig.bundle.android.minSdkVersion, 24);
-  assert.equal(androidConfig.bundle.android.versionCode, 1000);
+  assert.equal(androidConfig.bundle.android.versionCode, 1000000);
   assert.equal(androidConfig.bundle.android.autoIncrementVersionCode, false);
   assert.match(gitignore, /src-tauri\/gen\//);
   assert.match(gitignore, /\*\.jks/);
   assert.match(gitignore, /\*\.keystore/);
+});
+
+test('Android initializes the native keyring context before secure storage', async () => {
+  const cargo = await read('src-tauri/Cargo.toml');
+  const storage = await read('src-tauri/src/github/storage.rs');
+
+  assert.match(cargo, /ndk-context = "=0\.1\.1"/);
+  assert.match(storage, /main_android_context\(\)/);
+  assert.match(storage, /ndk_context::initialize_android_context/);
+  assert.ok(
+    storage.indexOf('initialize_android_context()?')
+      < storage.indexOf('android_native_keyring_store::Store::new()'),
+  );
 });
 
 test('adaptive Android launcher assets are tracked for all required densities', async () => {

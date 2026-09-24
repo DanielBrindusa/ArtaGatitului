@@ -1,0 +1,14 @@
+{
+  "modelVersion": 1,
+  "siteTitle": "Arta Gătitului",
+  "siteDescription": "Rețete românești și idei de gătit pentru acasă, organizate pe categorii, ingrediente și poftă.",
+  "language": "ro",
+  "locale": "ro_RO",
+  "defaultSocialImage": "https://img1.wsimg.com/isteam/stock/19687/:/rs=w:1800,m",
+  "defaultTemplates": {
+    "recipe": "recipe-default",
+    "page": "page-standard",
+    "landing": "page-landing",
+    "category": "category-default"
+  }
+}

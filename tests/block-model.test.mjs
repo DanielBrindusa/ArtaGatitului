@@ -15,13 +15,27 @@ test('block schema and executable registry expose the same block types', async (
 test('every registered initial block type has a valid structured form', () => {
   const blocks = [
     { id: 'section', type: 'section', data: { blocks: [] } },
+    { id: 'container', type: 'container', data: { blocks: [] } },
+    { id: 'columns', type: 'columns', data: { blocks: [
+      { id: 'column-left', type: 'column', data: { blocks: [], span: { desktop: 6, tablet: 6, mobile: 12 } } },
+      { id: 'column-right', type: 'column', data: { blocks: [], span: { desktop: 6, tablet: 6, mobile: 12 } } },
+    ] } },
+    { id: 'grid', type: 'grid', data: { blocks: [] } },
+    { id: 'hero', type: 'hero', data: { title: 'Bun venit', showSearch: true, showRandomRecipe: true } },
     { id: 'heading', type: 'heading', data: { text: 'Titlu', level: 2 } },
     { id: 'text', type: 'text', data: { text: 'Text' } },
-    { id: 'rich-text', type: 'rich-text', data: { paragraphs: ['Paragraf'] } },
+    { id: 'rich-text', type: 'rich-text', data: { nodes: [{ type: 'paragraph', children: [{ text: 'Paragraf' }] }] } },
     { id: 'image', type: 'image', data: { src: '/imagini/test.jpg', alt: 'Preparat' } },
     { id: 'divider', type: 'divider', data: {} },
     { id: 'spacer', type: 'spacer', data: { size: 'md' } },
     { id: 'button', type: 'button', data: { label: 'Deschide', href: './reteta/' } },
+    { id: 'search', type: 'search', data: { label: 'Caută', placeholder: 'Rețetă', buttonLabel: 'Caută' } },
+    { id: 'recipe-grid', type: 'recipe-grid', data: { source: 'manual', slugs: [], limit: 6, columns: 3 } },
+    { id: 'featured-recipes', type: 'featured-recipes', data: { heading: 'Recomandate', slugs: [], limit: 6 } },
+    { id: 'latest-recipes', type: 'latest-recipes', data: { heading: 'Noi', limit: 6 } },
+    { id: 'category-grid', type: 'category-grid', data: { heading: 'Categorii' } },
+    { id: 'random-recipe', type: 'random-recipe', data: { label: 'Surprinde-mă' } },
+    { id: 'global-reference', type: 'global-reference', data: { globalId: 'global-random-recipe' } },
     { id: 'recipe-hero', type: 'recipe-hero', data: {} },
     { id: 'recipe-metadata', type: 'recipe-metadata', data: {} },
     { id: 'ingredients', type: 'ingredients', data: {} },
@@ -32,7 +46,7 @@ test('every registered initial block type has a valid structured form', () => {
     { id: 'related-recipes', type: 'related-recipes', data: {} },
   ];
 
-  assert.deepEqual(blocks.map((block) => block.type), BLOCK_TYPE_VALUES);
+  assert.deepEqual(blocks.map((block) => block.type), BLOCK_TYPE_VALUES.filter((type) => type !== 'column'));
   blocks.forEach((block) => assert.deepEqual(validateBlock(block), { valid: true, errors: [] }));
 });
 
@@ -78,7 +92,7 @@ test('text blocks escape markup instead of emitting executable content', () => {
   const html = renderBlock({
     id: 'safe-text',
     type: BLOCK_TYPES.RICH_TEXT,
-    data: { paragraphs: ['Salut <script>alert(1)</script>'] },
+    data: { nodes: [{ type: 'paragraph', children: [{ text: 'Salut <script>alert(1)</script>' }] }] },
   });
 
   assert.match(html, /&lt;script&gt;alert\(1\)&lt;\/script&gt;/);

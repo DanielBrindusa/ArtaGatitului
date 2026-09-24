@@ -3,10 +3,21 @@ import { draftToRecipeSource } from '../drafts/draftModel.mjs';
 export const GITHUB_REPOSITORY = 'DanielBrindusa/ArtaGatitului';
 export const GITHUB_PUBLISH_BRANCH = 'main';
 
+function publishedContentId(draft) {
+  try {
+    const source = JSON.parse(draft.sourceLink?.sourceJson ?? 'null');
+    if (typeof source?.id === 'string' && source.id.trim()) return source.id;
+  } catch {
+    // Draft validation reports malformed source linkage before publication.
+  }
+  return draft.slug;
+}
+
 export function buildRecipePublicationSource(value) {
   const recipe = draftToRecipeSource(value);
+  const attachment = value.data.attachments[0];
   return {
-    id: recipe.slug,
+    id: publishedContentId(value),
     slug: recipe.slug,
     title: recipe.title,
     name: recipe.title,
@@ -22,7 +33,8 @@ export function buildRecipePublicationSource(value) {
     cookTimeMinutes: recipe.cookTimeMinutes,
     totalTimeMinutes: recipe.totalTimeMinutes,
     servings: recipe.servings,
-    image: null,
+    image: attachment?.repositoryPath ?? null,
+    imageAlt: attachment?.alt || recipe.imageAlt || recipe.title,
     sourceUrl: recipe.sourceUrl,
     createdAt: recipe.createdAt,
     updatedAt: recipe.updatedAt,
@@ -31,6 +43,11 @@ export function buildRecipePublicationSource(value) {
     extras: recipe.extras,
     ratingSummary: recipe.ratingSummary,
     keywords: recipe.keywords,
+    template: recipe.template,
+    layout: {
+      modelVersion: value.layout.modelVersion,
+      blocks: JSON.parse(JSON.stringify(value.layout.blocks)),
+    },
   };
 }
 
@@ -44,6 +61,16 @@ export function publicationMetadataFromResult(result) {
   if (typeof result.publishedAt !== 'string' || Number.isNaN(Date.parse(result.publishedAt))) {
     throw new Error('Publication timestamp is invalid.');
   }
+  if (!['create', 'update', 'delete', 'restore'].includes(result.operation)) {
+    throw new Error('Publication operation is invalid.');
+  }
+  if (result.operation !== 'delete') {
+    if (typeof result.recipePath !== 'string' || !/^src\/content\/recipes\/[a-z0-9]+(?:-[a-z0-9]+)*\.json$/.test(result.recipePath)) {
+      throw new Error('Published recipe path is invalid.');
+    }
+    if (!/^[0-9a-f]{40}$/.test(result.recipeBlobSha ?? '')) throw new Error('Published recipe blob is invalid.');
+    if (typeof result.recipeJson !== 'string' || !result.recipeJson.trim()) throw new Error('Published recipe source is missing.');
+  }
   return {
     commitSha: result.commitSha,
     repository: GITHUB_REPOSITORY,
@@ -52,5 +79,37 @@ export function publicationMetadataFromResult(result) {
     recipeSlug: result.recipeSlug,
     imagePath: typeof result.imagePath === 'string' ? result.imagePath : null,
     publishedAt: result.publishedAt,
+    operation: result.operation === 'delete' ? 'delete' : result.operation === 'restore' ? 'restore' : result.operation === 'update' ? 'update' : 'create',
+    recipePath: typeof result.recipePath === 'string' ? result.recipePath : null,
+    recipeBlobSha: typeof result.recipeBlobSha === 'string' ? result.recipeBlobSha : null,
+    recipeJson: typeof result.recipeJson === 'string' ? result.recipeJson : null,
+  };
+}
+
+export function pagePublicationMetadataFromResult(result) {
+  if (!result || typeof result !== 'object') throw new Error('Page publication result is missing.');
+  if (!/^[0-9a-f]{40}$/.test(result.commitSha ?? '')) throw new Error('Publication commit SHA is invalid.');
+  if (result.repository !== GITHUB_REPOSITORY || result.branch !== GITHUB_PUBLISH_BRANCH) throw new Error('Publication target is invalid.');
+  if (typeof result.sourceDraftId !== 'string' || !result.sourceDraftId) throw new Error('Publication draft ID is invalid.');
+  if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(result.recipeSlug ?? '')) throw new Error('Published page slug is invalid.');
+  if (typeof result.publishedAt !== 'string' || Number.isNaN(Date.parse(result.publishedAt))) throw new Error('Publication timestamp is invalid.');
+  if (!['create', 'update', 'delete', 'restore'].includes(result.operation)) throw new Error('Publication operation is invalid.');
+  if (result.operation !== 'delete') {
+    if (typeof result.recipePath !== 'string' || !/^src\/content\/pages\/(home|[a-z0-9]+(?:-[a-z0-9]+)*)\.json$/.test(result.recipePath)) throw new Error('Published page path is invalid.');
+    if (!/^[0-9a-f]{40}$/.test(result.recipeBlobSha ?? '')) throw new Error('Published page blob is invalid.');
+    if (typeof result.recipeJson !== 'string' || !result.recipeJson.trim()) throw new Error('Published page source is missing.');
+  }
+  return {
+    commitSha: result.commitSha,
+    repository: GITHUB_REPOSITORY,
+    branch: GITHUB_PUBLISH_BRANCH,
+    sourceDraftId: result.sourceDraftId,
+    recipeSlug: result.recipeSlug,
+    imagePath: null,
+    publishedAt: result.publishedAt,
+    operation: result.operation === 'delete' ? 'delete' : result.operation === 'restore' ? 'restore' : result.operation === 'update' ? 'update' : 'create',
+    recipePath: typeof result.recipePath === 'string' ? result.recipePath : null,
+    recipeBlobSha: typeof result.recipeBlobSha === 'string' ? result.recipeBlobSha : null,
+    recipeJson: typeof result.recipeJson === 'string' ? result.recipeJson : null,
   };
 }

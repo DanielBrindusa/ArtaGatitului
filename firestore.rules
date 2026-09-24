@@ -5,7 +5,7 @@ service cloud.firestore {
     function isApprovedEditor() {
       return request.auth != null
         && request.auth.uid in [
-          "APPROVED_FIREBASE_UID"
+          "6dCliIG9D0UGDDYKo9kFQmMbL1M2"
         ];
     }
 
@@ -13,7 +13,7 @@ service cloud.firestore {
       return value == null || value is string;
     }
 
-    function validDraftContent(data) {
+    function validRecipeDraftContent(data) {
       return data is map
         && data.keys().hasOnly(['modelVersion', 'recipe', 'attachments'])
         && data.modelVersion == 1
@@ -23,7 +23,7 @@ service cloud.firestore {
           'steps', 'preparation', 'beforeStart', 'tags', 'equipment',
           'prepTimeMinutes', 'cookTimeMinutes', 'totalTimeMinutes', 'servings',
           'image', 'sourceUrl', 'createdAt', 'updatedAt', 'status', 'closing',
-          'extras', 'ratingSummary', 'keywords'
+          'imageAlt', 'extras', 'ratingSummary', 'keywords', 'template'
         ])
         && data.recipe.id is string
         && data.recipe.title is string
@@ -47,6 +47,8 @@ service cloud.firestore {
           || (data.recipe.servings is int && data.recipe.servings >= 0))
         && data.recipe.tags is map
         && (data.recipe.image == null || data.recipe.image is string)
+        && (data.recipe.imageAlt == null
+          || (data.recipe.imageAlt is string && data.recipe.imageAlt.size() <= 500))
         && (data.recipe.sourceUrl == null || data.recipe.sourceUrl is string)
         && (data.recipe.createdAt == null || data.recipe.createdAt is string)
         && (data.recipe.updatedAt == null || data.recipe.updatedAt is string)
@@ -59,6 +61,48 @@ service cloud.firestore {
         && data.attachments.size() <= 50;
     }
 
+    function validPageDraftContent(data) {
+      return data is map
+        && data.keys().hasOnly(['modelVersion', 'page', 'attachments'])
+        && data.modelVersion == 1
+        && data.page is map
+        && data.page.keys().hasOnly([
+          'id', 'pageType', 'title', 'slug', 'description', 'socialImage', 'status', 'template'
+        ])
+        && data.page.id is string
+        && data.page.pageType in ['home', 'standard', 'landing']
+        && data.page.title is string
+        && data.page.slug is string
+        && data.page.description is string
+        && data.page.description.size() <= 320
+        && (data.page.socialImage == null || data.page.socialImage is string)
+        && data.page.status in ['published', 'draft', 'archived']
+        && data.attachments is list
+        && data.attachments.size() <= 50;
+    }
+
+    function validSiteDraftContent(data) {
+      return data is map
+        && data.keys().hasOnly(['modelVersion', 'site', 'sources'])
+        && data.modelVersion == 1
+        && data.site is map
+        && data.site.keys().hasOnly([
+          'templates', 'globalBlocks', 'navigation', 'settings', 'theme',
+          'categories', 'tagGroups', 'recipes', 'pages'
+        ])
+        && data.site.templates is map
+        && data.site.globalBlocks is map
+        && data.site.navigation is map
+        && data.site.settings is map
+        && data.site.theme is map
+        && data.site.categories is list
+        && data.site.tagGroups is map
+        && data.site.recipes is list
+        && data.site.pages is list
+        && data.sources is list
+        && data.sources.size() <= 100;
+    }
+
     function validDraftLayout(layout) {
       return layout is map
         && layout.keys().hasOnly(['modelVersion', 'blocks'])
@@ -66,28 +110,87 @@ service cloud.firestore {
         && layout.blocks is list;
     }
 
+    function validSourceLink(link, contentType) {
+      return link == null || (
+        link is map
+        && link.keys().hasOnly(['path', 'slug', 'commitSha', 'blobSha', 'sourceJson'])
+        && link.path is string
+        && link.slug is string
+        && link.slug.matches('^[a-z0-9]+(-[a-z0-9]+)*$')
+        && ((contentType == 'recipe'
+            && link.path == 'src/content/recipes/' + link.slug + '.json')
+          || (contentType == 'page'
+            && link.path == 'src/content/pages/' + link.slug + '.json'))
+        && link.commitSha is string
+        && link.commitSha.matches('^[0-9a-f]{40}$')
+        && link.blobSha is string
+        && link.blobSha.matches('^[0-9a-f]{40}$')
+        && link.sourceJson is string
+        && link.sourceJson.size() > 0
+      );
+    }
+
+    function hasNoPublication(draft) {
+      return draft.publishedCommitSha == null
+        && draft.publishedRepository == null
+        && draft.publishedBranch == null
+        && draft.publishedSourceDraftId == null
+        && draft.publishedSlug == null
+        && draft.publishedAt == null;
+    }
+
+    function hasCompletePublication(draft, draftId) {
+      return draft.publishedCommitSha is string
+        && draft.publishedCommitSha.matches('^[0-9a-f]{40}$')
+        && draft.publishedRepository == 'DanielBrindusa/ArtaGatitului'
+        && draft.publishedBranch == 'main'
+        && draft.publishedSourceDraftId == draftId
+        && draft.publishedSlug is string
+        && draft.publishedSlug.matches('^[a-z0-9]+(-[a-z0-9]+)*$')
+        && draft.publishedAt is timestamp;
+    }
+
     function validDraftDocument(draft, draftId) {
       return draft.keys().hasOnly([
           'id', 'contentType', 'schemaVersion', 'title', 'slug', 'status',
           'data', 'layout', 'createdAt', 'updatedAt', 'updatedByUid',
           'revision', 'publishedCommitSha', 'publishedRepository',
-          'publishedBranch', 'publishedSourceDraftId', 'publishedSlug', 'publishedAt'
+          'publishedBranch', 'publishedSourceDraftId', 'publishedSlug', 'publishedAt',
+          'sourceLink', 'deletedAt'
         ])
         && draft.id == draftId
-        && draft.contentType == 'recipe'
+        && draft.contentType in ['recipe', 'page', 'site']
         && draft.schemaVersion == 1
         && draft.title is string
         && draft.title.size() <= 200
         && draft.slug is string
         && draft.slug.size() <= 160
-        && draft.status in ['draft', 'ready', 'published']
-        && validDraftContent(draft.data)
-        && draft.data.recipe.id == draft.id
-        && draft.data.recipe.title == draft.title
-        && draft.data.recipe.name == draft.title
-        && draft.data.recipe.slug == draft.slug
-        && ((draft.status == 'published' && draft.data.recipe.status == 'published')
-          || (draft.status in ['draft', 'ready'] && draft.data.recipe.status == 'draft'))
+        && draft.status in ['draft', 'ready', 'published', 'publishedDeleted']
+        && ((draft.contentType == 'recipe'
+            && validRecipeDraftContent(draft.data)
+            && draft.data.recipe.id == draft.id
+            && draft.data.recipe.title == draft.title
+            && draft.data.recipe.name == draft.title
+            && draft.data.recipe.slug == draft.slug
+            && ((draft.status == 'published' && draft.data.recipe.status == 'published')
+              || (draft.status in ['draft', 'ready'] && draft.data.recipe.status == 'draft')
+              || (draft.status == 'publishedDeleted' && draft.data.recipe.status == 'archived')))
+          || (draft.contentType == 'page'
+            && validPageDraftContent(draft.data)
+            && draft.data.page.title == draft.title
+            && draft.data.page.slug == draft.slug
+            && (draft.data.page.pageType != 'home'
+              || (draft.data.page.id == 'home' && draft.slug == 'home'))
+            && ((draft.status == 'published' && draft.data.page.status == 'published')
+              || (draft.status in ['draft', 'ready'] && draft.data.page.status == 'draft')
+              || (draft.status == 'publishedDeleted' && draft.data.page.status == 'archived')))
+          || (draft.contentType == 'site'
+            && validSiteDraftContent(draft.data)
+            && draft.slug == 'site-management'
+            && draft.status in ['draft', 'ready', 'published']
+            && draft.sourceLink == null
+            && draft.deletedAt == null
+            && draft.layout.blocks.size() == 0))
         && validDraftLayout(draft.layout)
         && draft.createdAt is timestamp
         && draft.updatedAt is timestamp
@@ -101,20 +204,14 @@ service cloud.firestore {
         && validNullableString(draft.publishedSourceDraftId)
         && validNullableString(draft.publishedSlug)
         && (draft.publishedAt == null || draft.publishedAt is timestamp)
-        && ((draft.status == 'published'
-            && draft.publishedCommitSha.matches('^[0-9a-f]{40}$')
-            && draft.publishedRepository == 'DanielBrindusa/ArtaGatitului'
-            && draft.publishedBranch == 'main'
-            && draft.publishedSourceDraftId == draft.id
-            && draft.publishedSlug == draft.slug
-            && draft.publishedAt is timestamp)
-          || (draft.status in ['draft', 'ready']
-            && draft.publishedCommitSha == null
-            && draft.publishedRepository == null
-            && draft.publishedBranch == null
-            && draft.publishedSourceDraftId == null
-            && draft.publishedSlug == null
-            && draft.publishedAt == null));
+        && validSourceLink(draft.sourceLink, draft.contentType)
+        && (draft.deletedAt == null || draft.deletedAt is timestamp)
+        && (hasNoPublication(draft) || hasCompletePublication(draft, draftId))
+        && (draft.status != 'published' || draft.sourceLink != null || hasCompletePublication(draft, draftId))
+        && (draft.status != 'publishedDeleted'
+          || (draft.sourceLink != null && draft.deletedAt is timestamp))
+        && (draft.status == 'publishedDeleted' || draft.deletedAt == null)
+        && (draft.sourceLink != null || hasNoPublication(draft) || draft.status == 'published');
     }
 
     function validWorkspaceSetting(setting) {
@@ -137,6 +234,27 @@ service cloud.firestore {
         && preference.updatedAt is timestamp
         && preference.updatedAt == request.time
         && preference.updatedByUid == request.auth.uid;
+    }
+
+    function validPublicationAudit(audit, userId, commitSha) {
+      return audit.keys().hasOnly([
+          'operation', 'contentType', 'contentId', 'draftId', 'editorUid',
+          'previousCommitSha', 'newCommitSha', 'deploymentStatus', 'timestamp', 'updatedAt'
+        ])
+        && audit.operation in ['create', 'update', 'delete', 'restore']
+        && audit.contentType in ['recipe', 'page', 'site']
+        && audit.contentId is string
+        && audit.contentId.size() <= 160
+        && audit.draftId is string
+        && audit.draftId.size() <= 80
+        && audit.editorUid == userId
+        && (audit.previousCommitSha == null
+          || audit.previousCommitSha.matches('^[0-9a-f]{40}$'))
+        && audit.newCommitSha == commitSha
+        && audit.newCommitSha.matches('^[0-9a-f]{40}$')
+        && audit.deploymentStatus in ['committed', 'building', 'live', 'buildFailed', 'unknown']
+        && audit.timestamp is timestamp
+        && (!audit.keys().hasAny(['updatedAt']) || audit.updatedAt is timestamp);
     }
 
     match /workspaces/arta-gatitului/drafts/{draftId} {
@@ -164,6 +282,20 @@ service cloud.firestore {
         && request.auth.uid == userId
         && validPreference(request.resource.data);
       allow delete: if isApprovedEditor() && request.auth.uid == userId;
+    }
+
+    match /users/{userId}/publicationAudit/{commitSha} {
+      allow read: if isApprovedEditor() && request.auth.uid == userId;
+      allow create: if isApprovedEditor()
+        && request.auth.uid == userId
+        && validPublicationAudit(request.resource.data, userId, commitSha)
+        && request.resource.data.timestamp == request.time;
+      allow update: if isApprovedEditor()
+        && request.auth.uid == userId
+        && validPublicationAudit(request.resource.data, userId, commitSha)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['deploymentStatus', 'updatedAt'])
+        && request.resource.data.updatedAt == request.time;
+      allow delete: if false;
     }
 
     match /{document=**} {

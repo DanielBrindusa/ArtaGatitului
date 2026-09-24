@@ -6,7 +6,6 @@ import {
   PencilLine,
   Settings,
   ShieldCheck,
-  UploadCloud,
 } from 'lucide-react';
 import brandIcon from '../../../icon.png';
 import type { AppRoute } from '../app/useAppRoute';
@@ -95,12 +94,6 @@ export function AppTopBar({ route, authState, onNavigate, onSignOut }: AppTopBar
           >
             <LogOut aria-hidden="true" size={18} />
           </button>
-        )}
-        {route !== 'view' && editorAuthenticated && (
-            <button className="publish-button" type="button" disabled title="Publishing is not available">
-              <UploadCloud aria-hidden="true" size={17} />
-              <span>Publish</span>
-            </button>
         )}
       </div>
     </header>

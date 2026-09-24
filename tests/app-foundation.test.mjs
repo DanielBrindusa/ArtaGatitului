@@ -51,7 +51,7 @@ test('desktop and Android builds use the same application identity', async () =>
 
   assert.equal(packageConfig.version, tauriConfig.version);
   assert.equal(androidConfig.bundle.android.minSdkVersion, 24);
-  assert.equal(androidConfig.bundle.android.versionCode, 1000);
+  assert.equal(androidConfig.bundle.android.versionCode, 1000000);
   assert.equal(androidConfig.bundle.android.autoIncrementVersionCode, false);
   assert.equal(androidConfig.app.windows[0].create, false);
 });

@@ -1,11 +1,18 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
-import { createRecipeDraft, validateDraftForStorage } from '../cms/src/drafts/draftModel.mjs';
+import { createRecipeDraft, validateDraftForPublish, validateDraftForStorage } from '../cms/src/drafts/draftModel.mjs';
 import {
   buildRecipePublicationSource,
   publicationMetadataFromResult,
 } from '../cms/src/publishing/publicationModel.mjs';
+import {
+  createLinkedRecipeDraft,
+  imageActionForDraft,
+  semanticRecipeChanges,
+  sourceIdentityFromDraft,
+  synchronizeLinkedDraftStatus,
+} from '../cms/src/publishing/publishedRecipeModel.mjs';
 
 const repositoryRoot = new URL('../', import.meta.url);
 
@@ -42,6 +49,10 @@ test('publication source is canonical and metadata marks the originating draft',
     recipeSlug: draft.slug,
     imagePath: 'assets/images/recipes/paste-carbonara.webp',
     publishedAt: '2026-09-22T12:00:00.000Z',
+    operation: 'create',
+    recipePath: 'src/content/recipes/paste-carbonara.json',
+    recipeBlobSha: 'b'.repeat(40),
+    recipeJson: `${JSON.stringify(source)}\n`,
   });
   const published = {
     ...draft,
@@ -70,15 +81,95 @@ test('native publisher has a narrow token-free command surface and safe GitHub b
 
   assert.match(service, /REPOSITORY_ID: u64 = 1_256_031_473/);
   assert.match(service, /PUBLISH_BRANCH: &str = "main"/);
-  assert.match(service, /format!\("src\/content\/recipes\/\{\}\.json", input\.slug\)/);
-  assert.match(service, /format!\("assets\/images\/recipes\/\{\}\.\{\}"/);
+  assert.match(service, /format!\("src\/content\/recipes\/\{slug\}\.json"\)/);
+  assert.match(service, /format!\("assets\/images\/recipes\/\{slug\}\.\{extension\}"\)/);
   assert.match(service, /"force": false/);
   assert.match(service, /repository_id/);
   assert.doesNotMatch(client, /accessToken|refreshToken|Authorization/);
   assert.doesNotMatch(permission, /github_request|get_raw_github_token/i);
   assert.match(service, /ACTIONS_PAGE_URL: &str = "https:\/\/github\.com\/DanielBrindusa\/ArtaGatitului\/actions"/);
   assert.match(permission, /github_open_actions_page/);
+  assert.match(permission, /github_list_published_recipes/);
+  assert.match(permission, /github_prepare_recipe_delete/);
+  assert.match(service, /current\.sha != source\.blob_sha/);
+  assert.match(service, /aliases\.insert\(source\.slug\.clone\(\), input\.slug\.clone\(\)\)/);
   assert.match(service, /assert!\(!allowed_publication_path\("\.github\/workflows\/deploy\.yml"\)\)/);
+});
+
+test('published recipes become linked edit drafts with semantic review and stable identity', () => {
+  const source = buildRecipePublicationSource(publishableDraft());
+  source.id = 'stable-carbonara-rating-key';
+  const published = {
+    path: 'src/content/recipes/paste-carbonara.json',
+    slug: 'paste-carbonara',
+    title: source.title,
+    category: source.category,
+    imagePath: null,
+    commitSha: 'a'.repeat(40),
+    blobSha: 'b'.repeat(40),
+    sourceJson: `${JSON.stringify(source)}\n`,
+  };
+  const linked = createLinkedRecipeDraft(published, 'editor-uid');
+
+  assert.equal(linked.status, 'published');
+  assert.deepEqual(sourceIdentityFromDraft(linked), {
+    path: published.path,
+    slug: published.slug,
+    commitSha: published.commitSha,
+    blobSha: published.blobSha,
+  });
+  assert.equal(imageActionForDraft(linked), 'remove');
+  assert.deepEqual(semanticRecipeChanges(linked), []);
+
+  linked.title = 'Carbonara clasica';
+  linked.data.recipe.title = linked.title;
+  linked.data.recipe.name = linked.title;
+  const edited = synchronizeLinkedDraftStatus(linked);
+  assert.equal(edited.status, 'draft');
+  assert.match(semanticRecipeChanges(edited).map((change) => change.label).join('\n'), /Title changed/);
+
+  edited.slug = 'carbonara-clasica';
+  edited.data.recipe.slug = edited.slug;
+  const renamedSource = buildRecipePublicationSource(edited);
+  assert.equal(renamedSource.id, 'stable-carbonara-rating-key');
+  assert.equal(renamedSource.slug, 'carbonara-clasica');
+});
+
+test('legacy published recipes gain an editable layout without changing GitHub on open', () => {
+  const source = buildRecipePublicationSource(publishableDraft());
+  delete source.layout;
+  const published = {
+    path: 'src/content/recipes/paste-carbonara.json',
+    slug: 'paste-carbonara',
+    title: source.title,
+    category: source.category,
+    imagePath: null,
+    commitSha: 'a'.repeat(40),
+    blobSha: 'b'.repeat(40),
+    sourceJson: `${JSON.stringify(source)}\n`,
+  };
+  const linked = createLinkedRecipeDraft(published, 'editor-uid');
+  assert.ok(linked.layout.blocks.some((block) => block.type === 'recipe-hero'));
+  assert.ok(linked.layout.blocks.some((block) => block.type === 'ingredients'));
+  assert.deepEqual(linked.data.recipe.steps, source.preparation);
+  assert.equal(linked.sourceLink.blobSha, published.blobSha);
+});
+
+test('deleted published drafts are storage-valid but require explicit recreation before publish', () => {
+  const draft = publishableDraft();
+  draft.status = 'publishedDeleted';
+  draft.data.recipe.status = 'archived';
+  draft.deletedAt = '2026-09-23T12:00:00.000Z';
+  draft.sourceLink = {
+    path: 'src/content/recipes/paste-carbonara.json',
+    slug: 'paste-carbonara',
+    commitSha: 'a'.repeat(40),
+    blobSha: 'b'.repeat(40),
+    sourceJson: `${JSON.stringify(buildRecipePublicationSource(publishableDraft()))}\n`,
+  };
+  const result = validateDraftForStorage(draft);
+  assert.equal(result.valid, true, result.errors.join('\n'));
+  assert.match(validateDraftForPublish(draft).errors.join('\n'), /Create as new recipe/);
 });
 
 test('GitHub commands are local-only and remote View Mode stays unprivileged', async () => {

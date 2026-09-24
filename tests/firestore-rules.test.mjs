@@ -47,6 +47,7 @@ function draftDocument(id, revision = 1) {
         totalTimeMinutes: null,
         servings: null,
         image: null,
+        imageAlt: null,
         sourceUrl: null,
         createdAt: null,
         updatedAt: null,
@@ -69,6 +70,58 @@ function draftDocument(id, revision = 1) {
     publishedSourceDraftId: null,
     publishedSlug: null,
     publishedAt: null,
+    sourceLink: null,
+    deletedAt: null,
+  };
+}
+
+function pageDraftDocument(id, revision = 1) {
+  const draft = draftDocument(id, revision);
+  return {
+    ...draft,
+    contentType: 'page',
+    title: 'Despre noi',
+    slug: 'despre-noi',
+    data: {
+      modelVersion: 1,
+      page: {
+        id,
+        pageType: 'standard',
+        title: 'Despre noi',
+        slug: 'despre-noi',
+        description: 'Pagina echipei.',
+        socialImage: null,
+        status: 'draft',
+      },
+      attachments: [],
+    },
+    layout: { modelVersion: 1, blocks: [{ id: 'page-main', type: 'section', data: { blocks: [] } }] },
+  };
+}
+
+function siteDraftDocument(id = 'site-management', revision = 1) {
+  const draft = draftDocument(id, revision);
+  return {
+    ...draft,
+    contentType: 'site',
+    title: 'Site management',
+    slug: 'site-management',
+    data: {
+      modelVersion: 1,
+      site: {
+        templates: { modelVersion: 1, templates: [] },
+        globalBlocks: { modelVersion: 1, blocks: [] },
+        navigation: {},
+        settings: {},
+        theme: {},
+        categories: [],
+        tagGroups: {},
+        recipes: [],
+        pages: [],
+      },
+      sources: [],
+    },
+    layout: { modelVersion: 1, blocks: [] },
   };
 }
 
@@ -126,6 +179,70 @@ test('approved editors can access only the intended workspace paths', { skip: !e
   await assertFails(setDoc(doc(database, 'unrelated/document'), { value: true }));
 });
 
+test('default deny blocks future collections, nested paths, and malformed documents', { skip: !emulatorAvailable }, async () => {
+  const database = environment.authenticatedContext(approvedUid).firestore();
+  await assertFails(getDoc(doc(database, 'futureCollection/futureDocument')));
+  await assertFails(setDoc(doc(database, 'workspaces/arta-gatitului/drafts/draft-one/private/nested'), { value: true }));
+  await assertFails(setDoc(doc(database, 'workspaces/arta-gatitului/drafts/malformed'), {
+    id: 'malformed',
+    contentType: 'recipe',
+    arbitraryExecutableConfig: '<script>alert(1)</script>',
+    updatedByUid: approvedUid,
+    revision: 1,
+  }));
+});
+
+test('publication audit accepts only owner-scoped non-secret metadata', { skip: !emulatorAvailable }, async () => {
+  const database = environment.authenticatedContext(approvedUid).firestore();
+  const commitSha = 'a'.repeat(40);
+  const reference = doc(database, 'users', approvedUid, 'publicationAudit', commitSha);
+  const audit = {
+    operation: 'restore',
+    contentType: 'recipe',
+    contentId: 'paste-carbonara',
+    draftId: 'draft-restore-carbonara',
+    editorUid: approvedUid,
+    previousCommitSha: 'b'.repeat(40),
+    newCommitSha: commitSha,
+    deploymentStatus: 'building',
+    timestamp: serverTimestamp(),
+  };
+  await assertSucceeds(setDoc(reference, audit));
+  await assertSucceeds(updateDoc(reference, { deploymentStatus: 'live', updatedAt: serverTimestamp() }));
+  await assertFails(setDoc(doc(database, 'users', approvedUid, 'publicationAudit', 'c'.repeat(40)), {
+    ...audit,
+    newCommitSha: 'c'.repeat(40),
+    accessToken: 'must-never-be-stored',
+  }));
+  const otherDatabase = environment.authenticatedContext('unapproved-uid').firestore();
+  await assertFails(getDoc(doc(otherDatabase, 'users', approvedUid, 'publicationAudit', commitSha)));
+});
+
+test('page drafts use the same revision-protected workspace collection', { skip: !emulatorAvailable }, async () => {
+  const database = environment.authenticatedContext(approvedUid).firestore();
+  const reference = doc(database, 'workspaces/arta-gatitului/drafts/draft-page-one');
+  await assertSucceeds(setDoc(reference, pageDraftDocument('draft-page-one')));
+  await assertSucceeds(updateDoc(reference, {
+    revision: 2,
+    updatedAt: serverTimestamp(),
+    updatedByUid: approvedUid,
+  }));
+  await assertFails(updateDoc(reference, {
+    revision: 3,
+    contentType: 'script',
+    updatedAt: serverTimestamp(),
+    updatedByUid: approvedUid,
+  }));
+});
+
+test('site-management drafts use the same revision and ownership protections', { skip: !emulatorAvailable }, async () => {
+  const database = environment.authenticatedContext(approvedUid).firestore();
+  const reference = doc(database, 'workspaces/arta-gatitului/drafts/site-management');
+  await assertSucceeds(setDoc(reference, siteDraftDocument()));
+  await assertSucceeds(updateDoc(reference, { revision: 2, updatedAt: serverTimestamp(), updatedByUid: approvedUid }));
+  await assertFails(updateDoc(reference, { revision: 3, sourceLink: { path: 'package.json' }, updatedAt: serverTimestamp(), updatedByUid: approvedUid }));
+});
+
 test('draft rules require a monotonic revision and immutable creation time', { skip: !emulatorAvailable }, async () => {
   const database = environment.authenticatedContext(approvedUid).firestore();
   const reference = doc(database, 'workspaces/arta-gatitului/drafts/draft-one');
@@ -164,6 +281,72 @@ test('publication metadata is complete, repository-pinned, and retained on the d
   await assertFails(updateDoc(reference, {
     revision: 3,
     publishedBranch: 'app-development',
+    updatedAt: serverTimestamp(),
+    updatedByUid: approvedUid,
+  }));
+});
+
+test('linked published drafts can become edits and explicit deletion tombstones', { skip: !emulatorAvailable }, async () => {
+  const database = environment.authenticatedContext(approvedUid).firestore();
+  const reference = doc(database, 'workspaces/arta-gatitului/drafts/draft-linked');
+  const source = {
+    id: 'stable-recipe-id',
+    slug: 'test-draft',
+    title: 'Test draft',
+    name: 'Test draft',
+    description: '',
+    category: 'Test',
+    ingredients: ['Ingredient'],
+    steps: ['Step'],
+    preparation: ['Step'],
+    beforeStart: [],
+    tags: {},
+    equipment: [],
+    prepTimeMinutes: null,
+    cookTimeMinutes: null,
+    totalTimeMinutes: null,
+    servings: null,
+    image: null,
+    imageAlt: null,
+    sourceUrl: null,
+    createdAt: null,
+    updatedAt: null,
+    status: 'published',
+    closing: '',
+    extras: [],
+    ratingSummary: null,
+    keywords: [],
+  };
+  const linked = draftDocument('draft-linked');
+  linked.status = 'published';
+  linked.data.recipe.status = 'published';
+  linked.sourceLink = {
+    path: 'src/content/recipes/test-draft.json',
+    slug: 'test-draft',
+    commitSha: 'a'.repeat(40),
+    blobSha: 'b'.repeat(40),
+    sourceJson: JSON.stringify(source),
+  };
+  await assertSucceeds(setDoc(reference, linked));
+
+  const createdAt = (await getDoc(reference)).data().createdAt;
+  const edited = { ...linked, status: 'draft', revision: 2, createdAt };
+  edited.data = { ...linked.data, recipe: { ...linked.data.recipe, status: 'draft' } };
+  await assertSucceeds(setDoc(reference, edited));
+
+  const deleted = { ...edited, status: 'publishedDeleted', revision: 3, deletedAt: serverTimestamp() };
+  deleted.data = { ...edited.data, recipe: { ...edited.data.recipe, status: 'archived' } };
+  deleted.publishedCommitSha = 'c'.repeat(40);
+  deleted.publishedRepository = 'DanielBrindusa/ArtaGatitului';
+  deleted.publishedBranch = 'main';
+  deleted.publishedSourceDraftId = 'draft-linked';
+  deleted.publishedSlug = 'test-draft';
+  deleted.publishedAt = serverTimestamp();
+  await assertSucceeds(setDoc(reference, deleted));
+
+  await assertFails(updateDoc(reference, {
+    revision: 4,
+    deletedAt: null,
     updatedAt: serverTimestamp(),
     updatedByUid: approvedUid,
   }));

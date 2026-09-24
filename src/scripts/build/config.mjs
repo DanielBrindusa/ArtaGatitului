@@ -43,6 +43,13 @@ export const SITE_URL = SITE_CONFIG.siteUrl.replace(/\/+$/, '');
 export const PATHS = {
   contentRoot: path.join(ROOT, 'src', 'content'),
   recipesDir: path.join(ROOT, 'src', 'content', 'recipes'),
+  pagesDir: path.join(ROOT, 'src', 'content', 'pages'),
+  siteDir: path.join(ROOT, 'src', 'content', 'site'),
+  templatesFile: path.join(ROOT, 'src', 'content', 'site', 'templates.json'),
+  globalBlocksFile: path.join(ROOT, 'src', 'content', 'site', 'global-blocks.json'),
+  navigationFile: path.join(ROOT, 'src', 'content', 'site', 'navigation.json'),
+  settingsFile: path.join(ROOT, 'src', 'content', 'site', 'settings.json'),
+  themeFile: path.join(ROOT, 'src', 'content', 'site', 'theme.json'),
   categoriesFile: path.join(ROOT, 'src', 'content', 'categories.json'),
   aliasesFile: path.join(ROOT, 'src', 'content', 'aliases.json'),
   tagGroupsFile: path.join(ROOT, 'src', 'data', 'tag-groups.json'),
