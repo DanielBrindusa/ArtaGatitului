@@ -134,7 +134,7 @@ export interface DraftPublicationMetadata {
   recipeSlug: string;
   imagePath: string | null;
   publishedAt: string;
-  operation: 'create' | 'update' | 'delete';
+  operation: 'create' | 'update' | 'delete' | 'restore';
   recipePath: string | null;
   recipeBlobSha: string | null;
   recipeJson: string | null;

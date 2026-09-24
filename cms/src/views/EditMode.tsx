@@ -4,7 +4,6 @@ import {
   BookOpen,
   Check,
   ChevronDown,
-  Cloud,
   CloudOff,
   Copy,
   Eye,
@@ -18,7 +17,6 @@ import {
   Monitor,
   PencilLine,
   Plus,
-  RefreshCw,
   Settings2,
   SlidersHorizontal,
   Smartphone,
@@ -32,6 +30,8 @@ import { resolveTemplateLayout, type BlockType } from '../../../src/shared/index
 import brandIcon from '../../../icon.png';
 import type { AppRoute } from '../app/useAppRoute';
 import { SharedRecipePreview } from '../components/SharedRecipePreview';
+import { ConflictResolutionDialog, LocalRecoveryDialog, UndoRedoControls } from '../components/EditorSafetyControls';
+import { PublicationHistory } from '../components/PublicationHistory';
 import { isPageDraft, isRecipeDraft, isSiteDraft, type AnyDraft, type RecipeDraft, type SiteBundle } from '../drafts/draftModel.mjs';
 import { useDraftWorkspace, type DraftSaveState } from '../drafts/useDraftWorkspace';
 import { BlockInspector } from '../editor/BlockInspector';
@@ -121,6 +121,8 @@ function EditorTopBar({
       </div>
 
       <div className="editor-topbar-actions">
+        <UndoRedoControls workspace={workspace} />
+        <PublicationHistory workspace={workspace} />
         <button className="new-recipe-button" type="button" onClick={() => void workspace.newDraft()}><Plus aria-hidden="true" size={16} /><span>New recipe</span></button>
         <button className="secondary-command" type="button" onClick={() => void workspace.newPageDraft('standard')}><FilePlus2 aria-hidden="true" size={16} /><span>New page</span></button>
         <button className="secondary-command" type="button" onClick={() => void workspace.openSiteDraft(siteSourceBundle as unknown as SiteBundle)}><Globe2 aria-hidden="true" size={16} /><span>Site</span></button>
@@ -188,6 +190,8 @@ function RecipeEditor({
     markPublished: workspace.markPublished,
     markPublishedDeleted: workspace.markPublishedDeleted,
     openPublishedRecipe: workspace.openPublishedRecipe,
+    recordPublicationAudit: workspace.recordPublicationAudit,
+    updatePublicationDeployment: workspace.updatePublicationDeployment,
   });
 
   const viewport = workspace.previewBreakpoint;
@@ -324,10 +328,6 @@ function RecipeEditor({
         <div className="draft-dialog-backdrop" role="presentation"><div className="draft-dialog" role="alertdialog" aria-modal="true" aria-labelledby="delete-draft-title"><Trash2 aria-hidden="true" size={22} /><h2 id="delete-draft-title">Delete this draft?</h2><p>"{workspace.deleteCandidate.title || 'Untitled recipe'}" will be removed from Firestore and this device. Published GitHub content is not affected.</p><div className="draft-dialog-actions"><button className="secondary-command" type="button" onClick={workspace.cancelDelete}>Cancel</button><button className="danger-command" type="button" onClick={() => void workspace.confirmDelete()}><Trash2 aria-hidden="true" size={16} />Delete draft</button></div></div></div>
       )}
 
-      {workspace.conflict && (
-        <div className="draft-dialog-backdrop" role="presentation"><div className="draft-dialog" role="alertdialog" aria-modal="true" aria-labelledby="conflict-title"><RefreshCw aria-hidden="true" size={22} /><h2 id="conflict-title">This draft changed on another device</h2><p>Your local edits are still in the recovery copy. Choose the cloud version, or preserve your edits as a new draft.</p><div className="draft-dialog-actions conflict-actions"><button className="secondary-command" type="button" onClick={workspace.useCloudVersion}><Cloud aria-hidden="true" size={16} />Use cloud version</button><button className="primary-command" type="button" onClick={workspace.saveConflictAsCopy}><Copy aria-hidden="true" size={16} />Save mine as copy</button></div></div></div>
-      )}
-
       {workspace.publishedDraftChoice && (
         <div className="draft-dialog-backdrop" role="presentation"><div className="draft-dialog" role="alertdialog" aria-modal="true" aria-labelledby="published-draft-choice-title"><BookOpen aria-hidden="true" size={22} /><h2 id="published-draft-choice-title">An edit draft already exists</h2><p>Continue the existing Firestore draft for "{workspace.publishedDraftChoice.published.title}", or discard it and reload the current GitHub source.</p>{discardPublishedArmed && <div className="publish-error" role="alert"><AlertTriangle aria-hidden="true" size={16} /><span>This permanently deletes the existing edit draft and its local recovery copy. Click discard again to confirm.</span></div>}<div className="draft-dialog-actions"><button className="secondary-command" type="button" onClick={workspace.cancelPublishedDraftChoice}>Cancel</button><button className="secondary-command" type="button" onClick={workspace.continuePublishedDraft}><PencilLine aria-hidden="true" size={16} />Continue draft</button><button className="danger-command" type="button" onClick={() => { if (!discardPublishedArmed) { setDiscardPublishedArmed(true); return; } void workspace.discardPublishedDraft().catch((error: unknown) => setImageError(error instanceof Error ? error.message : 'The edit draft could not be discarded.')); }}><Trash2 aria-hidden="true" size={16} />{discardPublishedArmed ? 'Confirm discard' : 'Discard draft'}</button></div></div></div>
       )}
@@ -344,11 +344,10 @@ export function EditMode(props: {
   onSignOut: () => void;
 }) {
   const workspace = useDraftWorkspace(props.uid);
-  if (isSiteDraft(workspace.activeDraft)) {
-    return <SiteEditor {...props} workspace={workspace} draft={workspace.activeDraft} />;
-  }
-  if (isPageDraft(workspace.activeDraft)) {
-    return <PageEditor {...props} workspace={workspace} draft={workspace.activeDraft} />;
-  }
-  return <RecipeEditor {...props} workspace={workspace} />;
+  const editor = isSiteDraft(workspace.activeDraft)
+    ? <SiteEditor {...props} workspace={workspace} draft={workspace.activeDraft} />
+    : isPageDraft(workspace.activeDraft)
+      ? <PageEditor {...props} workspace={workspace} draft={workspace.activeDraft} />
+      : <RecipeEditor {...props} workspace={workspace} />;
+  return <>{editor}<LocalRecoveryDialog workspace={workspace} /><ConflictResolutionDialog workspace={workspace} /></>;
 }

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { DraftPublicationMetadata, RecipeDraft } from '../drafts/draftModel.mjs';
+import type { PublicationAuditInput } from '../drafts/DraftService';
 import { isRecipeDraft, validateDraftForPublish } from '../drafts/draftModel.mjs';
 import type { DraftListItem } from '../drafts/useDraftWorkspace';
 import { validateDraftImage } from '../editor/imageValidation.mjs';
@@ -51,6 +52,8 @@ interface Options {
   markPublished: (metadata: DraftPublicationMetadata) => Promise<RecipeDraft>;
   markPublishedDeleted: (published: PublishedRecipe, metadata: DraftPublicationMetadata) => Promise<RecipeDraft>;
   openPublishedRecipe: (published: PublishedRecipe) => Promise<void>;
+  recordPublicationAudit: (input: Omit<PublicationAuditInput, 'editorUid'>) => Promise<void>;
+  updatePublicationDeployment: (commitSha: string, status: PublicationAuditInput['deploymentStatus']) => Promise<void>;
 }
 
 export interface DeleteRequest {
@@ -79,6 +82,8 @@ export function useGitHubPublishing({
   markPublished,
   markPublishedDeleted,
   openPublishedRecipe,
+  recordPublicationAudit,
+  updatePublicationDeployment,
 }: Options) {
   const [connection, setConnection] = useState<GitHubConnectionStatus | null>(null);
   const [connectionOpen, setConnectionOpen] = useState(false);
@@ -146,6 +151,12 @@ export function useGitHubPublishing({
       active = false;
     };
   }, [result]);
+
+  useEffect(() => {
+    if (!result) return;
+    const status = deploymentStatus === 'deployed' ? 'live' : deploymentStatus === 'unknown' ? 'unknown' : deploymentStatus;
+    void updatePublicationDeployment(result.commitSha, status).catch(() => undefined);
+  }, [deploymentStatus, result, updatePublicationDeployment]);
 
   const pollUntilComplete = useCallback(async (generation: number, initialDelaySeconds: number) => {
     let waitSeconds = initialDelaySeconds;
@@ -362,6 +373,15 @@ export function useGitHubPublishing({
     try {
       const published = await publishRecipe(review.planId);
       const metadata = publicationMetadataFromResult(published);
+      await recordPublicationAudit({
+        operation: published.operation,
+        contentType: 'recipe',
+        contentId: published.recipeSlug,
+        draftId: published.sourceDraftId,
+        previousCommitSha: review.baseCommitSha,
+        newCommitSha: published.commitSha,
+        deploymentStatus: 'building',
+      }).catch(() => undefined);
       setDeploymentStatus('building');
       setResult(published);
       setReview(null);
@@ -385,7 +405,7 @@ export function useGitHubPublishing({
       setPendingDelete(null);
       setStage('idle');
     }
-  }, [busy, markPublished, markPublishedDeleted, pendingDelete, refreshPublishedRecipes, review]);
+  }, [busy, markPublished, markPublishedDeleted, pendingDelete, recordPublicationAudit, refreshPublishedRecipes, review]);
 
   const closeReview = useCallback(() => {
     if (!busy) {

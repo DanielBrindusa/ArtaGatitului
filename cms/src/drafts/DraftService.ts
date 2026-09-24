@@ -35,6 +35,7 @@ import {
   type PageDraft,
   type RecipeDraft,
 } from './draftModel.mjs';
+import { sanitizePublicationAudit } from '../history/historyModel.mjs';
 
 const WORKSPACE_ID = 'arta-gatitului';
 let firestoreInstance: Firestore | undefined;
@@ -50,6 +51,17 @@ export interface EditorPreferences {
   previewBreakpoint: 'desktop' | 'tablet' | 'mobile';
 }
 
+export interface PublicationAuditInput {
+  operation: 'create' | 'update' | 'delete' | 'restore';
+  contentType: 'recipe' | 'page' | 'site';
+  contentId: string;
+  draftId: string;
+  editorUid: string;
+  previousCommitSha: string | null;
+  newCommitSha: string;
+  deploymentStatus: 'committed' | 'building' | 'live' | 'buildFailed' | 'unknown';
+}
+
 export interface DraftService {
   createDraft(uid: string, title?: string): Promise<RecipeDraft>;
   createPageDraft(uid: string, pageType?: 'standard' | 'landing', title?: string): Promise<PageDraft>;
@@ -62,6 +74,8 @@ export interface DraftService {
   subscribeToDraftList(onValue: (drafts: DraftSnapshot[], fromCache: boolean) => void, onError: (error: unknown) => void): Unsubscribe;
   savePreferences(uid: string, preferences: EditorPreferences): Promise<void>;
   subscribeToPreferences(uid: string, onValue: (preferences: EditorPreferences | null) => void, onError: (error: unknown) => void): Unsubscribe;
+  recordPublicationAudit(uid: string, input: PublicationAuditInput): Promise<void>;
+  updatePublicationDeployment(uid: string, commitSha: string, deploymentStatus: PublicationAuditInput['deploymentStatus']): Promise<void>;
 }
 
 export class DraftConflictError extends Error {
@@ -269,6 +283,26 @@ export function createFirestoreDraftService(options: FirebaseOptions): DraftServ
         (snapshot) => onValue(snapshot.exists() ? normalizePreferences(snapshot.data()) : null),
         onError,
       );
+    },
+
+    async recordPublicationAudit(uid, input) {
+      const audit = sanitizePublicationAudit({ ...input, editorUid: uid });
+      await setDoc(doc(database, 'users', uid, 'publicationAudit', audit.newCommitSha), {
+        ...audit,
+        editorUid: uid,
+        timestamp: serverTimestamp(),
+      });
+    },
+
+    async updatePublicationDeployment(uid, commitSha, deploymentStatus) {
+      if (!/^[0-9a-f]{40}$/.test(commitSha)) throw new Error('Publication audit commit is invalid.');
+      if (!['committed', 'building', 'live', 'buildFailed', 'unknown'].includes(deploymentStatus)) {
+        throw new Error('Publication deployment status is invalid.');
+      }
+      await setDoc(doc(database, 'users', uid, 'publicationAudit', commitSha), {
+        deploymentStatus,
+        updatedAt: serverTimestamp(),
+      }, { merge: true });
     },
   };
   return service;

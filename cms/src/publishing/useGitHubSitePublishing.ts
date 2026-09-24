@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { validateDraftForPublish, type AnyDraft, type SiteDraft } from '../drafts/draftModel.mjs';
+import type { PublicationAuditInput } from '../drafts/DraftService';
+import { requiresHighRiskConfirmation } from '../history/historyModel.mjs';
 import {
   beginGitHubDeviceFlow,
   cancelGitHubDeviceFlow,
@@ -27,6 +29,7 @@ interface Options {
   draft: SiteDraft;
   flush: () => Promise<FlushResult>;
   updateDraft: (update: (draft: AnyDraft) => AnyDraft) => void;
+  recordPublicationAudit: (input: Omit<PublicationAuditInput, 'editorUid'>) => Promise<void>;
 }
 
 function messageFromError(error: unknown) {
@@ -38,12 +41,14 @@ function delay(milliseconds: number) {
   return new Promise<void>((resolve) => window.setTimeout(resolve, milliseconds));
 }
 
-export function useGitHubSitePublishing({ draft, flush, updateDraft }: Options) {
+export function useGitHubSitePublishing({ draft, flush, updateDraft, recordPublicationAudit }: Options) {
   const [connection, setConnection] = useState<GitHubConnectionStatus | null>(null);
   const [connectionOpen, setConnectionOpen] = useState(false);
   const [deviceFlow, setDeviceFlow] = useState<DeviceFlowStart | null>(null);
   const [waitingLabel, setWaitingLabel] = useState('Waiting for authorization...');
   const [review, setReview] = useState<PublishReview | null>(null);
+  const [reviewArea, setReviewArea] = useState<PrepareSitePublishInput['area'] | null>(null);
+  const [highRiskConfirmation, setHighRiskConfirmation] = useState('');
   const [result, setResult] = useState<PublishResult | null>(null);
   const [stage, setStage] = useState<Stage>('idle');
   const [error, setError] = useState<string | null>(null);
@@ -153,15 +158,30 @@ export function useGitHubSitePublishing({ draft, flush, updateDraft }: Options) 
     try {
       setStage('preparing');
       setReview(await prepareSitePublish({ sourceDraftId: draft.id, area, files: sitePublishFiles(draft) }));
+      setReviewArea(area);
+      setHighRiskConfirmation('');
     } catch (prepareError) { setError(messageFromError(prepareError)); } finally { setStage('idle'); }
   }, [busy, changedPaths.length, connection, draft, flush]);
 
   const confirm = useCallback(async () => {
     if (!review || busy) return;
+    if (reviewArea && requiresHighRiskConfirmation(reviewArea, review.fileChanges.length) && highRiskConfirmation !== 'PUBLISH') {
+      setError('Type PUBLISH to confirm this global-impact change.');
+      return;
+    }
     setStage('publishing');
     setError(null);
     try {
       const published = await publishRecipe(review.planId);
+      await recordPublicationAudit({
+        operation: published.operation,
+        contentType: 'site',
+        contentId: 'site-management',
+        draftId: published.sourceDraftId,
+        previousCommitSha: review.baseCommitSha,
+        newCommitSha: published.commitSha,
+        deploymentStatus: 'building',
+      }).catch(() => undefined);
       const snapshot = await loadSiteConfiguration();
       applySnapshot(snapshot, published);
       if (await flush() !== 'saved') throw new Error('The commit succeeded, but its Firestore metadata is still only in local recovery.');
@@ -173,7 +193,7 @@ export function useGitHubSitePublishing({ draft, flush, updateDraft }: Options) 
       setReview(null);
       setStage('idle');
     }
-  }, [applySnapshot, busy, flush, review]);
+  }, [applySnapshot, busy, flush, highRiskConfirmation, recordPublicationAudit, review, reviewArea]);
 
   const closeConnection = useCallback(() => {
     pollingGeneration.current += 1;
@@ -183,7 +203,11 @@ export function useGitHubSitePublishing({ draft, flush, updateDraft }: Options) 
   }, []);
 
   return {
-    connection, connectionOpen, deviceFlow, waitingLabel, review, result, stage, busy, error, changedPaths,
+    connection, connectionOpen, deviceFlow, waitingLabel,
+    review: reviewArea && requiresHighRiskConfirmation(reviewArea, review?.fileChanges.length ?? 0) ? null : review,
+    highRiskReview: reviewArea && requiresHighRiskConfirmation(reviewArea, review?.fileChanges.length ?? 0) ? review : null,
+    reviewArea, highRiskConfirmation, setHighRiskConfirmation,
+    result, stage, busy, error, changedPaths,
     setError,
     openConnection: () => setConnectionOpen(true),
     closeConnection,
@@ -194,7 +218,7 @@ export function useGitHubSitePublishing({ draft, flush, updateDraft }: Options) 
     reloadBaseline,
     prepare,
     confirm,
-    closeReview: () => { if (!busy) setReview(null); },
+    closeReview: () => { if (!busy) { setReview(null); setReviewArea(null); setHighRiskConfirmation(''); } },
     closeResult: () => { setResult(null); setStage('idle'); },
   };
 }

@@ -91,6 +91,11 @@ export function GitHubPublishingDialogs({ publishing }: { publishing: GitHubPubl
         : 'The generated recipe is now available on the public website.',
       label: 'Deployed',
     },
+    buildFailed: {
+      title: 'Website build failed',
+      message: 'The source change was published to GitHub, but the website deployment failed or did not become live in time. Inspect GitHub Actions and fix forward with a new commit.',
+      label: 'Build failed',
+    },
     unknown: {
       title: 'Deployment not confirmed',
       message: 'The commit succeeded, but the website did not expose that build during this check. Inspect the GitHub Actions run before retrying.',
@@ -175,6 +180,7 @@ export function GitHubPublishingDialogs({ publishing }: { publishing: GitHubPubl
             </dl>
             <div className="publish-review-section"><strong>Recipe changes</strong><ul>{publishing.reviewChanges.map((change) => <li key={`${change.kind}-${change.label}`}><Check aria-hidden="true" size={14} /><span>{change.label}</span></li>)}</ul></div>
             <div className="publish-review-section"><strong>Repository files</strong><ul>{publishing.review.fileChanges.map((file) => <li key={`${file.operation}-${file.path}`}><span className={`file-operation file-operation-${file.operation}`}>{file.operation === 'add' ? '+' : file.operation === 'delete' ? '−' : '±'}</span><code>{file.path}</code></li>)}</ul></div>
+            <div className="publish-review-section"><strong>Routes and dependencies</strong><ul>{publishing.review.routeChanges.map((route) => <li key={route}><GitBranch size={14} /><span>{route}</span></li>)}{publishing.review.dependencyImpact.map((impact) => <li key={impact}><Check size={14} /><span>{impact}</span></li>)}<li><Check size={14} /><span>Image: {publishing.review.imageStatus}</span></li><li><Check size={14} /><span>Conflict: {publishing.review.conflictStatus}</span></li></ul></div>
             <div className="publish-review-section"><strong>Validation</strong><ul>{publishing.review.checks.map((check) => <li key={check}><Check aria-hidden="true" size={14} /><span>{check}</span></li>)}</ul></div>
             <p>This creates one Git commit. The public website changes only after the build succeeds.</p>
             <div className="draft-dialog-actions"><button className="secondary-command" type="button" disabled={publishing.busy} onClick={publishing.closeReview}>Cancel</button><button className={deleting ? 'danger-command' : 'primary-command'} type="button" disabled={publishing.busy} onClick={() => void publishing.confirm()}>{publishing.stage === 'publishing' ? <LoaderCircle className="draft-spinner" aria-hidden="true" size={16} /> : deleting ? <Trash2 aria-hidden="true" size={16} /> : <UploadCloud aria-hidden="true" size={16} />}{deleting ? 'Delete from production' : publishing.review.operation === 'update' ? 'Publish update' : 'Publish'}</button></div>
@@ -186,7 +192,7 @@ export function GitHubPublishingDialogs({ publishing }: { publishing: GitHubPubl
         <div className="draft-dialog-backdrop" role="presentation">
           <div className="draft-dialog publish-success-dialog" role="dialog" aria-modal="true" aria-labelledby="publish-success-title">
             <DialogClose onClick={publishing.closeResult} />
-            {publishing.deploymentStatus === 'building' ? <LoaderCircle className="draft-spinner" aria-hidden="true" size={24} /> : publishing.deploymentStatus === 'unknown' ? <CircleAlert aria-hidden="true" size={24} /> : <Check aria-hidden="true" size={24} />}
+            {publishing.deploymentStatus === 'building' ? <LoaderCircle className="draft-spinner" aria-hidden="true" size={24} /> : ['unknown', 'buildFailed'].includes(publishing.deploymentStatus) ? <CircleAlert aria-hidden="true" size={24} /> : <Check aria-hidden="true" size={24} />}
             <h2 id="publish-success-title">{deploymentCopy.title}</h2>
             <p>{deploymentCopy.message}</p>
             <dl className="publish-summary">

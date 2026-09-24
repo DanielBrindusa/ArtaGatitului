@@ -61,7 +61,7 @@ export function publicationMetadataFromResult(result) {
   if (typeof result.publishedAt !== 'string' || Number.isNaN(Date.parse(result.publishedAt))) {
     throw new Error('Publication timestamp is invalid.');
   }
-  if (!['create', 'update', 'delete'].includes(result.operation)) {
+  if (!['create', 'update', 'delete', 'restore'].includes(result.operation)) {
     throw new Error('Publication operation is invalid.');
   }
   if (result.operation !== 'delete') {
@@ -79,7 +79,7 @@ export function publicationMetadataFromResult(result) {
     recipeSlug: result.recipeSlug,
     imagePath: typeof result.imagePath === 'string' ? result.imagePath : null,
     publishedAt: result.publishedAt,
-    operation: result.operation === 'delete' ? 'delete' : result.operation === 'update' ? 'update' : 'create',
+    operation: result.operation === 'delete' ? 'delete' : result.operation === 'restore' ? 'restore' : result.operation === 'update' ? 'update' : 'create',
     recipePath: typeof result.recipePath === 'string' ? result.recipePath : null,
     recipeBlobSha: typeof result.recipeBlobSha === 'string' ? result.recipeBlobSha : null,
     recipeJson: typeof result.recipeJson === 'string' ? result.recipeJson : null,
@@ -93,7 +93,7 @@ export function pagePublicationMetadataFromResult(result) {
   if (typeof result.sourceDraftId !== 'string' || !result.sourceDraftId) throw new Error('Publication draft ID is invalid.');
   if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(result.recipeSlug ?? '')) throw new Error('Published page slug is invalid.');
   if (typeof result.publishedAt !== 'string' || Number.isNaN(Date.parse(result.publishedAt))) throw new Error('Publication timestamp is invalid.');
-  if (!['create', 'update', 'delete'].includes(result.operation)) throw new Error('Publication operation is invalid.');
+  if (!['create', 'update', 'delete', 'restore'].includes(result.operation)) throw new Error('Publication operation is invalid.');
   if (result.operation !== 'delete') {
     if (typeof result.recipePath !== 'string' || !/^src\/content\/pages\/(home|[a-z0-9]+(?:-[a-z0-9]+)*)\.json$/.test(result.recipePath)) throw new Error('Published page path is invalid.');
     if (!/^[0-9a-f]{40}$/.test(result.recipeBlobSha ?? '')) throw new Error('Published page blob is invalid.');
@@ -107,7 +107,7 @@ export function pagePublicationMetadataFromResult(result) {
     recipeSlug: result.recipeSlug,
     imagePath: null,
     publishedAt: result.publishedAt,
-    operation: result.operation === 'delete' ? 'delete' : result.operation === 'update' ? 'update' : 'create',
+    operation: result.operation === 'delete' ? 'delete' : result.operation === 'restore' ? 'restore' : result.operation === 'update' ? 'update' : 'create',
     recipePath: typeof result.recipePath === 'string' ? result.recipePath : null,
     recipeBlobSha: typeof result.recipeBlobSha === 'string' ? result.recipeBlobSha : null,
     recipeJson: typeof result.recipeJson === 'string' ? result.recipeJson : null,

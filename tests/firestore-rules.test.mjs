@@ -179,6 +179,32 @@ test('approved editors can access only the intended workspace paths', { skip: !e
   await assertFails(setDoc(doc(database, 'unrelated/document'), { value: true }));
 });
 
+test('publication audit accepts only owner-scoped non-secret metadata', { skip: !emulatorAvailable }, async () => {
+  const database = environment.authenticatedContext(approvedUid).firestore();
+  const commitSha = 'a'.repeat(40);
+  const reference = doc(database, 'users', approvedUid, 'publicationAudit', commitSha);
+  const audit = {
+    operation: 'restore',
+    contentType: 'recipe',
+    contentId: 'paste-carbonara',
+    draftId: 'draft-restore-carbonara',
+    editorUid: approvedUid,
+    previousCommitSha: 'b'.repeat(40),
+    newCommitSha: commitSha,
+    deploymentStatus: 'building',
+    timestamp: serverTimestamp(),
+  };
+  await assertSucceeds(setDoc(reference, audit));
+  await assertSucceeds(updateDoc(reference, { deploymentStatus: 'live', updatedAt: serverTimestamp() }));
+  await assertFails(setDoc(doc(database, 'users', approvedUid, 'publicationAudit', 'c'.repeat(40)), {
+    ...audit,
+    newCommitSha: 'c'.repeat(40),
+    accessToken: 'must-never-be-stored',
+  }));
+  const otherDatabase = environment.authenticatedContext('unapproved-uid').firestore();
+  await assertFails(getDoc(doc(otherDatabase, 'users', approvedUid, 'publicationAudit', commitSha)));
+});
+
 test('page drafts use the same revision-protected workspace collection', { skip: !emulatorAvailable }, async () => {
   const database = environment.authenticatedContext(approvedUid).firestore();
   const reference = doc(database, 'workspaces/arta-gatitului/drafts/draft-page-one');

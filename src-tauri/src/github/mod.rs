@@ -37,6 +37,7 @@ const MIN_IMAGE_DIMENSION: usize = 320;
 const MAX_IMAGE_DIMENSION: usize = 8_000;
 const TOKEN_REFRESH_MARGIN_SECONDS: i64 = 300;
 const MAX_PLAN_AGE_SECONDS: i64 = 15 * 60;
+const HISTORY_LIMIT: usize = 60;
 
 const RECIPE_SOURCE_KEYS: &[&str] = &[
     "id",
@@ -304,7 +305,7 @@ pub struct PublicationFileChange {
     path: String,
 }
 
-#[derive(Clone, Copy, Serialize, PartialEq)]
+#[derive(Clone, Copy, Debug, Serialize, PartialEq)]
 #[serde(rename_all = "lowercase")]
 enum ChangeOperation {
     Add,
@@ -324,6 +325,11 @@ pub struct PublishReview {
     operation: String,
     file_changes: Vec<PublicationFileChange>,
     checks: Vec<String>,
+    route_changes: Vec<String>,
+    dependency_impact: Vec<String>,
+    global_impact_count: usize,
+    image_status: String,
+    conflict_status: String,
 }
 
 #[derive(Clone, Serialize)]
@@ -341,6 +347,99 @@ pub struct PublishResult {
     recipe_path: Option<String>,
     recipe_blob_sha: Option<String>,
     recipe_json: Option<String>,
+}
+
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CmsHistoryEntry {
+    commit_sha: String,
+    parent_sha: Option<String>,
+    message: String,
+    authored_at: String,
+    author: String,
+    action: String,
+    content_type: String,
+}
+
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CmsHistoryFile {
+    path: String,
+    previous_path: Option<String>,
+    operation: String,
+    additions: usize,
+    deletions: usize,
+}
+
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CmsHistoryDetails {
+    entry: CmsHistoryEntry,
+    files: Vec<CmsHistoryFile>,
+}
+
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct HistoricalContent {
+    commit_sha: String,
+    path: String,
+    blob_sha: String,
+    content_type: String,
+    source_json: String,
+    current_source_json: Option<String>,
+    current_blob_sha: Option<String>,
+    asset_status: Vec<String>,
+}
+
+#[derive(Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PrepareRestoreInput {
+    commit_sha: String,
+    path: String,
+    source_draft_id: String,
+    source_json: String,
+    confirmation: String,
+}
+
+#[derive(Clone, Deserialize)]
+struct ApiCommitAuthor {
+    name: String,
+    date: String,
+}
+
+#[derive(Clone, Deserialize)]
+struct ApiCommitData {
+    message: String,
+    author: Option<ApiCommitAuthor>,
+}
+
+#[derive(Clone, Deserialize)]
+struct ApiCommitParent {
+    sha: String,
+}
+
+#[derive(Clone, Deserialize)]
+struct ApiCommitSummary {
+    sha: String,
+    commit: ApiCommitData,
+    parents: Vec<ApiCommitParent>,
+}
+
+#[derive(Clone, Deserialize)]
+struct ApiCommitFile {
+    filename: String,
+    previous_filename: Option<String>,
+    status: String,
+    additions: usize,
+    deletions: usize,
+}
+
+#[derive(Clone, Deserialize)]
+struct ApiCommitDetails {
+    sha: String,
+    commit: ApiCommitData,
+    parents: Vec<ApiCommitParent>,
+    files: Vec<ApiCommitFile>,
 }
 
 #[derive(Clone, Serialize)]
@@ -860,6 +959,17 @@ impl GithubState {
 
     async fn repository_snapshot(&self, token: &str) -> Result<RepositorySnapshot, String> {
         let commit_sha = self.current_ref(token).await?;
+        self.repository_snapshot_at(token, &commit_sha).await
+    }
+
+    async fn repository_snapshot_at(
+        &self,
+        token: &str,
+        commit_sha: &str,
+    ) -> Result<RepositorySnapshot, String> {
+        if !valid_sha(commit_sha) {
+            return Err("The historical commit identity is invalid.".to_string());
+        }
         let tree_sha = self.commit_tree(token, &commit_sha).await?;
         let tree: RecursiveTree = read_api_json(
             self.api_request(
@@ -884,7 +994,7 @@ impl GithubState {
             .map(|entry| (entry.path.clone(), entry))
             .collect();
         Ok(RepositorySnapshot {
-            commit_sha,
+            commit_sha: commit_sha.to_string(),
             tree_sha,
             entries,
         })
@@ -951,6 +1061,136 @@ impl GithubState {
 
 pub fn initialize_secure_storage() -> Result<(), String> {
     storage::initialize_native_store()
+}
+
+fn history_content_type(message: &str) -> String {
+    for content_type in ["recipe", "page", "homepage", "template", "navigation", "theme"] {
+        if message.to_lowercase().contains(content_type) {
+            return content_type.to_string();
+        }
+    }
+    "site".to_string()
+}
+
+fn history_action(message: &str) -> String {
+    let lower = message.to_lowercase();
+    for action in ["restore", "delete", "rename", "create", "update", "publish"] {
+        if lower.contains(action) {
+            return action.to_string();
+        }
+    }
+    "change".to_string()
+}
+
+fn history_entry_from_api(value: &ApiCommitSummary) -> CmsHistoryEntry {
+    CmsHistoryEntry {
+        commit_sha: value.sha.clone(),
+        parent_sha: value.parents.first().map(|parent| parent.sha.clone()),
+        message: value.commit.message.lines().next().unwrap_or("CMS change").to_string(),
+        authored_at: value.commit.author.as_ref().map(|author| author.date.clone()).unwrap_or_default(),
+        author: value.commit.author.as_ref().map(|author| author.name.clone()).unwrap_or_else(|| "CMS editor".to_string()),
+        action: history_action(&value.commit.message),
+        content_type: history_content_type(&value.commit.message),
+    }
+}
+
+fn restorable_source_path(path: &str) -> bool {
+    recipe_slug_from_path(path).is_some()
+        || page_slug_from_path(path).is_some()
+        || SITE_SOURCE_PATHS.contains(&path)
+}
+
+fn normalize_historical_source(path: &str, mut value: Value) -> Result<Value, String> {
+    if let Some(slug) = recipe_slug_from_path(path) {
+        let recipe = value.as_object_mut().ok_or_else(|| "The historical recipe is not a JSON object.".to_string())?;
+        if !recipe.contains_key("steps") {
+            if let Some(preparation) = recipe.get("preparation").cloned() {
+                recipe.insert("steps".to_string(), preparation);
+            }
+        }
+        if !recipe.contains_key("preparation") {
+            if let Some(steps) = recipe.get("steps").cloned() {
+                recipe.insert("preparation".to_string(), steps);
+            }
+        }
+        if !recipe.contains_key("layout") {
+            recipe.insert("layout".to_string(), json!({ "modelVersion": 1, "blocks": [] }));
+        }
+        if !recipe.contains_key("title") {
+            if let Some(name) = recipe.get("name").cloned() {
+                recipe.insert("title".to_string(), name);
+            }
+        }
+        if !recipe.contains_key("name") {
+            if let Some(title) = recipe.get("title").cloned() {
+                recipe.insert("name".to_string(), title);
+            }
+        }
+        recipe.insert("status".to_string(), Value::String("published".to_string()));
+        validate_repository_recipe(&value, slug)?;
+        return Ok(value);
+    }
+    if let Some(slug) = page_slug_from_path(path) {
+        if let Some(page) = value.as_object_mut() {
+            page.insert("status".to_string(), Value::String("published".to_string()));
+        }
+        validate_repository_page(&value, slug).map_err(|error| format!("This historical page cannot be migrated safely: {error}"))?;
+        return Ok(value);
+    }
+    if SITE_SOURCE_PATHS.contains(&path) {
+        validate_site_source_value(path, &value)?;
+        return Ok(value);
+    }
+    Err("Only recipe, page, and approved site configuration sources can be restored.".to_string())
+}
+
+fn collect_historical_assets(value: &Value, assets: &mut HashSet<String>) {
+    match value {
+        Value::String(path) if allowed_recipe_image_path(path) || allowed_page_image_path(path) => {
+            assets.insert(path.clone());
+        }
+        Value::Array(items) => items.iter().for_each(|item| collect_historical_assets(item, assets)),
+        Value::Object(map) => map.values().for_each(|item| collect_historical_assets(item, assets)),
+        _ => {}
+    }
+}
+
+fn image_mime_for_path(path: &str) -> Option<&'static str> {
+    if path.ends_with(".png") { Some("image/png") }
+    else if path.ends_with(".jpg") || path.ends_with(".jpeg") { Some("image/jpeg") }
+    else if path.ends_with(".webp") { Some("image/webp") }
+    else { None }
+}
+
+fn validate_restore_identity(historical: &Value, current: &Value) -> Result<(), String> {
+    let old_id = historical.get("id").and_then(Value::as_str);
+    let current_id = current.get("id").and_then(Value::as_str);
+    if old_id.is_some() && current_id.is_some() && old_id != current_id {
+        return Err("This slug now belongs to a different content item. Choose a new slug and publish manually.".to_string());
+    }
+    Ok(())
+}
+
+fn historical_asset_statuses(
+    value: &Value,
+    current: &RepositorySnapshot,
+    historical: &RepositorySnapshot,
+) -> Result<Vec<String>, String> {
+    let mut assets = HashSet::new();
+    collect_historical_assets(value, &mut assets);
+    let mut statuses = Vec::new();
+    for asset in assets {
+        let status = if current.entries.contains_key(&asset) {
+            "available"
+        } else if historical.entries.contains_key(&asset) {
+            "will be restored"
+        } else {
+            return Err("A referenced historical image is missing from both the current tree and repository history.".to_string());
+        };
+        statuses.push(format!("{asset}: {status}"));
+    }
+    statuses.sort();
+    Ok(statuses)
 }
 
 #[tauri::command]
@@ -1167,6 +1407,213 @@ pub fn github_disconnect(caller: Webview, state: State<'_, GithubState>) -> Resu
         .lock()
         .map_err(|_| "The publication state is unavailable.".to_string())? = None;
     state.delete_token_bundle()
+}
+
+async fn require_cms_history_commit(
+    state: &GithubState,
+    access_token: &str,
+    commit_sha: &str,
+) -> Result<(), String> {
+    let details: ApiCommitDetails = read_api_json(
+        state
+            .api_request(
+                Method::GET,
+                &format!(
+                    "/repos/{REPOSITORY_OWNER}/{REPOSITORY_NAME}/commits/{commit_sha}"
+                ),
+                access_token,
+            )
+            .send()
+            .await
+            .map_err(|_| "The selected history entry could not be fetched.".to_string())?,
+        "The selected history entry could not be read.",
+    )
+    .await?;
+    if !details.commit.message.starts_with("cms:") {
+        return Err("Only CMS-originated publication commits can be restored.".to_string());
+    }
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn github_list_cms_history(
+    caller: Webview,
+    state: State<'_, GithubState>,
+) -> Result<Vec<CmsHistoryEntry>, String> {
+    require_local_shell(&caller)?;
+    let bundle = state.ready_access_token().await?;
+    state.verify_repository(&bundle.access_token).await?;
+    let commits: Vec<ApiCommitSummary> = read_api_json(
+        state.api_request(
+            Method::GET,
+            &format!("/repos/{REPOSITORY_OWNER}/{REPOSITORY_NAME}/commits?sha={PUBLISH_BRANCH}&per_page={HISTORY_LIMIT}"),
+            &bundle.access_token,
+        ).send().await.map_err(|_| "GitHub publication history could not be fetched.".to_string())?,
+        "GitHub publication history could not be read.",
+    ).await?;
+    Ok(commits.iter()
+        .filter(|commit| commit.commit.message.starts_with("cms:"))
+        .map(history_entry_from_api)
+        .collect())
+}
+
+#[tauri::command]
+pub async fn github_get_cms_history_details(
+    caller: Webview,
+    state: State<'_, GithubState>,
+    commit_sha: String,
+) -> Result<CmsHistoryDetails, String> {
+    require_local_shell(&caller)?;
+    if !valid_sha(&commit_sha) { return Err("The history commit identity is invalid.".to_string()); }
+    let bundle = state.ready_access_token().await?;
+    state.verify_repository(&bundle.access_token).await?;
+    let details: ApiCommitDetails = read_api_json(
+        state.api_request(
+            Method::GET,
+            &format!("/repos/{REPOSITORY_OWNER}/{REPOSITORY_NAME}/commits/{commit_sha}"),
+            &bundle.access_token,
+        ).send().await.map_err(|_| "The selected history entry could not be fetched.".to_string())?,
+        "The selected history entry could not be read.",
+    ).await?;
+    if !details.commit.message.starts_with("cms:") {
+        return Err("Only CMS-originated publication commits are shown here.".to_string());
+    }
+    let summary = ApiCommitSummary {
+        sha: details.sha.clone(),
+        commit: details.commit.clone(),
+        parents: details.parents.clone(),
+    };
+    let files = details.files.into_iter()
+        .filter(|file| allowed_publication_path(&file.filename))
+        .map(|file| CmsHistoryFile {
+            path: file.filename,
+            previous_path: file.previous_filename,
+            operation: file.status,
+            additions: file.additions,
+            deletions: file.deletions,
+        }).collect();
+    Ok(CmsHistoryDetails { entry: history_entry_from_api(&summary), files })
+}
+
+#[tauri::command]
+pub async fn github_load_history_content(
+    caller: Webview,
+    state: State<'_, GithubState>,
+    commit_sha: String,
+    path: String,
+) -> Result<HistoricalContent, String> {
+    require_local_shell(&caller)?;
+    if !valid_sha(&commit_sha) || !restorable_source_path(&path) {
+        return Err("The requested historical content is outside the approved CMS sources.".to_string());
+    }
+    let bundle = state.ready_access_token().await?;
+    state.verify_repository(&bundle.access_token).await?;
+    require_cms_history_commit(&state, &bundle.access_token, &commit_sha).await?;
+    let historical = state.repository_snapshot_at(&bundle.access_token, &commit_sha).await?;
+    let entry = snapshot_blob(&historical, &path)
+        .ok_or_else(|| "This content did not exist at the selected commit.".to_string())?;
+    let value = normalize_historical_source(&path, repository_json_value(&state, &bundle.access_token, entry).await?)?;
+    let mut source_json = serde_json::to_string_pretty(&value).map_err(|_| "Historical content could not be normalized.".to_string())?;
+    source_json.push('\n');
+    let current = state.repository_snapshot(&bundle.access_token).await?;
+    let (current_source_json, current_blob_sha) = if let Some(current_entry) = snapshot_blob(&current, &path) {
+        let current_value = repository_json_value(&state, &bundle.access_token, current_entry).await?;
+        (Some(format!("{}\n", serde_json::to_string_pretty(&current_value).map_err(|_| "Current content could not be normalized.".to_string())?)), Some(current_entry.sha.clone()))
+    } else { (None, None) };
+    let asset_status = historical_asset_statuses(&value, &current, &historical)?;
+    Ok(HistoricalContent {
+        commit_sha,
+        path: path.clone(),
+        blob_sha: entry.sha.clone(),
+        content_type: if recipe_slug_from_path(&path).is_some() { "recipe" } else if page_slug_from_path(&path).is_some() { "page" } else { "site" }.to_string(),
+        source_json,
+        current_source_json,
+        current_blob_sha,
+        asset_status,
+    })
+}
+
+#[tauri::command]
+pub async fn github_prepare_content_restore(
+    caller: Webview,
+    state: State<'_, GithubState>,
+    input: PrepareRestoreInput,
+) -> Result<PublishReview, String> {
+    require_local_shell(&caller)?;
+    if state.publishing.load(Ordering::Acquire) { return Err("A publication is already in progress.".to_string()); }
+    if !valid_sha(&input.commit_sha) || !restorable_source_path(&input.path) || !valid_draft_id(&input.source_draft_id) {
+        return Err("The restoration request is invalid.".to_string());
+    }
+    if input.confirmation != "RESTORE" {
+        return Err("Type RESTORE to confirm this historical restoration.".to_string());
+    }
+    let bundle = state.ready_access_token().await?;
+    let repository = state.verify_repository(&bundle.access_token).await?;
+    require_cms_history_commit(&state, &bundle.access_token, &input.commit_sha).await?;
+    let historical = state.repository_snapshot_at(&bundle.access_token, &input.commit_sha).await?;
+    let historical_entry = snapshot_blob(&historical, &input.path)
+        .ok_or_else(|| "This content did not exist at the selected commit.".to_string())?;
+    let historical_value = normalize_historical_source(
+        &input.path,
+        repository_json_value(&state, &bundle.access_token, historical_entry).await?,
+    )?;
+    let supplied_value: Value = serde_json::from_str(&input.source_json)
+        .map_err(|_| "The restoration draft is not valid JSON.".to_string())?;
+    let restored = normalize_historical_source(&input.path, supplied_value)?;
+    if restored != historical_value {
+        return Err("The restoration draft no longer matches the reviewed historical source.".to_string());
+    }
+    let latest = state.repository_snapshot(&bundle.access_token).await?;
+    let current_entry = snapshot_blob(&latest, &input.path);
+    if let Some(current) = current_entry {
+        let current_value = repository_json_value(&state, &bundle.access_token, current).await?;
+        validate_restore_identity(&historical_value, &current_value)?;
+    }
+    let mut normalized_json = serde_json::to_string_pretty(&restored)
+        .map_err(|_| "The restored source could not be serialized.".to_string())?;
+    normalized_json.push('\n');
+    let mut changes = vec![PublicationChange {
+        operation: if current_entry.is_some() { ChangeOperation::Modify } else { ChangeOperation::Add },
+        path: input.path.clone(),
+        file: Some(PublicationFile { path: input.path.clone(), bytes: normalized_json.as_bytes().to_vec(), encoding: BlobEncoding::Utf8 }),
+    }];
+    let mut expectations = vec![PathExpectation { path: input.path.clone(), sha: current_entry.map(|entry| entry.sha.clone()) }];
+    let mut assets = HashSet::new();
+    collect_historical_assets(&restored, &mut assets);
+    for asset in assets {
+        if latest.entries.contains_key(&asset) { continue; }
+        let historical_asset = snapshot_blob(&historical, &asset)
+            .ok_or_else(|| format!("Historical asset {asset} is unavailable."))?;
+        let mime = image_mime_for_path(&asset).ok_or_else(|| format!("Historical asset {asset} has an unsupported format."))?;
+        let bytes = state.read_blob(&bundle.access_token, &historical_asset.sha, MAX_IMAGE_BYTES).await?;
+        validate_image(&bytes, mime)?;
+        changes.push(PublicationChange {
+            operation: ChangeOperation::Add,
+            path: asset.clone(),
+            file: Some(PublicationFile { path: asset.clone(), bytes, encoding: BlobEncoding::Base64 }),
+        });
+        expectations.push(PathExpectation { path: asset, sha: None });
+    }
+    let slug = recipe_slug_from_path(&input.path).or_else(|| page_slug_from_path(&input.path)).unwrap_or("site-management");
+    let title = restored.get("title").and_then(Value::as_str).unwrap_or(slug);
+    let plan = PendingPublishPlan {
+        id: Uuid::new_v4().to_string(),
+        source_draft_id: input.source_draft_id,
+        recipe_title: title.to_string(),
+        recipe_slug: slug.to_string(),
+        base_commit_sha: latest.commit_sha.clone(),
+        operation: "restore".to_string(),
+        changes,
+        expectations,
+        image_path: restored.get("image").and_then(Value::as_str).map(ToOwned::to_owned),
+        recipe_path: Some(input.path.clone()),
+        recipe_json: Some(normalized_json),
+        commit_message: format!("cms: restore {} {} from {}", if recipe_slug_from_path(&input.path).is_some() { "recipe" } else if page_slug_from_path(&input.path).is_some() { "page" } else { "site" }, slug, &input.commit_sha[..12]),
+        created_at: now_seconds(),
+    };
+    let review = review_from_plan(&plan, &repository.branch);
+    *state.pending_publish.lock().map_err(|_| "The restoration review could not be stored.".to_string())? = Some(plan);
+    Ok(review)
 }
 
 #[tauri::command]
@@ -3187,6 +3634,16 @@ fn review_from_plan(plan: &PendingPublishPlan, branch: &str) -> PublishReview {
     } else if plan.image_path.is_some() {
         checks.push("Recipe image reviewed".to_string());
     }
+    let route_changes = plan.changes.iter().filter(|change| {
+        recipe_slug_from_path(&change.path).is_some() || page_slug_from_path(&change.path).is_some()
+    }).map(|change| format!("{:?}: {}", change.operation, change.path)).collect();
+    let dependency_impact = if plan.operation == "delete" {
+        vec!["Structured dependencies were checked before this review.".to_string()]
+    } else if is_site {
+        vec!["Global configuration is rebuilt with all generated routes.".to_string()]
+    } else {
+        vec!["Generated indexes and routes will be rebuilt.".to_string()]
+    };
     PublishReview {
         plan_id: plan.id.clone(),
         recipe_title: plan.recipe_title.clone(),
@@ -3204,6 +3661,11 @@ fn review_from_plan(plan: &PendingPublishPlan, branch: &str) -> PublishReview {
             })
             .collect(),
         checks,
+        route_changes,
+        dependency_impact,
+        global_impact_count: if is_site { plan.changes.len() } else { 1 },
+        image_status: if plan.image_path.is_some() { "Validated or retained" } else { "No local image required" }.to_string(),
+        conflict_status: "Base commit and source blobs verified".to_string(),
     }
 }
 
@@ -3737,6 +4199,90 @@ mod tests {
             review.file_changes[2].operation,
             ChangeOperation::Modify
         ));
+    }
+
+    #[test]
+    fn historical_recipe_migration_adds_current_steps_and_layout() {
+        let legacy = json!({
+            "id": "paste-carbonara",
+            "slug": "paste-carbonara",
+            "name": "Paste Carbonara",
+            "category": "Paste",
+            "ingredients": ["paste", "ou"],
+            "preparation": ["Fierbe pastele"]
+        });
+        let migrated = normalize_historical_source(
+            "src/content/recipes/paste-carbonara.json",
+            legacy,
+        )
+        .unwrap();
+        assert_eq!(migrated["steps"], json!(["Fierbe pastele"]));
+        assert_eq!(migrated["layout"]["modelVersion"], 1);
+        assert_eq!(migrated["status"], "published");
+    }
+
+    #[test]
+    fn restore_identity_blocks_slug_reuse_but_allows_deleted_content() {
+        let historical = json!({ "id": "original-carbonara" });
+        let same = json!({ "id": "original-carbonara" });
+        let replacement = json!({ "id": "different-recipe" });
+        assert!(validate_restore_identity(&historical, &same).is_ok());
+        assert!(validate_restore_identity(&historical, &replacement).is_err());
+        assert!(restorable_source_path("src/content/recipes/paste-carbonara.json"));
+        assert!(!restorable_source_path(".github/workflows/site.yml"));
+    }
+
+    #[test]
+    fn historical_assets_must_exist_now_or_at_the_selected_commit() {
+        let asset = "assets/images/recipes/paste-carbonara.webp";
+        let value = json!({ "image": asset });
+        let current = RepositorySnapshot {
+            commit_sha: "a".repeat(40),
+            tree_sha: "b".repeat(40),
+            entries: HashMap::new(),
+        };
+        let mut historical = RepositorySnapshot {
+            commit_sha: "c".repeat(40),
+            tree_sha: "d".repeat(40),
+            entries: HashMap::new(),
+        };
+        assert!(historical_asset_statuses(&value, &current, &historical).is_err());
+        historical.entries.insert(asset.to_string(), GitTreeEntry {
+            path: asset.to_string(),
+            mode: "100644".to_string(),
+            kind: "blob".to_string(),
+            sha: "e".repeat(40),
+        });
+        assert_eq!(
+            historical_asset_statuses(&value, &current, &historical).unwrap(),
+            vec![format!("{asset}: will be restored")]
+        );
+    }
+
+    #[test]
+    fn restore_plan_is_a_new_content_commit_not_a_ref_reset() {
+        let plan = PendingPublishPlan {
+            id: "restore-plan".to_string(),
+            source_draft_id: "draft-restore-test".to_string(),
+            recipe_title: "Paste Carbonara".to_string(),
+            recipe_slug: "paste-carbonara".to_string(),
+            base_commit_sha: "a".repeat(40),
+            operation: "restore".to_string(),
+            changes: vec![PublicationChange {
+                operation: ChangeOperation::Modify,
+                path: recipe_path("paste-carbonara"),
+                file: Some(json_file(recipe_path("paste-carbonara"), &json!({})).unwrap()),
+            }],
+            expectations: vec![],
+            image_path: None,
+            recipe_path: Some(recipe_path("paste-carbonara")),
+            recipe_json: Some("{}\n".to_string()),
+            commit_message: "cms: restore recipe paste-carbonara from aaaaaaaaaaaa".to_string(),
+            created_at: now_seconds(),
+        };
+        assert_eq!(plan.operation, "restore");
+        assert!(plan.commit_message.starts_with("cms: restore"));
+        assert_eq!(plan.changes.len(), 1);
     }
 
     #[test]

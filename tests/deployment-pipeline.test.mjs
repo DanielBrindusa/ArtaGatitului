@@ -152,7 +152,7 @@ test('production URLs retain the GitHub Pages project base path', () => {
   assert.throws(() => publishedRecipeUrl('../unsafe'), /slug/);
 });
 
-test('deployment polling reports building, deployed, and unknown without repository permissions', async () => {
+test('deployment polling reports building, deployed, and failed without workflow-write permissions', async () => {
   const statuses = [];
   const commitSha = 'a'.repeat(40);
   const responses = [
@@ -170,7 +170,7 @@ test('deployment polling reports building, deployed, and unknown without reposit
   });
   assert.equal(deployed, 'deployed');
   assert.deepEqual(statuses, ['building', 'deployed']);
-  assert.equal(deploymentStatusForHttp(403), 'unknown');
+  assert.equal(deploymentStatusForHttp(403), 'buildFailed');
   assert.equal(
     await deploymentStatusForResponse({ status: 200, text: async () => '<html>older build</html>' }, commitSha),
     'building',

@@ -2,6 +2,7 @@ import { migrateDraft } from './draftModel.mjs';
 
 export const LOCAL_DRAFT_BACKUP_VERSION = 1;
 const KEY_PREFIX = 'arta-gatitului:draft-backup:v1';
+export const LOCAL_DRAFT_CHECKPOINT_LIMIT = 5;
 
 function now() {
   return new Date().toISOString();
@@ -51,6 +52,15 @@ export class LocalDraftBackup {
               ? record.baseRevision
               : draft.revision,
             backedUpAt: typeof record.backedUpAt === 'string' ? record.backedUpAt : now(),
+            checkpoints: Array.isArray(record.checkpoints)
+              ? record.checkpoints.slice(-LOCAL_DRAFT_CHECKPOINT_LIMIT).flatMap((checkpoint) => {
+                try {
+                  return [{ draft: migrateDraft(checkpoint.draft), backedUpAt: String(checkpoint.backedUpAt) }];
+                } catch {
+                  return [];
+                }
+              })
+              : [],
           };
         } catch {
           // Keep other recoverable drafts when one record is malformed or from a future schema.
@@ -90,14 +100,23 @@ export class LocalDraftBackup {
     const draft = migrateDraft(draftValue);
     const state = this.readState();
     const existing = state.drafts[draft.id];
+    const checkpoints = [...(existing?.checkpoints ?? [])];
+    if (options.checkpoint === true && existing && existing.draft.revision !== draft.revision) {
+      checkpoints.push({ draft: existing.draft, backedUpAt: existing.backedUpAt });
+    }
     state.drafts[draft.id] = {
       draft,
       dirty: options.dirty ?? existing?.dirty ?? false,
       baseRevision: options.baseRevision ?? existing?.baseRevision ?? draft.revision,
       backedUpAt: options.backedUpAt ?? now(),
+      checkpoints: checkpoints.slice(-LOCAL_DRAFT_CHECKPOINT_LIMIT),
     };
     this.writeState(state);
     return state.drafts[draft.id];
+  }
+
+  checkpoints(id) {
+    return this.load(id)?.checkpoints ?? [];
   }
 
   remove(id) {

@@ -5,6 +5,7 @@ import {
   DraftConflictError,
   type DraftService,
   type EditorPreferences,
+  type PublicationAuditInput,
 } from './DraftService';
 import {
   createPageDraft,
@@ -21,6 +22,7 @@ import {
   type PageDraft,
   type RecipeDraft,
   type SiteBundle,
+  type SiteDraft,
   type SiteSourceBaseline,
 } from './draftModel.mjs';
 import {
@@ -28,7 +30,16 @@ import {
   type DraftBackupRecord,
 } from './localDraftBackup.mjs';
 import { shouldConflictOnMissingRemote } from './draftSyncPolicy.mjs';
-import type { PublishedPage, PublishedRecipe } from '../publishing/githubClient';
+import { recoveryFieldDifferences, shouldOfferLocalRecovery } from './localRecovery.mjs';
+import {
+  applyEditorMutation,
+  createEditorHistory,
+  redoEditorMutation,
+  synchronizeEditorPresent,
+  undoEditorMutation,
+  type EditorHistory,
+} from '../history/editorHistory.mjs';
+import type { HistoricalContent, PublishedPage, PublishedRecipe } from '../publishing/githubClient';
 import {
   attachPublishedSourceToDraft,
   createLinkedRecipeDraft,
@@ -59,6 +70,12 @@ export interface DraftListItem extends DraftBackupRecord {
 export interface DraftConflict {
   localDraft: AnyDraft;
   remoteDraft: AnyDraft | null;
+}
+
+export interface DraftLocalRecovery {
+  localRecord: DraftBackupRecord;
+  remoteDraft: AnyDraft;
+  differences: ReturnType<typeof recoveryFieldDifferences>;
 }
 
 export interface PublishedDraftChoice {
@@ -102,6 +119,7 @@ export function useDraftWorkspace(uid: string) {
   const [active, setActiveState] = useState<ActiveDraft | null>(null);
   const [saveState, setSaveState] = useState<DraftSaveState>('loading');
   const [conflict, setConflict] = useState<DraftConflict | null>(null);
+  const [localRecovery, setLocalRecovery] = useState<DraftLocalRecovery | null>(null);
   const [conflictIds, setConflictIds] = useState<Set<string>>(() => new Set());
   const [previewBreakpoint, setPreviewBreakpointState] = useState<EditorPreferences['previewBreakpoint']>('desktop');
   const [deleteCandidate, setDeleteCandidate] = useState<AnyDraft | null>(null);
@@ -118,6 +136,9 @@ export function useDraftWorkspace(uid: string) {
   const scheduleSaveRef = useRef<() => void>(() => undefined);
   const preferredDraftIdRef = useRef<string | null>(backup.getLastOpenedDraftId());
   const initialPreferencesAppliedRef = useRef(false);
+  const historiesRef = useRef(new Map<string, EditorHistory<AnyDraft>>());
+  const recoveryPromptedRef = useRef(new Set<string>());
+  const [, setHistoryGeneration] = useState(0);
 
   const setActive = useCallback((value: ActiveDraft | null) => {
     activeRef.current = value;
@@ -137,12 +158,13 @@ export function useDraftWorkspace(uid: string) {
     setRecords(backup.list());
   }, [backup]);
 
-  const storeRecord = useCallback((record: ActiveDraft) => {
+  const storeRecord = useCallback((record: ActiveDraft, checkpoint = false) => {
     try {
       const saved = backup.save(record.draft, {
         dirty: record.dirty,
         baseRevision: record.baseRevision,
         backedUpAt: record.backedUpAt,
+        checkpoint,
       });
       refreshRecords();
       return saved;
@@ -152,6 +174,25 @@ export function useDraftWorkspace(uid: string) {
       return record;
     }
   }, [backup, refreshRecords]);
+
+  const resetHistory = useCallback((draft: AnyDraft | null) => {
+    if (draft) historiesRef.current.set(draft.id, createEditorHistory(draft));
+    setHistoryGeneration((value) => value + 1);
+  }, []);
+
+  const applyLocalDraft = useCallback((draft: AnyDraft, baseRevision: number) => {
+    editGenerationRef.current += 1;
+    const next = {
+      draft,
+      dirty: true,
+      baseRevision,
+      backedUpAt: new Date().toISOString(),
+    };
+    setActive(next);
+    setSaveState(online() ? 'local' : 'offline');
+    storeRecord(next);
+    scheduleSaveRef.current();
+  }, [setActive, storeRecord]);
 
   const flush = useCallback(async (): Promise<FlushResult> => {
     if (conflictRef.current) return 'conflict';
@@ -195,7 +236,7 @@ export function useDraftWorkspace(uid: string) {
             backedUpAt: new Date().toISOString(),
           };
           setActive(next);
-          storeRecord(next);
+          storeRecord(next, true);
           setSaveState(changedDuringSave ? 'local' : 'saved');
           if (changedDuringSave) scheduleSaveRef.current();
         }
@@ -264,6 +305,16 @@ export function useDraftWorkspace(uid: string) {
           if (local?.dirty && draft.revision > local.baseRevision && draft.revision !== expectedOwnRevision) {
             setConflictIds((ids) => new Set(ids).add(draft.id));
             return;
+          }
+          if (local && shouldOfferLocalRecovery(local, draft)
+            && !recoveryPromptedRef.current.has(draft.id)
+            && (activeRef.current?.draft.id === draft.id || preferredDraftIdRef.current === draft.id)) {
+            recoveryPromptedRef.current.add(draft.id);
+            setLocalRecovery({
+              localRecord: local,
+              remoteDraft: draft,
+              differences: recoveryFieldDifferences(local.draft, draft),
+            });
           }
           if (local?.dirty) return;
           if (!local || draft.revision >= local.draft.revision) {
@@ -342,7 +393,18 @@ export function useDraftWorkspace(uid: string) {
           }
           return;
         }
-        if (snapshot.draft.revision <= current.baseRevision) return;
+        if (snapshot.draft.revision <= current.baseRevision) {
+          if (shouldOfferLocalRecovery(current, snapshot.draft)
+            && !recoveryPromptedRef.current.has(activeId)) {
+            recoveryPromptedRef.current.add(activeId);
+            setLocalRecovery({
+              localRecord: current,
+              remoteDraft: snapshot.draft,
+              differences: recoveryFieldDifferences(current.draft, snapshot.draft),
+            });
+          }
+          return;
+        }
         const expectedOwnRevision = savingRef.current?.id === activeId
           ? savingRef.current.targetRevision
           : null;
@@ -361,13 +423,14 @@ export function useDraftWorkspace(uid: string) {
         };
         setActive(next);
         storeRecord(next);
+        resetHistory(snapshot.draft);
         setSaveState('saved');
       },
       () => {
         if (activeRef.current?.dirty) setSaveState(online() ? 'error' : 'offline');
       },
     );
-  }, [activeId, backup, refreshRecords, service, setActive, setWorkspaceConflict, storeRecord]);
+  }, [activeId, backup, refreshRecords, resetHistory, service, setActive, setWorkspaceConflict, storeRecord]);
 
   useEffect(() => {
     const handleOnline = () => void flush();
@@ -401,18 +464,55 @@ export function useDraftWorkspace(uid: string) {
       : isPageDraft(updatedDraft)
         ? synchronizeLinkedPageDraftStatus(updatedDraft)
         : updatedDraft;
-    editGenerationRef.current += 1;
-    const next = {
-      draft: nextDraft,
-      dirty: true,
-      baseRevision: current.baseRevision,
-      backedUpAt: new Date().toISOString(),
+    let history = historiesRef.current.get(current.draft.id)
+      ?? createEditorHistory(current.draft);
+    history = synchronizeEditorPresent(history, current.draft);
+    history = applyEditorMutation(history, nextDraft);
+    historiesRef.current.set(current.draft.id, history);
+    setHistoryGeneration((value) => value + 1);
+    applyLocalDraft(nextDraft, current.baseRevision);
+  }, [applyLocalDraft]);
+
+  const restoreHistoryValue = useCallback((direction: 'undo' | 'redo') => {
+    const current = activeRef.current;
+    if (!current) return;
+    let history = historiesRef.current.get(current.draft.id) ?? createEditorHistory(current.draft);
+    history = synchronizeEditorPresent(history, current.draft);
+    const result = direction === 'undo' ? undoEditorMutation(history) : redoEditorMutation(history);
+    if (!result.value) return;
+    const restored = {
+      ...result.value,
+      revision: current.draft.revision,
+      createdAt: current.draft.createdAt,
+      updatedAt: current.draft.updatedAt,
+      updatedByUid: current.draft.updatedByUid,
+    } as AnyDraft;
+    result.history.present = restored;
+    historiesRef.current.set(current.draft.id, result.history);
+    setHistoryGeneration((value) => value + 1);
+    applyLocalDraft(restored, current.baseRevision);
+  }, [applyLocalDraft]);
+
+  const undo = useCallback(() => restoreHistoryValue('undo'), [restoreHistoryValue]);
+  const redo = useCallback(() => restoreHistoryValue('redo'), [restoreHistoryValue]);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (!(event.ctrlKey || event.metaKey) || event.altKey) return;
+      const target = event.target as HTMLElement | null;
+      if (target?.closest('input, textarea, [contenteditable="true"]')) return;
+      const key = event.key.toLowerCase();
+      if (key === 'z' && !event.shiftKey) {
+        event.preventDefault();
+        undo();
+      } else if (key === 'y' || (key === 'z' && event.shiftKey)) {
+        event.preventDefault();
+        redo();
+      }
     };
-    setActive(next);
-    setSaveState(online() ? 'local' : 'offline');
-    storeRecord(next);
-    scheduleSave();
-  }, [scheduleSave, setActive, storeRecord]);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [redo, undo]);
 
   const selectDraft = useCallback(async (id: string) => {
     if (activeRef.current?.draft.id === id) return;
@@ -431,6 +531,7 @@ export function useDraftWorkspace(uid: string) {
     }
     if (!record) return;
     setActive(record);
+    if (!historiesRef.current.has(record.draft.id)) resetHistory(record.draft);
     backup.setLastOpenedDraftId(id);
     preferredDraftIdRef.current = id;
     setSaveState(record.dirty ? (online() ? 'local' : 'offline') : 'saved');
@@ -439,7 +540,7 @@ export function useDraftWorkspace(uid: string) {
       lastOpenedDraftId: id,
       previewBreakpoint,
     }).catch(() => undefined);
-  }, [backup, flush, previewBreakpoint, service, setActive, uid]);
+  }, [backup, flush, previewBreakpoint, resetHistory, service, setActive, uid]);
 
   const newDraft = useCallback(async () => {
     if (await flush() === 'conflict') return;
@@ -486,6 +587,89 @@ export function useDraftWorkspace(uid: string) {
     }).catch(() => undefined);
     scheduleSave();
   }, [backup, flush, previewBreakpoint, scheduleSave, service, setActive, storeRecord, uid]);
+
+  const createRestorationDraft = useCallback(async (historical: HistoricalContent) => {
+    if (await flush() === 'conflict') throw new Error('Resolve the active draft conflict before restoring history.');
+    const source = JSON.parse(historical.sourceJson) as Record<string, unknown>;
+    if (historical.contentType === 'site') {
+      const current = activeRef.current;
+      if (!current || !isSiteDraft(current.draft)) {
+        throw new Error('Open Site management before restoring a global site source.');
+      }
+      const siteKeys: Record<string, keyof SiteBundle> = {
+        'src/content/site/templates.json': 'templates',
+        'src/content/site/global-blocks.json': 'globalBlocks',
+        'src/content/site/navigation.json': 'navigation',
+        'src/content/site/settings.json': 'settings',
+        'src/content/site/theme.json': 'theme',
+        'src/content/categories.json': 'categories',
+        'src/data/tag-groups.json': 'tagGroups',
+      };
+      const siteKey = siteKeys[historical.path];
+      if (!siteKey) throw new Error('This site source is not supported by the restoration editor.');
+      const nextDraft: SiteDraft = {
+        ...current.draft,
+        status: 'draft',
+        data: {
+          ...current.draft.data,
+          site: { ...current.draft.data.site, [siteKey]: source },
+        },
+      };
+      resetHistory(nextDraft);
+      applyLocalDraft(nextDraft, current.baseRevision);
+      return nextDraft;
+    }
+    const slug = historical.path.replace(/^src\/content\/(?:recipes|pages)\//, '').replace(/\.json$/, '');
+    let draft: RecipeDraft | PageDraft;
+    if (historical.contentType === 'recipe') {
+      const linked = createLinkedRecipeDraft({
+        path: historical.path,
+        slug,
+        title: String(source.title ?? source.name ?? slug),
+        category: String(source.category ?? ''),
+        imagePath: typeof source.image === 'string' ? source.image : null,
+        commitSha: historical.commitSha,
+        blobSha: historical.blobSha,
+        sourceJson: historical.sourceJson,
+      }, uid);
+      const copy = duplicateRecipeDraft(linked, uid);
+      draft = {
+        ...copy,
+        title: linked.title,
+        slug: linked.slug,
+        data: { ...linked.data, recipe: { ...linked.data.recipe, status: 'draft' } },
+        layout: linked.layout,
+      };
+    } else {
+      const linked = createLinkedPageDraft({
+        path: historical.path,
+        slug,
+        id: String(source.id ?? slug),
+        title: String(source.title ?? slug),
+        pageType: source.pageType === 'home' ? 'home' : source.pageType === 'landing' ? 'landing' : 'standard',
+        commitSha: historical.commitSha,
+        blobSha: historical.blobSha,
+        sourceJson: historical.sourceJson,
+      }, uid);
+      const copy = duplicatePageDraft(linked, uid);
+      draft = {
+        ...copy,
+        title: linked.title,
+        slug: linked.slug,
+        data: { ...linked.data, page: { ...linked.data.page, status: 'draft' } },
+        layout: linked.layout,
+      };
+    }
+    const record = { draft, dirty: true, baseRevision: 0, backedUpAt: new Date().toISOString() };
+    setActive(record);
+    resetHistory(draft);
+    storeRecord(record);
+    backup.setLastOpenedDraftId(draft.id);
+    preferredDraftIdRef.current = draft.id;
+    setSaveState(online() ? 'local' : 'offline');
+    scheduleSave();
+    return draft;
+  }, [applyLocalDraft, backup, flush, resetHistory, scheduleSave, setActive, storeRecord, uid]);
 
   const openSiteDraft = useCallback(async (site: SiteBundle, sources: SiteSourceBaseline[] = []) => {
     if (await flush() === 'conflict') return;
@@ -593,6 +777,7 @@ export function useDraftWorkspace(uid: string) {
         baseRevision: currentConflict.remoteDraft.revision,
       });
       setActive(record);
+      resetHistory(record.draft);
       backup.setLastOpenedDraftId(currentConflict.remoteDraft.id);
       preferredDraftIdRef.current = currentConflict.remoteDraft.id;
     } else {
@@ -613,7 +798,7 @@ export function useDraftWorkspace(uid: string) {
       lastOpenedDraftId: currentConflict.remoteDraft?.id ?? null,
       previewBreakpoint,
     }).catch(() => undefined);
-  }, [backup, previewBreakpoint, refreshRecords, service, setActive, setWorkspaceConflict, uid]);
+  }, [backup, previewBreakpoint, refreshRecords, resetHistory, service, setActive, setWorkspaceConflict, uid]);
 
   const saveConflictAsCopy = useCallback(() => {
     const currentConflict = conflictRef.current;
@@ -639,6 +824,7 @@ export function useDraftWorkspace(uid: string) {
       backedUpAt: new Date().toISOString(),
     };
     setActive(record);
+    resetHistory(record.draft);
     setSaveState(online() ? 'local' : 'offline');
     storeRecord(record);
     setConflictIds((ids) => {
@@ -654,7 +840,57 @@ export function useDraftWorkspace(uid: string) {
       previewBreakpoint,
     }).catch(() => undefined);
     scheduleSave();
-  }, [backup, previewBreakpoint, scheduleSave, service, setActive, setWorkspaceConflict, storeRecord, uid]);
+  }, [backup, previewBreakpoint, resetHistory, scheduleSave, service, setActive, setWorkspaceConflict, storeRecord, uid]);
+
+  const recoverLocalVersion = useCallback(() => {
+    if (!localRecovery) return;
+    setLocalRecovery(null);
+    setActive(localRecovery.localRecord);
+    resetHistory(localRecovery.localRecord.draft);
+    setSaveState(online() ? 'local' : 'offline');
+    scheduleSave();
+  }, [localRecovery, resetHistory, scheduleSave, setActive]);
+
+  const useRecoveryCloudVersion = useCallback(() => {
+    if (!localRecovery) return;
+    const record = backup.save(localRecovery.remoteDraft, {
+      dirty: false,
+      baseRevision: localRecovery.remoteDraft.revision,
+    });
+    setLocalRecovery(null);
+    setActive(record);
+    resetHistory(record.draft);
+    setSaveState('saved');
+    refreshRecords();
+  }, [backup, localRecovery, refreshRecords, resetHistory, setActive]);
+
+  const saveRecoveryAsCopy = useCallback(() => {
+    if (!localRecovery) return;
+    const local = localRecovery.localRecord.draft;
+    backup.save(localRecovery.remoteDraft, {
+      dirty: false,
+      baseRevision: localRecovery.remoteDraft.revision,
+    });
+    const copy = isPageDraft(local)
+      ? duplicatePageDraft(local, uid)
+      : isSiteDraft(local)
+        ? duplicateSiteDraft(local, uid)
+        : duplicateRecipeDraft(local, uid);
+    const record = {
+      draft: copy,
+      dirty: true,
+      baseRevision: 0,
+      backedUpAt: new Date().toISOString(),
+    };
+    setLocalRecovery(null);
+    setActive(record);
+    resetHistory(copy);
+    storeRecord(record);
+    backup.setLastOpenedDraftId(copy.id);
+    preferredDraftIdRef.current = copy.id;
+    setSaveState(online() ? 'local' : 'offline');
+    scheduleSave();
+  }, [backup, localRecovery, resetHistory, scheduleSave, setActive, storeRecord, uid]);
 
   const setPreviewBreakpoint = useCallback((value: EditorPreferences['previewBreakpoint']) => {
     setPreviewBreakpointState(value);
@@ -665,6 +901,13 @@ export function useDraftWorkspace(uid: string) {
       previewBreakpoint: value,
     }).catch(() => undefined);
   }, [service, uid]);
+
+  const recordPublicationAudit = useCallback((input: Omit<PublicationAuditInput, 'editorUid'>) => service.recordPublicationAudit(uid, {
+    ...input,
+    editorUid: uid,
+  }), [service, uid]);
+
+  const updatePublicationDeployment = useCallback((commitSha: string, deploymentStatus: PublicationAuditInput['deploymentStatus']) => service.updatePublicationDeployment(uid, commitSha, deploymentStatus), [service, uid]);
 
   const activatePublishedRecord = useCallback((record: DraftBackupRecord) => {
     setActive(record);
@@ -1120,6 +1363,7 @@ export function useDraftWorkspace(uid: string) {
     ...record,
     hasConflict: conflictIds.has(record.draft.id),
   })), [conflictIds, records]);
+  const currentHistory = active ? historiesRef.current.get(active.draft.id) : null;
 
   return {
     drafts,
@@ -1128,14 +1372,20 @@ export function useDraftWorkspace(uid: string) {
     saveState,
     saveLabel: saveLabel(saveState),
     conflict,
+    localRecovery,
     previewBreakpoint,
     deleteCandidate,
     publishedDraftChoice,
     errorMessage,
     updateDraft,
+    undo,
+    redo,
+    canUndo: Boolean(currentHistory?.past.length),
+    canRedo: Boolean(currentHistory?.future.length),
     selectDraft,
     newDraft,
     newPageDraft,
+    createRestorationDraft,
     openSiteDraft,
     duplicateDraft,
     requestDelete: setDeleteCandidate,
@@ -1143,7 +1393,12 @@ export function useDraftWorkspace(uid: string) {
     confirmDelete,
     useCloudVersion,
     saveConflictAsCopy,
+    recoverLocalVersion,
+    useRecoveryCloudVersion,
+    saveRecoveryAsCopy,
     setPreviewBreakpoint,
+    recordPublicationAudit,
+    updatePublicationDeployment,
     markPublished,
     markPublishedDeleted,
     markPagePublished,

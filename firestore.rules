@@ -236,6 +236,27 @@ service cloud.firestore {
         && preference.updatedByUid == request.auth.uid;
     }
 
+    function validPublicationAudit(audit, userId, commitSha) {
+      return audit.keys().hasOnly([
+          'operation', 'contentType', 'contentId', 'draftId', 'editorUid',
+          'previousCommitSha', 'newCommitSha', 'deploymentStatus', 'timestamp', 'updatedAt'
+        ])
+        && audit.operation in ['create', 'update', 'delete', 'restore']
+        && audit.contentType in ['recipe', 'page', 'site']
+        && audit.contentId is string
+        && audit.contentId.size() <= 160
+        && audit.draftId is string
+        && audit.draftId.size() <= 80
+        && audit.editorUid == userId
+        && (audit.previousCommitSha == null
+          || audit.previousCommitSha.matches('^[0-9a-f]{40}$'))
+        && audit.newCommitSha == commitSha
+        && audit.newCommitSha.matches('^[0-9a-f]{40}$')
+        && audit.deploymentStatus in ['committed', 'building', 'live', 'buildFailed', 'unknown']
+        && audit.timestamp is timestamp
+        && (!audit.keys().hasAny(['updatedAt']) || audit.updatedAt is timestamp);
+    }
+
     match /workspaces/arta-gatitului/drafts/{draftId} {
       allow read: if isApprovedEditor();
       allow create: if isApprovedEditor()
@@ -261,6 +282,20 @@ service cloud.firestore {
         && request.auth.uid == userId
         && validPreference(request.resource.data);
       allow delete: if isApprovedEditor() && request.auth.uid == userId;
+    }
+
+    match /users/{userId}/publicationAudit/{commitSha} {
+      allow read: if isApprovedEditor() && request.auth.uid == userId;
+      allow create: if isApprovedEditor()
+        && request.auth.uid == userId
+        && validPublicationAudit(request.resource.data, userId, commitSha)
+        && request.resource.data.timestamp == request.time;
+      allow update: if isApprovedEditor()
+        && request.auth.uid == userId
+        && validPublicationAudit(request.resource.data, userId, commitSha)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['deploymentStatus', 'updatedAt'])
+        && request.resource.data.updatedAt == request.time;
+      allow delete: if false;
     }
 
     match /{document=**} {

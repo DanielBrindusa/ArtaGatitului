@@ -123,9 +123,14 @@ export interface PublishReview {
   repository: string;
   branch: string;
   baseCommitSha: string;
-  operation: 'create' | 'update' | 'delete';
+  operation: 'create' | 'update' | 'delete' | 'restore';
   fileChanges: PublicationFileChange[];
   checks: string[];
+  routeChanges: string[];
+  dependencyImpact: string[];
+  globalImpactCount: number;
+  imageStatus: string;
+  conflictStatus: string;
 }
 
 export interface PublishResult {
@@ -137,7 +142,7 @@ export interface PublishResult {
   imagePath: string | null;
   publishedAt: string;
   deploymentStatus: 'committed';
-  operation: 'create' | 'update' | 'delete';
+  operation: 'create' | 'update' | 'delete' | 'restore';
   recipePath: string | null;
   recipeBlobSha: string | null;
   recipeJson: string | null;
@@ -161,6 +166,48 @@ export interface PrepareDeleteInput extends PublishedSourceIdentity {
   title: string;
   confirmation: string;
   deleteUniqueImage: boolean;
+}
+
+export interface CmsHistoryEntry {
+  commitSha: string;
+  parentSha: string | null;
+  message: string;
+  authoredAt: string;
+  author: string;
+  action: string;
+  contentType: 'recipe' | 'page' | 'homepage' | 'template' | 'navigation' | 'theme' | 'site';
+}
+
+export interface CmsHistoryFile {
+  path: string;
+  previousPath: string | null;
+  operation: 'added' | 'modified' | 'removed' | 'renamed';
+  additions: number;
+  deletions: number;
+}
+
+export interface CmsHistoryDetails {
+  entry: CmsHistoryEntry;
+  files: CmsHistoryFile[];
+}
+
+export interface HistoricalContent {
+  commitSha: string;
+  path: string;
+  blobSha: string;
+  contentType: 'recipe' | 'page' | 'site';
+  sourceJson: string;
+  currentSourceJson: string | null;
+  currentBlobSha: string | null;
+  assetStatus: string[];
+}
+
+export interface PrepareRestoreInput {
+  commitSha: string;
+  path: string;
+  sourceDraftId: string;
+  sourceJson: string;
+  confirmation: 'RESTORE';
 }
 
 const browserStatus: GitHubConnectionStatus = {
@@ -211,6 +258,26 @@ export async function openGitHubActionsPage() {
 export async function disconnectGitHub() {
   requireNativeApp();
   await invoke('github_disconnect');
+}
+
+export async function listCmsHistory() {
+  requireNativeApp();
+  return invoke<CmsHistoryEntry[]>('github_list_cms_history');
+}
+
+export async function getCmsHistoryDetails(commitSha: string) {
+  requireNativeApp();
+  return invoke<CmsHistoryDetails>('github_get_cms_history_details', { commitSha });
+}
+
+export async function loadHistoryContent(commitSha: string, path: string) {
+  requireNativeApp();
+  return invoke<HistoricalContent>('github_load_history_content', { commitSha, path });
+}
+
+export async function prepareContentRestore(input: PrepareRestoreInput) {
+  requireNativeApp();
+  return invoke<PublishReview>('github_prepare_content_restore', { input });
 }
 
 export async function prepareRecipePublish(input: PreparePublishInput) {

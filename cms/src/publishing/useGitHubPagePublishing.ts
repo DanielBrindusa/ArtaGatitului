@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { SYSTEM_PAGE_ROUTES, validatePageSlug } from '../../../src/shared/index.mjs';
 import type { DraftPublicationMetadata, PageDraft } from '../drafts/draftModel.mjs';
+import type { PublicationAuditInput } from '../drafts/DraftService';
 import { draftToPageSource, isPageDraft, validateDraftForPublish } from '../drafts/draftModel.mjs';
 import type { DraftListItem } from '../drafts/useDraftWorkspace';
 import { publishedCategories, publishedRecipeCatalog } from '../editor/contentCatalog';
 import { validateDraftImage } from '../editor/imageValidation.mjs';
 import { loadDraftImage } from '../editor/localImageStore';
-import { pollPageDeployment, type DeploymentStatus } from './deploymentStatus.mjs';
+import { deploymentStatusLabel, pollPageDeployment, type DeploymentStatus } from './deploymentStatus.mjs';
 import {
   analyzePageDelete,
   beginGitHubDeviceFlow,
@@ -51,6 +52,8 @@ interface Options {
   markPublished: (metadata: DraftPublicationMetadata) => Promise<PageDraft>;
   markPublishedDeleted: (published: PublishedPage, metadata: DraftPublicationMetadata) => Promise<PageDraft>;
   openPublishedPage: (published: PublishedPage) => Promise<void>;
+  recordPublicationAudit: (input: Omit<PublicationAuditInput, 'editorUid'>) => Promise<void>;
+  updatePublicationDeployment: (commitSha: string, status: PublicationAuditInput['deploymentStatus']) => Promise<void>;
 }
 
 export interface PageDeleteRequest {
@@ -69,7 +72,7 @@ function delay(milliseconds: number) {
 }
 
 export function useGitHubPagePublishing(options: Options) {
-  const { draft, drafts, uid, deviceId, flush, markPublished, markPublishedDeleted, openPublishedPage } = options;
+  const { draft, drafts, uid, deviceId, flush, markPublished, markPublishedDeleted, openPublishedPage, recordPublicationAudit, updatePublicationDeployment } = options;
   const [connection, setConnection] = useState<GitHubConnectionStatus | null>(null);
   const [connectionOpen, setConnectionOpen] = useState(false);
   const [deviceFlow, setDeviceFlow] = useState<DeviceFlowStart | null>(null);
@@ -107,6 +110,11 @@ export function useGitHubPagePublishing(options: Options) {
     void pollPageDeployment({ slug: result.recipeSlug, commitSha: result.commitSha, shouldContinue: () => active, onStatus: setDeploymentStatus });
     return () => { active = false; };
   }, [result]);
+  useEffect(() => {
+    if (!result) return;
+    const status = deploymentStatus === 'deployed' ? 'live' : deploymentStatus === 'unknown' ? 'unknown' : deploymentStatus;
+    void updatePublicationDeployment(result.commitSha, status).catch(() => undefined);
+  }, [deploymentStatus, result, updatePublicationDeployment]);
 
   const pollUntilComplete = useCallback(async (generation: number, initialDelaySeconds: number) => {
     let waitSeconds = initialDelaySeconds;
@@ -260,6 +268,15 @@ export function useGitHubPagePublishing(options: Options) {
     try {
       const published = await publishRecipe(review.planId);
       const metadata = pagePublicationMetadataFromResult(published);
+      await recordPublicationAudit({
+        operation: published.operation,
+        contentType: 'page',
+        contentId: published.recipeSlug,
+        draftId: published.sourceDraftId,
+        previousCommitSha: review.baseCommitSha,
+        newCommitSha: published.commitSha,
+        deploymentStatus: 'building',
+      }).catch(() => undefined);
       setResult(published);
       setReview(null);
       setDeploymentStatus('building');
@@ -279,7 +296,7 @@ export function useGitHubPagePublishing(options: Options) {
       setPendingDelete(null);
       setStage('idle');
     }
-  }, [busy, markPublished, markPublishedDeleted, pendingDelete, refreshPublishedPages, review]);
+  }, [busy, markPublished, markPublishedDeleted, pendingDelete, recordPublicationAudit, refreshPublishedPages, review]);
 
   const pageState = useCallback((summary: PublishedPageSummary): PublishedPageState => {
     const record = drafts.find(({ draft: candidate }) => isPageDraft(candidate) && draftMatchesPublishedPage(candidate, summary));
@@ -290,7 +307,7 @@ export function useGitHubPagePublishing(options: Options) {
 
   return {
     connection, connectionOpen, deviceFlow, waitingLabel, pagesOpen, pagesLoading, publishedPages,
-    deleteRequest, review, reviewChanges, result, metadataRecorded, deploymentStatus, stage, busy, error,
+    deleteRequest, review, reviewChanges, result, metadataRecorded, deploymentStatus: deploymentStatusLabel(deploymentStatus), stage, busy, error,
     setError,
     openConnection: () => setConnectionOpen(true),
     startConnection,

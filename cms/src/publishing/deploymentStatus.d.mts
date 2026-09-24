@@ -1,9 +1,10 @@
-export type DeploymentStatus = 'committed' | 'building' | 'deployed' | 'unknown';
+export type DeploymentStatus = 'committed' | 'building' | 'deployed' | 'buildFailed' | 'unknown';
 
 export const PUBLIC_SITE_URL: string;
 export const GITHUB_ACTIONS_URL: string;
 export function publishedRecipeUrl(slug: string): string;
 export function publishedPageUrl(slug: string): string;
+export function deploymentStatusLabel(status: DeploymentStatus): string;
 export function deploymentStatusForHttp(status: number): Exclude<DeploymentStatus, 'committed'>;
 export function deploymentStatusForResponse(
   response: Pick<Response, 'status' | 'text'>,

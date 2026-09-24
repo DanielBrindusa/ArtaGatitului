@@ -16,7 +16,6 @@ import {
   Monitor,
   PencilLine,
   Plus,
-  RefreshCw,
   Settings2,
   SlidersHorizontal,
   Smartphone,
@@ -30,6 +29,8 @@ import { BLOCK_TYPES, resolveTemplateLayout, type BlockType, type ContentBlock }
 import brandIcon from '../../../icon.png';
 import type { AppRoute } from '../app/useAppRoute';
 import { SharedPagePreview } from '../components/SharedPagePreview';
+import { UndoRedoControls } from '../components/EditorSafetyControls';
+import { PublicationHistory } from '../components/PublicationHistory';
 import { isPageDraft, type AnyDraft, type PageDraft, type SiteBundle } from '../drafts/draftModel.mjs';
 import { useDraftWorkspace, type DraftSaveState } from '../drafts/useDraftWorkspace';
 import { PageBlockInspector } from '../editor/PageBlockInspector';
@@ -114,6 +115,8 @@ export function PageEditor({
     markPublished: workspace.markPagePublished,
     markPublishedDeleted: workspace.markPagePublishedDeleted,
     openPublishedPage: workspace.openPublishedPage,
+    recordPublicationAudit: workspace.recordPublicationAudit,
+    updatePublicationDeployment: workspace.updatePublicationDeployment,
   });
   const viewport = workspace.previewBreakpoint;
   const effectiveDraft = useMemo(() => ({ ...draft, layout: resolveTemplateLayout(draft.layout, draft.data.page.template, siteSourceBundle.templates.templates) }), [draft]);
@@ -206,6 +209,8 @@ export function PageEditor({
 
   return <main className="visual-editor-workspace page-editor-workspace">
     <header className="editor-topbar">
+      <UndoRedoControls workspace={workspace} />
+      <PublicationHistory workspace={workspace} />
       <div className="editor-brand"><img src={brandIcon} alt="" /><div><strong>Arta Gătitului</strong><span>Page CMS</span></div></div>
       <div className="draft-switcher"><label htmlFor="active-page-draft">Draft</label><div><select id="active-page-draft" value={draft.id} onChange={(event) => void workspace.selectDraft(event.target.value)}>{workspace.drafts.map((record) => <option key={record.draft.id} value={record.draft.id}>{record.draft.contentType === 'page' ? 'Page' : 'Recipe'} · {record.draft.title || 'Untitled'}</option>)}</select><ChevronDown size={15} /></div></div>
       <span className={`draft-save-state draft-save-${workspace.saveState}`}><SaveIcon state={workspace.saveState} />{workspace.saveLabel}</span>
@@ -219,7 +224,6 @@ export function PageEditor({
 
     {templateOpen && <div className="draft-dialog-backdrop"><div className="draft-dialog" role="dialog" aria-modal="true" aria-labelledby="new-page-title"><FilePlus2 size={23} /><h2 id="new-page-title">New page</h2><p>Choose a simple starting structure. You can add and rearrange blocks afterward.</p><div className="page-template-options"><button type="button" onClick={() => { setTemplateOpen(false); void workspace.newPageDraft('standard'); }}><FileText size={20} /><strong>Standard Page</strong><span>Title and structured rich text</span></button><button type="button" onClick={() => { setTemplateOpen(false); void workspace.newPageDraft('landing'); }}><Layers3 size={20} /><strong>Landing Page</strong><span>Hero-led composition</span></button></div><div className="draft-dialog-actions"><button className="secondary-command" type="button" onClick={() => setTemplateOpen(false)}>Cancel</button></div></div></div>}
     {workspace.deleteCandidate && <div className="draft-dialog-backdrop"><div className="draft-dialog" role="alertdialog" aria-modal="true"><Trash2 size={22} /><h2>Delete this draft?</h2><p>“{workspace.deleteCandidate.title || 'Untitled page'}” will be removed from Firestore and this device. Published GitHub content is not affected.</p><div className="draft-dialog-actions"><button className="secondary-command" type="button" onClick={workspace.cancelDelete}>Cancel</button><button className="danger-command" type="button" onClick={() => void workspace.confirmDelete()}><Trash2 size={16} />Delete draft</button></div></div></div>}
-    {workspace.conflict && <div className="draft-dialog-backdrop"><div className="draft-dialog" role="alertdialog" aria-modal="true"><RefreshCw size={22} /><h2>This draft changed on another device</h2><p>Your local edits remain in the recovery copy.</p><div className="draft-dialog-actions"><button className="secondary-command" type="button" onClick={workspace.useCloudVersion}>Use cloud version</button><button className="primary-command" type="button" onClick={workspace.saveConflictAsCopy}><Copy size={16} />Save mine as copy</button></div></div></div>}
     {workspace.publishedPageDraftChoice && <div className="draft-dialog-backdrop"><div className="draft-dialog" role="alertdialog" aria-modal="true"><FileText size={22} /><h2>An edit draft already exists</h2><p>Continue the Firestore draft for “{workspace.publishedPageDraftChoice.published.title}”, or discard it and reload GitHub.</p>{discardPublishedArmed && <div className="publish-error"><AlertTriangle size={16} />Click discard again to confirm.</div>}<div className="draft-dialog-actions"><button className="secondary-command" type="button" onClick={workspace.cancelPublishedPageDraftChoice}>Cancel</button><button className="secondary-command" type="button" onClick={workspace.continuePublishedPageDraft}>Continue draft</button><button className="danger-command" type="button" onClick={() => { if (!discardPublishedArmed) setDiscardPublishedArmed(true); else void workspace.discardPublishedPageDraft().catch((error: unknown) => setLocalError(error instanceof Error ? error.message : 'The draft could not be discarded.')); }}><Trash2 size={16} />{discardPublishedArmed ? 'Confirm discard' : 'Discard draft'}</button></div></div></div>}
     <PagePublishingDialogs publishing={publishing} />
   </main>;
