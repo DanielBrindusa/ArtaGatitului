@@ -13,6 +13,8 @@ import {
   BLOCK_TYPES,
   LAYOUT_WIDTHS,
   SPACING_TOKENS,
+  resolveTemplateLayout,
+  updateTemplateBlockOverride,
   validatePageSource,
   type Breakpoint,
   type ContentBlock,
@@ -23,7 +25,7 @@ import {
   validateDraftForPublish,
   type PageDraft,
 } from '../drafts/draftModel.mjs';
-import { publishedCategories, publishedRecipeCatalog } from './contentCatalog';
+import { publishedCategories, publishedRecipeCatalog, siteTemplates } from './contentCatalog';
 import {
   setColumnsPreset,
   setPageBlockVisibility,
@@ -122,6 +124,9 @@ export function PageBlockInspector(props: PageBlockInspectorProps) {
     categorySlugs: publishedCategories.map((category) => category.slug),
   });
   const sourceValidation = validatePageSource(draftToPageSource(draft));
+  const pageTemplates = siteTemplates.templates.filter((template) => template.contentType === 'page'
+    && (!template.pageType || template.pageType === draft.data.page.pageType));
+  const assignment = draft.data.page.template;
 
   function updateData(changes: Record<string, unknown>) {
     if (!block) return;
@@ -130,7 +135,30 @@ export function PageBlockInspector(props: PageBlockInspectorProps) {
 
   function updateLayout(changes: Record<string, unknown>) {
     if (!block) return;
-    updateDraft((current) => updatePageBlock(current, block.id, (item: ContentBlock) => ({ ...item, layout: { ...item.layout, ...changes } })));
+    updateDraft((current) => {
+      const template = updateTemplateBlockOverride(current.data.page.template, pageTemplates, block, { layout: changes });
+      if (template) return { ...current, data: { ...current.data, page: { ...current.data.page, template } } };
+      return updatePageBlock(current, block.id, (item: ContentBlock) => ({ ...item, layout: { ...item.layout, ...changes } }));
+    });
+  }
+
+  function updateWidth(width: LayoutWidth) {
+    if (!block) return;
+    updateDraft((current) => {
+      const patch = viewport === 'desktop' ? { layout: { width } } : { responsive: { [viewport]: { width } } };
+      const template = updateTemplateBlockOverride(current.data.page.template, pageTemplates, block, patch);
+      if (template) return { ...current, data: { ...current.data, page: { ...current.data.page, template } } };
+      return setPageBlockWidth(current, block.id, viewport, width);
+    });
+  }
+
+  function updateVisibility(visible: boolean) {
+    if (!block) return;
+    updateDraft((current) => {
+      const template = updateTemplateBlockOverride(current.data.page.template, pageTemplates, block, { responsive: { [viewport]: { visible } } });
+      if (template) return { ...current, data: { ...current.data, page: { ...current.data.page, template } } };
+      return setPageBlockVisibility(current, block.id, viewport, visible);
+    });
   }
 
   const data = block?.data ?? {};
@@ -139,6 +167,13 @@ export function PageBlockInspector(props: PageBlockInspectorProps) {
   return (
     <div className="inspector-content page-inspector">
       <div className="panel-heading"><div><span className="workspace-kicker">Selection</span><h2>{block ? block.type.replace(/-/g, ' ') : 'Page settings'}</h2></div><SlidersHorizontal aria-hidden="true" size={18} /></div>
+
+      <section className="inspector-section template-link-controls">
+        <h3>Template</h3>
+        <label><span>Page layout</span><select value={assignment?.mode === 'linked' ? assignment.id ?? '' : 'detached'} onChange={(event) => updateDraft((current) => ({ ...current, data: { ...current.data, page: { ...current.data.page, template: event.target.value === 'detached' ? { id: null, mode: 'detached', overrides: {} } : { id: event.target.value, mode: 'linked', overrides: {} } } } }))}><option value="detached">Detached layout</option>{pageTemplates.map((template) => <option key={template.id} value={template.id}>{template.name}</option>)}</select></label>
+        {assignment?.mode === 'linked' && <div className="template-link-actions"><button className="secondary-command" type="button" onClick={() => { if (!window.confirm('Remove all local layout overrides and return to the template defaults? Page content will not be changed.')) return; updateDraft((current) => ({ ...current, data: { ...current.data, page: { ...current.data.page, template: { id: current.data.page.template?.id ?? (current.data.page.pageType === 'landing' ? 'page-landing' : 'page-standard'), mode: 'linked', overrides: {} } } } })); }}>Reset to template</button><button className="secondary-command" type="button" onClick={() => { if (!window.confirm('Detach this page? Future template changes will no longer update its layout.')) return; updateDraft((current) => ({ ...current, layout: resolveTemplateLayout(current.layout, current.data.page.template, pageTemplates), data: { ...current.data, page: { ...current.data.page, template: { id: null, mode: 'detached', overrides: {} } } } })); }}>Detach</button></div>}
+        <p className="panel-note">{assignment?.mode === 'linked' ? 'Template defaults remain linked; explicit block settings win.' : 'This layout is independent from future template changes.'}</p>
+      </section>
 
       <section className="inspector-section">
         <h3>Page</h3>
@@ -152,9 +187,9 @@ export function PageBlockInspector(props: PageBlockInspectorProps) {
         <section className="inspector-section">
           <h3>{sourceLabel(viewport)} layout</h3>
           <span className="inspector-label">Width</span>
-          <div className="inspector-segments" aria-label={`${viewport} block width`}>{LAYOUT_WIDTHS.map((width) => <button key={width} type="button" className={widthAt(block, viewport) === width ? 'active' : undefined} onClick={() => updateDraft((current) => setPageBlockWidth(current, block.id, viewport, width))}>{width}</button>)}</div>
+          <div className="inspector-segments" aria-label={`${viewport} block width`}>{LAYOUT_WIDTHS.map((width) => <button key={width} type="button" className={widthAt(block, viewport) === width ? 'active' : undefined} onClick={() => updateWidth(width)}>{width}</button>)}</div>
           <label><span>Vertical spacing</span><select value={block.layout?.paddingBlock ?? 'none'} onChange={(event) => updateLayout({ paddingBlock: event.target.value })}>{SPACING_TOKENS.map((token) => <option key={token}>{token}</option>)}</select></label>
-          <label className="toggle-field"><input type="checkbox" checked={block.responsive?.[viewport]?.visible !== false} onChange={(event) => updateDraft((current) => setPageBlockVisibility(current, block.id, viewport, event.target.checked))} /><span>Visible at {viewport}</span></label>
+          <label className="toggle-field"><input type="checkbox" checked={block.responsive?.[viewport]?.visible !== false} onChange={(event) => updateVisibility(event.target.checked)} /><span>Visible at {viewport}</span></label>
           {props.moveTargets.length > 0 && <label><span>Move into</span><select value="" onChange={(event) => { if (event.target.value) props.onMove(event.target.value === 'root' ? null : event.target.value); }}><option value="">Choose destination...</option>{props.moveTargets.map((target) => <option key={target.id ?? 'root'} value={target.id ?? 'root'}>{target.label}</option>)}</select></label>}
           {draft.data.page.pageType !== 'home' || block.type !== BLOCK_TYPES.SECTION || draft.layout.blocks.length > 1 ? <button className="danger-command inspector-remove-command" type="button" onClick={props.onRemove}><Trash2 size={15} />Remove block</button> : null}
         </section>

@@ -69,6 +69,16 @@ Important files:
 - `src/content` and `src/data` are the current content source of truth.
 - Root HTML files, `retete/`, `categorie/`, root-level recipe/category aliases, `assets/`, `manifest*.json`, `service-worker.js`, `sitemap.xml`, and `robots.txt` are generated public output.
 
+## Milestone 13 Site-Management Layer
+
+The CMS now treats templates, reusable blocks, navigation, header/footer settings, taxonomies, theme tokens, and site metadata as one versioned site configuration. Canonical JSON lives under `src/content/site` plus the existing category and tag-group files. `src/shared/site/model.mjs` owns validation, inheritance, dependency migration, and token-to-CSS rendering; the CMS preview and static build consume the same model.
+
+Site edits use a single Firestore `contentType: "site"` draft. Its GitHub baseline stores text JSON and blob identities only. The native Tauri service can load and prepare commits for the seven exact site paths and existing slug-constrained recipe/page sources needed for dependency migrations. It compares the complete managed baseline before publishing and never exposes a generic repository-write command.
+
+Template inheritance is one level: template defaults, then explicit item overrides. Detaching preserves the resolved layout. Referenced templates and global blocks cannot be removed without replacement or detachment. Category deletion requires recipe migration, tag merges update all affected recipes, and navigation is limited to two levels with controlled internal targets and safe HTTP(S) external links.
+
+See `docs/templates-and-globals.md` and `docs/site-settings-and-theme.md` for the operational contracts.
+
 There is no framework dependency, no bundler, no external test dependency, no lockfile, and no checked-in GitHub Actions workflow. Tests use the built-in Node test runner. The site remains suitable for GitHub Pages because all runtime output is static.
 
 ## 2. Current Content Flow

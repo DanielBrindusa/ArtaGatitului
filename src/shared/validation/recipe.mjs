@@ -2,6 +2,7 @@ import { BLOCK_MODEL_VERSION } from '../blocks/model.mjs';
 import { RECIPE_STATUSES } from '../content/types.mjs';
 import { isSafeContentUrl } from '../utils/html.mjs';
 import { validateBlock } from './blocks.mjs';
+import { validateTemplateAssignment } from '../site/model.mjs';
 
 const SAFE_SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
@@ -139,6 +140,8 @@ export function validateRecipeSource(recipe, { categoryNames, tagGroups } = {}) 
       });
     }
   }
+  const templateValidation = validateTemplateAssignment(recipe.template, [], 'recipe');
+  templateValidation.errors.forEach((error) => errors.push(error));
 
   return { valid: errors.length === 0, errors };
 }

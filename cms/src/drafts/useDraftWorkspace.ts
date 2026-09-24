@@ -9,14 +9,19 @@ import {
 import {
   createPageDraft,
   createRecipeDraft,
+  createSiteDraft,
   duplicatePageDraft,
   duplicateRecipeDraft,
+  duplicateSiteDraft,
   isPageDraft,
   isRecipeDraft,
+  isSiteDraft,
   type AnyDraft,
   type DraftPublicationMetadata,
   type PageDraft,
   type RecipeDraft,
+  type SiteBundle,
+  type SiteSourceBaseline,
 } from './draftModel.mjs';
 import {
   LocalDraftBackup,
@@ -393,7 +398,9 @@ export function useDraftWorkspace(uid: string) {
     const updatedDraft = update(current.draft);
     const nextDraft = isRecipeDraft(updatedDraft)
       ? synchronizeLinkedDraftStatus(updatedDraft)
-      : synchronizeLinkedPageDraftStatus(updatedDraft);
+      : isPageDraft(updatedDraft)
+        ? synchronizeLinkedPageDraftStatus(updatedDraft)
+        : updatedDraft;
     editGenerationRef.current += 1;
     const next = {
       draft: nextDraft,
@@ -480,6 +487,31 @@ export function useDraftWorkspace(uid: string) {
     scheduleSave();
   }, [backup, flush, previewBreakpoint, scheduleSave, service, setActive, storeRecord, uid]);
 
+  const openSiteDraft = useCallback(async (site: SiteBundle, sources: SiteSourceBaseline[] = []) => {
+    if (await flush() === 'conflict') return;
+    const id = 'site-management';
+    let record = backup.load(id);
+    if (!record && online()) {
+      try {
+        const remote = await service.loadDraft(id);
+        if (remote && isSiteDraft(remote)) record = backup.save(remote, { dirty: false, baseRevision: remote.revision });
+      } catch {
+        setErrorMessage('The site-management draft could not be opened from Firestore.');
+      }
+    }
+    if (!record) {
+      const draft = createSiteDraft(uid, { id, site, sources });
+      record = { draft, dirty: true, baseRevision: 0, backedUpAt: new Date().toISOString() };
+      editGenerationRef.current += 1;
+    }
+    setActive(record);
+    setSaveState(record.dirty ? (online() ? 'local' : 'offline') : 'saved');
+    storeRecord(record);
+    backup.setLastOpenedDraftId(record.draft.id);
+    preferredDraftIdRef.current = record.draft.id;
+    if (record.dirty) scheduleSave();
+  }, [backup, flush, scheduleSave, service, setActive, storeRecord, uid]);
+
   const duplicateDraft = useCallback(async (id: string) => {
     if (await flush() === 'conflict') return;
     let source = backup.load(id)?.draft ?? null;
@@ -493,7 +525,11 @@ export function useDraftWorkspace(uid: string) {
       }
     }
     if (!source) return;
-    const draft = isPageDraft(source) ? duplicatePageDraft(source, uid) : duplicateRecipeDraft(source, uid);
+    const draft = isPageDraft(source)
+      ? duplicatePageDraft(source, uid)
+      : isSiteDraft(source)
+        ? duplicateSiteDraft(source, uid)
+        : duplicateRecipeDraft(source, uid);
     const record = {
       draft,
       dirty: true,
@@ -593,7 +629,9 @@ export function useDraftWorkspace(uid: string) {
     }
     const copy = isPageDraft(currentConflict.localDraft)
       ? duplicatePageDraft(currentConflict.localDraft, uid)
-      : duplicateRecipeDraft(currentConflict.localDraft, uid);
+      : isSiteDraft(currentConflict.localDraft)
+        ? duplicateSiteDraft(currentConflict.localDraft, uid)
+        : duplicateRecipeDraft(currentConflict.localDraft, uid);
     const record = {
       draft: copy,
       dirty: true,
@@ -1098,6 +1136,7 @@ export function useDraftWorkspace(uid: string) {
     selectDraft,
     newDraft,
     newPageDraft,
+    openSiteDraft,
     duplicateDraft,
     requestDelete: setDeleteCandidate,
     cancelDelete: () => setDeleteCandidate(null),

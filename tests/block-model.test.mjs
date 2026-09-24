@@ -35,6 +35,7 @@ test('every registered initial block type has a valid structured form', () => {
     { id: 'latest-recipes', type: 'latest-recipes', data: { heading: 'Noi', limit: 6 } },
     { id: 'category-grid', type: 'category-grid', data: { heading: 'Categorii' } },
     { id: 'random-recipe', type: 'random-recipe', data: { label: 'Surprinde-mă' } },
+    { id: 'global-reference', type: 'global-reference', data: { globalId: 'global-random-recipe' } },
     { id: 'recipe-hero', type: 'recipe-hero', data: {} },
     { id: 'recipe-metadata', type: 'recipe-metadata', data: {} },
     { id: 'ingredients', type: 'ingredients', data: {} },

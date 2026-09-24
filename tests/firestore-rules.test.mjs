@@ -99,6 +99,32 @@ function pageDraftDocument(id, revision = 1) {
   };
 }
 
+function siteDraftDocument(id = 'site-management', revision = 1) {
+  const draft = draftDocument(id, revision);
+  return {
+    ...draft,
+    contentType: 'site',
+    title: 'Site management',
+    slug: 'site-management',
+    data: {
+      modelVersion: 1,
+      site: {
+        templates: { modelVersion: 1, templates: [] },
+        globalBlocks: { modelVersion: 1, blocks: [] },
+        navigation: {},
+        settings: {},
+        theme: {},
+        categories: [],
+        tagGroups: {},
+        recipes: [],
+        pages: [],
+      },
+      sources: [],
+    },
+    layout: { modelVersion: 1, blocks: [] },
+  };
+}
+
 test.before(async () => {
   if (!emulatorAvailable) return;
   const rulesTemplate = await readFile(new URL('../firestore.rules', import.meta.url), 'utf8');
@@ -168,6 +194,14 @@ test('page drafts use the same revision-protected workspace collection', { skip:
     updatedAt: serverTimestamp(),
     updatedByUid: approvedUid,
   }));
+});
+
+test('site-management drafts use the same revision and ownership protections', { skip: !emulatorAvailable }, async () => {
+  const database = environment.authenticatedContext(approvedUid).firestore();
+  const reference = doc(database, 'workspaces/arta-gatitului/drafts/site-management');
+  await assertSucceeds(setDoc(reference, siteDraftDocument()));
+  await assertSucceeds(updateDoc(reference, { revision: 2, updatedAt: serverTimestamp(), updatedByUid: approvedUid }));
+  await assertFails(updateDoc(reference, { revision: 3, sourceLink: { path: 'package.json' }, updatedAt: serverTimestamp(), updatedByUid: approvedUid }));
 });
 
 test('draft rules require a monotonic revision and immutable creation time', { skip: !emulatorAvailable }, async () => {

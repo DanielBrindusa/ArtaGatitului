@@ -27,7 +27,9 @@ import {
   createRecipeDraft,
   duplicatePageDraft,
   duplicateRecipeDraft,
+  duplicateSiteDraft,
   isPageDraft,
+  isSiteDraft,
   migrateDraft,
   type AnyDraft,
   type PageDraft,
@@ -205,7 +207,9 @@ export function createFirestoreDraftService(options: FirebaseOptions): DraftServ
     async duplicateDraft(source, uid) {
       const duplicate = isPageDraft(source)
         ? duplicatePageDraft(source, uid)
-        : duplicateRecipeDraft(source, uid);
+        : isSiteDraft(source)
+          ? duplicateSiteDraft(source, uid)
+          : duplicateRecipeDraft(source, uid);
       return service.saveDraft(duplicate, 0, uid);
     },
 

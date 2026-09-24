@@ -115,6 +115,7 @@ export function createLinkedPageDraft(value, updatedByUid) {
         description: published.source.description,
         socialImage: published.source.socialImage,
         status: 'published',
+        template: published.source.template,
       },
       attachments: attachmentsForSource(published.source),
     },
@@ -144,6 +145,7 @@ export function semanticPageChanges(draftValue) {
   if (baseline.slug !== current.slug) changes.push({ kind: 'slug', label: `Route changed from /${baseline.slug}/ to /${current.slug}/` });
   if (baseline.description !== current.description) changes.push({ kind: 'metadata', label: 'Meta description changed' });
   if (baseline.socialImage !== current.socialImage) changes.push({ kind: 'metadata', label: 'Social image changed' });
+  if (!same(baseline.template, current.template)) changes.push({ kind: 'template', label: 'Page template assignment changed' });
   if (!same(baseline.layout, current.layout)) changes.push({ kind: 'layout', label: 'Page sections or responsive layout changed' });
   const replacements = draft.data.attachments.filter((attachment) => attachment.localAttachmentId).length;
   if (replacements) changes.push({ kind: 'image', label: `${replacements} page image${replacements === 1 ? '' : 's'} selected for publication` });

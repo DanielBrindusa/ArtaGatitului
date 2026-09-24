@@ -43,6 +43,7 @@ export function buildRecipePublicationSource(value) {
     extras: recipe.extras,
     ratingSummary: recipe.ratingSummary,
     keywords: recipe.keywords,
+    template: recipe.template,
     layout: {
       modelVersion: value.layout.modelVersion,
       blocks: JSON.parse(JSON.stringify(value.layout.blocks)),

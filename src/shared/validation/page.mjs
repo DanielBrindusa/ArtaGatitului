@@ -2,8 +2,9 @@ import { BLOCK_MODEL_VERSION, BLOCK_TYPES } from '../blocks/model.mjs';
 import { normalizePage, PAGE_MODEL_VERSION, PAGE_STATUSES, PAGE_TYPES, collectPageReferences } from '../content/page.mjs';
 import { isSafeContentUrl } from '../utils/html.mjs';
 import { validateBlock } from './blocks.mjs';
+import { validateTemplateAssignment } from '../site/model.mjs';
 
-const PAGE_KEYS = new Set(['id', 'pageType', 'title', 'slug', 'description', 'socialImage', 'status', 'layout']);
+const PAGE_KEYS = new Set(['id', 'pageType', 'title', 'slug', 'description', 'socialImage', 'status', 'template', 'layout']);
 const SAFE_ID = /^[a-z][a-z0-9-]{0,79}$/;
 const SAFE_SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
@@ -30,6 +31,8 @@ export function validatePageSource(value, { recipeSlugs = [], categorySlugs = []
     errors.push('page.socialImage must be a safe relative or HTTP(S) URL');
   }
   if (!PAGE_STATUSES.includes(value.status)) errors.push(`page.status must be one of ${PAGE_STATUSES.join(', ')}`);
+  const templateValidation = validateTemplateAssignment(value.template, [], 'page');
+  templateValidation.errors.forEach((error) => errors.push(`page.${error}`));
   if (!value.layout || typeof value.layout !== 'object' || Array.isArray(value.layout)) {
     errors.push('page.layout must be an object');
   } else {

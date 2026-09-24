@@ -65,6 +65,7 @@ const RECIPE_SOURCE_KEYS: &[&str] = &[
     "extras",
     "ratingSummary",
     "keywords",
+    "template",
     "layout",
 ];
 const PAGE_SOURCE_KEYS: &[&str] = &[
@@ -75,6 +76,7 @@ const PAGE_SOURCE_KEYS: &[&str] = &[
     "description",
     "socialImage",
     "status",
+    "template",
     "layout",
 ];
 const PAGE_BLOCK_KEYS: &[&str] = &["id", "type", "data", "layout", "responsive", "variant", "style"];
@@ -98,6 +100,19 @@ const PAGE_BLOCK_TYPES: &[&str] = &[
     "latest-recipes",
     "category-grid",
     "random-recipe",
+    "global-reference",
+];
+const SITE_SOURCE_PATHS: &[&str] = &[
+    "src/content/site/templates.json",
+    "src/content/site/global-blocks.json",
+    "src/content/site/navigation.json",
+    "src/content/site/settings.json",
+    "src/content/site/theme.json",
+    "src/content/categories.json",
+    "src/data/tag-groups.json",
+];
+const SITE_PUBLISH_AREAS: &[&str] = &[
+    "templates", "global-blocks", "navigation", "taxonomies", "theme", "settings", "site",
 ];
 const RESERVED_PAGE_ROUTES: &[&str] = &[
     "assets",
@@ -249,6 +264,37 @@ pub struct PublishedPage {
     commit_sha: String,
     blob_sha: String,
     source_json: String,
+}
+
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SiteSourceSnapshot {
+    path: String,
+    blob_sha: String,
+    source_json: String,
+}
+
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SiteConfigurationSnapshot {
+    commit_sha: String,
+    sources: Vec<SiteSourceSnapshot>,
+}
+
+#[derive(Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PrepareSiteFileInput {
+    path: String,
+    blob_sha: String,
+    source_json: String,
+}
+
+#[derive(Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PrepareSitePublishInput {
+    source_draft_id: String,
+    area: String,
+    files: Vec<PrepareSiteFileInput>,
 }
 
 #[derive(Clone, Serialize)]
@@ -1236,6 +1282,54 @@ pub async fn github_load_published_page(
 }
 
 #[tauri::command]
+pub async fn github_load_site_configuration(
+    caller: Webview,
+    state: State<'_, GithubState>,
+) -> Result<SiteConfigurationSnapshot, String> {
+    require_local_shell(&caller)?;
+    let bundle = state.ready_access_token().await?;
+    state.verify_repository(&bundle.access_token).await?;
+    let snapshot = state.repository_snapshot(&bundle.access_token).await?;
+    let mut paths: Vec<String> = SITE_SOURCE_PATHS.iter().map(|path| (*path).to_string()).collect();
+    paths.extend(snapshot.entries.keys().filter(|path| {
+        recipe_slug_from_path(path).is_some() || page_slug_from_path(path).is_some()
+    }).cloned());
+    paths.sort();
+    paths.dedup();
+    let mut sources = Vec::with_capacity(paths.len());
+    for path in paths {
+        let entry = snapshot_blob(&snapshot, &path)
+            .ok_or_else(|| format!("Required site source {path} does not exist on {PUBLISH_BRANCH}."))?;
+        let value = repository_json_value(&state, &bundle.access_token, entry).await?;
+        validate_site_source_value(&path, &value)?;
+        let mut source_json = serde_json::to_string_pretty(&value)
+            .map_err(|_| format!("{path} could not be serialized."))?;
+        source_json.push('\n');
+        sources.push(SiteSourceSnapshot { path, blob_sha: entry.sha.clone(), source_json });
+    }
+    Ok(SiteConfigurationSnapshot { commit_sha: snapshot.commit_sha, sources })
+}
+
+#[tauri::command]
+pub async fn github_prepare_site_publish(
+    caller: Webview,
+    state: State<'_, GithubState>,
+    input: PrepareSitePublishInput,
+) -> Result<PublishReview, String> {
+    require_local_shell(&caller)?;
+    if state.publishing.load(Ordering::Acquire) {
+        return Err("A publication is already in progress.".to_string());
+    }
+    let bundle = state.ready_access_token().await?;
+    let repository = state.verify_repository(&bundle.access_token).await?;
+    let snapshot = state.repository_snapshot(&bundle.access_token).await?;
+    let plan = build_site_publication_plan(&state, &bundle.access_token, input, &snapshot).await?;
+    let review = review_from_plan(&plan, &repository.branch);
+    *state.pending_publish.lock().map_err(|_| "The publication review could not be stored.".to_string())? = Some(plan);
+    Ok(review)
+}
+
+#[tauri::command]
 pub async fn github_analyze_page_delete(
     caller: Webview,
     state: State<'_, GithubState>,
@@ -1835,7 +1929,7 @@ fn allowed_page_child(parent: &str, child: &str) -> bool {
         child,
         "hero" | "heading" | "text" | "rich-text" | "image" | "divider" | "spacer"
             | "button" | "search" | "recipe-grid" | "featured-recipes" | "latest-recipes"
-            | "category-grid" | "random-recipe"
+            | "category-grid" | "random-recipe" | "global-reference"
     );
     match parent {
         "section" => content || matches!(child, "container" | "columns" | "grid"),
@@ -1864,6 +1958,7 @@ fn allowed_page_data_key(block_type: &str, key: &str) -> bool {
         "latest-recipes" => matches!(key, "eyebrow" | "heading" | "limit"),
         "category-grid" => matches!(key, "eyebrow" | "heading" | "slugs"),
         "random-recipe" => key == "label",
+        "global-reference" => key == "globalId",
         _ => false,
     }
 }
@@ -2526,6 +2621,89 @@ fn repository_route_uses_slug(value: &Value, slug: &str) -> bool {
     }))
 }
 
+async fn build_site_publication_plan(
+    state: &GithubState,
+    token: &str,
+    input: PrepareSitePublishInput,
+    snapshot: &RepositorySnapshot,
+) -> Result<PendingPublishPlan, String> {
+    if !(valid_draft_id(&input.source_draft_id) || input.source_draft_id == "site-management") {
+        return Err("The site draft identifier is invalid.".to_string());
+    }
+    if !SITE_PUBLISH_AREAS.contains(&input.area.as_str()) {
+        return Err("The site publication area is not approved.".to_string());
+    }
+    if input.files.is_empty() || input.files.len() > 100 {
+        return Err("The site publication baseline is incomplete or too large.".to_string());
+    }
+    let expected_paths: HashSet<String> = SITE_SOURCE_PATHS.iter().map(|path| (*path).to_string())
+        .chain(snapshot.entries.keys().filter(|path| {
+            recipe_slug_from_path(path).is_some() || page_slug_from_path(path).is_some()
+        }).cloned())
+        .collect();
+    let submitted_paths: HashSet<String> = input.files.iter().map(|file| file.path.clone()).collect();
+    if submitted_paths.len() != input.files.len() || submitted_paths != expected_paths {
+        return Err("Reload the complete site configuration from GitHub before publishing.".to_string());
+    }
+
+    let mut files = input.files;
+    files.sort_by(|left, right| left.path.cmp(&right.path));
+    let mut changes = Vec::new();
+    let mut expectations = Vec::with_capacity(files.len());
+    for file in files {
+        if !allowed_site_management_path(&file.path) || !valid_sha(&file.blob_sha) {
+            return Err("A site publication file is outside the approved source paths.".to_string());
+        }
+        if file.source_json.len() > MAX_RECIPE_JSON_BYTES {
+            return Err(format!("{} is too large to publish.", file.path));
+        }
+        let current = snapshot_blob(snapshot, &file.path)
+            .ok_or_else(|| format!("{} no longer exists in GitHub.", file.path))?;
+        if current.sha != file.blob_sha {
+            return Err(format!("{} changed in GitHub after this draft began. Reload the site draft before publishing.", file.path));
+        }
+        let current_value = repository_json_value(state, token, current).await?;
+        let next_value: Value = serde_json::from_str(&file.source_json)
+            .map_err(|_| format!("{} is not valid JSON.", file.path))?;
+        validate_site_source_value(&file.path, &next_value)?;
+        expectations.push(PathExpectation { path: file.path.clone(), sha: Some(current.sha.clone()) });
+        if current_value != next_value {
+            changes.push(PublicationChange {
+                operation: ChangeOperation::Modify,
+                path: file.path.clone(),
+                file: Some(json_file(file.path, &next_value)?),
+            });
+        }
+    }
+    if changes.is_empty() {
+        return Err("This site draft does not contain any changes to publish.".to_string());
+    }
+    let commit_message = match input.area.as_str() {
+        "templates" => "cms: update site templates",
+        "global-blocks" => "cms: update global blocks",
+        "navigation" => "cms: update site navigation",
+        "taxonomies" => "cms: update categories and tags",
+        "theme" => "cms: update site theme",
+        "settings" => "cms: update site settings",
+        _ => "cms: update site configuration",
+    };
+    Ok(PendingPublishPlan {
+        id: Uuid::new_v4().to_string(),
+        source_draft_id: input.source_draft_id,
+        recipe_title: "Site management".to_string(),
+        recipe_slug: "site-management".to_string(),
+        base_commit_sha: snapshot.commit_sha.clone(),
+        operation: "update".to_string(),
+        changes,
+        expectations,
+        image_path: None,
+        recipe_path: None,
+        recipe_json: None,
+        commit_message: commit_message.to_string(),
+        created_at: now_seconds(),
+    })
+}
+
 async fn build_page_publication_plan(
     state: &GithubState,
     token: &str,
@@ -2989,9 +3167,16 @@ fn validate_image(bytes: &[u8], declared_mime: &str) -> Result<&'static str, Str
 }
 
 fn review_from_plan(plan: &PendingPublishPlan, branch: &str) -> PublishReview {
+    let is_site = plan.recipe_slug == "site-management";
     let is_page = plan.commit_message.contains(" page ");
     let mut checks = vec![
-        if is_page { "Page valid".to_string() } else { "Recipe valid".to_string() },
+        if is_site {
+            "Site configuration valid".to_string()
+        } else if is_page {
+            "Page valid".to_string()
+        } else {
+            "Recipe valid".to_string()
+        },
         "Affected repository paths verified".to_string(),
         "GitHub connected".to_string(),
     ];
@@ -3045,6 +3230,126 @@ fn allowed_page_image_path(path: &str) -> bool {
     })
 }
 
+fn object_has_only(value: &Map<String, Value>, allowed: &[&str]) -> bool {
+    value.keys().all(|key| allowed.contains(&key.as_str()))
+}
+
+fn valid_hex_color(value: &str) -> bool {
+    matches!(value.len(), 7 | 9)
+        && value.starts_with('#')
+        && value[1..].bytes().all(|byte| byte.is_ascii_hexdigit())
+}
+
+fn validate_navigation_items(value: Option<&Value>, depth: usize, ids: &mut HashSet<String>) -> Result<(), String> {
+    let items = value.and_then(Value::as_array).ok_or_else(|| "Navigation items must be an array.".to_string())?;
+    if depth > 2 && !items.is_empty() { return Err("Navigation submenus may be at most two levels deep.".to_string()); }
+    for item in items {
+        let item = item.as_object().ok_or_else(|| "Navigation items must be objects.".to_string())?;
+        if !object_has_only(item, &["id", "label", "type", "target", "children"]) {
+            return Err("A navigation item contains unsupported fields.".to_string());
+        }
+        let id = string_field(item, "id").filter(|id| valid_block_id(id)).ok_or_else(|| "A navigation item identifier is invalid.".to_string())?;
+        if !ids.insert(id.to_string()) { return Err("Navigation item identifiers must be unique.".to_string()); }
+        if string_field(item, "label").is_none_or(|label| label.trim().is_empty() || label.len() > 80) {
+            return Err("A navigation label is invalid.".to_string());
+        }
+        let kind = string_field(item, "type").ok_or_else(|| "A navigation item type is required.".to_string())?;
+        if !matches!(kind, "home" | "page" | "recipe" | "category" | "system" | "external" | "group") {
+            return Err("A navigation item type is invalid.".to_string());
+        }
+        let target = string_field(item, "target").unwrap_or_default();
+        if kind == "external" && !(target.starts_with("https://") || target.starts_with("http://")) {
+            return Err("External navigation targets must use HTTP or HTTPS.".to_string());
+        }
+        if kind == "group" && !target.is_empty() { return Err("Navigation groups cannot have a target.".to_string()); }
+        validate_navigation_items(item.get("children"), depth + 1, ids)?;
+    }
+    Ok(())
+}
+
+fn validate_site_source_value(path: &str, value: &Value) -> Result<(), String> {
+    if !allowed_site_management_path(path) || value_contains_unsafe_string(value) {
+        return Err(format!("{path} contains an unsafe or unsupported value."));
+    }
+    if let Some(slug) = recipe_slug_from_path(path) { return validate_repository_recipe(value, slug); }
+    if let Some(slug) = page_slug_from_path(path) { return validate_repository_page(value, slug); }
+    if path == "src/content/categories.json" {
+        let categories = value.as_array().filter(|items| !items.is_empty()).ok_or_else(|| "Categories must be a non-empty array.".to_string())?;
+        let mut ids = HashSet::new();
+        let mut slugs = HashSet::new();
+        for category in categories {
+            let category = category.as_object().ok_or_else(|| "Categories must be objects.".to_string())?;
+            if !object_has_only(category, &["id", "slug", "title", "name", "description", "status", "image", "icon", "metadata"]) {
+                return Err("A category contains unsupported fields.".to_string());
+            }
+            let id = string_field(category, "id").filter(|id| valid_block_id(id)).ok_or_else(|| "A category identifier is invalid.".to_string())?;
+            let slug = string_field(category, "slug").filter(|slug| valid_slug(slug)).ok_or_else(|| "A category slug is invalid.".to_string())?;
+            if !ids.insert(id) || !slugs.insert(slug) { return Err("Category identifiers and slugs must be unique.".to_string()); }
+            if string_field(category, "title").is_none_or(|title| title.trim().is_empty()) { return Err("A category title is required.".to_string()); }
+        }
+        return Ok(());
+    }
+    if path == "src/data/tag-groups.json" {
+        let groups = value.as_object().ok_or_else(|| "Tag groups must be an object.".to_string())?;
+        for (id, group) in groups {
+            if !valid_block_id(id) { return Err("A tag group identifier is invalid.".to_string()); }
+            let group = group.as_object().ok_or_else(|| "Tag groups must be objects.".to_string())?;
+            if !object_has_only(group, &["label", "options"]) || string_field(group, "label").is_none_or(|label| label.trim().is_empty()) {
+                return Err("A tag group is invalid.".to_string());
+            }
+            let options = group.get("options").and_then(Value::as_array).ok_or_else(|| "Tag options must be an array.".to_string())?;
+            if options.iter().any(|item| item.as_str().is_none_or(|text| text.trim().is_empty())) { return Err("Tag options must contain non-empty text.".to_string()); }
+        }
+        return Ok(());
+    }
+    let object = value.as_object().ok_or_else(|| format!("{path} must be an object."))?;
+    if object.get("modelVersion").and_then(Value::as_u64) != Some(1) { return Err(format!("{path} must use modelVersion 1.")); }
+    match path {
+        "src/content/site/templates.json" => {
+            if !object_has_only(object, &["modelVersion", "templates"]) || object.get("templates").and_then(Value::as_array).is_none_or(|items| items.is_empty()) {
+                return Err("Templates must contain at least one structured template.".to_string());
+            }
+        }
+        "src/content/site/global-blocks.json" => {
+            if !object_has_only(object, &["modelVersion", "blocks"]) || object.get("blocks").and_then(Value::as_array).is_none() {
+                return Err("Global blocks must contain a blocks array.".to_string());
+            }
+        }
+        "src/content/site/navigation.json" => {
+            if !object_has_only(object, &["modelVersion", "header", "footer"]) { return Err("Navigation contains unsupported fields.".to_string()); }
+            let header = object.get("header").and_then(Value::as_object).ok_or_else(|| "Navigation requires a header.".to_string())?;
+            let footer = object.get("footer").and_then(Value::as_object).ok_or_else(|| "Navigation requires a footer.".to_string())?;
+            if string_field(header, "logoHref") != Some("home") { return Err("The site logo must remain linked to Home.".to_string()); }
+            let mut ids = HashSet::new();
+            validate_navigation_items(header.get("primaryItems"), 1, &mut ids)?;
+            validate_navigation_items(header.get("menuItems"), 1, &mut ids)?;
+            validate_navigation_items(footer.get("links"), 1, &mut ids)?;
+            validate_navigation_items(footer.get("socialLinks"), 1, &mut ids)?;
+        }
+        "src/content/site/settings.json" => {
+            if !object_has_only(object, &["modelVersion", "siteTitle", "siteDescription", "language", "locale", "defaultSocialImage", "defaultTemplates"])
+                || string_field(object, "language") != Some("ro") || string_field(object, "locale") != Some("ro_RO") {
+                return Err("Site settings contain unsupported fields or locale values.".to_string());
+            }
+        }
+        "src/content/site/theme.json" => {
+            if !object_has_only(object, &["modelVersion", "colors", "typography", "layout", "shape", "cards", "buttons"]) { return Err("Theme contains unsupported fields.".to_string()); }
+            let colors = object.get("colors").and_then(Value::as_object).ok_or_else(|| "Theme colors are required.".to_string())?;
+            for name in ["primary", "accent", "background", "surface", "text", "mutedText", "border"] {
+                if string_field(colors, name).is_none_or(|color| !valid_hex_color(color)) { return Err(format!("Theme color {name} is invalid.")); }
+            }
+        }
+        _ => return Err("The site source path is not approved.".to_string()),
+    }
+    Ok(())
+}
+
+fn allowed_site_management_path(path: &str) -> bool {
+    SITE_SOURCE_PATHS.contains(&path)
+        || recipe_slug_from_path(path).is_some()
+        || page_slug_from_path(path).is_some()
+}
+
 fn allowed_publication_path(path: &str) -> bool {
     if path.starts_with('/')
         || path.contains('\\')
@@ -3066,7 +3371,10 @@ fn allowed_publication_path(path: &str) -> bool {
             .strip_suffix(".json")
             .is_some_and(|slug| valid_slug(slug) && !slug.contains('.'));
     }
-    path == "src/content/aliases.json" || allowed_recipe_image_path(path) || allowed_page_image_path(path)
+    path == "src/content/aliases.json"
+        || SITE_SOURCE_PATHS.contains(&path)
+        || allowed_recipe_image_path(path)
+        || allowed_page_image_path(path)
 }
 
 fn valid_slug(value: &str) -> bool {
@@ -3255,12 +3563,34 @@ mod tests {
         assert!(allowed_publication_path("src/content/pages/despre-noi.json"));
         assert!(allowed_publication_path("assets/images/pages/despre-noi-page-image.png"));
         assert!(allowed_publication_path("src/content/aliases.json"));
+        for path in SITE_SOURCE_PATHS {
+            assert!(allowed_publication_path(path));
+            assert!(allowed_site_management_path(path));
+        }
         assert!(!allowed_publication_path(
             "src/content/recipes/../package.json"
         ));
         assert!(!allowed_publication_path(".github/workflows/deploy.yml"));
         assert!(!allowed_publication_path("src/content/recipes/%2e%2e.json"));
         assert!(!allowed_publication_path("src/content/pages/../tauri.conf.json"));
+        assert!(!allowed_site_management_path("package.json"));
+        assert!(!allowed_site_management_path(".github/workflows/deploy.yml"));
+    }
+
+    #[test]
+    fn site_theme_rejects_css_expressions() {
+        let theme = json!({
+            "modelVersion": 1,
+            "colors": {
+                "primary": "#ff8a5b", "accent": "#62d6a8", "background": "#0f1117",
+                "surface": "#181d29", "text": "#fff3e8", "mutedText": "#d4bba8", "border": "#ffd6ba2e"
+            },
+            "typography": {}, "layout": {}, "shape": {}, "cards": {}, "buttons": {}
+        });
+        assert!(validate_site_source_value("src/content/site/theme.json", &theme).is_ok());
+        let mut unsafe_theme = theme;
+        unsafe_theme["colors"]["primary"] = json!("url(javascript:alert(1))");
+        assert!(validate_site_source_value("src/content/site/theme.json", &unsafe_theme).is_err());
     }
 
     #[test]

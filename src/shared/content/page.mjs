@@ -1,4 +1,5 @@
 import { BLOCK_MODEL_VERSION } from '../blocks/model.mjs';
+import { normalizeTemplateAssignment } from '../site/model.mjs';
 
 export const PAGE_MODEL_VERSION = 1;
 export const PAGE_TYPES = Object.freeze(['home', 'standard', 'landing']);
@@ -26,6 +27,7 @@ export function normalizePage(value) {
     description: string(page.description),
     socialImage: nullableString(page.socialImage),
     status: PAGE_STATUSES.includes(page.status) ? page.status : 'draft',
+    ...(page.template !== undefined ? { template: normalizeTemplateAssignment(page.template) } : {}),
     layout: {
       modelVersion: BLOCK_MODEL_VERSION,
       blocks: Array.isArray(page.layout?.blocks) ? clone(page.layout.blocks) : [],

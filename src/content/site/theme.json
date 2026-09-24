@@ -1,0 +1,33 @@
+{
+  "modelVersion": 1,
+  "colors": {
+    "primary": "#ff8a5b",
+    "accent": "#62d6a8",
+    "background": "#0f1117",
+    "surface": "#181d29",
+    "text": "#fff3e8",
+    "mutedText": "#d4bba8",
+    "border": "#ffd6ba2e"
+  },
+  "typography": {
+    "headingFont": "cinzel",
+    "bodyFont": "source-sans-3",
+    "fontScale": "default"
+  },
+  "layout": {
+    "contentWidth": "wide",
+    "sectionSpacing": "default",
+    "cardPadding": "default"
+  },
+  "shape": {
+    "cardRadius": "md",
+    "buttonRadius": "sm"
+  },
+  "cards": {
+    "border": "subtle",
+    "shadow": "soft"
+  },
+  "buttons": {
+    "size": "default"
+  }
+}

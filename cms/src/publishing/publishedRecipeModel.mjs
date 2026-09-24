@@ -177,6 +177,7 @@ function meaningfulSource(value) {
     extras: value.extras,
     ratingSummary: value.ratingSummary,
     keywords: value.keywords,
+    template: value.template,
     layout: value.layout,
   };
 }

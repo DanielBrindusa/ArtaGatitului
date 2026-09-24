@@ -1,0 +1,17 @@
+{
+  "modelVersion": 1,
+  "blocks": [
+    {
+      "id": "global-random-recipe",
+      "name": "Random recipe call to action",
+      "status": "published",
+      "block": {
+        "id": "global-random-recipe-content",
+        "type": "random-recipe",
+        "data": { "label": "Surprinde-mă cu o rețetă" },
+        "layout": { "width": "wide", "paddingBlock": "sm" },
+        "variant": "primary"
+      }
+    }
+  ]
+}

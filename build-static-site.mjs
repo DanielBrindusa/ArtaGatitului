@@ -2,6 +2,7 @@ import { deflateSync, inflateSync } from 'node:zlib';
 import { BUILD_VERSION, HERO_IMAGE, SITE_CONFIG, SITE_NAME } from './src/scripts/build/config.mjs';
 import { runBuild } from './src/scripts/build/index.mjs';
 import { renderDesignTokenCss, renderLayoutTokenCss } from './src/shared/design/tokens.mjs';
+import { navigationTargetHref, renderSiteThemeCss, resolveTemplateLayout } from './src/shared/site/model.mjs';
 import { renderBlockTree } from './src/shared/render/blocks.mjs';
 import {
   cleanArray,
@@ -9,6 +10,28 @@ import {
   renderRecipeTags,
   renderSteakCalculator,
 } from './src/shared/render/recipe.mjs';
+
+let activeSiteSources = null;
+
+function configureSiteSources(site) {
+  activeSiteSources = site || null;
+}
+
+function siteSettings() {
+  return activeSiteSources?.settings || SITE_CONFIG;
+}
+
+function siteTitle() {
+  return siteSettings().siteTitle || SITE_NAME;
+}
+
+function globalBlocks() {
+  return activeSiteSources?.globalBlocks?.blocks || [];
+}
+
+function effectiveLayout(content) {
+  return resolveTemplateLayout(content.layout, content.template, activeSiteSources?.templates?.templates || []);
+}
 import { escapeHtml, slugify } from './src/shared/utils/html.mjs';
 
 function safeDescription(value, fallback = SITE_CONFIG.defaultDescription, maxLength = 180) {
@@ -173,59 +196,74 @@ function dataFile({ categories, recipes, aliases, tagGroups, ingredientAliases, 
 }
 
 function nav(root) {
-  const primaryLinks = [
-    ['Portofoliu', 'portofoliu/'],
-    ['Ce pot găti?', 'ce-pot-gati.html'],
-    ['Randomizer', 'randomizer/'],
-    ['Caută', 'cauta.html'],
+  const fallbackPrimary = [
+    { id: 'portfolio', label: 'Portofoliu', type: 'system', target: 'portfolio', children: [] },
+    { id: 'ingredient-matcher', label: 'Ce pot găti?', type: 'system', target: 'ingredient-matcher', children: [] },
+    { id: 'randomizer', label: 'Randomizer', type: 'system', target: 'randomizer', children: [] },
+    { id: 'search', label: 'Caută', type: 'system', target: 'search', children: [] },
   ];
-  const menuLinks = [
-    ['Categorii', 'categorii.html'],
-    ['Fel principal', 'fel-principal/'],
-    ['Fel secundar', 'fel-secundar/'],
-    ['Desert', 'desert/'],
-    ['Rontaieli', 'rontaieli/'],
-    ['Salate', 'salate/'],
-    ['Băuturi', 'bauturi/'],
-    ['Mic dejun', 'mic-dejun/'],
+  const fallbackMenu = [
+    { id: 'categories', label: 'Categorii', type: 'system', target: 'categories', children: [] },
+    ...['Fel principal', 'Fel secundar', 'Desert', 'Rontaieli', 'Salate', 'Băuturi', 'Mic dejun'].map((label) => ({
+      id: `category-${slugify(label)}`, label, type: 'category', target: slugify(label), children: [],
+    })),
   ];
+  const header = activeSiteSources?.navigation?.header || {};
+  const primaryLinks = header.primaryItems || fallbackPrimary;
+  const menuLinks = header.menuItems || fallbackMenu;
+  const renderItems = (items) => items.map((item) => {
+    const href = navigationTargetHref(item, root);
+    const content = href
+      ? `<a href="${escapeHtml(href)}"${item.type === 'external' ? ' target="_blank" rel="noopener noreferrer"' : ''}>${escapeHtml(item.label)}</a>`
+      : `<span${item.children?.length ? ' tabindex="0"' : ''}>${escapeHtml(item.label)}</span>`;
+    return item.children?.length
+      ? `<div class="nav-item has-submenu">${content}<div class="nav-submenu">${renderItems(item.children)}</div></div>`
+      : content;
+  }).join('\n          ');
+  const title = header.siteTitle || siteTitle();
+  const logoMark = header.logoMark || 'AG';
 
   return `
     <header class="site-header">
       <div class="nav-wrap">
-        <a class="logo" href="${root}index.html" aria-label="${SITE_NAME}">
-          <span class="logo-mark">AG</span>
-          <span>${SITE_NAME}</span>
+        <a class="logo" href="${root}index.html" aria-label="${escapeHtml(title)}">
+          <span class="logo-mark">${escapeHtml(logoMark)}</span>
+          <span>${escapeHtml(title)}</span>
         </a>
         <nav class="nav-primary" aria-label="Navigație principală">
-          ${primaryLinks.map(([label, href]) => `<a href="${root}${href}">${label}</a>`).join('\n          ')}
+          ${renderItems(primaryLinks)}
         </nav>
         <div class="nav-tools" aria-label="Instrumente rapide">
-          <button class="nav-tool" type="button" data-open-command aria-label="Caută rapid rețete, categorii sau etichete">
+          ${header.searchVisible !== false ? `<button class="nav-tool" type="button" data-open-command aria-label="Caută rapid rețete, categorii sau etichete">
             <span aria-hidden="true">K</span>
             <span>Rapid</span>
-          </button>
-          <button class="nav-tool" type="button" data-theme-toggle aria-expanded="false" aria-controls="themePanel">
+          </button>` : ''}
+          ${header.themeSwitcherVisible !== false ? `<button class="nav-tool" type="button" data-theme-toggle aria-expanded="false" aria-controls="themePanel">
             <span aria-hidden="true">A</span>
             <span>Aspect</span>
-          </button>
+          </button>` : ''}
         </div>
         <button class="mobile-menu-btn" type="button" aria-expanded="false" aria-controls="siteNav" aria-label="Deschide meniul de categorii">
           <span aria-hidden="true">☰</span>
           <span>Categorii</span>
         </button>
         <nav class="nav-links" id="siteNav" aria-label="Categorii rețete">
-          ${menuLinks.map(([label, href]) => `<a href="${root}${href}">${label}</a>`).join('\n          ')}
+          ${renderItems(menuLinks)}
         </nav>
       </div>
     </header>`;
 }
 
 function footer(root) {
+  const source = activeSiteSources?.navigation?.footer;
+  const copyright = source?.copyright || `{year} ${siteTitle()} - Toate drepturile rezervate.`;
+  const links = source?.links || [{ id: 'recipe-builder', label: 'Creator rețetă', type: 'system', target: 'recipe-builder', children: [] }];
+  const renderedLinks = links.map((item) => `<a href="${escapeHtml(navigationTargetHref(item, root))}"${item.type === 'external' ? ' target="_blank" rel="noopener noreferrer"' : ''}>${escapeHtml(item.label)}</a>`).join(' ');
   return `
     <footer class="footer">
-      <p>Copyright © <span id="year"></span> ${SITE_NAME} - Toate drepturile rezervate.</p>
-      <p class="footer-tools"><a href="${root}adauga-reteta.html">Creator rețetă</a></p>
+      <p>Copyright © ${escapeHtml(copyright).replace('{year}', '<span id="year"></span>')}</p>
+      ${source?.text ? `<p>${escapeHtml(source.text)}</p>` : ''}
+      <p class="footer-tools">${renderedLinks}</p>
     </footer>`;
 }
 
@@ -241,13 +279,14 @@ function page({
   image = SITE_CONFIG.defaultImage,
   structuredData = [],
 }) {
-  const documentTitle = title === SITE_NAME ? SITE_NAME : `${title} | ${SITE_NAME}`;
-  const metaDescription = safeDescription(description);
+  const currentTitle = siteTitle();
+  const documentTitle = title === currentTitle ? currentTitle : `${title} | ${currentTitle}`;
+  const metaDescription = safeDescription(description, siteSettings().siteDescription || SITE_CONFIG.defaultDescription);
   const canonicalUrl = absoluteUrl(canonicalPath);
-  const imageUrl = image ? absoluteUrl(image) : '';
+  const imageUrl = image ? absoluteUrl(image) : absoluteUrl(siteSettings().defaultSocialImage || SITE_CONFIG.defaultImage);
   const ldScripts = structuredData.filter(Boolean).map(jsonLdScript).join('\n  ');
   return `<!doctype html>
-<html lang="${escapeHtml(SITE_CONFIG.defaultLanguage)}">
+<html lang="${escapeHtml(siteSettings().language || SITE_CONFIG.defaultLanguage)}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -255,20 +294,20 @@ function page({
   <title>${escapeHtml(documentTitle)}</title>
   <meta name="description" content="${escapeHtml(metaDescription)}">
   <meta name="robots" content="${escapeHtml(robots)}">
-  <meta name="theme-color" content="#0f1117">
+  <meta name="theme-color" content="${escapeHtml(activeSiteSources?.theme?.colors?.background || '#0f1117')}">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="${SITE_NAME}">
+  <meta name="apple-mobile-web-app-title" content="${escapeHtml(currentTitle)}">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="canonical" href="${escapeHtml(canonicalUrl)}">
   <link rel="manifest" href="${root}manifest.json">
   <link rel="icon" type="image/png" href="${root}assets/icons/icon.png">
   <link rel="apple-touch-icon" href="${root}assets/icons/icon.png">
-  <meta property="og:site_name" content="${escapeHtml(SITE_CONFIG.siteName)}">
+  <meta property="og:site_name" content="${escapeHtml(currentTitle)}">
   <meta property="og:title" content="${escapeHtml(documentTitle)}">
   <meta property="og:description" content="${escapeHtml(metaDescription)}">
   <meta property="og:type" content="${escapeHtml(pageType)}">
   <meta property="og:url" content="${escapeHtml(canonicalUrl)}">
-  <meta property="og:locale" content="${escapeHtml(SITE_CONFIG.defaultLocale)}">
+  <meta property="og:locale" content="${escapeHtml(siteSettings().locale || SITE_CONFIG.defaultLocale)}">
   ${imageUrl ? `<meta property="og:image" content="${escapeHtml(imageUrl)}">` : ''}
   <meta name="twitter:card" content="${imageUrl ? 'summary_large_image' : 'summary'}">
   <meta name="twitter:title" content="${escapeHtml(documentTitle)}">
@@ -332,16 +371,18 @@ ${footer(root)}
 
 function homePage(home, content = {}) {
   if (home) {
+    const layout = effectiveLayout(home);
     return page({
       title: home.title,
       description: home.description,
       canonicalPath: SITE_CONFIG.routes.home,
       image: home.socialImage || SITE_CONFIG.defaultImage,
       bodyAttrs: 'data-page="home"',
-      main: `<main id="main-content" class="page-builder-output">${renderBlockTree(home.layout.blocks, {
+      main: `<main id="main-content" class="page-builder-output">${renderBlockTree(layout.blocks, {
         page: home,
         recipes: content.recipes || [],
         categories: content.categories || [],
+        globalBlocks: globalBlocks(),
         root: '',
       })}</main>`,
     });
@@ -521,9 +562,10 @@ function categoryPage(category, root = '../../') {
 }
 
 function recipePage(recipe, root = '../../', slugOverride = recipe.slug, buildContext = {}) {
-  const detail = recipe.layout?.modelVersion === 1 && Array.isArray(recipe.layout.blocks)
+  const layout = effectiveLayout(recipe);
+  const detail = layout?.modelVersion === 1 && Array.isArray(layout.blocks) && layout.blocks.length
     ? `<article class="recipe-detail-card recipe-block-layout" data-static-recipe data-recipe-slug="${escapeHtml(recipe.slug)}">
-        ${renderBlockTree(recipe.layout.blocks, { recipe, recipes: buildContext.recipes || [], root })}
+        ${renderBlockTree(layout.blocks, { recipe, recipes: buildContext.recipes || [], globalBlocks: globalBlocks(), root })}
         ${renderRecipeTags(recipe, root, buildContext.tagGroups)}
         ${(recipe.extras || []).map(renderSteakCalculator).join('')}
       </article>`
@@ -545,6 +587,7 @@ function recipePage(recipe, root = '../../', slugOverride = recipe.slug, buildCo
 }
 
 function contentPage(contentPageSource, content = {}) {
+  const layout = effectiveLayout(contentPageSource);
   return page({
     title: contentPageSource.title,
     description: contentPageSource.description,
@@ -552,10 +595,11 @@ function contentPage(contentPageSource, content = {}) {
     image: contentPageSource.socialImage || SITE_CONFIG.defaultImage,
     root: '../',
     bodyAttrs: `data-page="${escapeHtml(contentPageSource.slug)}"`,
-    main: `<main id="main-content" class="page-builder-output">${renderBlockTree(contentPageSource.layout.blocks, {
+    main: `<main id="main-content" class="page-builder-output">${renderBlockTree(layout.blocks, {
       page: contentPageSource,
       recipes: content.recipes || [],
       categories: content.categories || [],
+      globalBlocks: globalBlocks(),
       root: '../',
     })}</main>`,
   });
@@ -988,6 +1032,7 @@ function offlinePage() {
 function cssFile() {
   return `${renderDesignTokenCss()}
 ${renderLayoutTokenCss()}
+${renderSiteThemeCss(activeSiteSources?.theme)}
 
 :root[data-theme="cream"] {
   --color-bg: #18120f;
@@ -1054,8 +1099,8 @@ html {
 body {
   margin: 0;
   min-width: 320px;
-  font-family: "Source Sans 3", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  font-size: 1rem;
+  font-family: var(--font-body, "Source Sans 3", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+  font-size: calc(1rem * var(--font-scale, 1));
   line-height: 1.6;
   color: var(--color-text);
   background: var(--color-bg);
@@ -1230,7 +1275,7 @@ h1,
 h2,
 h3 {
   margin: 0;
-  font-family: Cinzel, Georgia, serif;
+  font-family: var(--font-heading, Cinzel, Georgia, serif);
   font-weight: 700;
   line-height: 1.14;
   letter-spacing: 0;
@@ -1352,7 +1397,7 @@ p {
   min-width: 0;
   color: var(--color-text);
   text-decoration: none;
-  font-family: Cinzel, Georgia, serif;
+  font-family: var(--font-heading, Cinzel, Georgia, serif);
   font-size: 1.05rem;
   font-weight: 700;
   white-space: nowrap;
@@ -1445,7 +1490,8 @@ p {
 }
 
 .nav-primary a,
-.nav-links a {
+.nav-links a,
+.nav-item > span {
   display: inline-flex;
   align-items: center;
   min-height: 40px;
@@ -1497,6 +1543,23 @@ p {
 
 .nav-links.open {
   display: flex;
+}
+
+.nav-links .nav-item {
+  width: 100%;
+  flex-direction: column;
+}
+
+.nav-links .nav-submenu {
+  display: grid;
+  position: static;
+  min-width: 0;
+  margin: 2px 0 6px var(--space-3);
+  padding: 0 0 0 var(--space-2);
+  border-width: 0 0 0 1px;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 .mobile-menu-btn {
@@ -1696,9 +1759,9 @@ p {
   justify-content: center;
   min-height: 44px;
   min-width: 44px;
-  padding: 11px var(--space-4);
+  padding: var(--button-padding, 11px var(--space-4));
   border: 1px solid var(--color-primary);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-button, var(--radius-sm));
   background: var(--color-primary);
   color: #1a100c;
   text-decoration: none;
@@ -1787,6 +1850,40 @@ p {
 
 .section.compact {
   padding-top: var(--space-6);
+}
+
+.nav-item {
+  position: relative;
+  display: inline-flex;
+  min-width: 0;
+}
+
+.nav-item > a,
+.nav-item > span {
+  width: 100%;
+}
+
+.nav-submenu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 35;
+  min-width: 220px;
+  padding: var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+
+.nav-item:hover > .nav-submenu,
+.nav-item:focus-within > .nav-submenu {
+  display: grid;
+}
+
+.nav-submenu a {
+  width: 100%;
 }
 
 .content-block {
@@ -1929,10 +2026,10 @@ p {
 .ingredient-panel,
 .box,
 .steak-calculator {
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  border: 1px solid var(--card-border, var(--color-border));
+  border-radius: var(--radius-card, var(--radius-lg));
   background: var(--color-surface);
-  box-shadow: var(--shadow-soft);
+  box-shadow: var(--shadow-card, var(--shadow-soft));
   backdrop-filter: blur(10px);
 }
 
@@ -1941,7 +2038,7 @@ p {
   --tilt-x: 0deg;
   --tilt-y: 0deg;
   min-height: 100%;
-  padding: var(--space-5);
+  padding: var(--card-padding, var(--space-5));
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -3826,6 +3923,22 @@ body.command-open {
 
   .nav-links.open {
     display: flex;
+  }
+
+  .nav-primary .nav-item {
+    flex-direction: column;
+  }
+
+  .nav-primary .nav-submenu {
+    display: grid;
+    position: static;
+    min-width: 0;
+    margin-left: var(--space-2);
+    padding: 0 0 0 var(--space-2);
+    border-width: 0 0 0 1px;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
   }
 
   .nav-links a {
@@ -7784,6 +7897,7 @@ function resizePng(buffer, size) {
 
 async function main() {
   await runBuild({
+    configureSiteSources,
     dataFile,
     jsFile,
     cssFile,

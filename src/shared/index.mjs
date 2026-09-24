@@ -11,3 +11,4 @@ export * from './validation/blocks.mjs';
 export * from './validation/recipe.mjs';
 export * from './validation/page.mjs';
 export * from './routing/page-routes.mjs';
+export * from './site/model.mjs';

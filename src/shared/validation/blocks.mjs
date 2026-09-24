@@ -31,6 +31,7 @@ const CONTENT_BLOCK_TYPES = new Set([
   BLOCK_TYPES.LATEST_RECIPES,
   BLOCK_TYPES.CATEGORY_GRID,
   BLOCK_TYPES.RANDOM_RECIPE,
+  BLOCK_TYPES.GLOBAL_REFERENCE,
 ]);
 
 const CHILD_TYPES = Object.freeze({
@@ -279,6 +280,11 @@ function validateData(block, path, errors, depth) {
     case BLOCK_TYPES.RANDOM_RECIPE:
       requireOnlyKeys(data, ['label'], dataPath, errors);
       requireString(data.label, `${dataPath}.label`, errors);
+      break;
+    case BLOCK_TYPES.GLOBAL_REFERENCE:
+      requireOnlyKeys(data, ['globalId'], dataPath, errors);
+      requireString(data.globalId, `${dataPath}.globalId`, errors);
+      if (typeof data.globalId === 'string' && !SAFE_ID.test(data.globalId)) errors.push(`${dataPath}.globalId must be a safe identifier`);
       break;
     case BLOCK_TYPES.RECIPE_HERO:
       requireOnlyKeys(data, ['showCategory', 'showDescription'], dataPath, errors);

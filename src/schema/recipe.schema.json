@@ -83,6 +83,16 @@
     "status": {
       "type": "string",
       "enum": ["published", "draft", "archived"]
+    },
+    "template": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": ["id", "mode", "overrides"],
+      "properties": {
+        "id": { "type": ["string", "null"] },
+        "mode": { "enum": ["linked", "detached"] },
+        "overrides": { "type": "object" }
+      }
     }
   },
   "additionalProperties": true

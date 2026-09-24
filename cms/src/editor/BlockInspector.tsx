@@ -3,13 +3,16 @@ import {
   BLOCK_TYPES,
   LAYOUT_WIDTHS,
   SPACING_TOKENS,
+  resolveTemplateLayout,
+  updateTemplateBlockOverride,
   type ContentBlock,
+  type LayoutWidth,
 } from '../../../src/shared/index.mjs';
 import {
   validateDraftForPublish,
   type RecipeDraft,
 } from '../drafts/draftModel.mjs';
-import { knownCategories, knownTagGroups } from './contentCatalog';
+import { knownCategories, knownTagGroups, siteTemplates } from './contentCatalog';
 import {
   REQUIRED_RECIPE_BLOCK_TYPES,
   resolvedBlockWidth,
@@ -42,6 +45,8 @@ export function BlockInspector({ draft, block, viewport, updateDraft }: BlockIns
   const readiness = validateDraftForPublish(draft);
   const attachment = draft.data.attachments[0];
   const required = block ? REQUIRED_RECIPE_BLOCK_TYPES.includes(block.type) : false;
+  const recipeTemplates = siteTemplates.templates.filter((template) => template.contentType === 'recipe');
+  const assignment = draft.data.recipe.template;
 
   function updateBlockData(changes: Record<string, unknown>) {
     if (!block) return;
@@ -53,10 +58,30 @@ export function BlockInspector({ draft, block, viewport, updateDraft }: BlockIns
 
   function updateBlockLayout(changes: Record<string, unknown>) {
     if (!block) return;
-    updateDraft((current) => updateDraftBlock(current, block.id, (item) => ({
-      ...item,
-      layout: { ...item.layout, ...changes },
-    })));
+    updateDraft((current) => {
+      const template = updateTemplateBlockOverride(current.data.recipe.template, recipeTemplates, block, { layout: changes });
+      if (template) return { ...current, data: { ...current.data, recipe: { ...current.data.recipe, template } } };
+      return updateDraftBlock(current, block.id, (item) => ({ ...item, layout: { ...item.layout, ...changes } }));
+    });
+  }
+
+  function updateBlockWidth(width: LayoutWidth) {
+    if (!block) return;
+    updateDraft((current) => {
+      const patch = viewport === 'desktop' ? { layout: { width } } : { responsive: { [viewport]: { width } } };
+      const template = updateTemplateBlockOverride(current.data.recipe.template, recipeTemplates, block, patch);
+      if (template) return { ...current, data: { ...current.data, recipe: { ...current.data.recipe, template } } };
+      return setBlockWidth(current, block.id, viewport, width);
+    });
+  }
+
+  function updateBlockVisibility(visible: boolean) {
+    if (!block) return;
+    updateDraft((current) => {
+      const template = updateTemplateBlockOverride(current.data.recipe.template, recipeTemplates, block, { responsive: { [viewport]: { visible } } });
+      if (template) return { ...current, data: { ...current.data, recipe: { ...current.data.recipe, template } } };
+      return setBlockVisibility(current, block.id, viewport, visible);
+    });
   }
 
   function setKnownTag(group: string, tag: string, checked: boolean) {
@@ -78,6 +103,13 @@ export function BlockInspector({ draft, block, viewport, updateDraft }: BlockIns
         <SlidersHorizontal aria-hidden="true" size={18} />
       </div>
 
+      <section className="inspector-section template-link-controls">
+        <h3>Template</h3>
+        <label><span>Recipe layout</span><select value={assignment?.mode === 'linked' ? assignment.id ?? '' : 'detached'} onChange={(event) => updateDraft((current) => ({ ...current, data: { ...current.data, recipe: { ...current.data.recipe, template: event.target.value === 'detached' ? { id: null, mode: 'detached', overrides: {} } : { id: event.target.value, mode: 'linked', overrides: {} } } } }))}><option value="detached">Detached layout</option>{recipeTemplates.map((template) => <option key={template.id} value={template.id}>{template.name}</option>)}</select></label>
+        {assignment?.mode === 'linked' && <div className="template-link-actions"><button className="secondary-command" type="button" onClick={() => { if (!window.confirm('Remove all local layout overrides and return to the template defaults? Recipe content will not be changed.')) return; updateDraft((current) => ({ ...current, data: { ...current.data, recipe: { ...current.data.recipe, template: { id: current.data.recipe.template?.id ?? 'recipe-default', mode: 'linked', overrides: {} } } } })); }}>Reset to template</button><button className="secondary-command" type="button" onClick={() => { if (!window.confirm('Detach this recipe? Future template changes will no longer update its layout.')) return; updateDraft((current) => ({ ...current, layout: resolveTemplateLayout(current.layout, current.data.recipe.template, recipeTemplates), data: { ...current.data, recipe: { ...current.data.recipe, template: { id: null, mode: 'detached', overrides: {} } } } })); }}>Detach</button></div>}
+        <p className="panel-note">{assignment?.mode === 'linked' ? 'Template defaults remain linked; explicit block settings win.' : 'This layout is independent from future template changes.'}</p>
+      </section>
+
       {!block && <p className="panel-note">Select a block on the canvas to edit its layout and presentation.</p>}
 
       {(block?.type === BLOCK_TYPES.RECIPE_HERO || !block) && (
@@ -95,10 +127,10 @@ export function BlockInspector({ draft, block, viewport, updateDraft }: BlockIns
             <h3>{viewport} layout</h3>
             <span className="inspector-label">Width</span>
             <div className="inspector-segments" aria-label={`${viewport} block width`}>
-              {LAYOUT_WIDTHS.map((width) => <button key={width} type="button" className={resolvedBlockWidth(block, viewport) === width ? 'active' : undefined} onClick={() => updateDraft((current) => setBlockWidth(current, block.id, viewport, width))}>{width}</button>)}
+              {LAYOUT_WIDTHS.map((width) => <button key={width} type="button" className={resolvedBlockWidth(block, viewport) === width ? 'active' : undefined} onClick={() => updateBlockWidth(width)}>{width}</button>)}
             </div>
             <label><span>Vertical spacing</span><select value={block.layout?.paddingBlock ?? 'none'} onChange={(event) => updateBlockLayout({ paddingBlock: event.target.value })}>{SPACING_TOKENS.map((token) => <option key={token}>{token}</option>)}</select></label>
-            <label className="toggle-field"><input type="checkbox" checked={block.responsive?.[viewport]?.visible !== false} disabled={required} onChange={(event) => updateDraft((current) => setBlockVisibility(current, block.id, viewport, event.target.checked))} /><span>Visible at {viewport}</span></label>
+            <label className="toggle-field"><input type="checkbox" checked={block.responsive?.[viewport]?.visible !== false} disabled={required} onChange={(event) => updateBlockVisibility(event.target.checked)} /><span>Visible at {viewport}</span></label>
             {required && <p className="field-help">Required recipe blocks cannot be hidden.</p>}
           </section>
 

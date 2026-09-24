@@ -13,6 +13,8 @@ commands.allow = [
   "github_load_published_recipe",
   "github_list_published_pages",
   "github_load_published_page",
+  "github_load_site_configuration",
+  "github_prepare_site_publish",
   "github_analyze_page_delete",
   "github_prepare_page_delete",
   "github_prepare_page_publish",

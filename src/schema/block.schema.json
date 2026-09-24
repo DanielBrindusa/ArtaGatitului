@@ -31,6 +31,7 @@
         "latest-recipes",
         "category-grid",
         "random-recipe",
+        "global-reference",
         "recipe-hero",
         "recipe-metadata",
         "ingredients",
@@ -178,6 +179,19 @@
               "href": { "$ref": "#/$defs/nonEmptyString" },
               "target": { "enum": ["_self", "_blank"] }
             }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "type": { "const": "global-reference" } } },
+      "then": {
+        "properties": {
+          "data": {
+            "type": "object",
+            "required": ["globalId"],
+            "additionalProperties": false,
+            "properties": { "globalId": { "type": "string", "pattern": "^[a-z][a-z0-9-]{0,79}$" } }
           }
         }
       }

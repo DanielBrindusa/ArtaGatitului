@@ -13,6 +13,7 @@
     "description": { "type": "string", "maxLength": 320 },
     "socialImage": { "type": ["string", "null"] },
     "status": { "enum": ["published", "draft", "archived"] },
+    "template": { "$ref": "#/$defs/templateAssignment" },
     "layout": {
       "type": "object",
       "additionalProperties": false,
@@ -24,6 +25,18 @@
           "minItems": 1,
           "items": { "$ref": "block.schema.json" }
         }
+      }
+    }
+  },
+  "$defs": {
+    "templateAssignment": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": ["id", "mode", "overrides"],
+      "properties": {
+        "id": { "type": ["string", "null"] },
+        "mode": { "enum": ["linked", "detached"] },
+        "overrides": { "type": "object" }
       }
     }
   }

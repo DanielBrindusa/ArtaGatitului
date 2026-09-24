@@ -1,0 +1,74 @@
+{
+  "modelVersion": 1,
+  "templates": [
+    {
+      "id": "recipe-default",
+      "name": "Recipe - Default",
+      "contentType": "recipe",
+      "locked": true,
+      "slots": [
+        { "id": "hero", "type": "recipe-hero", "layout": { "width": "full", "paddingBlock": "sm" }, "variant": "default" },
+        { "id": "metadata", "type": "recipe-metadata", "layout": { "width": "wide", "paddingBlock": "sm" }, "variant": "default" },
+        { "id": "ingredients", "type": "ingredients", "layout": { "width": "medium", "paddingBlock": "sm" }, "variant": "default" },
+        { "id": "instructions", "type": "instructions", "layout": { "width": "medium", "paddingBlock": "sm" }, "variant": "default" },
+        { "id": "rating", "type": "rating", "layout": { "width": "wide", "paddingBlock": "sm" }, "variant": "default" },
+        { "id": "related", "type": "related-recipes", "layout": { "width": "wide", "paddingBlock": "sm" }, "variant": "default" }
+      ]
+    },
+    {
+      "id": "recipe-dessert",
+      "name": "Recipe - Dessert",
+      "contentType": "recipe",
+      "locked": false,
+      "slots": [
+        { "id": "hero", "type": "recipe-hero", "layout": { "width": "full", "paddingBlock": "md" }, "variant": "default" },
+        { "id": "metadata", "type": "recipe-metadata", "layout": { "width": "medium", "paddingBlock": "sm" }, "variant": "compact" },
+        { "id": "ingredients", "type": "ingredients", "layout": { "width": "medium", "paddingBlock": "sm" }, "variant": "default" },
+        { "id": "instructions", "type": "instructions", "layout": { "width": "medium", "paddingBlock": "sm" }, "variant": "default" },
+        { "id": "related", "type": "related-recipes", "layout": { "width": "wide", "paddingBlock": "md" }, "variant": "default" }
+      ]
+    },
+    {
+      "id": "recipe-drinks",
+      "name": "Recipe - Drinks",
+      "contentType": "recipe",
+      "locked": false,
+      "slots": [
+        { "id": "hero", "type": "recipe-hero", "layout": { "width": "full", "paddingBlock": "sm" }, "variant": "default" },
+        { "id": "metadata", "type": "recipe-metadata", "layout": { "width": "narrow", "paddingBlock": "xs" }, "variant": "compact" },
+        { "id": "ingredients", "type": "ingredients", "layout": { "width": "narrow", "paddingBlock": "sm" }, "variant": "default" },
+        { "id": "instructions", "type": "instructions", "layout": { "width": "narrow", "paddingBlock": "sm" }, "variant": "default" }
+      ]
+    },
+    {
+      "id": "page-standard",
+      "name": "Standard Page",
+      "contentType": "page",
+      "pageType": "standard",
+      "locked": true,
+      "slots": [
+        { "id": "intro", "type": "section", "layout": { "width": "wide", "paddingBlock": "md" }, "variant": "default" }
+      ]
+    },
+    {
+      "id": "page-landing",
+      "name": "Landing Page",
+      "contentType": "page",
+      "pageType": "landing",
+      "locked": true,
+      "slots": [
+        { "id": "hero", "type": "section", "layout": { "width": "full", "paddingBlock": "lg" }, "variant": "home-hero" }
+      ]
+    },
+    {
+      "id": "category-default",
+      "name": "Category Page",
+      "contentType": "category",
+      "locked": true,
+      "slots": [
+        { "id": "category-header", "type": "heading", "layout": { "width": "wide", "paddingBlock": "sm" }, "variant": "default" },
+        { "id": "category-recipes", "type": "recipe-grid", "layout": { "width": "wide", "paddingBlock": "md" }, "variant": "default" }
+      ]
+    }
+  ]
+}

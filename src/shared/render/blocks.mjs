@@ -141,6 +141,13 @@ function renderBlockContent(block, context) {
       return renderCategoryGrid(block, context);
     case BLOCK_TYPES.RANDOM_RECIPE:
       return `<button class="btn${block.variant === 'secondary' ? ' secondary' : ''}" type="button" data-random-recipe${context.page?.pageType === 'home' ? ' id="surpriseRecipeButton"' : ''}>${escapeHtml(data.label)}</button>`;
+    case BLOCK_TYPES.GLOBAL_REFERENCE: {
+      const global = (context.globalBlocks || []).find((entry) => entry.id === data.globalId);
+      if (!global) throw new Error(`Global block "${data.globalId}" is missing.`);
+      const stack = context.globalBlockStack || [];
+      if (stack.includes(data.globalId)) throw new Error(`Global block "${data.globalId}" is recursive.`);
+      return renderBlock(global.block, { ...context, globalBlockStack: [...stack, data.globalId] });
+    }
     case BLOCK_TYPES.RECIPE_HERO:
       return renderRecipeHero(requireRecipe(context, block.type), context.root || '', {
         ...data,

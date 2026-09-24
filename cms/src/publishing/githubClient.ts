@@ -67,6 +67,23 @@ export interface PublishedPage extends PublishedPageSummary {
   sourceJson: string;
 }
 
+export interface SiteSourceSnapshot {
+  path: string;
+  blobSha: string;
+  sourceJson: string;
+}
+
+export interface SiteConfigurationSnapshot {
+  commitSha: string;
+  sources: SiteSourceSnapshot[];
+}
+
+export interface PrepareSitePublishInput {
+  sourceDraftId: string;
+  area: 'templates' | 'global-blocks' | 'navigation' | 'taxonomies' | 'theme' | 'settings' | 'site';
+  files: SiteSourceSnapshot[];
+}
+
 export interface PublishPageImageInput extends PublishImageInput {
   blockId: string;
 }
@@ -224,6 +241,16 @@ export async function loadPublishedPage(slug: string) {
 export async function preparePagePublish(input: PreparePagePublishInput) {
   requireNativeApp();
   return invoke<PublishReview>('github_prepare_page_publish', { input });
+}
+
+export async function loadSiteConfiguration() {
+  requireNativeApp();
+  return invoke<SiteConfigurationSnapshot>('github_load_site_configuration');
+}
+
+export async function prepareSitePublish(input: PrepareSitePublishInput) {
+  requireNativeApp();
+  return invoke<PublishReview>('github_prepare_site_publish', { input });
 }
 
 export async function analyzePageDelete(source: PublishedSourceIdentity) {

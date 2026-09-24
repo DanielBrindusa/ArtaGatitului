@@ -1,4 +1,5 @@
 import { slugify } from '../utils/html.mjs';
+import { normalizeTemplateAssignment } from '../site/model.mjs';
 
 export function asStringArray(value) {
   return Array.isArray(value)
@@ -75,6 +76,7 @@ export function normalizeRecipe(recipe, fileName = 'recipe') {
     closing: recipe.closing || 'Poftă bună!',
     extras: Array.isArray(recipe.extras) ? recipe.extras : [],
     ratingSummary: recipe.ratingSummary || null,
+    ...(recipe.template !== undefined ? { template: normalizeTemplateAssignment(recipe.template) } : {}),
   };
 
   normalized.keywords = keywordList(normalized);

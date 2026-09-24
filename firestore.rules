@@ -23,7 +23,7 @@ service cloud.firestore {
           'steps', 'preparation', 'beforeStart', 'tags', 'equipment',
           'prepTimeMinutes', 'cookTimeMinutes', 'totalTimeMinutes', 'servings',
           'image', 'sourceUrl', 'createdAt', 'updatedAt', 'status', 'closing',
-          'imageAlt', 'extras', 'ratingSummary', 'keywords'
+          'imageAlt', 'extras', 'ratingSummary', 'keywords', 'template'
         ])
         && data.recipe.id is string
         && data.recipe.title is string
@@ -67,7 +67,7 @@ service cloud.firestore {
         && data.modelVersion == 1
         && data.page is map
         && data.page.keys().hasOnly([
-          'id', 'pageType', 'title', 'slug', 'description', 'socialImage', 'status'
+          'id', 'pageType', 'title', 'slug', 'description', 'socialImage', 'status', 'template'
         ])
         && data.page.id is string
         && data.page.pageType in ['home', 'standard', 'landing']
@@ -79,6 +79,28 @@ service cloud.firestore {
         && data.page.status in ['published', 'draft', 'archived']
         && data.attachments is list
         && data.attachments.size() <= 50;
+    }
+
+    function validSiteDraftContent(data) {
+      return data is map
+        && data.keys().hasOnly(['modelVersion', 'site', 'sources'])
+        && data.modelVersion == 1
+        && data.site is map
+        && data.site.keys().hasOnly([
+          'templates', 'globalBlocks', 'navigation', 'settings', 'theme',
+          'categories', 'tagGroups', 'recipes', 'pages'
+        ])
+        && data.site.templates is map
+        && data.site.globalBlocks is map
+        && data.site.navigation is map
+        && data.site.settings is map
+        && data.site.theme is map
+        && data.site.categories is list
+        && data.site.tagGroups is map
+        && data.site.recipes is list
+        && data.site.pages is list
+        && data.sources is list
+        && data.sources.size() <= 100;
     }
 
     function validDraftLayout(layout) {
@@ -137,7 +159,7 @@ service cloud.firestore {
           'sourceLink', 'deletedAt'
         ])
         && draft.id == draftId
-        && draft.contentType in ['recipe', 'page']
+        && draft.contentType in ['recipe', 'page', 'site']
         && draft.schemaVersion == 1
         && draft.title is string
         && draft.title.size() <= 200
@@ -161,7 +183,14 @@ service cloud.firestore {
               || (draft.data.page.id == 'home' && draft.slug == 'home'))
             && ((draft.status == 'published' && draft.data.page.status == 'published')
               || (draft.status in ['draft', 'ready'] && draft.data.page.status == 'draft')
-              || (draft.status == 'publishedDeleted' && draft.data.page.status == 'archived'))))
+              || (draft.status == 'publishedDeleted' && draft.data.page.status == 'archived')))
+          || (draft.contentType == 'site'
+            && validSiteDraftContent(draft.data)
+            && draft.slug == 'site-management'
+            && draft.status in ['draft', 'ready', 'published']
+            && draft.sourceLink == null
+            && draft.deletedAt == null
+            && draft.layout.blocks.size() == 0))
         && validDraftLayout(draft.layout)
         && draft.createdAt is timestamp
         && draft.updatedAt is timestamp

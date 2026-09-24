@@ -1,7 +1,10 @@
 import assert from 'node:assert/strict';
+import fs from 'node:fs/promises';
 import test from 'node:test';
 import {
   createRecipeDraft,
+  createSiteDraft,
+  duplicateSiteDraft,
   duplicateRecipeDraft,
   migrateDraft,
   UnsupportedDraftSchemaError,
@@ -34,6 +37,27 @@ test('new recipe drafts use the shared content and block model versions', () => 
   assert.equal(draft.revision, 0);
   assert.equal(draft.data.recipe.title, draft.title);
   assert.ok(draft.layout.blocks.length > 0);
+});
+
+test('site-management edits use one autosaved draft without binary content', async () => {
+  const [templates, globalBlocks, navigation, settings, theme, categories, tagGroups] = await Promise.all([
+    'templates', 'global-blocks', 'navigation', 'settings', 'theme',
+  ].map((name) => fs.readFile(`src/content/site/${name}.json`, 'utf8').then(JSON.parse)).concat([
+    fs.readFile('src/content/categories.json', 'utf8').then(JSON.parse),
+    fs.readFile('src/data/tag-groups.json', 'utf8').then(JSON.parse),
+  ]));
+  const site = { templates, globalBlocks, navigation, settings, theme, categories, tagGroups, recipes: [], pages: [] };
+  const draft = createSiteDraft('editor-uid', { site, sources: [] });
+  const result = validateDraftForStorage(draft);
+  assert.equal(result.valid, true, result.errors.join('\n'));
+  assert.equal(draft.id, 'site-management');
+  assert.deepEqual(draft.layout.blocks, []);
+  assert.equal(JSON.stringify(draft).includes('data:image'), false);
+
+  const copy = duplicateSiteDraft(draft, 'editor-two', { id: 'draft-site-copy' });
+  assert.equal(copy.id, 'draft-site-copy');
+  assert.equal(copy.revision, 0);
+  assert.equal(copy.data.site.navigation.header.logoHref, 'home');
 });
 
 test('incomplete editor drafts can be stored but are not publish-ready', () => {
