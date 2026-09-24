@@ -5,7 +5,7 @@ service cloud.firestore {
     function isApprovedEditor() {
       return request.auth != null
         && request.auth.uid in [
-          "APPROVED_FIREBASE_UID"
+          "6dCliIG9D0UGDDYKo9kFQmMbL1M2"
         ];
     }
 

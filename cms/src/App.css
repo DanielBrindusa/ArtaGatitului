@@ -58,6 +58,7 @@ button:disabled {
 }
 
 .app-shell {
+  --app-safe-top: 0px;
   --app-panel: #151615;
   --app-panel-raised: #20211f;
   --app-canvas: #0b0c0b;
@@ -66,6 +67,19 @@ button:disabled {
   display: grid;
   grid-template-rows: 64px minmax(0, 1fr);
   min-height: 100vh;
+}
+
+.app-shell-android {
+  --app-safe-top: max(env(safe-area-inset-top, 0px), 24px);
+}
+
+.app-shell-android:not(.app-shell-mobile-view):not(.app-shell-visual-editor) {
+  grid-template-rows: calc(64px + var(--app-safe-top)) minmax(0, 1fr);
+}
+
+.app-shell-android:not(.app-shell-mobile-view):not(.app-shell-visual-editor) .app-topbar {
+  min-height: calc(64px + var(--app-safe-top));
+  padding-top: var(--app-safe-top);
 }
 
 .app-shell-mobile-view {
@@ -2233,22 +2247,56 @@ button:disabled {
   }
 }
 
-@media (max-width: 900px) {
+@media (min-width: 901px) and (max-width: 1700px) {
   .visual-editor-workspace {
-    grid-template-rows: 104px auto minmax(0, 1fr);
+    grid-template-rows: 112px auto minmax(0, 1fr);
   }
 
   .editor-topbar {
-    grid-template-columns: auto minmax(120px, 1fr) auto;
-    grid-template-rows: 52px 52px;
-    gap: 0 9px;
-    padding: 0 10px;
+    grid-template-columns: auto minmax(150px, 240px) auto auto minmax(0, 1fr);
+    grid-template-rows: 56px 56px;
+    gap: 0 10px;
+    padding-inline: 12px;
   }
 
   .editor-brand { grid-column: 1; grid-row: 1; }
   .draft-switcher { grid-column: 2; grid-row: 1; }
-  .editor-topbar-actions { grid-column: 3; grid-row: 1; }
+  .editor-topbar > .draft-save-state { grid-column: 3; grid-row: 1; }
+  .editor-topbar > .active-publication-state { grid-column: 4; grid-row: 1; }
+  .editor-topbar-center { grid-column: 5; grid-row: 1; justify-self: end; }
+  .editor-topbar-actions {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 900px) {
+  .visual-editor-workspace {
+    grid-template-rows: calc(156px + var(--app-safe-top)) auto minmax(0, 1fr);
+  }
+
+  .editor-topbar {
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-rows: 52px 52px 52px;
+    gap: 0 9px;
+    align-content: start;
+    padding: var(--app-safe-top) max(10px, env(safe-area-inset-right, 0px)) 0 max(10px, env(safe-area-inset-left, 0px));
+  }
+
+  .editor-brand { grid-column: 1; grid-row: 1; }
+  .draft-switcher { grid-column: 2; grid-row: 1; }
   .editor-topbar-center { grid-column: 1 / -1; grid-row: 2; }
+  .editor-topbar-actions {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    width: 100%;
+    justify-content: flex-start;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .editor-topbar-actions::-webkit-scrollbar { display: none; }
 
   .visual-editor-body { grid-template-columns: minmax(0, 1fr); }
 

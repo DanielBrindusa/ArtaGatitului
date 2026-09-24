@@ -74,7 +74,7 @@ The runtime does not require Firebase Blaze, Storage, Hosting, Cloud Functions, 
 
 - Firebase and GitHub account/device tests cannot be fully automated without touching external state.
 - Unsigned Windows installers can trigger SmartScreen reputation warnings.
-- Android production signing is intentionally external to the repository.
+- Android production signing is intentionally external to the repository; the release APK was signed from the external `ledger` keystore without adding signing material to Git.
 - CMS bundle size is larger than the public site and may start more slowly on low-end phones.
 - Local draft JSON export is backup-only. Import is intentionally not implemented, avoiding an unreviewed ingestion path.
 - An image that exists only on another device must be selected again on the publishing device.
@@ -88,11 +88,11 @@ Verified locally on 2026-09-24:
 - `npm run test:firestore-rules`: 11/11 emulator scenarios passed.
 - Rust: 20 tests passed, one opt-in real Credential Manager test ignored, and `cargo check` passed.
 - Windows: release executable built and remained running during an 8-second hidden startup smoke test. NSIS installer built. WiX `light.exe` failed to create the optional MSI without a diagnostic, so no MSI is claimed.
-- Android: ARM64 debug and optimized release libraries built through the documented Windows no-symlink fallback. The distributed test APK uses release optimization with the local Android debug certificate; `apksigner` verified schemes v2 and v3. It is not production-signed. No device or AVD was attached, so install, UI, lifecycle, and account flows are not device-verified.
-- Responsive UI: CMS page editing was inspected at 390x844, 768x1024, and 1366x768 with no horizontal overflow or toolbar/status overlap. The generated Homepage and a long recipe were inspected at desktop/mobile sizes with no broken images or horizontal overflow. A full-article reveal-threshold defect found during this pass was fixed and regression-tested.
+- Android: the optimized ARM64 release library built through the documented Windows no-symlink fallback. The distributed APK was signed with the external production `ledger` key; `apksigner` verified schemes v2 and v3, package `ro.danielbrindusa.artagatitului`, version code `1000000`, minimum SDK 24, target SDK 36, and ARM64 native code. No device or AVD was attached, so install, lifecycle, and account flows are not device-verified.
+- Responsive UI: the visual editor now reserves an Android status-bar inset and uses three non-overlapping toolbar rows at phone/tablet widths. A 536x976 live inspection confirmed distinct header/action rows and no document-width overflow. Constrained desktop widths use a two-row toolbar from 901px through 1700px so actions cannot overlap mode selectors. The generated Homepage and long-recipe regression coverage remains unchanged.
 
 Artifacts copied outside Git history to `../Builds`:
 
-- `Arta-Gatitului-1.0.0-Windows-x64-Setup.exe`, SHA-256 `66559E8EA3988B353EFFEE540DD19524E5919DD3E839ED4580E579A5CC063F25`.
-- `Arta-Gatitului-1.0.0-Windows-x64.exe`, SHA-256 `795CEFFE204B56009E79D21815DA1BAA4A560573B09C9C5B78C6726B7E112615`.
-- `Arta-Gatitului-1.0.0-Android-arm64-test.apk`, SHA-256 `78F45A91AD8FB3C5B1FFBCE38C2D44891E527495F232C4B715025D7A2D16D9A3`.
+- `Arta-Gatitului-1.0.0-Windows-x64-Setup.exe`, SHA-256 `DBD85886711D8727C82187C67CCAFCA06EE7BC77E29E317A889A628160B04F7A`.
+- `Arta-Gatitului-1.0.0-Windows-x64.exe`, SHA-256 `84AACDAB74804E0B639D11B200E70405BBB46490300260C192E16CF51F4A8F98`.
+- `Arta-Gatitului-1.0.0-Android-arm64-signed.apk`, SHA-256 `4E8A65A7DD161D0030F8FB09FFF1983B18EA6DF743FE2A007BB2894441757487`.

@@ -74,6 +74,7 @@ dependencies = [
  "chrono",
  "imagesize",
  "keyring-core",
+ "ndk-context",
  "reqwest",
  "serde",
  "serde_json",
