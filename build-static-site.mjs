@@ -289,7 +289,7 @@ function page({
 <html lang="${escapeHtml(siteSettings().language || SITE_CONFIG.defaultLanguage)}">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="arta-build-version" content="${escapeHtml(BUILD_VERSION)}">
   <title>${escapeHtml(documentTitle)}</title>
   <meta name="description" content="${escapeHtml(metaDescription)}">
@@ -316,6 +316,9 @@ function page({
   ${ldScripts}
   <script>
     try {
+      if (/Android/i.test(navigator.userAgent) && /(?:; wv\)|Version\/4\.0)/i.test(navigator.userAgent)) {
+        document.documentElement.classList.add('android-webview');
+      }
       const savedTheme = localStorage.getItem('arta-gatitului-theme');
       if (savedTheme) document.documentElement.dataset.theme = savedTheme;
     } catch {}
@@ -1034,6 +1037,15 @@ function cssFile() {
 ${renderLayoutTokenCss()}
 ${renderSiteThemeCss(activeSiteSources?.theme)}
 
+:root {
+  --safe-area-top: env(safe-area-inset-top, 0px);
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+:root.android-webview {
+  --safe-area-top: max(env(safe-area-inset-top, 0px), 24px);
+}
+
 :root[data-theme="cream"] {
   --color-bg: #18120f;
   --color-bg-soft: #211812;
@@ -1322,7 +1334,7 @@ p {
 
 .skip-link {
   position: fixed;
-  top: var(--space-3);
+  top: calc(var(--space-3) + var(--safe-area-top));
   left: var(--space-3);
   z-index: 100;
   transform: translateY(-160%);
@@ -1341,7 +1353,7 @@ p {
 .install-toast {
   position: fixed;
   right: var(--space-4);
-  bottom: var(--space-4);
+  bottom: calc(var(--space-4) + var(--safe-area-bottom));
   z-index: 70;
   width: min(420px, calc(100vw - 32px));
   padding: var(--space-4);
@@ -1383,7 +1395,7 @@ p {
 .nav-wrap {
   width: min(1360px, 100%);
   margin: 0 auto;
-  padding: var(--space-3) var(--space-4);
+  padding: calc(var(--space-3) + var(--safe-area-top)) var(--space-4) var(--space-3);
   display: flex;
   align-items: center;
   gap: var(--space-4);
@@ -2871,7 +2883,7 @@ ol.clean li {
 
 .floating-randomizer {
   position: fixed;
-  top: 108px;
+  top: calc(108px + var(--safe-area-top));
   right: calc(var(--space-4) + 64px);
   z-index: 72;
   width: min(330px, calc(100vw - 24px));
@@ -3523,7 +3535,7 @@ ol.clean li {
 
 .scroll-progress {
   position: fixed;
-  top: 0;
+  top: var(--safe-area-top);
   left: 0;
   z-index: 90;
   width: 100%;
@@ -3549,7 +3561,7 @@ ol.clean li {
 
 .theme-panel {
   position: fixed;
-  top: 74px;
+  top: calc(74px + var(--safe-area-top));
   right: var(--space-4);
   z-index: 72;
   width: min(320px, calc(100vw - 32px));
@@ -3593,7 +3605,7 @@ ol.clean li {
   z-index: 95;
   display: grid;
   place-items: start center;
-  padding: min(10vh, 72px) var(--space-4) var(--space-4);
+  padding: calc(min(10vh, 72px) + var(--safe-area-top)) var(--space-4) calc(var(--space-4) + var(--safe-area-bottom));
 }
 
 body.command-open {
@@ -3701,7 +3713,7 @@ body.command-open {
 .quick-actions {
   position: fixed;
   right: var(--space-4);
-  bottom: calc(var(--space-4) + 74px);
+  bottom: calc(var(--space-4) + 74px + var(--safe-area-bottom));
   z-index: 68;
   display: grid;
   gap: var(--space-2);
@@ -3753,7 +3765,7 @@ body.command-open {
 .offline-badge {
   position: fixed;
   left: var(--space-4);
-  bottom: var(--space-4);
+  bottom: calc(var(--space-4) + var(--safe-area-bottom));
   z-index: 70;
   padding: var(--space-2) var(--space-3);
   border: 1px solid var(--color-border);
@@ -4117,7 +4129,7 @@ body.command-open {
   .floating-randomizer {
     top: auto;
     right: var(--space-3);
-    bottom: calc(var(--space-3) + 60px);
+    bottom: calc(var(--space-3) + 60px + var(--safe-area-bottom));
     left: var(--space-3);
     width: auto;
   }
@@ -4142,25 +4154,27 @@ body.command-open {
 
   .install-toast {
     right: var(--space-3);
-    bottom: var(--space-3);
-    width: calc(100vw - 24px);
+    bottom: calc(var(--space-3) + var(--safe-area-bottom));
+    left: var(--space-3);
+    width: auto;
   }
 
   .theme-panel {
-    top: 82px;
+    top: calc(82px + var(--safe-area-top));
     right: var(--space-3);
-    width: calc(100vw - 24px);
+    left: var(--space-3);
+    width: auto;
   }
 
   .command-palette {
-    padding: 0;
+    padding: var(--safe-area-top) 0 var(--safe-area-bottom);
     place-items: stretch;
   }
 
   .command-dialog {
     width: 100%;
-    min-height: 100vh;
-    max-height: 100vh;
+    min-height: calc(100dvh - var(--safe-area-top) - var(--safe-area-bottom));
+    max-height: calc(100dvh - var(--safe-area-top) - var(--safe-area-bottom));
     border-radius: 0;
     border-left: 0;
     border-right: 0;
@@ -4168,7 +4182,7 @@ body.command-open {
 
   .quick-actions {
     right: var(--space-3);
-    bottom: var(--space-3);
+    bottom: calc(var(--space-3) + var(--safe-area-bottom));
     grid-template-columns: repeat(4, 44px);
   }
 

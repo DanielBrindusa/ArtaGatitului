@@ -59,6 +59,7 @@ button:disabled {
 
 .app-shell {
   --app-safe-top: 0px;
+  --app-safe-bottom: 0px;
   --app-panel: #151615;
   --app-panel-raised: #20211f;
   --app-canvas: #0b0c0b;
@@ -71,6 +72,7 @@ button:disabled {
 
 .app-shell-android {
   --app-safe-top: max(env(safe-area-inset-top, 0px), 24px);
+  --app-safe-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 .app-shell-android:not(.app-shell-mobile-view):not(.app-shell-visual-editor) {
@@ -2298,6 +2300,13 @@ button:disabled {
   }
   .editor-topbar-actions::-webkit-scrollbar { display: none; }
 
+  .editor-topbar-actions .account-menu[open] > div {
+    position: fixed;
+    z-index: 55;
+    top: calc(156px + var(--app-safe-top));
+    right: max(10px, env(safe-area-inset-right, 0px));
+  }
+
   .visual-editor-body { grid-template-columns: minmax(0, 1fr); }
 
   .desktop-draft-action { display: none; }
@@ -2636,7 +2645,10 @@ button:disabled {
 }
 
 .site-editor-shell {
+  width: 100%;
+  min-width: 0;
   min-height: 100dvh;
+  overflow-x: hidden;
   background: #101217;
   color: #f5eee8;
 }
@@ -2968,6 +2980,13 @@ button:disabled {
   .theme-preview-panel { min-height: 0; }
   .theme-preview-frame { height: 470px; }
   .theme-preview-toolbar { align-items: flex-start; flex-direction: column; }
+
+  .site-editor-actions .account-menu[open] > div {
+    position: fixed;
+    z-index: 35;
+    top: calc(107px + var(--app-safe-top));
+    right: max(9px, env(safe-area-inset-right, 0px));
+  }
 }
 
 @media (max-width: 430px) {
@@ -3035,7 +3054,7 @@ button:disabled {
 .history-result { color: #d5f0dc; }
 
 @media (max-width: 760px) {
-  .history-dialog { width: 100vw; height: 100dvh; border: 0; border-radius: 0; }
+  .history-dialog { width: 100%; height: 100%; border: 0; border-radius: 0; }
   .history-layout { grid-template-columns: 1fr; grid-template-rows: minmax(150px, 34vh) minmax(0, 1fr); }
   .history-list { border-right: 0; border-bottom: 1px solid #34373e; }
   .history-detail { padding: 12px; }
@@ -3053,4 +3072,36 @@ button:disabled {
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+.app-shell-android .draft-dialog-backdrop {
+  padding:
+    calc(var(--app-safe-top) + 12px)
+    max(12px, env(safe-area-inset-right, 0px))
+    calc(var(--app-safe-bottom) + 12px)
+    max(12px, env(safe-area-inset-left, 0px));
+}
+
+.app-shell-android .draft-dialog {
+  max-height: 100%;
+  overflow-y: auto;
+}
+
+.app-shell-android .history-dialog {
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+}
+
+.app-shell-android .site-editor-topbar {
+  padding-top: calc(9px + var(--app-safe-top));
+}
+
+.app-shell-android .site-editor-tabs {
+  top: var(--app-safe-top);
+}
+
+.app-shell-android .site-safety-controls {
+  right: max(12px, env(safe-area-inset-right, 0px));
+  bottom: calc(12px + var(--app-safe-bottom));
 }

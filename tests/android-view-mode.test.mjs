@@ -66,8 +66,16 @@ test('Android startup has safe-area treatment and stable versioning', async () =
   assert.match(index, /viewport-fit=cover/);
   assert.match(app, /app-shell-android/);
   assert.match(css, /--app-safe-top: max\(env\(safe-area-inset-top, 0px\), 24px\)/);
+  assert.match(css, /--app-safe-bottom: env\(safe-area-inset-bottom, 0px\)/);
   assert.match(css, /env\(safe-area-inset-top, 0px\)/);
   assert.match(css, /env\(safe-area-inset-bottom, 0px\)/);
+  assert.match(css, /\.app-shell-android \.draft-dialog-backdrop/);
+  assert.match(css, /\.app-shell-android \.history-dialog/);
+  assert.match(css, /\.app-shell-android \.site-editor-topbar/);
+  assert.match(css, /\.app-shell-android \.site-editor-tabs/);
+  assert.match(css, /\.editor-topbar-actions \.account-menu\[open\] > div/);
+  assert.match(css, /\.site-editor-actions \.account-menu\[open\] > div/);
+  assert.match(css, /\.site-editor-shell \{[\s\S]*?min-width: 0;[\s\S]*?overflow-x: hidden;/);
   assert.match(css, /@media \(min-width: 901px\) and \(max-width: 1700px\)/);
   assert.match(css, /grid-template-rows: 52px 52px 52px/);
   assert.equal(androidConfig.bundle.android.minSdkVersion, 24);
@@ -76,6 +84,20 @@ test('Android startup has safe-area treatment and stable versioning', async () =
   assert.match(gitignore, /src-tauri\/gen\//);
   assert.match(gitignore, /\*\.jks/);
   assert.match(gitignore, /\*\.keystore/);
+});
+
+test('Android public View Mode reserves system bars for pages and overlays', async () => {
+  const builder = await read('build-static-site.mjs');
+
+  assert.match(builder, /viewport-fit=cover/);
+  assert.match(builder, /--safe-area-top: env\(safe-area-inset-top, 0px\)/);
+  assert.match(builder, /--safe-area-bottom: env\(safe-area-inset-bottom, 0px\)/);
+  assert.match(builder, /:root\.android-webview/);
+  assert.match(builder, /--safe-area-top: max\(env\(safe-area-inset-top, 0px\), 24px\)/);
+  assert.match(builder, /padding: calc\(var\(--space-3\) \+ var\(--safe-area-top\)\)/);
+  assert.match(builder, /top: calc\((?:74|82)px \+ var\(--safe-area-top\)\)/);
+  assert.match(builder, /padding: calc\(min\(10vh, 72px\) \+ var\(--safe-area-top\)\)/);
+  assert.match(builder, /min-height: calc\(100dvh - var\(--safe-area-top\) - var\(--safe-area-bottom\)\)/);
 });
 
 test('Android initializes the native keyring context before secure storage', async () => {
@@ -101,4 +123,13 @@ test('adaptive Android launcher assets are tracked for all required densities', 
     await access(new URL(`src-tauri/icons/android/mipmap-${density}/ic_launcher_foreground.png`, repositoryRoot));
     await access(new URL(`src-tauri/icons/android/mipmap-${density}/ic_launcher_round.png`, repositoryRoot));
   }
+});
+
+test('the shared interface and native bundles use the same canonical PNG', async () => {
+  const [interfaceIcon, nativeIcon] = await Promise.all([
+    readFile(new URL('icon.png', repositoryRoot)),
+    readFile(new URL('src-tauri/icons/icon.png', repositoryRoot)),
+  ]);
+
+  assert.deepEqual(interfaceIcon, nativeIcon);
 });
