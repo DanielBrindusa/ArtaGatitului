@@ -1,8 +1,16 @@
 # Arta Gătitului
 
-Static recipe website for **Arta Gătitului**. The current public site is still generated as plain HTML, CSS, and vanilla JavaScript for GitHub Pages.
+Static recipe website and local visual CMS for **Arta Gătitului**. The public site is generated as plain HTML, CSS, and vanilla JavaScript for GitHub Pages.
 
-Milestone 3 also provides a React, TypeScript, Vite, and Tauri 2 application foundation under `cms/` and `src-tauri/`. It is a separate local application shell; it does not replace the static public website.
+Version `1.0.0` provides the React, TypeScript, Vite, and Tauri 2 CMS under `cms/` and `src-tauri/`. Windows and Android use the same authenticated authoring shell while public View Mode continues to load the independently deployed static website.
+
+Release entry points:
+
+- `docs/user-guide.md` for everyday CMS use.
+- `docs/final-setup-checklist.md` for one-time production configuration and manual acceptance tests.
+- `docs/release-process.md` for versioning, validation, Windows/Android builds, signing, and merge procedure.
+- `docs/release-readiness.md` for audit results, performance measurements, test boundaries, and known limitations.
+- `docs/threat-model.md` for trust boundaries, mitigations, and residual risks.
 
 ## Source Of Truth
 
@@ -47,7 +55,7 @@ Keep `assets/js/recipes.js` checked in for compatibility during the transition, 
 
 ## SEO And Indexing
 
-SEO settings live in `src/scripts/build/config.mjs`. Change `SITE_CONFIG.siteUrl` there, or set `ARTA_SITE_URL`, before deploying to your real GitHub Pages URL. The checked-in default is an obvious placeholder: `https://YOUR-GITHUB-USERNAME.github.io/ArtaGatitului/`.
+SEO settings live in `src/scripts/build/config.mjs`. The checked-in canonical URL is `https://danielbrindusa.github.io/ArtaGatitului/`; set `ARTA_SITE_URL` only when intentionally building for another trusted deployment target.
 
 The build adds canonical URLs, robots meta tags, Open Graph tags, Twitter/social preview tags, Recipe JSON-LD, and BreadcrumbList JSON-LD where appropriate.
 
@@ -230,10 +238,10 @@ Set `ARTA_SITE_URL=https://your-domain.example/` before building to override the
 Run:
 
 ```bash
-npm run check
+npm run check:all
 ```
 
-This validates content, rebuilds the static site, and runs the automated tests.
+This validates content, rebuilds the static site, runs the automated tests, type-checks the CMS, and creates its production bundle. Run `npm run doctor` first when preparing a native build.
 
 ## Application Shell
 

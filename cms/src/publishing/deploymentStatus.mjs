@@ -16,7 +16,7 @@ export function publishedPageUrl(slug) {
 export function deploymentStatusForHttp(status) {
   if (status >= 200 && status < 400) return 'building';
   if (status === 404 || status >= 500) return 'building';
-  if (status >= 400) return 'buildFailed';
+  if (status >= 400) return 'unknown';
   return 'unknown';
 }
 
@@ -61,12 +61,12 @@ export async function pollRecipeDeployment({
     if (attempt < attempts - 1 && shouldContinue()) await waitFor(intervalMs);
   }
 
-  if (shouldContinue()) onStatus('buildFailed');
-  return 'buildFailed';
+  if (shouldContinue()) onStatus('unknown');
+  return 'unknown';
 }
 
 export function deploymentStatusLabel(status) {
-  return ({ committed: 'Committed', building: 'Building', deployed: 'Live', buildFailed: 'Build failed', unknown: 'Status unknown' })[status] ?? 'Status unknown';
+  return ({ committed: 'Committed', building: 'Building', deployed: 'Live', buildFailed: 'Deployment failed', unknown: 'Could not verify deployment' })[status] ?? 'Could not verify deployment';
 }
 
 export async function pollPageDeployment(options) {

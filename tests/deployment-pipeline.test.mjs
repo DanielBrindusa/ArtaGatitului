@@ -170,7 +170,7 @@ test('deployment polling reports building, deployed, and failed without workflow
   });
   assert.equal(deployed, 'deployed');
   assert.deepEqual(statuses, ['building', 'deployed']);
-  assert.equal(deploymentStatusForHttp(403), 'buildFailed');
+  assert.equal(deploymentStatusForHttp(403), 'unknown');
   assert.equal(
     await deploymentStatusForResponse({ status: 200, text: async () => '<html>older build</html>' }, commitSha),
     'building',

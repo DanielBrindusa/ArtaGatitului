@@ -1188,4 +1188,32 @@ The page editor adds explicit Section, Container, Columns, Grid, content, and re
 
 The native GitHub service can read and publish `src/content/pages/<slug>.json` plus validated `assets/images/pages/<slug>-<block-id>.*` assets. It independently validates page identity, block nesting, routes, paths, unsafe strings, image contents, source blob freshness, and branch state. Existing page routes are immutable in this milestone. General page deletion scans structured dependencies and creates one reviewed non-force commit; Homepage deletion is impossible.
 
-System utility pages and global header/footer/navigation remain outside editable page layouts. Those global templates and theme controls are reserved for Milestone 13. Detailed editor and publication behavior is documented in `docs/visual-page-builder.md`.
+System utility pages remain outside editable page layouts. Global templates, blocks, navigation, and theme controls are managed separately through the site-management draft described below. Detailed page editor and publication behavior is documented in `docs/visual-page-builder.md`.
+
+## 33. Milestone 13 site-wide management
+
+One revision-protected `site-management` draft owns templates, global blocks, navigation, categories, tags, controlled theme tokens, and general site settings. Published recipes/pages are loaded as dependency inputs but remain separate content documents. Pure domain operations calculate usage, replacement, detachment, rename, merge, route, and global-impact consequences before mutation. The native publisher accepts only the seven fixed site source paths and validates every source independently before one non-force commit.
+
+Template inheritance has one level: a content item resolves template defaults plus explicit overrides, or detaches to a local snapshot. Global references remain typed block references and never become executable includes. Navigation targets are constrained to known internal destinations or safe HTTPS URLs, submenu depth is bounded, and theme values come from approved token sets rather than arbitrary CSS.
+
+## 34. Milestone 14 history and recovery
+
+Each editor uses a bounded in-memory undo/redo history of logical draft states. It does not store credentials, remote snapshots, or image bytes. Local recovery and Firestore revision history continue to protect crashes and cross-device changes independently.
+
+Published history is read from Git commits through narrow native commands. Historical content is normalized and validated before review. Restore creates a fresh review plan against the current `main` state and, after confirmation, a new non-force commit. It never resets or rewrites Git history. Publication audit documents contain allowlisted identity, operation, commit, and deployment status fields only.
+
+## 35. Milestone 15 release boundary
+
+Version `1.0.0` adds content-only JSON draft export, image filename normalization and web optimization, safer deployment status reporting, a non-destructive environment doctor, release version consistency, and explicit security/regression documentation. Export intentionally omits editor UID, device identity, local attachment handles, Git source baselines, and credentials. Import remains out of scope until a schema-validating draft-only flow is designed.
+
+The final authority map is:
+
+```text
+remote public website -> no native capability
+local authenticated CMS -> Firestore through Firebase client rules
+local main webview -> narrow typed Tauri commands
+native GitHub service -> pinned repository + branch + allowlisted paths
+validated main source -> least-privilege GitHub Actions -> GitHub Pages
+```
+
+Security invariants and residual risks are maintained in `docs/threat-model.md`. Release gates, measured bundle/site sizes, test boundaries, and zero-cost service limits are maintained in `docs/release-readiness.md`.

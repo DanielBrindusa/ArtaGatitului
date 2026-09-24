@@ -64,7 +64,7 @@ test('Android startup has safe-area treatment and stable versioning', async () =
   assert.match(css, /env\(safe-area-inset-top, 0px\)/);
   assert.match(css, /env\(safe-area-inset-bottom, 0px\)/);
   assert.equal(androidConfig.bundle.android.minSdkVersion, 24);
-  assert.equal(androidConfig.bundle.android.versionCode, 1000);
+  assert.equal(androidConfig.bundle.android.versionCode, 1000000);
   assert.equal(androidConfig.bundle.android.autoIncrementVersionCode, false);
   assert.match(gitignore, /src-tauri\/gen\//);
   assert.match(gitignore, /\*\.jks/);

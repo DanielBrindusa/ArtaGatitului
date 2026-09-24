@@ -1,6 +1,6 @@
 {
   "name": "arta-gatitului",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "engines": {
@@ -12,6 +12,7 @@
     "build": "node build-static-site.mjs",
     "test": "node --test",
     "test:firestore-rules": "npx --yes firebase-tools@15.30.2 emulators:exec --project demo-artagatitului --only firestore \"node --test tests/firestore-rules.test.mjs\"",
+    "doctor": "node src/scripts/doctor.mjs",
     "import:godaddy": "node src/scripts/import/import-godaddy-audit.mjs",
     "check": "npm run validate:content && npm run build && npm run validate:generated && npm test",
     "app:dev": "vite --config cms/vite.config.ts",

@@ -179,6 +179,19 @@ test('approved editors can access only the intended workspace paths', { skip: !e
   await assertFails(setDoc(doc(database, 'unrelated/document'), { value: true }));
 });
 
+test('default deny blocks future collections, nested paths, and malformed documents', { skip: !emulatorAvailable }, async () => {
+  const database = environment.authenticatedContext(approvedUid).firestore();
+  await assertFails(getDoc(doc(database, 'futureCollection/futureDocument')));
+  await assertFails(setDoc(doc(database, 'workspaces/arta-gatitului/drafts/draft-one/private/nested'), { value: true }));
+  await assertFails(setDoc(doc(database, 'workspaces/arta-gatitului/drafts/malformed'), {
+    id: 'malformed',
+    contentType: 'recipe',
+    arbitraryExecutableConfig: '<script>alert(1)</script>',
+    updatedByUid: approvedUid,
+    revision: 1,
+  }));
+});
+
 test('publication audit accepts only owner-scoped non-secret metadata', { skip: !emulatorAvailable }, async () => {
   const database = environment.authenticatedContext(approvedUid).firestore();
   const commitSha = 'a'.repeat(40);

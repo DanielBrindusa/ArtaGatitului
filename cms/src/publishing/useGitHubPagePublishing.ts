@@ -5,7 +5,7 @@ import type { PublicationAuditInput } from '../drafts/DraftService';
 import { draftToPageSource, isPageDraft, validateDraftForPublish } from '../drafts/draftModel.mjs';
 import type { DraftListItem } from '../drafts/useDraftWorkspace';
 import { publishedCategories, publishedRecipeCatalog } from '../editor/contentCatalog';
-import { validateDraftImage } from '../editor/imageValidation.mjs';
+import { validateWebsiteImage } from '../editor/imageValidation.mjs';
 import { loadDraftImage } from '../editor/localImageStore';
 import { deploymentStatusLabel, pollPageDeployment, type DeploymentStatus } from './deploymentStatus.mjs';
 import {
@@ -194,7 +194,7 @@ export function useGitHubPagePublishing(options: Options) {
           throw new Error(`The image for block ${attachment.id} was selected on ${location}. Select it again before publishing.`);
         }
         const file = new File([blob], attachment.fileName, { type: attachment.mimeType ?? blob.type });
-        const validation = await validateDraftImage(file);
+        const validation = await validateWebsiteImage(file);
         if (!validation.valid || !validation.metadata) throw new Error(validation.errors.join(' '));
         images.push({ blockId: attachment.id, bytesBase64: await blobToBase64(file), mimeType: validation.metadata.mimeType });
       }

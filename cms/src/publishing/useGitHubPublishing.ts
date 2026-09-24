@@ -3,7 +3,7 @@ import type { DraftPublicationMetadata, RecipeDraft } from '../drafts/draftModel
 import type { PublicationAuditInput } from '../drafts/DraftService';
 import { isRecipeDraft, validateDraftForPublish } from '../drafts/draftModel.mjs';
 import type { DraftListItem } from '../drafts/useDraftWorkspace';
-import { validateDraftImage } from '../editor/imageValidation.mjs';
+import { validateWebsiteImage } from '../editor/imageValidation.mjs';
 import { loadDraftImage } from '../editor/localImageStore';
 import {
   analyzeRecipeDelete,
@@ -266,7 +266,7 @@ export function useGitHubPublishing({
           throw new Error(`This image was selected on ${location} and is not available locally. Select it again on this device.`);
         }
         const file = new File([blob], attachment.fileName, { type: attachment.mimeType ?? blob.type });
-        const validation = await validateDraftImage(file);
+        const validation = await validateWebsiteImage(file);
         if (!validation.valid || !validation.metadata) throw new Error(validation.errors.join(' '));
         image = {
           bytesBase64: await blobToBase64(file),

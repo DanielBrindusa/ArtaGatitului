@@ -30,7 +30,7 @@ import { resolveTemplateLayout, type BlockType } from '../../../src/shared/index
 import brandIcon from '../../../icon.png';
 import type { AppRoute } from '../app/useAppRoute';
 import { SharedRecipePreview } from '../components/SharedRecipePreview';
-import { ConflictResolutionDialog, LocalRecoveryDialog, UndoRedoControls } from '../components/EditorSafetyControls';
+import { ConflictResolutionDialog, ExportDraftButton, LocalRecoveryDialog, UndoRedoControls } from '../components/EditorSafetyControls';
 import { PublicationHistory } from '../components/PublicationHistory';
 import { isPageDraft, isRecipeDraft, isSiteDraft, type AnyDraft, type RecipeDraft, type SiteBundle } from '../drafts/draftModel.mjs';
 import { useDraftWorkspace, type DraftSaveState } from '../drafts/useDraftWorkspace';
@@ -38,7 +38,7 @@ import { BlockInspector } from '../editor/BlockInspector';
 import { BlockLibrary } from '../editor/BlockLibrary';
 import { siteSourceBundle } from '../editor/contentCatalog';
 import { createBlockId, insertDraftBlock } from '../editor/editorModel.mjs';
-import { validateDraftImage } from '../editor/imageValidation.mjs';
+import { prepareDraftImage } from '../editor/imageValidation.mjs';
 import { loadDraftImage, removeDraftImage, storeDraftImage } from '../editor/localImageStore';
 import { GitHubPublishingDialogs } from '../publishing/GitHubPublishingDialogs';
 import { useGitHubPublishing, type GitHubPublishingController } from '../publishing/useGitHubPublishing';
@@ -121,8 +121,9 @@ function EditorTopBar({
       </div>
 
       <div className="editor-topbar-actions">
-        <UndoRedoControls workspace={workspace} />
-        <PublicationHistory workspace={workspace} />
+      <UndoRedoControls workspace={workspace} />
+      <PublicationHistory workspace={workspace} />
+      <ExportDraftButton workspace={workspace} />
         <button className="new-recipe-button" type="button" onClick={() => void workspace.newDraft()}><Plus aria-hidden="true" size={16} /><span>New recipe</span></button>
         <button className="secondary-command" type="button" onClick={() => void workspace.newPageDraft('standard')}><FilePlus2 aria-hidden="true" size={16} /><span>New page</span></button>
         <button className="secondary-command" type="button" onClick={() => void workspace.openSiteDraft(siteSourceBundle as unknown as SiteBundle)}><Globe2 aria-hidden="true" size={16} /><span>Site</span></button>
@@ -248,30 +249,32 @@ function RecipeEditor({
   async function handleImage(file: File) {
     if (!draft) return;
     setImageError(null);
-    const validation = await validateDraftImage(file);
-    if (!validation.valid || !validation.metadata) {
-      setImageError(validation.errors.join(' '));
+    const prepared = await prepareDraftImage(file);
+    if (!prepared.valid || !prepared.metadata || !prepared.file) {
+      setImageError(prepared.errors.join(' '));
       return;
     }
+    const workingFile = prepared.file;
+    const metadata = prepared.metadata;
     const existing = draft.data.attachments[0];
     const attachmentId = existing?.id ?? createBlockId('image');
     try {
-      await storeDraftImage(uid, draft.id, attachmentId, file);
+      await storeDraftImage(uid, draft.id, attachmentId, workingFile);
       updateRecipeDraft((current) => ({
         ...current,
         data: {
           ...current.data,
           attachments: [{
             id: attachmentId,
-            fileName: file.name.replace(/[\\/]/g, '-').slice(0, 255) || 'recipe-image',
+            fileName: workingFile.name,
             alt: existing?.alt || current.title,
             localAttachmentId: attachmentId,
             sourceDeviceId: workspace.deviceId,
             repositoryPath: existing?.repositoryPath ?? null,
-            mimeType: validation.metadata?.mimeType as 'image/jpeg' | 'image/png' | 'image/webp',
-            byteSize: validation.metadata?.byteSize ?? null,
-            width: validation.metadata?.width ?? null,
-            height: validation.metadata?.height ?? null,
+            mimeType: metadata.mimeType as 'image/jpeg' | 'image/png' | 'image/webp',
+            byteSize: metadata.byteSize,
+            width: metadata.width,
+            height: metadata.height,
           }],
         },
       }));

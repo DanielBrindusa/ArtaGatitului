@@ -29,7 +29,7 @@ import { BLOCK_TYPES, resolveTemplateLayout, type BlockType, type ContentBlock }
 import brandIcon from '../../../icon.png';
 import type { AppRoute } from '../app/useAppRoute';
 import { SharedPagePreview } from '../components/SharedPagePreview';
-import { UndoRedoControls } from '../components/EditorSafetyControls';
+import { ExportDraftButton, UndoRedoControls } from '../components/EditorSafetyControls';
 import { PublicationHistory } from '../components/PublicationHistory';
 import { isPageDraft, type AnyDraft, type PageDraft, type SiteBundle } from '../drafts/draftModel.mjs';
 import { useDraftWorkspace, type DraftSaveState } from '../drafts/useDraftWorkspace';
@@ -37,7 +37,7 @@ import { PageBlockInspector } from '../editor/PageBlockInspector';
 import { PageBlockLibrary } from '../editor/PageBlockLibrary';
 import { siteSourceBundle } from '../editor/contentCatalog';
 import { createBlockId } from '../editor/editorModel.mjs';
-import { validateDraftImage } from '../editor/imageValidation.mjs';
+import { prepareDraftImage } from '../editor/imageValidation.mjs';
 import { loadDraftImage, removeDraftImage, storeDraftImage } from '../editor/localImageStore';
 import {
   canNestBlock,
@@ -177,15 +177,17 @@ export function PageEditor({
   async function pickImage(file: File) {
     if (!selectedBlock || selectedBlock.type !== BLOCK_TYPES.IMAGE) return;
     setLocalError(null);
-    const validation = await validateDraftImage(file);
-    if (!validation.valid || !validation.metadata) { setLocalError(validation.errors.join(' ')); return; }
+    const prepared = await prepareDraftImage(file);
+    if (!prepared.valid || !prepared.metadata || !prepared.file) { setLocalError(prepared.errors.join(' ')); return; }
+    const workingFile = prepared.file;
+    const metadata = prepared.metadata;
     const attachmentId = selectedBlock.id;
     try {
-      await storeDraftImage(uid, draft.id, attachmentId, file);
+      await storeDraftImage(uid, draft.id, attachmentId, workingFile);
       updatePageDraft((current) => {
         const existing = current.data.attachments.find((item) => item.id === attachmentId);
         const attachments = current.data.attachments.filter((item) => item.id !== attachmentId);
-        attachments.push({ id: attachmentId, fileName: file.name.replace(/[\\/]/g, '-').slice(0, 255) || 'page-image', alt: String(selectedBlock.data.alt ?? current.title), localAttachmentId: attachmentId, sourceDeviceId: workspace.deviceId, repositoryPath: existing?.repositoryPath ?? null, mimeType: validation.metadata?.mimeType as 'image/jpeg' | 'image/png' | 'image/webp', byteSize: validation.metadata?.byteSize ?? null, width: validation.metadata?.width ?? null, height: validation.metadata?.height ?? null });
+        attachments.push({ id: attachmentId, fileName: workingFile.name, alt: String(selectedBlock.data.alt ?? current.title), localAttachmentId: attachmentId, sourceDeviceId: workspace.deviceId, repositoryPath: existing?.repositoryPath ?? null, mimeType: metadata.mimeType as 'image/jpeg' | 'image/png' | 'image/webp', byteSize: metadata.byteSize, width: metadata.width, height: metadata.height });
         const next = { ...current, data: { ...current.data, attachments } };
         return updatePageBlock(next, attachmentId, (block: ContentBlock) => ({ ...block, data: { ...block.data, attachmentId, alt: block.data.alt || current.title } }));
       });
@@ -209,13 +211,11 @@ export function PageEditor({
 
   return <main className="visual-editor-workspace page-editor-workspace">
     <header className="editor-topbar">
-      <UndoRedoControls workspace={workspace} />
-      <PublicationHistory workspace={workspace} />
       <div className="editor-brand"><img src={brandIcon} alt="" /><div><strong>Arta Gătitului</strong><span>Page CMS</span></div></div>
       <div className="draft-switcher"><label htmlFor="active-page-draft">Draft</label><div><select id="active-page-draft" value={draft.id} onChange={(event) => void workspace.selectDraft(event.target.value)}>{workspace.drafts.map((record) => <option key={record.draft.id} value={record.draft.id}>{record.draft.contentType === 'page' ? 'Page' : 'Recipe'} · {record.draft.title || 'Untitled'}</option>)}</select><ChevronDown size={15} /></div></div>
       <span className={`draft-save-state draft-save-${workspace.saveState}`}><SaveIcon state={workspace.saveState} />{workspace.saveLabel}</span>
       <div className="editor-topbar-center"><div className="editor-segments"><button type="button" className={mode === 'edit' ? 'active' : undefined} onClick={() => setMode('edit')}><PencilLine size={15} /><span>Edit</span></button><button type="button" className={mode === 'preview' ? 'active' : undefined} onClick={() => setMode('preview')}><Eye size={15} /><span>Preview</span></button></div><div className="editor-segments viewport-segments">{viewportOptions.map(({ value, label, Icon }) => <button key={value} type="button" title={label} className={viewport === value ? 'active' : undefined} onClick={() => workspace.setPreviewBreakpoint(value)}><Icon size={15} /><span>{label}</span></button>)}</div></div>
-      <div className="editor-topbar-actions"><button className="new-recipe-button" type="button" onClick={() => setTemplateOpen(true)}><FilePlus2 size={16} /><span>New page</span></button><button className="secondary-command published-recipes-command" type="button" onClick={publishing.openPages}><Layers3 size={16} /><span>Pages</span></button><button className="secondary-command" type="button" onClick={() => void workspace.openSiteDraft(siteSourceBundle as unknown as SiteBundle)}><Globe2 size={16} /><span>Site</span></button><button className="icon-command" type="button" title="Duplicate draft" onClick={() => void workspace.duplicateDraft(draft.id)}><Copy size={16} /></button><button className="icon-command" type="button" title="Delete draft" onClick={() => workspace.requestDelete(draft)}><Trash2 size={16} /></button><button className="icon-command" type="button" title="Open public View Mode" onClick={() => onNavigate('view')}><Eye size={17} /></button><details className="account-menu"><summary title="Editor account"><Settings2 size={17} /></summary><div><strong>{email ?? 'Approved editor'}</strong><button type="button" onClick={onSignOut}><LogOut size={15} />Sign out</button></div></details><button className={`github-connection-button${publishing.connection?.repositoryVerified ? ' connected' : ''}`} type="button" onClick={publishing.openConnection}><GitFork size={16} /><span>{publishing.connection?.repositoryVerified ? 'GitHub ready' : 'Connect GitHub'}</span></button><button className="publish-button" type="button" disabled={draft.status === 'published' || draft.status === 'publishedDeleted' || !publishing.connection?.repositoryVerified || publishing.busy} onClick={() => void publishing.prepare()}>{publishing.busy ? <LoaderCircle className="draft-spinner" size={16} /> : <UploadCloud size={16} />}<span>{draft.status === 'published' ? 'Published' : draft.sourceLink ? 'Publish update' : 'Publish'}</span></button></div>
+      <div className="editor-topbar-actions"><UndoRedoControls workspace={workspace} /><PublicationHistory workspace={workspace} /><ExportDraftButton workspace={workspace} /><button className="new-recipe-button" type="button" onClick={() => setTemplateOpen(true)}><FilePlus2 size={16} /><span>New page</span></button><button className="secondary-command published-recipes-command" type="button" onClick={publishing.openPages}><Layers3 size={16} /><span>Pages</span></button><button className="secondary-command" type="button" onClick={() => void workspace.openSiteDraft(siteSourceBundle as unknown as SiteBundle)}><Globe2 size={16} /><span>Site</span></button><button className="icon-command" type="button" title="Duplicate draft" onClick={() => void workspace.duplicateDraft(draft.id)}><Copy size={16} /></button><button className="icon-command" type="button" title="Delete draft" onClick={() => workspace.requestDelete(draft)}><Trash2 size={16} /></button><button className="icon-command" type="button" title="Open public View Mode" onClick={() => onNavigate('view')}><Eye size={17} /></button><details className="account-menu"><summary title="Editor account"><Settings2 size={17} /></summary><div><strong>{email ?? 'Approved editor'}</strong><button type="button" onClick={onSignOut}><LogOut size={15} />Sign out</button></div></details><button className={`github-connection-button${publishing.connection?.repositoryVerified ? ' connected' : ''}`} type="button" onClick={publishing.openConnection}><GitFork size={16} /><span>{publishing.connection?.repositoryVerified ? 'GitHub ready' : 'Connect GitHub'}</span></button><button className="publish-button" type="button" disabled={draft.status === 'published' || draft.status === 'publishedDeleted' || !publishing.connection?.repositoryVerified || publishing.busy} onClick={() => void publishing.prepare()}>{publishing.busy ? <LoaderCircle className="draft-spinner" size={16} /> : <UploadCloud size={16} />}<span>{draft.status === 'published' ? 'Published' : draft.sourceLink ? 'Publish update' : 'Publish'}</span></button></div>
     </header>
 
     {statusMessage && <div className="editor-notice"><AlertTriangle size={16} /><span>{statusMessage}</span><button type="button" title="Dismiss" onClick={() => { setLocalError(null); publishing.setError(null); workspace.dismissError(); }}><X size={15} /></button></div>}

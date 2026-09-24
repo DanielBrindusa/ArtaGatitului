@@ -1,6 +1,8 @@
 # Arta Gatitului Application Development
 
-Milestones 4 through 7 provide public Windows and Android readers, Firebase-authenticated access to the local authoring shell, and synchronized Firestore drafts with local recovery. The static website remains an independent GitHub Pages build and is not frozen into either application package. Visual editing and GitHub publishing remain deferred.
+Version `1.0.0` provides public Windows and Android readers, Firebase-authenticated visual authoring, synchronized Firestore drafts with local recovery, repository-scoped GitHub publishing, site-wide editing, and history/restore. The static website remains an independent GitHub Pages build and is not frozen into either application package.
+
+This document retains milestone-specific implementation notes as project history. For the current release procedure and verified status, use `docs/release-process.md`, `docs/release-readiness.md`, and `docs/final-setup-checklist.md`.
 
 ## Project structure
 
@@ -153,9 +155,9 @@ The Windows window opens at `1360 x 860` logical pixels and can be resized down 
 
 - Display name: `Arta Gătitului`
 - Package identifier: `ro.danielbrindusa.artagatitului`
-- Initial version: `0.1.0`
-- Android version name: the shared Tauri semantic version, currently `0.1.0`
-- Android version code: `1000`, derived as `major * 1,000,000 + minor * 1,000 + patch`; automatic increments are disabled
+- First complete release: `1.0.0`
+- Android version name: the shared Tauri semantic version, currently `1.0.0`
+- Android version code: `1000000`, derived as `major * 1,000,000 + minor * 1,000 + patch`; automatic increments are disabled
 - Main window label: `main`
 
 The reverse-domain identifier uses the repository owner and project name because no production domain identity is established. Treat it as stable: changing it later changes Android package identity and application upgrade behavior.

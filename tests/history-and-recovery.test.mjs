@@ -85,7 +85,7 @@ test('global-impact changes require deliberate confirmation', () => {
 
 test('deployment states distinguish source commit, build, live, and failure', async () => {
   assert.equal(deploymentStatusForHttp(202), 'building');
-  assert.equal(deploymentStatusForHttp(403), 'buildFailed');
+  assert.equal(deploymentStatusForHttp(403), 'unknown');
   const statuses = [];
   const result = await pollRecipeDeployment({
     slug: 'test', commitSha: 'a'.repeat(40), attempts: 1,
@@ -93,8 +93,8 @@ test('deployment states distinguish source commit, build, live, and failure', as
     waitFor: async () => undefined,
     onStatus: (status) => statuses.push(status),
   });
-  assert.equal(result, 'buildFailed');
-  assert.deepEqual(statuses, ['building', 'buildFailed']);
+  assert.equal(result, 'unknown');
+  assert.deepEqual(statuses, ['building', 'unknown']);
 });
 
 test('native history and restore surface is high-level, allowlisted, and non-force', async () => {

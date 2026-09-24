@@ -38,7 +38,7 @@ import {
 } from '../../../src/shared/index.mjs';
 import type { AppRoute } from '../app/useAppRoute';
 import type { AnyDraft, SiteBundle, SiteDraft } from '../drafts/draftModel.mjs';
-import { UndoRedoControls } from '../components/EditorSafetyControls';
+import { ExportDraftButton, UndoRedoControls } from '../components/EditorSafetyControls';
 import { PublicationHistory } from '../components/PublicationHistory';
 import { isRecipeDraft } from '../drafts/draftModel.mjs';
 import { useDraftWorkspace } from '../drafts/useDraftWorkspace';
@@ -323,7 +323,7 @@ export function SiteEditor({ email, onNavigate, onSignOut, workspace, draft }: {
     if (content) void workspace.selectDraft(content.draft.id); else void workspace.newDraft();
   }
   return <main className="site-editor-shell">
-    <div className="site-safety-controls"><UndoRedoControls workspace={workspace} /><PublicationHistory workspace={workspace} /></div>
+    <div className="site-safety-controls"><UndoRedoControls workspace={workspace} /><PublicationHistory workspace={workspace} /><ExportDraftButton workspace={workspace} /></div>
     <header className="site-editor-topbar"><div className="site-editor-title"><button className="icon-command" type="button" title="Back to content" onClick={openContent}><ArrowLeft size={17} /></button><div><strong>Site management</strong><span>{workspace.saveLabel}</span></div></div><div className="site-editor-actions"><button className="secondary-command" type="button" disabled={publishing.busy} onClick={() => { if (!draft.data.sources.length || window.confirm('Reload the GitHub baseline and replace this site draft?')) void publishing.reloadBaseline(); }}><CloudDownload size={16} />Reload</button><button className={`github-connection-button${publishing.connection?.repositoryVerified ? ' connected' : ''}`} type="button" onClick={publishing.openConnection}><GitFork size={16} /><span>{publishing.connection?.repositoryVerified ? 'GitHub ready' : 'Connect GitHub'}</span></button><button className="publish-button" type="button" disabled={publishing.busy || !publishing.changedPaths.length || !validation.valid} onClick={() => void publishing.prepare(area)}>{publishing.busy ? <LoaderCircle className="draft-spinner" size={16} /> : <UploadCloud size={16} />}Review {publishing.changedPaths.length || ''}</button><button className="icon-command" type="button" title="Public view" onClick={() => onNavigate('view')}><ExternalLink size={16} /></button><details className="account-menu"><summary><Settings2 size={17} /></summary><div><strong>{email ?? 'Approved editor'}</strong><button type="button" onClick={onSignOut}><LogOut size={15} />Sign out</button></div></details></div></header>
     <nav className="site-editor-tabs" aria-label="Site management sections">{TABS.map((item) => <button className={tab === item.id ? 'active' : ''} type="button" key={item.id} onClick={() => setTab(item.id)}>{item.id === 'theme' ? <Palette size={15} /> : item.id === 'taxonomies' ? <Tags size={15} /> : item.id === 'templates' ? <Layers3 size={15} /> : <Settings2 size={15} />}{item.label}</button>)}</nav>
     {(localError || publishing.error || !validation.valid) && <div className="site-editor-error"><AlertTriangle size={17} /><span>{localError ?? publishing.error ?? validation.errors.join(' ')}</span><button className="icon-command" type="button" title="Dismiss" onClick={() => { setLocalError(null); publishing.setError(null); }}><X size={15} /></button></div>}

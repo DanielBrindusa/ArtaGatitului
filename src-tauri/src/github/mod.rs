@@ -3946,8 +3946,8 @@ mod tests {
     #[test]
     fn token_refresh_margin_is_enforced() {
         let bundle = TokenBundle {
-            access_token: "ghu_test_access_token_123456".to_string(),
-            refresh_token: "ghr_test_refresh_token_123456".to_string(),
+            access_token: "not-a-real-access-token".to_string(),
+            refresh_token: "not-a-real-refresh-token".to_string(),
             expires_at: 1_000,
             refresh_token_expires_at: 10_000,
         };
@@ -3958,7 +3958,7 @@ mod tests {
     #[test]
     fn device_tokens_require_rotating_refresh_credentials() {
         let response = OAuthTokenResponse {
-            access_token: Some("ghu_test_access_token_123456".to_string()),
+            access_token: Some("not-a-real-access-token".to_string()),
             refresh_token: None,
             expires_in: Some(28_800),
             refresh_token_expires_in: None,
@@ -3993,8 +3993,8 @@ mod tests {
         let store = Arc::new(MemorySecretStore::empty());
         let state = GithubState::for_test(store.clone());
         let bundle = TokenBundle {
-            access_token: "ghu_test_access_token_123456".to_string(),
-            refresh_token: "ghr_test_refresh_token_123456".to_string(),
+            access_token: "not-a-real-access-token".to_string(),
+            refresh_token: "not-a-real-refresh-token".to_string(),
             expires_at: 1_000,
             refresh_token_expires_at: 10_000,
         };

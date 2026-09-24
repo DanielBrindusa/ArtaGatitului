@@ -1,20 +1,26 @@
 import { LockKeyhole, LogOut, MonitorSmartphone, PackageCheck, UserRoundCheck } from 'lucide-react';
+import { APP_IDENTIFIER, APP_VERSION } from '../app/release';
 
 const settingsRows = [
   {
     Icon: PackageCheck,
+    title: 'Release version',
+    value: APP_VERSION,
+  },
+  {
+    Icon: PackageCheck,
     title: 'Application identity',
-    value: 'ro.danielbrindusa.artagatitului',
+    value: APP_IDENTIFIER,
   },
   {
     Icon: LockKeyhole,
     title: 'Native permissions',
-    value: 'No privileged commands enabled',
+    value: 'Scoped local CMS commands only',
   },
   {
     Icon: MonitorSmartphone,
     title: 'Targets',
-    value: 'Windows and Android foundation',
+    value: 'Windows desktop and Android',
   },
 ] as const;
 

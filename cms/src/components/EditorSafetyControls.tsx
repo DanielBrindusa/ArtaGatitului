@@ -1,4 +1,6 @@
-import { Cloud, Copy, GitCompareArrows, HardDriveDownload, Redo2, Undo2 } from 'lucide-react';
+import { Cloud, Copy, Download, GitCompareArrows, HardDriveDownload, LoaderCircle, Redo2, Undo2 } from 'lucide-react';
+import { useState } from 'react';
+import { downloadDraftExport } from '../drafts/draftExport.mjs';
 import type { useDraftWorkspace } from '../drafts/useDraftWorkspace';
 import { recoveryFieldDifferences } from '../drafts/localRecovery.mjs';
 
@@ -16,6 +18,27 @@ export function UndoRedoControls({ workspace }: { workspace: Workspace }) {
     <button className="icon-command" type="button" title="Undo (Ctrl+Z)" aria-label="Undo" disabled={!workspace.canUndo} onClick={workspace.undo}><Undo2 size={17} /></button>
     <button className="icon-command" type="button" title="Redo (Ctrl+Y)" aria-label="Redo" disabled={!workspace.canRedo} onClick={workspace.redo}><Redo2 size={17} /></button>
   </div>;
+}
+
+export function ExportDraftButton({ workspace }: { workspace: Workspace }) {
+  const [exporting, setExporting] = useState(false);
+  const draft = workspace.activeDraft;
+  async function exportDraft() {
+    if (!draft || exporting) return;
+    setExporting(true);
+    try {
+      await downloadDraftExport(draft);
+    } catch (error) {
+      if (!(error instanceof DOMException && error.name === 'AbortError')) {
+        window.alert('The backup file could not be created. Your draft remains saved locally.');
+      }
+    } finally {
+      setExporting(false);
+    }
+  }
+  return <button className="icon-command" type="button" title="Export JSON backup" aria-label="Export JSON backup" disabled={!draft || exporting} onClick={() => void exportDraft()}>
+    {exporting ? <LoaderCircle className="draft-spinner" size={17} /> : <Download size={17} />}
+  </button>;
 }
 
 export function LocalRecoveryDialog({ workspace }: { workspace: Workspace }) {
