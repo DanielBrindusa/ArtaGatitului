@@ -197,7 +197,8 @@ test('workflow validates both branches and deploys only main with least privileg
   const scripts = JSON.parse(packageJson).scripts;
 
   assert.match(workflow, /branches:\s*\n\s*- main\s*\n\s*- app-development/g);
-  assert.match(workflow, /github\.event_name == 'push' && github\.ref == 'refs\/heads\/main'/);
+  const releaseGuard = /\(github\.event_name == 'push' \|\| github\.event_name == 'workflow_dispatch'\) && github\.ref == 'refs\/heads\/main'/g;
+  assert.equal([...workflow.matchAll(releaseGuard)].length, 2);
   assert.match(workflow, /npm ci/);
   assert.match(workflow, /npm run pages:build/);
   assert.match(workflow, /actions\/upload-pages-artifact@v5/);
