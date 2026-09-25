@@ -21,6 +21,7 @@ import {
   type SiteConfigurationSnapshot,
 } from './githubClient';
 import { siteBaselinesFromSnapshot, siteBundleFromSnapshot, siteChangedPaths, sitePublishFiles } from './sitePublicationModel';
+import { waitForDeviceAuthorization } from './deviceFlowPolling';
 
 type FlushResult = 'saved' | 'offline' | 'conflict' | 'error';
 type Stage = 'idle' | 'loading' | 'validating' | 'preparing' | 'publishing' | 'published';
@@ -35,10 +36,6 @@ interface Options {
 function messageFromError(error: unknown) {
   if (typeof error === 'string') return error;
   return error instanceof Error && error.message ? error.message : 'GitHub site publishing could not complete.';
-}
-
-function delay(milliseconds: number) {
-  return new Promise<void>((resolve) => window.setTimeout(resolve, milliseconds));
 }
 
 export function useGitHubSitePublishing({ draft, flush, updateDraft, recordPublicationAudit }: Options) {
@@ -107,33 +104,24 @@ export function useGitHubSitePublishing({ draft, flush, updateDraft, recordPubli
     void reloadBaseline();
   }, [connection?.repositoryVerified, draft.data.sources.length, reloadBaseline]);
 
-  const pollUntilComplete = useCallback(async (generation: number, initialDelaySeconds: number) => {
-    let waitSeconds = initialDelaySeconds;
-    while (pollingGeneration.current === generation) {
-      await delay(Math.max(1, waitSeconds) * 1_000);
-      if (pollingGeneration.current !== generation) return;
-      try {
-        const polled = await pollGitHubDeviceFlow();
-        if (pollingGeneration.current !== generation) return;
-        if (polled.state === 'pending' || polled.state === 'slowDown') {
-          waitSeconds = polled.retryAfterSeconds ?? waitSeconds;
-          setWaitingLabel(polled.state === 'slowDown' ? `Checking again in ${waitSeconds} seconds...` : 'Waiting for authorization...');
-          continue;
-        }
-        if (polled.state === 'connected' && polled.connection) {
-          setConnection(polled.connection);
-          setDeviceFlow(null);
-          return;
-        }
-        setDeviceFlow(null);
+  const pollUntilComplete = useCallback(async (generation: number, flow: DeviceFlowStart) => {
+    try {
+      const polled = await waitForDeviceAuthorization(flow, {
+        poll: pollGitHubDeviceFlow,
+        isCurrent: () => pollingGeneration.current === generation,
+        onWaiting: setWaitingLabel,
+      });
+      if (!polled || pollingGeneration.current !== generation) return;
+      setDeviceFlow(null);
+      if (polled.state === 'connected' && polled.connection) {
+        setConnection(polled.connection);
+      } else {
         setError(polled.message ?? 'GitHub authorization did not complete.');
-        return;
-      } catch (pollError) {
-        if (pollingGeneration.current !== generation) return;
-        setDeviceFlow(null);
-        setError(messageFromError(pollError));
-        return;
       }
+    } catch (pollError) {
+      if (pollingGeneration.current !== generation) return;
+      setDeviceFlow(null);
+      setError(messageFromError(pollError));
     }
   }, []);
 
@@ -144,11 +132,12 @@ export function useGitHubSitePublishing({ draft, flush, updateDraft, recordPubli
     const generation = ++pollingGeneration.current;
     setConnectionOpen(true);
     setError(null);
+    setWaitingLabel('Waiting for authorization...');
     try {
       const flow = await beginGitHubDeviceFlow();
       if (pollingGeneration.current !== generation) return;
       setDeviceFlow(flow);
-      void pollUntilComplete(generation, flow.intervalSeconds);
+      void pollUntilComplete(generation, flow);
     } catch (connectError) {
       if (pollingGeneration.current === generation) setError(messageFromError(connectError));
     } finally {

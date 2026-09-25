@@ -1268,13 +1268,29 @@ pub async fn github_poll_device_flow(
     state: State<'_, GithubState>,
 ) -> Result<DeviceFlowPoll, String> {
     require_local_shell(&caller)?;
+    poll_device_flow(&state, &format!("{GITHUB_OAUTH_ORIGIN}/login/oauth/access_token")).await
+}
+
+async fn poll_device_flow(state: &GithubState, token_url: &str) -> Result<DeviceFlowPoll, String> {
     let now = now_seconds();
     let pending = state
         .pending_device_flow
         .lock()
         .map_err(|_| "The device authorization state is unavailable.".to_string())?
-        .clone()
-        .ok_or_else(|| "Start GitHub device authorization first.".to_string())?;
+        .clone();
+    let Some(pending) = pending else {
+        // An earlier poll may have saved the token before the WebView resumed.
+        let connection = connection_status_for_state(state).await?;
+        if connection.connected {
+            return Ok(DeviceFlowPoll {
+                state: "connected".to_string(),
+                retry_after_seconds: None,
+                message: connection.message.clone(),
+                connection: Some(connection),
+            });
+        }
+        return Err("Start GitHub device authorization first.".to_string());
+    };
     if now >= pending.expires_at {
         clear_device_flow(&state)?;
         return Ok(device_poll(
@@ -1297,7 +1313,7 @@ pub async fn github_poll_device_flow(
     let repository_id = REPOSITORY_ID.to_string();
     let response = state
         .oauth_client
-        .post(format!("{GITHUB_OAUTH_ORIGIN}/login/oauth/access_token"))
+        .post(token_url)
         .header("Accept", "application/json")
         .form(&[
             ("client_id", client_id),
@@ -1306,9 +1322,32 @@ pub async fn github_poll_device_flow(
             ("repository_id", repository_id.as_str()),
         ])
         .send()
-        .await
-        .map_err(|_| "GitHub could not be reached while waiting for authorization.".to_string())?;
-    let result = parse_oauth_response(response).await?;
+        .await;
+    let response = match response {
+        Ok(response) => response,
+        Err(_) => return retry_device_poll(state, &pending.device_code, None),
+    };
+    if response.status() == StatusCode::TOO_MANY_REQUESTS || response.status().is_server_error() {
+        let retry_after = response.headers().get("retry-after")
+            .and_then(|value| value.to_str().ok())
+            .and_then(|value| value.parse::<u64>().ok());
+        return retry_device_poll(state, &pending.device_code, retry_after);
+    }
+    if !response.status().is_success() {
+        return Err("GitHub rejected the authorization request.".to_string());
+    }
+    let result = match response.json::<OAuthTokenResponse>().await {
+        Ok(result) => result,
+        Err(error) if error.is_timeout() || error.is_body() => {
+            return retry_device_poll(state, &pending.device_code, None);
+        }
+        Err(_) => return Err("GitHub returned an invalid authorization response.".to_string()),
+    };
+    if !state.pending_device_flow.lock()
+        .map_err(|_| "The device authorization state is unavailable.".to_string())?
+        .as_ref().is_some_and(|current| current.device_code == pending.device_code) {
+        return Err("GitHub authorization was cancelled or replaced.".to_string());
+    }
     if let Some(error) = result.error.as_deref() {
         match error {
             "authorization_pending" => {
@@ -2181,6 +2220,21 @@ fn update_poll_interval(
         pending.next_poll_at = now_seconds() + pending.interval_seconds as i64;
     }
     Ok(next_interval)
+}
+
+fn retry_device_poll(state: &GithubState, device_code: &str, retry_after: Option<u64>) -> Result<DeviceFlowPoll, String> {
+    let mut flow = state.pending_device_flow.lock()
+        .map_err(|_| "The device authorization state is unavailable.".to_string())?;
+    let pending = flow.as_mut().filter(|pending| pending.device_code == device_code)
+        .ok_or_else(|| "GitHub authorization was cancelled or replaced.".to_string())?;
+    // Back off after transport failures without invalidating a still-valid device code.
+    let interval = pending.interval_seconds.saturating_mul(2).min(60)
+        .max(pending.interval_seconds).max(retry_after.unwrap_or(0)).min(900);
+    pending.interval_seconds = interval;
+    pending.next_poll_at = now_seconds() + interval as i64;
+    Ok(device_poll("retrying", Some(interval), Some(
+        "Connection interrupted. Your code is still valid. Return after approving in GitHub; the app will check again.",
+    )))
 }
 
 fn clear_publish_plan(state: &GithubState) -> Result<(), String> {
@@ -3991,6 +4045,90 @@ mod tests {
         let pending = state.pending_device_flow.lock().unwrap().clone().unwrap();
         assert_eq!(pending.interval_seconds, 10);
         assert!(pending.next_poll_at >= now_seconds() + 9);
+    }
+
+    fn device_flow_test_state() -> GithubState {
+        let state = GithubState::for_test(Arc::new(MemorySecretStore::empty()));
+        *state.pending_device_flow.lock().unwrap() = Some(PendingDeviceFlow {
+            device_code: "test-device-code".to_string(),
+            user_code: "TEST-CODE".to_string(),
+            verification_uri: DEVICE_PAGE_URL.to_string(),
+            expires_at: now_seconds() + 900,
+            interval_seconds: 5,
+            next_poll_at: 0,
+        });
+        state
+    }
+
+    fn poll_mock_response(state: &GithubState, response: Option<String>) -> DeviceFlowPoll {
+        use std::io::{BufRead, BufReader, Read, Write};
+        let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
+        let url = format!("http://{}/token", listener.local_addr().unwrap());
+        let server = std::thread::spawn(move || {
+            let (mut stream, _) = listener.accept().unwrap();
+            stream.set_read_timeout(Some(Duration::from_secs(5))).unwrap();
+            let mut reader = BufReader::new(&mut stream);
+            let mut length = 0;
+            loop {
+                let mut line = String::new();
+                reader.read_line(&mut line).unwrap();
+                if line == "\r\n" || line.is_empty() { break; }
+                if let Some(value) = line.to_ascii_lowercase().strip_prefix("content-length:") {
+                    length = value.trim().parse::<usize>().unwrap();
+                }
+            }
+            reader.read_exact(&mut vec![0; length]).unwrap();
+            if let Some(response) = response { stream.write_all(response.as_bytes()).unwrap(); }
+        });
+        let result = tauri::async_runtime::block_on(poll_device_flow(state, &url)).unwrap();
+        server.join().unwrap();
+        result
+    }
+
+    #[test]
+    fn device_poll_retries_dropped_connections_without_losing_code_or_expiration() {
+        let state = device_flow_test_state();
+        let expires = state.pending_device_flow.lock().unwrap().as_ref().unwrap().expires_at;
+        let result = poll_mock_response(&state, None);
+        assert_eq!(result.state, "retrying");
+        assert_eq!(result.retry_after_seconds, Some(10));
+        let pending = state.pending_device_flow.lock().unwrap().clone().unwrap();
+        assert_eq!(pending.user_code, "TEST-CODE");
+        assert_eq!(pending.expires_at, expires);
+        assert!(pending.next_poll_at >= now_seconds() + 9);
+        assert_eq!(retry_device_poll(&state, "test-device-code", None).unwrap().retry_after_seconds, Some(20));
+    }
+
+    #[test]
+    fn device_poll_retries_server_failures_and_respects_retry_after() {
+        for status in ["503 Service Unavailable", "429 Too Many Requests"] {
+            let state = device_flow_test_state();
+            let response = format!("HTTP/1.1 {status}\r\nContent-Length: 0\r\nRetry-After: 45\r\nConnection: close\r\n\r\n");
+            let result = poll_mock_response(&state, Some(response));
+            assert_eq!(result.state, "retrying");
+            assert_eq!(result.retry_after_seconds, Some(45));
+            assert!(state.pending_device_flow.lock().unwrap().is_some());
+        }
+    }
+
+    #[test]
+    fn device_poll_keeps_pending_codes_but_stops_on_denial_and_expiry() {
+        for (error, expected) in [("authorization_pending", "pending"), ("access_denied", "denied"), ("expired_token", "expired")] {
+            let state = device_flow_test_state();
+            let body = format!("{{\"error\":\"{error}\"}}");
+            let response = format!("HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}", body.len());
+            assert_eq!(poll_mock_response(&state, Some(response)).state, expected);
+            assert_eq!(state.pending_device_flow.lock().unwrap().is_some(), expected == "pending");
+        }
+    }
+
+    #[test]
+    fn an_obsolete_network_failure_cannot_change_a_new_authorization_flow() {
+        let state = device_flow_test_state();
+        assert!(retry_device_poll(&state, "old-device-code", None).is_err());
+        assert_eq!(state.pending_device_flow.lock().unwrap().as_ref().unwrap().interval_seconds, 5);
+        clear_device_flow(&state).unwrap();
+        assert!(retry_device_poll(&state, "test-device-code", None).is_err());
     }
 
     #[test]

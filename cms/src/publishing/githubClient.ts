@@ -20,7 +20,7 @@ export interface DeviceFlowStart {
 }
 
 export interface DeviceFlowPoll {
-  state: 'pending' | 'slowDown' | 'connected' | 'expired' | 'denied';
+  state: 'pending' | 'slowDown' | 'retrying' | 'connected' | 'expired' | 'denied';
   retryAfterSeconds: number | null;
   message: string | null;
   connection: GitHubConnectionStatus | null;
@@ -238,7 +238,8 @@ export async function beginGitHubDeviceFlow() {
 
 export async function pollGitHubDeviceFlow() {
   requireNativeApp();
-  return withRequestTimeout(invoke<DeviceFlowPoll>('github_poll_device_flow'));
+  // A successful token exchange also performs three sequential repository checks.
+  return withRequestTimeout(invoke<DeviceFlowPoll>('github_poll_device_flow'), 120_000);
 }
 
 export async function cancelGitHubDeviceFlow() {

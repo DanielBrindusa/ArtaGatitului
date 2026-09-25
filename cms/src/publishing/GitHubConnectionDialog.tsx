@@ -67,6 +67,7 @@ function ConnectionDialog({ publishing }: { publishing: ConnectionController }) 
       </> : deviceFlow ? <>
         <p>Copy this code, open GitHub, and return here after approving access.</p>
         <div className="github-device-code"><label htmlFor="github-device-code">Authorization code</label><input id="github-device-code" readOnly value={deviceFlow.userCode} onFocus={(event) => event.currentTarget.select()} /></div>
+        {Number.isFinite(Date.parse(deviceFlow.expiresAt)) && <p>Code valid until <time dateTime={deviceFlow.expiresAt}>{new Date(deviceFlow.expiresAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</time>.</p>}
         <div className="draft-dialog-actions">
           <button className="secondary-command" type="button" onClick={() => void copyCode()}>{copied ? <Check size={18} /> : <Copy size={18} />}{copied ? 'Code copied' : 'Copy code'}</button>
           <button className="primary-command" type="button" disabled={opening} onClick={() => void openBrowser()}>{opening ? <LoaderCircle className="draft-spinner" size={18} /> : <ExternalLink size={18} />}{opening ? 'Opening GitHub...' : 'Open GitHub'}</button>
@@ -74,7 +75,7 @@ function ConnectionDialog({ publishing }: { publishing: ConnectionController }) 
         <div className="github-waiting" role="status"><LoaderCircle className="draft-spinner" size={18} /><span>{publishing.waitingLabel}</span></div>
       </> : <>
         <p>{connection?.message ?? 'Checking GitHub connection...'}</p>
-        {connection?.available && connection.configured ? <button className="primary-command github-open-button" type="button" disabled={publishing.connecting} onClick={() => void publishing.startConnection()}>
+        {connection?.available && connection.configured && !connection.connected ? <button className="primary-command github-open-button" type="button" disabled={publishing.connecting} onClick={() => void publishing.startConnection()}>
           {publishing.connecting ? <LoaderCircle className="draft-spinner" size={18} /> : <GitFork size={18} />}{publishing.connecting ? 'Requesting authorization code...' : 'Connect GitHub'}
         </button> : <button className="secondary-command" type="button" onClick={() => void publishing.refreshConnection()}>Check connection again</button>}
         {connection?.connected && <button className="secondary-command" type="button" onClick={() => void disconnect()}>Clear local authorization</button>}
