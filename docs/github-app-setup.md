@@ -46,3 +46,11 @@ For full user-authorization revocation, open GitHub **Settings > Applications > 
 ## Verification notes
 
 Automated tests use fixtures and never write to GitHub. A real publish test must use a deliberately designated non-production branch and must not be merged automatically. Windows and Android device checks require a configured GitHub App Client ID, an installed app, Firebase editor credentials, and an authorized GitHub account. Never test publication by creating a disposable recipe on production `main`.
+
+## Android authorization troubleshooting
+
+If an older APK remains on **Requesting authorization code...**, install the corrected APK over it. Do not uninstall first: that removes local app data. No new Firebase app, GitHub App, private key, or permission change is required for this fix.
+
+The native HTTP client uses `rustls-platform-verifier`. Android requires both JVM initialization before its first TLS handshake and the verifier's Kotlin component in the APK. Missing initialization can panic inside the asynchronous request and leave its frontend promise unresolved. The application now initializes the verifier with Tao's Android context. `src-tauri/build.rs` also installs `android/rustls.gradle.kts` and the release keep rules into the generated Android build. The Gradle script resolves the bundled Kotlin artifact from Cargo metadata and the locked crate version. Keep those pieces together when changing the HTTP dependency; never disable certificate validation to work around a connection error.
+
+Authorization requests have a 35-second frontend deadline in addition to the native HTTP client's 25-second network timeout. A failed request shows an error and allows **Connect GitHub** again. A successful request displays a code, **Copy code**, and **Open GitHub**; sign in and approve in that browser, then return to the app. Final approval is deliberately performed by the user.

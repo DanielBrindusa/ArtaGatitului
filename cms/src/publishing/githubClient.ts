@@ -1,4 +1,5 @@
 import { invoke, isTauri } from '@tauri-apps/api/core';
+import { withRequestTimeout } from './withRequestTimeout';
 
 export interface GitHubConnectionStatus {
   available: boolean;
@@ -232,12 +233,12 @@ export async function getGitHubConnectionStatus() {
 
 export async function beginGitHubDeviceFlow() {
   requireNativeApp();
-  return invoke<DeviceFlowStart>('github_begin_device_flow');
+  return withRequestTimeout(invoke<DeviceFlowStart>('github_begin_device_flow'));
 }
 
 export async function pollGitHubDeviceFlow() {
   requireNativeApp();
-  return invoke<DeviceFlowPoll>('github_poll_device_flow');
+  return withRequestTimeout(invoke<DeviceFlowPoll>('github_poll_device_flow'));
 }
 
 export async function cancelGitHubDeviceFlow() {

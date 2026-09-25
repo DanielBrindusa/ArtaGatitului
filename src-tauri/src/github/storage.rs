@@ -35,6 +35,17 @@ fn initialize_android_context() -> Result<(), String> {
     unsafe {
         ndk_context::initialize_android_context(context.java_vm, context.context_jobject);
     }
+
+    // reqwest's Android TLS verifier needs its own JVM context before the first handshake.
+    let vm = unsafe { jni::JavaVM::from_raw(context.java_vm.cast()) };
+    vm.attach_current_thread(|env| -> Result<(), jni::errors::Error> {
+        let raw_context = context.context_jobject.cast();
+        // Borrow Tao's global reference; the verifier retains its own references.
+        let borrowed = unsafe { env.as_cast_raw::<jni::objects::JObject>(&raw_context)? };
+        let local_context = env.new_local_ref(&*borrowed)?;
+        rustls_platform_verifier::android::init_with_env(env, local_context)
+    })
+    .map_err(|_| "Android HTTPS certificate verification could not be initialized.".to_string())?;
     Ok(())
 }
 
