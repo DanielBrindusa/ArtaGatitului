@@ -111,6 +111,7 @@ test('mobile toolbars scroll without shrinking and the skip link stays hidden un
   assert.match(canvas, /\.editor-block-frame:not\(\.selected\) > \.resize-handle \{ display: none/);
   assert.match(builder, /\.skip-link \{\s*position: fixed;\s*top: -100vh/);
   assert.match(builder, /\.skip-link:focus-visible/);
+  assert.match(builder, /\.command-results \{\s*display: grid;\s*grid-auto-rows: max-content/);
 });
 
 test('Android public View Mode reserves system bars for pages and overlays', async () => {

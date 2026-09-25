@@ -3665,6 +3665,7 @@ body.command-open {
 
 .command-results {
   display: grid;
+  grid-auto-rows: max-content;
   gap: var(--space-2);
   max-height: min(56vh, 470px);
   overflow: auto;
