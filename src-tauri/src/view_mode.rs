@@ -76,6 +76,17 @@ try {
 } catch (_) {}
 
 (() => {
+  const markNativeInsets = () => {
+    if (!document.documentElement) return false;
+    document.documentElement.classList.add('arta-native-insets');
+    return true;
+  };
+  if (!markNativeInsets()) {
+    const observer = new MutationObserver(() => {
+      if (markNativeInsets()) observer.disconnect();
+    });
+    observer.observe(document, { childList: true, subtree: true });
+  }
   const isPublicSite = window.location.protocol === 'https:'
     && window.location.hostname === 'danielbrindusa.github.io'
     && (window.location.pathname === '/ArtaGatitului'
@@ -98,11 +109,11 @@ try {
       style.textContent = `
         #arta-native-editor-link {
           position: fixed;
-          z-index: 2147483000;
+          z-index: 60;
           left: calc(12px + env(safe-area-inset-left, 0px));
           bottom: calc(12px + var(--safe-area-bottom, env(safe-area-inset-bottom, 0px)));
           display: inline-flex;
-          min-height: 42px;
+          min-height: 48px;
           align-items: center;
           justify-content: center;
           padding: 0 15px;
@@ -196,9 +207,13 @@ fn open_external(app: &AppHandle, url: &tauri::Url) {
         return;
     }
 
-    if let Err(error) = app.opener().open_url(url.as_str(), None::<&str>) {
-        eprintln!("Could not open external URL in the system browser: {error}");
-    }
+    let app = app.clone();
+    let url = url.to_string();
+    tauri::async_runtime::spawn_blocking(move || {
+        if let Err(error) = app.opener().open_url(url, None::<&str>) {
+            eprintln!("Could not open external URL in the system browser: {error}");
+        }
+    });
 }
 
 #[cfg(desktop)]

@@ -1,3 +1,4 @@
+import { GitHubConnectionDialog } from './GitHubConnectionDialog';
 import { useMemo, useState } from 'react';
 import {
   BookOpen,
@@ -5,9 +6,7 @@ import {
   CircleAlert,
   ExternalLink,
   GitBranch,
-  GitFork,
   LoaderCircle,
-  LogOut,
   PencilLine,
   RefreshCw,
   Search,
@@ -71,7 +70,6 @@ function PublishedRecipesDialog({ publishing }: { publishing: GitHubPublishingCo
 }
 
 export function GitHubPublishingDialogs({ publishing }: { publishing: GitHubPublishingController }) {
-  const { connection } = publishing;
   const deleting = publishing.review?.operation === 'delete';
   const deploymentCopy = {
     committed: {
@@ -108,44 +106,7 @@ export function GitHubPublishingDialogs({ publishing }: { publishing: GitHubPubl
     <>
       {publishing.recipesOpen && <PublishedRecipesDialog publishing={publishing} />}
 
-      {publishing.connectionOpen && (
-        <div className="draft-dialog-backdrop" role="presentation">
-          <div className="draft-dialog github-dialog" role="dialog" aria-modal="true" aria-labelledby="github-connection-title">
-            <DialogClose onClick={publishing.closeConnection} />
-            <GitFork aria-hidden="true" size={24} />
-            <h2 id="github-connection-title">GitHub publishing</h2>
-            {connection?.repositoryVerified ? (
-              <>
-                <div className="github-verified"><Check aria-hidden="true" size={16} /><span>Connected and verified</span></div>
-                <dl className="publish-summary">
-                  <div><dt>Repository</dt><dd>{connection.repository}</dd></div>
-                  <div><dt>Branch</dt><dd>{connection.branch}</dd></div>
-                </dl>
-                <p>Disconnecting removes credentials from this device. Revoking authorization or uninstalling the GitHub App is done in GitHub settings.</p>
-                <div className="draft-dialog-actions"><button className="secondary-command" type="button" onClick={() => void publishing.disconnect()}><LogOut aria-hidden="true" size={16} />Disconnect GitHub</button></div>
-              </>
-            ) : publishing.deviceFlow ? (
-              <>
-                <p>Enter this code on GitHub. The authorization page opens in your system browser.</p>
-                <div className="github-device-code"><span>Code</span><strong>{publishing.deviceFlow.userCode}</strong></div>
-                <button className="primary-command github-open-button" type="button" onClick={() => void publishing.openDevicePage()}><ExternalLink aria-hidden="true" size={16} />Open GitHub</button>
-                <div className="github-waiting" role="status"><LoaderCircle className="draft-spinner" aria-hidden="true" size={16} /><span>{publishing.waitingLabel}</span></div>
-              </>
-            ) : (
-              <>
-                <p>{connection?.message ?? 'Authorize the repository-scoped GitHub App on this device.'}</p>
-                {connection?.available && connection.configured ? (
-                  <button className="primary-command github-open-button" type="button" onClick={() => void publishing.startConnection()}><GitFork aria-hidden="true" size={16} />Connect GitHub</button>
-                ) : (
-                  <div className="github-setup-note"><CircleAlert aria-hidden="true" size={16} /><span>Complete the GitHub App setup in <strong>docs/github-app-setup.md</strong>, then use the installed app.</span></div>
-                )}
-                {connection?.connected && !connection.repositoryVerified && <button className="secondary-command" type="button" onClick={() => void publishing.disconnect()}>Clear local authorization</button>}
-              </>
-            )}
-            {publishing.error && <div className="publish-error" role="alert"><CircleAlert aria-hidden="true" size={16} /><span>{publishing.error}</span></div>}
-          </div>
-        </div>
-      )}
+      <GitHubConnectionDialog publishing={publishing} />
 
       {publishing.deleteRequest && (
         <div className="draft-dialog-backdrop" role="presentation">

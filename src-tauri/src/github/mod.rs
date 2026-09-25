@@ -1383,7 +1383,7 @@ pub fn github_cancel_device_flow(
 }
 
 #[tauri::command]
-pub fn github_open_device_page(caller: Webview, app: AppHandle) -> Result<(), String> {
+pub async fn github_open_device_page(caller: Webview, app: AppHandle) -> Result<(), String> {
     require_local_shell(&caller)?;
     app.opener()
         .open_url(DEVICE_PAGE_URL, None::<&str>)
@@ -1391,7 +1391,7 @@ pub fn github_open_device_page(caller: Webview, app: AppHandle) -> Result<(), St
 }
 
 #[tauri::command]
-pub fn github_open_actions_page(caller: Webview, app: AppHandle) -> Result<(), String> {
+pub async fn github_open_actions_page(caller: Webview, app: AppHandle) -> Result<(), String> {
     require_local_shell(&caller)?;
     app.opener()
         .open_url(ACTIONS_PAGE_URL, None::<&str>)

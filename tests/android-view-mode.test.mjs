@@ -78,14 +78,39 @@ test('Android startup has safe-area treatment and stable versioning', async () =
   assert.match(css, /\.editor-topbar-actions \.account-menu\[open\] > div/);
   assert.match(css, /\.site-editor-actions \.account-menu\[open\] > div/);
   assert.match(css, /\.site-editor-shell \{[\s\S]*?min-width: 0;[\s\S]*?overflow-x: hidden;/);
-  assert.match(css, /@media \(min-width: 901px\) and \(max-width: 1700px\)/);
-  assert.match(css, /grid-template-rows: 52px 52px 52px/);
+  assert.match(css, /@media \(min-width: 901px\) and \(max-width: 2000px\)/);
+  assert.match(css, /grid-template-rows: 60px 60px 60px/);
   assert.equal(androidConfig.bundle.android.minSdkVersion, 24);
   assert.equal(androidConfig.bundle.android.versionCode, 1000000);
   assert.equal(androidConfig.bundle.android.autoIncrementVersionCode, false);
   assert.match(gitignore, /src-tauri\/gen\//);
   assert.match(gitignore, /\*\.jks/);
   assert.match(gitignore, /\*\.keystore/);
+});
+
+test('Android applies real system, cutout and keyboard insets to every webview page', async () => {
+  const activity = await read('src-tauri/android/MainActivity.kt');
+  const build = await read('src-tauri/build.rs');
+  const native = await read('src-tauri/src/view_mode.rs');
+  assert.match(activity, /Type\.systemBars\(\)/);
+  assert.match(activity, /Type\.displayCutout\(\)/);
+  assert.match(activity, /Type\.ime\(\)/);
+  assert.match(activity, /view\.setPadding\(insets.left, insets.top, insets.right, insets.bottom\)/);
+  assert.match(activity, /setInsets\(handled, Insets.NONE\)/);
+  assert.match(build, /android\/MainActivity.kt/);
+  assert.match(native, /classList.add\('arta-native-insets'\)/);
+});
+
+test('mobile toolbars scroll without shrinking and the skip link stays hidden until keyboard focus', async () => {
+  const css = await read('cms/src/App.css');
+  const builder = await read('build-static-site.mjs');
+  const canvas = await read('cms/src/editor/editorCanvas.css');
+  assert.match(css, /\.editor-topbar-actions > \*,[\s\S]*?flex-shrink: 0/);
+  assert.match(css, /\.site-editor-tabs button \{\s*flex: 0 0 auto/);
+  assert.match(css, /min-width: 48px;\s*min-height: 48px/);
+  assert.match(canvas, /\.editor-block-frame:not\(\.selected\) > \.resize-handle \{ display: none/);
+  assert.match(builder, /\.skip-link \{\s*position: fixed;\s*top: -100vh/);
+  assert.match(builder, /\.skip-link:focus-visible/);
 });
 
 test('Android public View Mode reserves system bars for pages and overlays', async () => {
@@ -101,6 +126,15 @@ test('Android public View Mode reserves system bars for pages and overlays', asy
   assert.match(builder, /top: calc\((?:74|82)px \+ var\(--safe-area-top\)\)/);
   assert.match(builder, /padding: calc\(min\(10vh, 72px\) \+ var\(--safe-area-top\)\)/);
   assert.match(builder, /min-height: calc\(100dvh - var\(--safe-area-top\) - var\(--safe-area-bottom\)\)/);
+});
+
+test('recipe titles wrap and empty image pickers have their own layout row', async () => {
+  const canvas = await read('cms/src/editor/VisualRecipeCanvas.tsx');
+  const css = await read('cms/src/editor/editorCanvas.css');
+  assert.match(canvas, /<textarea\s+className="inline-title"/);
+  assert.match(css, /field-sizing: content/);
+  assert.match(css, /\.editor-hero-image:has\(\.editor-image-placeholder\) \{[^}]*aspect-ratio: auto/);
+  assert.match(css, /\.editor-hero-image:has\(\.editor-image-placeholder\) \.editor-hero-image-actions \{ position: static/);
 });
 
 test('generated public page recognizes an Android WebView at startup', async () => {

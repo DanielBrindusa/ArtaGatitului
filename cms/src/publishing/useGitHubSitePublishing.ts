@@ -44,6 +44,8 @@ function delay(milliseconds: number) {
 export function useGitHubSitePublishing({ draft, flush, updateDraft, recordPublicationAudit }: Options) {
   const [connection, setConnection] = useState<GitHubConnectionStatus | null>(null);
   const [connectionOpen, setConnectionOpen] = useState(false);
+  const [connecting, setConnecting] = useState(false);
+  const connectionStarting = useRef(false);
   const [deviceFlow, setDeviceFlow] = useState<DeviceFlowStart | null>(null);
   const [waitingLabel, setWaitingLabel] = useState('Waiting for authorization...');
   const [review, setReview] = useState<PublishReview | null>(null);
@@ -112,6 +114,7 @@ export function useGitHubSitePublishing({ draft, flush, updateDraft, recordPubli
       if (pollingGeneration.current !== generation) return;
       try {
         const polled = await pollGitHubDeviceFlow();
+        if (pollingGeneration.current !== generation) return;
         if (polled.state === 'pending' || polled.state === 'slowDown') {
           waitSeconds = polled.retryAfterSeconds ?? waitSeconds;
           setWaitingLabel(polled.state === 'slowDown' ? `Checking again in ${waitSeconds} seconds...` : 'Waiting for authorization...');
@@ -126,6 +129,7 @@ export function useGitHubSitePublishing({ draft, flush, updateDraft, recordPubli
         setError(polled.message ?? 'GitHub authorization did not complete.');
         return;
       } catch (pollError) {
+        if (pollingGeneration.current !== generation) return;
         setDeviceFlow(null);
         setError(messageFromError(pollError));
         return;
@@ -134,15 +138,23 @@ export function useGitHubSitePublishing({ draft, flush, updateDraft, recordPubli
   }, []);
 
   const startConnection = useCallback(async () => {
+    if (connectionStarting.current) return;
+    connectionStarting.current = true;
+    setConnecting(true);
+    const generation = ++pollingGeneration.current;
     setConnectionOpen(true);
     setError(null);
     try {
       const flow = await beginGitHubDeviceFlow();
+      if (pollingGeneration.current !== generation) return;
       setDeviceFlow(flow);
-      const generation = pollingGeneration.current + 1;
-      pollingGeneration.current = generation;
       void pollUntilComplete(generation, flow.intervalSeconds);
-    } catch (connectError) { setError(messageFromError(connectError)); }
+    } catch (connectError) {
+      if (pollingGeneration.current === generation) setError(messageFromError(connectError));
+    } finally {
+      connectionStarting.current = false;
+      setConnecting(false);
+    }
   }, [pollUntilComplete]);
 
   const prepare = useCallback(async (area: PrepareSitePublishInput['area']) => {
@@ -203,7 +215,8 @@ export function useGitHubSitePublishing({ draft, flush, updateDraft, recordPubli
   }, []);
 
   return {
-    connection, connectionOpen, deviceFlow, waitingLabel,
+    connection, connectionOpen, connecting, deviceFlow, waitingLabel,
+    refreshConnection,
     review: reviewArea && requiresHighRiskConfirmation(reviewArea, review?.fileChanges.length ?? 0) ? null : review,
     highRiskReview: reviewArea && requiresHighRiskConfirmation(reviewArea, review?.fileChanges.length ?? 0) ? review : null,
     reviewArea, highRiskConfirmation, setHighRiskConfirmation,

@@ -3639,6 +3639,7 @@ body.command-open {
   width: min(720px, 100%);
   max-height: min(720px, calc(100vh - 40px));
   display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
   gap: var(--space-3);
   padding: var(--space-4);
   border: 1px solid var(--color-border);
@@ -3658,6 +3659,9 @@ body.command-open {
 .command-head h2 {
   font-size: 1.34rem;
 }
+
+.command-head .mini-btn { flex: 0 0 48px; width: 48px; min-height: 48px; }
+.command-dialog > input { height: 48px; }
 
 .command-results {
   display: grid;
@@ -3972,6 +3976,11 @@ body.command-open {
 }
 
 @media (max-width: 760px) {
+  button, .btn, .mini-btn, .nav-primary a, .nav-links a, .nav-tool, .mobile-menu-btn {
+    min-width: 48px;
+    min-height: 48px;
+  }
+
   h1 {
     font-size: 2.28rem;
   }
@@ -4009,7 +4018,7 @@ body.command-open {
 
   .nav-primary a {
     justify-content: center;
-    min-height: 44px;
+    min-height: 48px;
     padding: var(--space-2);
     font-size: .9rem;
   }
@@ -4192,6 +4201,8 @@ body.command-open {
     border-left: 0;
     border-right: 0;
   }
+
+  .command-dialog .command-results { min-height: 0; max-height: none; align-content: start; }
 
   .quick-actions {
     right: var(--space-3);

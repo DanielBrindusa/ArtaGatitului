@@ -277,7 +277,7 @@ function HeroEditor({
     ? 'This draft contains an image selected on another device. Select it on this device or publish from the original device.'
     : imageStatus === 'missing-local'
       ? 'The local image copy is unavailable. Select the image again to restore its preview.'
-      : 'Add a local recipe image. Its bytes stay on this device until publishing is added.';
+      : 'No recipe image selected.';
   return (
     <header className="recipe-hero editor-recipe-hero">
       <div>
@@ -304,12 +304,13 @@ function HeroEditor({
         </div>
         <p className="eyebrow">Rețetă</p>
         {recipe.category && <span className="pill">{recipe.category}</span>}
-        <input
+        <textarea
           className="inline-title"
           aria-label="Recipe title"
+          rows={2}
           maxLength={200}
           value={draft.title}
-          onChange={(event) => updateDraft((current) => updateDraftTitle(current, event.target.value))}
+          onChange={(event) => updateDraft((current) => updateDraftTitle(current, event.target.value.replace(/[\r\n]+/g, ' ')))}
         />
         <textarea
           className="inline-description"

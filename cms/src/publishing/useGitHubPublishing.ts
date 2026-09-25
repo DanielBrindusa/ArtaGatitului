@@ -87,6 +87,8 @@ export function useGitHubPublishing({
 }: Options) {
   const [connection, setConnection] = useState<GitHubConnectionStatus | null>(null);
   const [connectionOpen, setConnectionOpen] = useState(false);
+  const [connecting, setConnecting] = useState(false);
+  const connectionStarting = useRef(false);
   const [deviceFlow, setDeviceFlow] = useState<DeviceFlowStart | null>(null);
   const [waitingLabel, setWaitingLabel] = useState('Waiting for authorization...');
   const [review, setReview] = useState<PublishReview | null>(null);
@@ -165,6 +167,7 @@ export function useGitHubPublishing({
       if (pollingGeneration.current !== generation) return;
       try {
         const polled = await pollGitHubDeviceFlow();
+        if (pollingGeneration.current !== generation) return;
         if (polled.state === 'pending' || polled.state === 'slowDown') {
           waitSeconds = polled.retryAfterSeconds ?? waitSeconds;
           setWaitingLabel(polled.state === 'slowDown'
@@ -182,6 +185,7 @@ export function useGitHubPublishing({
         setError(polled.message ?? 'GitHub authorization did not complete.');
         return;
       } catch (pollError) {
+        if (pollingGeneration.current !== generation) return;
         setDeviceFlow(null);
         setError(messageFromError(pollError));
         return;
@@ -190,17 +194,23 @@ export function useGitHubPublishing({
   }, []);
 
   const startConnection = useCallback(async () => {
+    if (connectionStarting.current) return;
+    connectionStarting.current = true;
+    setConnecting(true);
+    const generation = ++pollingGeneration.current;
     setConnectionOpen(true);
     setError(null);
     setWaitingLabel('Waiting for authorization...');
     try {
       const flow = await beginGitHubDeviceFlow();
+      if (pollingGeneration.current !== generation) return;
       setDeviceFlow(flow);
-      const generation = pollingGeneration.current + 1;
-      pollingGeneration.current = generation;
       void pollUntilComplete(generation, flow.intervalSeconds);
     } catch (connectError) {
-      setError(messageFromError(connectError));
+      if (pollingGeneration.current === generation) setError(messageFromError(connectError));
+    } finally {
+      connectionStarting.current = false;
+      setConnecting(false);
     }
   }, [pollUntilComplete]);
 
@@ -440,6 +450,7 @@ export function useGitHubPublishing({
   return {
     connection,
     connectionOpen,
+    connecting,
     deviceFlow,
     waitingLabel,
     review,

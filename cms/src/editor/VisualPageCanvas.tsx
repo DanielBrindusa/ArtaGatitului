@@ -81,6 +81,7 @@ function ResizeHandle({ width, onCommit }: { width: LayoutWidth; onCommit: (widt
     event.stopPropagation();
     event.currentTarget.setPointerCapture(event.pointerId);
     start.current = { x: event.clientX, index: LAYOUT_WIDTHS.indexOf(width) };
+    pending.current = width;
   }} onPointerMove={(event) => {
     if (!start.current) return;
     const step = Math.round((event.clientX - start.current.x) / 90);
@@ -90,7 +91,7 @@ function ResizeHandle({ width, onCommit }: { width: LayoutWidth; onCommit: (widt
     event.currentTarget.releasePointerCapture(event.pointerId);
     start.current = null;
     if (pending.current !== width) onCommit(pending.current);
-  }} />;
+  }} onPointerCancel={() => { start.current = null; }} />;
 }
 
 function EmptyDropTarget({ parent, activeBlock }: { parent: ContentBlock; activeBlock: ContentBlock | null }) {
