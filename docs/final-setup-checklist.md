@@ -23,7 +23,7 @@ Complete this checklist once before the first production merge and repeat the re
 - [ ] User authorization tokens are configured to expire.
 - [ ] Repository permissions are Contents read/write and Metadata read; all others are No access.
 - [ ] Installation is limited to `DanielBrindusa/ArtaGatitului` only.
-- [ ] `ARTA_GITHUB_APP_CLIENT_ID` is set while building Windows and Android. No client secret or PAT is used.
+- [ ] The built Windows and Android apps use the intended public GitHub App Client ID. Set `ARTA_GITHUB_APP_CLIENT_ID` only when overriding the bundled ID; no client secret or PAT is used.
 - [ ] A clean-device connection verifies repository and `main`.
 - [ ] Disconnect clears local credentials; GitHub-side revoke/uninstall behavior was tested with a disposable authorization.
 - [ ] Repository rules disable force pushes and do not unintentionally block the installed App's reviewed one-commit publication.

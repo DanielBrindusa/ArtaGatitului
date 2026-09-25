@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { access, readFile } from 'node:fs/promises';
 import test from 'node:test';
+import { runInNewContext } from 'node:vm';
 
 const repositoryRoot = new URL('../', import.meta.url);
 
@@ -66,11 +67,12 @@ test('Android startup has safe-area treatment and stable versioning', async () =
   assert.match(index, /viewport-fit=cover/);
   assert.match(app, /app-shell-android/);
   assert.match(css, /--app-safe-top: max\(env\(safe-area-inset-top, 0px\), 24px\)/);
-  assert.match(css, /--app-safe-bottom: env\(safe-area-inset-bottom, 0px\)/);
+  assert.match(css, /--app-safe-bottom: max\(env\(safe-area-inset-bottom, 0px\), 24px\)/);
   assert.match(css, /env\(safe-area-inset-top, 0px\)/);
   assert.match(css, /env\(safe-area-inset-bottom, 0px\)/);
   assert.match(css, /\.app-shell-android \.draft-dialog-backdrop/);
   assert.match(css, /\.app-shell-android \.history-dialog/);
+  assert.match(css, /\.history-dialog \{ position: relative;/);
   assert.match(css, /\.app-shell-android \.site-editor-topbar/);
   assert.match(css, /\.app-shell-android \.site-editor-tabs/);
   assert.match(css, /\.editor-topbar-actions \.account-menu\[open\] > div/);
@@ -93,11 +95,25 @@ test('Android public View Mode reserves system bars for pages and overlays', asy
   assert.match(builder, /--safe-area-top: env\(safe-area-inset-top, 0px\)/);
   assert.match(builder, /--safe-area-bottom: env\(safe-area-inset-bottom, 0px\)/);
   assert.match(builder, /:root\.android-webview/);
+  assert.match(builder, /:root\.arta-native-view/);
   assert.match(builder, /--safe-area-top: max\(env\(safe-area-inset-top, 0px\), 24px\)/);
   assert.match(builder, /padding: calc\(var\(--space-3\) \+ var\(--safe-area-top\)\)/);
   assert.match(builder, /top: calc\((?:74|82)px \+ var\(--safe-area-top\)\)/);
   assert.match(builder, /padding: calc\(min\(10vh, 72px\) \+ var\(--safe-area-top\)\)/);
   assert.match(builder, /min-height: calc\(100dvh - var\(--safe-area-top\) - var\(--safe-area-bottom\)\)/);
+});
+
+test('generated public page recognizes an Android WebView at startup', async () => {
+  const html = await read('dist/generated/index.html');
+  const bootstrap = html.match(/<script>([\s\S]*?)<\/script>/)?.[1];
+  assert.ok(bootstrap);
+  const classes = new Set();
+  runInNewContext(bootstrap, {
+    navigator: { userAgent: 'Mozilla/5.0 (Linux; Android 14; Pixel; wv) Version/4.0' },
+    document: { documentElement: { classList: { add: (name) => classes.add(name) }, dataset: {} } },
+    localStorage: { getItem: () => null },
+  });
+  assert.ok(classes.has('android-webview'));
 });
 
 test('Android initializes the native keyring context before secure storage', async () => {

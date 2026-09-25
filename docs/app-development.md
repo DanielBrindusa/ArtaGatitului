@@ -380,7 +380,7 @@ A temporary local-only visual harness was used for desktop and `390 x 844` inspe
 
 ## Milestone 9 GitHub publishing
 
-Set `ARTA_GITHUB_APP_CLIENT_ID` before a native build to compile the public GitHub App Client ID into the Rust service. Do not put a client secret, access token, refresh token, password, or PAT in an environment file. Follow `docs/github-app-setup.md` to create the app with Device Flow, expiring user tokens, `Contents: read and write`, `Metadata: read-only`, and installation access only to `DanielBrindusa/ArtaGatitului`.
+The Rust service includes this project's public GitHub App Client ID by default. Set `ARTA_GITHUB_APP_CLIENT_ID` before a native build only to override it for a different GitHub App. Do not put a client secret, access token, refresh token, password, or PAT in an environment file. Follow `docs/github-app-setup.md` for Device Flow, expiring user tokens, `Contents: read and write`, `Metadata: read-only`, and installation access only to `DanielBrindusa/ArtaGatitului`.
 
 The editor's Connect GitHub action opens GitHub's device page in the system browser. Native code enforces polling delays, refreshes and rotates expiring credentials, verifies the exact selected-repository installation, and stores secrets in Windows Credential Manager or Android Keystore-backed encrypted preferences. Disconnect removes both local tokens. Full authorization revocation and app uninstallation remain GitHub settings operations.
 

@@ -28,7 +28,6 @@ Review `git diff`, run the credential searches in this document, and complete th
 Build the configured Windows bundles:
 
 ```powershell
-$env:ARTA_GITHUB_APP_CLIENT_ID = '<public GitHub App client ID>'
 npm run tauri:build
 ```
 
@@ -45,7 +44,6 @@ $env:ANDROID_HOME = "$env:LOCALAPPDATA\Android\Sdk"
 $env:ANDROID_SDK_ROOT = $env:ANDROID_HOME
 $env:JAVA_HOME = 'C:\Program Files\Android\Android Studio\jbr'
 $env:NDK_HOME = "$env:ANDROID_HOME\ndk\<installed-version>"
-$env:ARTA_GITHUB_APP_CLIENT_ID = '<public GitHub App client ID>'
 npm run tauri:android:build -- --debug --target aarch64
 ```
 

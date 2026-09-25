@@ -72,7 +72,7 @@ button:disabled {
 
 .app-shell-android {
   --app-safe-top: max(env(safe-area-inset-top, 0px), 24px);
-  --app-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --app-safe-bottom: max(env(safe-area-inset-bottom, 0px), 24px);
 }
 
 .app-shell-android:not(.app-shell-mobile-view):not(.app-shell-visual-editor) {
@@ -2350,7 +2350,7 @@ button:disabled {
 
   .mobile-editor-actions {
     position: fixed;
-    z-index: 48;
+    z-index: 30;
     right: calc(14px + env(safe-area-inset-right, 0px));
     bottom: calc(14px + env(safe-area-inset-bottom, 0px));
     display: flex;
@@ -2612,10 +2612,18 @@ button:disabled {
   }
 
   .editor-brand > div,
-  .draft-switcher > label,
+  .draft-switcher > label {
+    display: none;
+  }
+
   .new-recipe-button span,
   .editor-topbar-actions .publish-button span {
-    display: none;
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
 
   .draft-switcher { grid-template-columns: minmax(0, 1fr); }
@@ -2992,8 +3000,15 @@ button:disabled {
 @media (max-width: 430px) {
   .site-editor-title { width: 100%; }
   .site-editor-title > div { min-width: 0; flex: 1; }
-  .site-editor-actions .secondary-command span,
-  .site-editor-actions .github-connection-button span { display: none; }
+  .site-editor-actions .secondary-command span { display: none; }
+  .site-editor-actions .github-connection-button span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
   .site-section-heading { flex-direction: column; }
   .site-section-heading > button,
   .site-section-heading > .site-inline-add { width: 100%; }
@@ -3005,14 +3020,14 @@ button:disabled {
 
 .editor-history-controls { display: inline-flex; align-items: center; gap: 3px; }
 .editor-history-controls .icon-command:disabled { opacity: 0.35; }
-.site-safety-controls { position: fixed; right: 12px; bottom: 12px; z-index: 40; padding: 5px; border: 1px solid #3b3e45; border-radius: 6px; background: #1a1c21; display: flex; gap: 3px; box-shadow: 0 8px 22px #0008; }
+.site-safety-controls { position: fixed; right: 12px; bottom: 12px; z-index: 20; padding: 5px; border: 1px solid #3b3e45; border-radius: 6px; background: #1a1c21; display: flex; gap: 3px; box-shadow: 0 8px 22px #0008; }
 .recovery-dialog { width: min(680px, calc(100vw - 24px)); }
 .recovery-comparison { max-height: 280px; margin: 12px 0; overflow: auto; border: 1px solid #3a3d44; }
 .recovery-comparison > div { padding: 9px 11px; display: grid; grid-template-columns: minmax(100px, 0.7fr) repeat(2, minmax(0, 1fr)); gap: 9px; border-bottom: 1px solid #30333a; }
 .recovery-comparison > div:last-child { border-bottom: 0; }
 .recovery-comparison span { min-width: 0; overflow-wrap: anywhere; color: #ddd3ca; }
 .recovery-comparison span b { margin-right: 6px; color: #ff9a72; font-size: 10px; text-transform: uppercase; }
-.history-dialog { width: min(1160px, calc(100vw - 24px)); height: min(780px, calc(100vh - 24px)); border: 1px solid #45484f; border-radius: 8px; background: #15171b; color: #f6eee7; box-shadow: 0 24px 80px #000c; display: grid; grid-template-rows: auto auto minmax(0, 1fr); overflow: hidden; }
+.history-dialog { position: relative; width: min(1160px, calc(100vw - 24px)); height: min(780px, calc(100vh - 24px)); border: 1px solid #45484f; border-radius: 8px; background: #15171b; color: #f6eee7; box-shadow: 0 24px 80px #000c; display: grid; grid-template-rows: auto auto minmax(0, 1fr); overflow: hidden; }
 .history-dialog > header { min-height: 64px; padding: 12px 16px; border-bottom: 1px solid #34373e; display: flex; align-items: center; justify-content: space-between; }
 .history-dialog > header > div { display: flex; align-items: center; gap: 10px; }
 .history-dialog h2,

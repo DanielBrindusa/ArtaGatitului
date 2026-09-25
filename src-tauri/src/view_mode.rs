@@ -84,7 +84,9 @@ try {
 
   const applyNativeInsets = () => {
     const viewport = document.querySelector('meta[name="viewport"]');
-    if (!document.head || !document.body || !viewport) return false;
+    if (!document.documentElement || !document.head || !document.body || !viewport) return false;
+
+    document.documentElement.classList.add('arta-native-view');
 
     if (!viewport.content.includes('viewport-fit=cover')) {
       viewport.content = `${viewport.content}, viewport-fit=cover`;
@@ -94,34 +96,11 @@ try {
       const style = document.createElement('style');
       style.id = 'arta-native-safe-areas';
       style.textContent = `
-        .site-header { padding-top: env(safe-area-inset-top, 0px); }
-        .nav-wrap {
-          padding-left: calc(var(--space-4) + env(safe-area-inset-left, 0px));
-          padding-right: calc(var(--space-4) + env(safe-area-inset-right, 0px));
-        }
-        .footer { padding-bottom: env(safe-area-inset-bottom, 0px); }
-        .install-toast, .offline-badge {
-          right: calc(var(--space-4) + env(safe-area-inset-right, 0px));
-          bottom: calc(var(--space-4) + env(safe-area-inset-bottom, 0px));
-        }
-        .quick-actions {
-          right: calc(var(--space-4) + env(safe-area-inset-right, 0px));
-          bottom: calc(var(--space-4) + 74px + env(safe-area-inset-bottom, 0px));
-        }
-        .theme-panel {
-          right: calc(var(--space-4) + env(safe-area-inset-right, 0px));
-          top: calc(74px + env(safe-area-inset-top, 0px));
-        }
-        .floating-randomizer {
-          right: calc(var(--space-4) + 64px + env(safe-area-inset-right, 0px));
-          top: calc(108px + env(safe-area-inset-top, 0px));
-        }
-        .scroll-progress { top: env(safe-area-inset-top, 0px); }
         #arta-native-editor-link {
           position: fixed;
           z-index: 2147483000;
           left: calc(12px + env(safe-area-inset-left, 0px));
-          bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+          bottom: calc(12px + var(--safe-area-bottom, env(safe-area-inset-bottom, 0px)));
           display: inline-flex;
           min-height: 42px;
           align-items: center;

@@ -17,7 +17,7 @@ The repository-scoped GitHub App publishes new recipes and reviewed updates/dele
 11. Create the GitHub App and install it only on the intended `DanielBrindusa` account.
 12. During installation choose **Only select repositories**, then select only `DanielBrindusa/ArtaGatitului`.
 13. Return to the GitHub App settings page and copy its **Client ID**.
-14. Set the non-secret `ARTA_GITHUB_APP_CLIENT_ID` environment variable before compiling the native app. For example, in PowerShell: `$env:ARTA_GITHUB_APP_CLIENT_ID = 'Iv1.example'`. Rebuild Windows and Android packages after changing it because the value is compiled into the native service.
+14. The native app includes this project's public Client ID, `Iv23liRLWgslBaQqo9XQ`. If the GitHub App changes, set `ARTA_GITHUB_APP_CLIENT_ID` before building (for example, `$env:ARTA_GITHUB_APP_CLIENT_ID = 'Iv1.example'`) and rebuild Windows and Android packages.
 15. Do not generate, embed, or configure a client secret. Device Flow and token refresh do not need one. Do not configure a classic PAT.
 16. Launch the newly built installed application.
 17. Sign in to Edit Mode with the separately configured Firebase editor account.

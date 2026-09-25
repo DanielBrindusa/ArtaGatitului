@@ -723,7 +723,7 @@ impl GithubState {
             .redirect(Policy::none())
             .build()
             .map_err(|_| "The GitHub authorization client could not be initialized.".to_string())?;
-        let client_id = option_env!("ARTA_GITHUB_APP_CLIENT_ID")
+        let client_id = Some(option_env!("ARTA_GITHUB_APP_CLIENT_ID").unwrap_or("Iv23liRLWgslBaQqo9XQ"))
             .map(str::trim)
             .filter(|value| valid_client_id(value))
             .map(ToOwned::to_owned);
@@ -3886,6 +3886,11 @@ fn iso_from_seconds(seconds: i64) -> String {
 mod tests {
     use super::*;
     use crate::github::storage::MemorySecretStore;
+
+    #[test]
+    fn github_client_id_is_available_without_build_environment() {
+        assert!(GithubState::new(None).unwrap().client_id.is_some());
+    }
 
     fn recipe_input(image: Option<PublishImageInput>) -> PreparePublishInput {
         PreparePublishInput {

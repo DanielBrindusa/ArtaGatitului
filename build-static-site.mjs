@@ -316,7 +316,8 @@ function page({
   ${ldScripts}
   <script>
     try {
-      if (/Android/i.test(navigator.userAgent) && /(?:; wv\)|Version\/4\.0)/i.test(navigator.userAgent)) {
+      if (navigator.userAgent.includes('Android')
+          && (navigator.userAgent.includes('; wv)') || navigator.userAgent.includes('Version/4.0'))) {
         document.documentElement.classList.add('android-webview');
       }
       const savedTheme = localStorage.getItem('arta-gatitului-theme');
@@ -1042,8 +1043,10 @@ ${renderSiteThemeCss(activeSiteSources?.theme)}
   --safe-area-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-:root.android-webview {
+:root.android-webview,
+:root.arta-native-view {
   --safe-area-top: max(env(safe-area-inset-top, 0px), 24px);
+  --safe-area-bottom: max(env(safe-area-inset-bottom, 0px), 24px);
 }
 
 :root[data-theme="cream"] {
@@ -1362,6 +1365,10 @@ p {
   background: rgba(24, 29, 41, .98);
   box-shadow: var(--shadow-card);
   animation: slideFade .24s ease both;
+}
+
+:root.arta-native-view .install-toast {
+  display: none !important;
 }
 
 .install-toast p {
@@ -3805,7 +3812,7 @@ body.command-open {
 
 .footer {
   margin-top: var(--space-6);
-  padding: var(--space-6) var(--space-4);
+  padding: var(--space-6) var(--space-4) calc(var(--space-6) + var(--safe-area-bottom));
   border-top: 1px solid var(--color-border);
   color: var(--color-text-muted);
   text-align: center;
@@ -3907,7 +3914,7 @@ body.command-open {
 
 @media (max-width: 1280px) {
   .nav-wrap {
-    padding: var(--space-3);
+    padding: calc(var(--space-3) + var(--safe-area-top)) var(--space-3) var(--space-3);
   }
 
   .mobile-menu-btn {
@@ -4194,7 +4201,7 @@ body.command-open {
 
 @media (max-width: 430px) {
   .nav-wrap {
-    padding: var(--space-3);
+    padding: calc(var(--space-3) + var(--safe-area-top)) var(--space-3) var(--space-3);
   }
 
   .logo {
@@ -7041,7 +7048,9 @@ function jsFile() {
     let nativePromptAvailable = false;
 
     function isInstalled() {
-      return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+      return document.documentElement.classList.contains("arta-native-view")
+        || window.matchMedia("(display-mode: standalone)").matches
+        || window.navigator.standalone === true;
     }
 
     function hide() {
@@ -7436,6 +7445,9 @@ function jsFile() {
       '<span class="quick-action-status" data-quick-status hidden></span>'
     ].join("");
     document.body.append(wrap);
+    const updateVisibility = () => { wrap.hidden = window.scrollY < 240; };
+    window.addEventListener("scroll", updateVisibility, { passive: true });
+    updateVisibility();
     const status = wrap.querySelector("[data-quick-status]");
     function flash(message) {
       if (!status) return;
