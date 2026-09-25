@@ -4680,13 +4680,9 @@ function jsFile() {
       return new Set(tokenizeText(recipe.searchText));
     }
     return new Set(tokenizeText([
-      recipe && recipe.name,
-      recipe && recipe.category,
-      recipe && recipe.description,
+      recipe && (recipe.title || recipe.name),
       ((recipe && recipe.ingredients) || []).join(" "),
       recipe && recipe.ingredientsText,
-      ((recipe && recipe.preparation) || []).join(" "),
-      ((recipe && recipe.beforeStart) || []).join(" "),
       ((recipe && recipe.keywords) || []).join(" "),
       flatTags(recipe).join(" ")
     ].join(" ")));
@@ -6245,7 +6241,6 @@ function jsFile() {
     function keywordList(state) {
       return Array.from(new Set([
         ...state.name.split(/\\s+/),
-        ...state.category.split(/\\s+/),
         ...state.keywordsText.split(/[,\\s]+/),
         ...state.ingredients.flatMap((line) => line.split(/\\s+/)),
         ...Object.values(state.tags).flatMap((items) => items.flatMap((tag) => tag.split(/\\s+/)))

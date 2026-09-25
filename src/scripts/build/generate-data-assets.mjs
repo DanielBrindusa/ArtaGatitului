@@ -107,10 +107,7 @@ function recipeKeywords(recipe) {
   }
 
   return unique([
-    recipe.name,
-    recipe.title,
-    recipe.category,
-    recipe.description,
+    recipe.title || recipe.name,
     ...asArray(recipe.ingredients),
     ...flatTags(recipe),
   ].flatMap(tokenizeText));
@@ -155,13 +152,8 @@ export function buildDataIndexes(content) {
     const tags = normalizedTags(recipe.tags);
     const ingredients = asArray(recipe.ingredients);
     const searchText = [
-      recipe.name,
-      recipe.title,
-      recipe.category,
-      recipe.description,
+      recipe.title || recipe.name,
       ingredients.join(' '),
-      asArray(recipe.preparation || recipe.steps).join(' '),
-      asArray(recipe.beforeStart).join(' '),
       recipeKeywords(recipe).join(' '),
       Object.values(tags).flat().join(' '),
     ].join(' ');

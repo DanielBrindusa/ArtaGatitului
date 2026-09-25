@@ -13,8 +13,7 @@ export function keywordList(recipe) {
   }
 
   return Array.from(new Set([
-    ...String(recipe.name || '').split(/\s+/),
-    ...String(recipe.category || '').split(/\s+/),
+    ...String(recipe.title || recipe.name || '').split(/\s+/),
     ...asStringArray(recipe.ingredients).flatMap((line) => line.split(/\s+/)),
     ...Object.values(recipe.tags || {}).flatMap((items) => Array.isArray(items) ? items.flatMap((item) => String(item).split(/\s+/)) : []),
   ].map(slugify).filter(Boolean)));

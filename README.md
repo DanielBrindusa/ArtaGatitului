@@ -47,7 +47,7 @@ JavaScript is used as progressive enhancement. `assets/js/site.js` still powers 
 The build writes lightweight browser data under `assets/data/`:
 
 - `recipe-index.json` contains card/category/randomizer-friendly recipe summaries.
-- `search-index.json` contains normalized full-token search records.
+- `search-index.json` contains normalized full-token search records from recipe titles, ingredients, keywords, and tags only. Descriptions, instructions, preparation notes, and categories are not searched directly; the category filter remains available.
 - `ingredient-index.json` contains required/optional ingredient records for matching.
 - `categories.json`, `tag-groups.json`, and `ingredient-aliases.json` mirror the source content needed by the UI.
 
