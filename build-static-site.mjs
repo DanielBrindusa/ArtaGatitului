@@ -1049,6 +1049,13 @@ ${renderSiteThemeCss(activeSiteSources?.theme)}
   --safe-area-bottom: max(env(safe-area-inset-bottom, 0px), 24px);
 }
 
+:root.arta-native-insets {
+  --safe-area-top: 0px;
+  --safe-area-bottom: 0px;
+}
+
+:root.arta-native-view body { padding-bottom: 72px; }
+
 :root[data-theme="cream"] {
   --color-bg: #18120f;
   --color-bg-soft: #211812;
@@ -1337,10 +1344,9 @@ p {
 
 .skip-link {
   position: fixed;
-  top: calc(var(--space-3) + var(--safe-area-top));
+  top: -100vh;
   left: var(--space-3);
   z-index: 100;
-  transform: translateY(-160%);
   padding: var(--space-3) var(--space-4);
   border-radius: var(--radius-sm);
   background: var(--color-primary);
@@ -1349,8 +1355,8 @@ p {
   font-weight: 800;
 }
 
-.skip-link:focus {
-  transform: translateY(0);
+.skip-link:focus-visible {
+  top: calc(var(--space-3) + var(--safe-area-top));
 }
 
 .install-toast {
@@ -4190,13 +4196,21 @@ body.command-open {
   .quick-actions {
     right: var(--space-3);
     bottom: calc(var(--space-3) + var(--safe-area-bottom));
-    grid-template-columns: repeat(4, 44px);
+    display: flex;
+    max-width: calc(100vw - 24px);
+    overflow-x: auto;
+    padding: 2px;
+    scrollbar-width: thin;
   }
 
   .quick-action {
-    width: 44px;
-    height: 44px;
+    flex: 0 0 48px;
+    width: 48px;
+    height: 48px;
   }
+
+  :root.arta-native-view .quick-actions { max-width: calc(100vw - 116px); }
+  body.command-open .quick-actions { visibility: hidden; }
 }
 
 @media (max-width: 430px) {
